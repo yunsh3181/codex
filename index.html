@@ -2630,7 +2630,8 @@ function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompani
 function skipDrink(){routeAfterDrink()}
 function skipDrinkExtra(){state.setDrinkExtraMode=false;routeAfterDrink()}
 function finishAccompaniment(){if(state.finalAddMode==='drink'){state.finalAddMode=null;state.step='review';render();return}continueAfterDrink()}
-function selectionFooter(action,description,extraClass='',disabled=false){return `<div class="selectionFooter"><button class="card skipCard selectionFooterCard ${extraClass}" ${disabled?'disabled':''} onclick="${action}"><h2>${t('nav.next')}</h2><p>${description}</p></button></div>`}
+function activateSelectionFooter(event){if(!['Enter',' '].includes(event.key)||event.currentTarget.getAttribute('aria-disabled')==='true')return;event.preventDefault();event.currentTarget.click()}
+function selectionFooter(action,description,extraClass='',disabled=false){const inactive=disabled?' isDisabled':'';const interaction=disabled?'':` onclick="${action}" onkeydown="activateSelectionFooter(event)"`;return `<div class="selectionFooterSpacer" aria-hidden="true"></div><div class="selectionFooter"><div class="card skipCard selectionFooterCard ${extraClass}${inactive}" role="button" tabindex="${disabled?'-1':'0'}" aria-disabled="${disabled?'true':'false'}"${interaction}><h2>${t('nav.next')}</h2><p>${description}</p></div></div>`}
 function qcard(x,key){let q=state[key][x.id]||0,name=optionDisplayName(x,key==='extraDrinks'?[...DRINKS,...SAUCES]:SIDES);return `<div class="card ${q?'active':''}" onclick="qty('${key}','${x.id}',1,9,99)">${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}${itemPic(x,'🍽️')}<h3>${name}</h3><div class="price">${money(x.price)}</div><small class="v5TapAddHint">${t('ui.common.tapAdd')}</small><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button><b>${q}</b></div></div>`}
 function textQtyCard(x,key,buttonOnly=false){let q=state[key][x.id]||0,name=optionDisplayName(x,[...DRINKS,...SAUCES]);return `<div class="card textQtyCard ${buttonOnly?'buttonOnlyQty':''} ${q?'active':''}" ${buttonOnly?'':`onclick="qty('${key}','${x.id}',1,9,99)"`}>${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}<h3>${name}</h3><div class="price">${money(x.price)}</div>${buttonOnly?'':`<small class="v5TapAddHint">${t('ui.common.tapAdd')}</small>`}<div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button>${buttonOnly?`<span class="drinkQuantityReadout"><small>${t('ui.common.quantityLabel')}</small><strong>${q}</strong></span>`:`<b>${q}</b>`}${buttonOnly?`<button aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',1,9,99)">+</button>`:''}</div></div>`}
 function setSideCard(x,need){let q=state.setSides[x.id]||0,name=sideName(x);return `<div class="card ${q?'active':''}" onclick="qty('setSides','${x.id}',1,2,${need})">${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}${itemPic(x,'🍽️')}<h3>${name}</h3><div class="price">${t('ui.common.included')}</div><small class="v5TapAddHint">${t('ui.common.tapSelect')}</small><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('setSides','${x.id}',-1,2,${need})">−</button><b>${q}</b></div></div>`}
@@ -5117,37 +5118,83 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
   text-align:center!important;
 }
 
-/* Selection CTAs stay immediately above the fixed order bar. */
+/* Selection screens use one measured spacer and one viewport-fixed CTA card. */
+:root{
+  --selection-order-bar-height:92px;
+  --selection-cta-height:104px;
+  --selection-footer-margin:24px;
+}
 .selectionFooter{
   position:fixed;
   left:50%;
-  bottom:calc(92px + env(safe-area-inset-bottom));
+  bottom:calc(var(--selection-order-bar-height) + env(safe-area-inset-bottom));
   z-index:39;
+  height:var(--selection-cta-height);
   width:min(1200px,100%);
-  padding:10px 24px;
-  transform:translateX(-50%);
-  background:linear-gradient(180deg,rgba(243,245,242,0),rgba(243,245,242,.96) 22%);
+  padding:0 24px;
+  animation:none!important;
+  transform:translateX(-50%)!important;
+  pointer-events:none;
 }
 .selectionFooterCard{
   display:flex!important;
+  height:100%!important;
   width:100%!important;
-  min-height:82px!important;
+  min-height:0!important;
+  padding:15px 22px!important;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   margin:0!important;
+  border:2px solid #d5ad0b!important;
+  border-radius:20px!important;
+  background:linear-gradient(135deg,#ffe970,#ffd21c)!important;
+  color:var(--v4-ink)!important;
+  box-shadow:0 -6px 22px rgba(68,51,4,.2)!important;
+  cursor:pointer;
+  pointer-events:auto;
   transform:none!important;
   text-align:center!important;
 }
-.selectionFooterCard h2{margin:0 0 7px!important}
-.selectionFooterCard p{margin:0!important;word-break:keep-all}
-.selectionFooterCard.setSideContinue{border:2px solid #e1b617!important}
-.selectionFooterCard:disabled{opacity:.5!important;cursor:not-allowed!important}
+.selectionFooterCard:hover,
+.selectionFooterCard.active,
+.selectionFooterCard.setSideContinue{border-color:#d5ad0b!important}
+.selectionFooterCard h2{margin:0 0 8px!important;font-size:clamp(25px,3vw,34px)!important;line-height:1!important}
+.selectionFooterCard p{margin:0!important;font-size:clamp(14px,1.7vw,19px)!important;font-weight:900;line-height:1.2;word-break:keep-all}
+.selectionFooterCard.isDisabled{
+  border-color:#9ba19c!important;
+  background:#b8bcb9!important;
+  color:#f4f5f4!important;
+  box-shadow:none!important;
+  cursor:not-allowed!important;
+}
+.selectionFooterSpacer{
+  display:block;
+  width:100%;
+  height:calc(var(--selection-cta-height) + var(--selection-order-bar-height) + env(safe-area-inset-bottom) + var(--selection-footer-margin));
+  animation:none!important;
+  pointer-events:none;
+}
 body[data-step="topping"] .stage,
 body[data-step="side"] .stage,
 body[data-step="drink"] .stage,
 body[data-step="accompaniment"] .stage{
-  padding-bottom:calc(188px + env(safe-area-inset-bottom))!important;
+  animation:none!important;
+  transform:none!important;
+  padding-bottom:0!important;
+}
+body[data-step="topping"] .app,
+body[data-step="side"] .app,
+body[data-step="drink"] .app,
+body[data-step="accompaniment"] .app{
+  padding-bottom:0!important;
+}
+body[data-step="topping"] .cartbar,
+body[data-step="side"] .cartbar,
+body[data-step="drink"] .cartbar,
+body[data-step="accompaniment"] .cartbar{
+  height:calc(var(--selection-order-bar-height) + env(safe-area-inset-bottom))!important;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom))!important;
 }
 
 /* Drink quantities stay legible between the unchanged minus/plus controls. */
@@ -5207,15 +5254,22 @@ body[data-step="accompaniment"] .stage{
 .reviewAddMore p{margin:10px 0 0;color:#687068;font-size:12px;text-align:center}
 
 @media(max-width:560px){
+  :root{
+    --selection-order-bar-height:86px;
+    --selection-cta-height:96px;
+    --selection-footer-margin:16px;
+  }
   body[data-step="timing"] .grid.two.timingChoiceGrid .card{min-height:206px!important}
   .setDrinkTextCard.setDrinkVariantCard{min-height:142px!important;gap:7px!important}
   .setDrinkTextCard .drinkVariantLabel{font-size:23px!important}
-  .selectionFooter{bottom:calc(86px + env(safe-area-inset-bottom));padding:7px 10px}
-  .selectionFooterCard{min-height:76px!important;padding:10px!important}
-  body[data-step="topping"] .stage,
-  body[data-step="side"] .stage,
-  body[data-step="drink"] .stage,
-  body[data-step="accompaniment"] .stage{padding-bottom:calc(176px + env(safe-area-inset-bottom))!important}
+  .selectionFooter{padding:0 10px}
+  .selectionFooterCard{padding:12px 10px!important;border-radius:18px!important}
+  .selectionFooterCard h2{font-size:27px!important}
+  .selectionFooterCard p{font-size:14px!important}
+  body[data-step="topping"] .cartbar,
+  body[data-step="side"] .cartbar,
+  body[data-step="drink"] .cartbar,
+  body[data-step="accompaniment"] .cartbar{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
   .reviewAddMoreGrid{grid-template-columns:1fr}
   .reviewAddMoreGrid button{min-height:48px}
   .v3DrinkVolume .v3DrinkQuantity{min-width:54px;padding:3px 5px;gap:4px}

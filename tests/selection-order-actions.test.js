@@ -53,8 +53,13 @@ assert.ok(html.includes('class="selectionFooter"'),'selection footer component e
 assert.ok(html.includes('env(safe-area-inset-bottom)'),'selection footer respects the mobile safe area');
 assert.ok(!html.includes('padding-top:116px!important'),'fixed-CTA compensation padding was removed');
 assert.match(html,/\.selectionFooter\{[\s\S]*?position:fixed;/,'selection CTA is fixed');
-assert.match(html,/bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/,'desktop CTA sits above the order bar');
-assert.match(html,/body\[data-step="accompaniment"\] \.stage\{[\s\S]*?padding-bottom:calc\(188px/,'menu area reserves the real CTA height');
+const footerCss=html.match(/\.selectionFooter\{([\s\S]*?)\n\}/)?.[1]||'';
+assert.ok(!/position\s*:\s*(?:sticky|absolute)/.test(footerCss),'selection CTA never uses sticky or absolute positioning');
+assert.match(footerCss,/bottom:calc\(var\(--selection-order-bar-height\) \+ env\(safe-area-inset-bottom\)\)/,'CTA sits directly above the measured order bar');
+assert.match(footerCss,/animation:none!important/,'fixed CTA is not displaced by stage-child animation');
+assert.match(footerCss,/transform:translateX\(-50%\)!important/,'fixed CTA stays centered across the viewport');
+assert.match(html,/\.selectionFooterSpacer\{[\s\S]*?height:calc\(var\(--selection-cta-height\) \+ var\(--selection-order-bar-height\) \+ env\(safe-area-inset-bottom\) \+ var\(--selection-footer-margin\)\)/,'spacer reserves CTA, order bar, safe area, and margin');
+assert.match(html,/body\[data-step="accompaniment"\] \.stage\{[\s\S]*?animation:none!important;[\s\S]*?transform:none!important;[\s\S]*?padding-bottom:0!important/,'selection stage avoids a transformed fixed-position containing block and relies on the measured spacer');
 for(const step of ['topping','side','drink']){
   assert.ok(!html.includes(`body[data-step="${step}"] .grid>.skipCard`),`${step} CTA is not fixed over its grid`);
 }
@@ -79,7 +84,32 @@ for(const [name,setup] of Object.entries(variants)){
   const grid=markup.lastIndexOf('class="grid');
   assert.ok(footer>grid,`${name} CTA follows the final menu grid`);
   assert.ok(markup.includes('selectionFooterCard'),`${name} uses the shared footer CTA`);
+  assert.strictEqual((markup.match(/class="selectionFooter"/g)||[]).length,1,`${name} creates exactly one fixed CTA`);
+  assert.strictEqual((markup.match(/class="selectionFooterSpacer"/g)||[]).length,1,`${name} creates exactly one measured spacer`);
+  assert.ok(markup.includes('role="button"'),`${name} makes the whole card interactive`);
+  assert.ok(!markup.includes('<button class="card skipCard selectionFooterCard'),`${name} does not wrap the card in a separate button`);
 }
+
+const toppingSelection=render("Object.assign(state,{step:'topping',set:null,left:'P001',right:null,size:'R',toppingChoice:'add',toppings:{}})");
+const accompanimentSelection=render("Object.assign(state,{step:'accompaniment',set:null,extraDrinks:{}})");
+for(const [name,markup] of [['topping',toppingSelection],['accompaniment',accompanimentSelection]]){
+  assert.strictEqual((markup.match(/class="selectionFooter"/g)||[]).length,1,`${name} creates exactly one fixed CTA`);
+  assert.strictEqual((markup.match(/class="selectionFooterSpacer"/g)||[]).length,1,`${name} creates exactly one measured spacer`);
+}
+const lastToppingId=vm.runInContext('TOPPINGS[TOPPINGS.length-1].id',context);
+assert.ok(toppingSelection.includes(`toppingQty('${lastToppingId}',1)`),'last topping plus control remains clickable before the spacer');
+assert.ok(toppingSelection.includes(`toppingQty('${lastToppingId}',-1)`),'last topping minus control remains clickable before the spacer');
+const normalSideSelection=render(variants.sideNormal);
+const lastSideId=vm.runInContext('SIDES[SIDES.length-1].id',context);
+assert.ok(normalSideSelection.includes(`qty('extraSides','${lastSideId}',1,9,99)`),'last side card remains clickable before the spacer');
+assert.ok(normalSideSelection.includes(`qty('extraSides','${lastSideId}',-1,9,99)`),'last side minus control remains clickable before the spacer');
+const normalDrinkSelection=render(variants.drinkNormal);
+const lastGroupedDrinkId=vm.runInContext('drinkGroups()[drinkGroups().length-1].large',context);
+assert.ok(normalDrinkSelection.includes(`qty('extraDrinks','${lastGroupedDrinkId}',1,9,99)`),'last drink plus control remains clickable before the spacer');
+assert.ok(normalDrinkSelection.includes(`qty('extraDrinks','${lastGroupedDrinkId}',-1,9,99)`),'last drink minus control remains clickable before the spacer');
+const lastSauceId=vm.runInContext('SAUCES[SAUCES.length-1].id',context);
+assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',1,9,99)`),'last accompaniment card remains clickable before the spacer');
+assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',-1,9,99)`),'last accompaniment minus control remains clickable before the spacer');
 
 for(const setSize of [2,3,4]){
   const sideId=vm.runInContext(`SIDES.find(x=>${setSize}===2?x.set2:x.set).id`,context);
@@ -104,9 +134,9 @@ for(const setSize of [2,3,4]){
 }
 
 const incompleteSide=render("Object.assign(state,{step:'side',set:4,finalAddMode:null,setSideExtraMode:false,extraSides:{},setSides:{}})");
-assert.match(incompleteSide,/selectionFooterCard setSideContinue" disabled/,'incomplete included side keeps a disabled fixed CTA visible');
+assert.match(incompleteSide,/selectionFooterCard setSideContinue isDisabled" role="button" tabindex="-1" aria-disabled="true"/,'incomplete included side keeps a disabled fixed CTA visible');
 const incompleteDrink=render("Object.assign(state,{step:'drink',set:2,finalAddMode:null,setDrinkExtraMode:false,extraDrinks:{},setDrink:null})");
-assert.match(incompleteDrink,/selectionFooterCard setDrinkContinue" disabled/,'incomplete included drink keeps a disabled fixed CTA visible');
+assert.match(incompleteDrink,/selectionFooterCard setDrinkContinue isDisabled" role="button" tabindex="-1" aria-disabled="true"/,'incomplete included drink keeps a disabled fixed CTA visible');
 const accompaniment=render("Object.assign(state,{step:'accompaniment',extraDrinks:{}})");
 assert.ok(accompaniment.includes('selectionFooterCard'),'accompaniment uses the shared fixed CTA');
 assert.ok(!accompaniment.includes('card skipCard" onclick="finishAccompaniment()'), 'accompaniment CTA is outside the menu grid');
