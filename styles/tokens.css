@@ -1,0 +1,82 @@
+:root {
+  /* Color Tokens */
+  --color-primary: #063f2c;
+  --color-primary-dark: #043523;
+  --color-brand-red: #e32636;
+  --color-cta: #f7cf2b;
+  --color-background: #fbf4e8;
+  --color-surface: #fffdf8;
+  --color-text: #123d2c;
+  --color-text-muted: #686259;
+  --color-border: #e7ddcf;
+  --color-disabled: #b8bcb9;
+
+  /* Spacing Tokens */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Radius Tokens */
+  --radius-sm: 10px;
+  --radius-md: 13px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* Typography Tokens */
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-md: 16px;
+  --font-size-lg: 21px;
+  --font-size-xl: 31px;
+  --font-size-title: 45px;
+
+  /* Layout Geometry Tokens */
+  --layout-content-max: 1080px;
+  --layout-page-padding-x: 24px;
+  --layout-page-padding-y: 30px;
+  --header-height: 80px;
+  --progress-height: 55px;
+  --progress-top: 80px;
+  --card-gap: 20px;
+  --card-radius: 22px;
+  --button-radius: 18px;
+  --selection-footer-height: 104px;
+  --selection-footer-margin: 24px;
+  --order-summary-height: 92px;
+
+  /* Touch Target Tokens */
+  --touch-target-min: 48px;
+
+  /* Popup Tokens */
+  --popup-width: 560px;
+  --popup-max-height: 88vh;
+
+  /* Safe Area Tokens */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  /* Z-index Tokens */
+  --z-base: 0;
+  --z-progress: 18;
+  --z-header: 20;
+  --z-selection-footer: 39;
+  --z-order-summary: 40;
+  --z-action: 50;
+  --z-backdrop: 60;
+  --z-modal: 60;
+  --z-fatal: 99999;
+
+  /* Motion Tokens */
+  --motion-fast: 0.14s;
+  --motion-normal: 0.18s;
+  --motion-slow: 0.38s;
+
+  /* Legacy Compatibility Aliases */
+  /* Existing inline custom properties remain authoritative until migration. */
+}
