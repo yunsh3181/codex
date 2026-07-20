@@ -1620,7 +1620,7 @@ window.KIOSK_DATA = {
       "R": null,
       "L": null,
       "F": 34900,
-      "image": "assets/images/crust_thin.png"
+      "image": "assets/images/menu_image_018.png"
     },
     {
       "id": "P012",
@@ -2346,12 +2346,12 @@ function view(){
  if(state.step==='mode'){const setMode=!!state.set;const halfDisabled=state.size==='R';if(setMode){const crusts=CRUSTS.filter(c=>c[state.size]!=null&&c.hidden!==true&&!['씬','크루아상'].includes(c.name));return shell(`<div class="setOptionCombined"><h1 class="title">${t('ui.mode.setTitle',{count:state.set})}</h1><div class="setOptionSummary"><b>${t('ui.mode.summary')}</b><span>✓ ${t(state.mode==='half'?'ui.pizzaOptions.half':'ui.pizzaOptions.whole')}</span><span>✓ ${customerCrustLabel(state.crust)}</span></div><section class="optionSection"><h2>${t('ui.mode.choiceTitle')}</h2><div class="optionButtons two modeOptionButtons"><button class="optionBtn ${state.mode==='single'?'active':''}" onclick="setSetOption('mode','single')"><span class="modeMainLabel">${t('ui.pizzaOptions.whole')}</span></button><button class="optionBtn ${state.mode==='half'?'active':''}" ${halfDisabled?'disabled':''} onclick="setSetOption('mode','half')"><span class="modeMainLabel">${t('ui.pizzaOptions.half')}</span><span class="halfPrice">${money(SETTINGS.HALF_EXTRA)}</span></button></div>${halfDisabled?`<div class="disabledReason">${t('ui.mode.regularUnavailable')}</div>`:''}</section><section class="optionSection"><h2>${t('ui.mode.crustTitle')}</h2><div class="setCrustGrid">${crusts.map(c=>`<button class="setCrustCard ${state.crust===c.name?'active':''}" onclick="setSetOption('crust','${c.name}')">${state.crust===c.name?'<span class="crustCheck">✓</span>':''}<b>${customerCrustLabel(c.name)}</b><span class="crustDesc">${customerCrustDescription(c.name)}</span><span class="crustPrice">${c[state.size]?'+ '+money(c[state.size]):t('ui.common.noExtraCharge')}</span></button>`).join('')}</div></section><button class="optionContinue" onclick="confirmSetOptions()">${t('ui.pizzaOptions.choose')}</button></div>`)}return shell(`<h1 class="title">${t('ui.mode.title')}</h1><p class="sub">${t('ui.mode.subtitle')}</p><div class="grid two modeChoiceGrid"><button class="card modeChoiceCard" onclick="selectPizzaMode('single')"><h2>${t('ui.pizzaOptions.whole')}</h2><p>${t('ui.mode.wholeDesc')}</p></button><button class="card modeChoiceCard" ${halfDisabled?'disabled':''} onclick="selectPizzaMode('half')"><h2>${t('ui.pizzaOptions.half')}</h2><p class="halfPrice">${money(SETTINGS.HALF_EXTRA)}</p>${halfDisabled?`<div class="disabledReason">${t('ui.mode.regularUnavailable')}</div>`:''}</button></div>`)};
  if(state.step==='pizza'){if(state.set&&state.cat==='THIN')state.cat='ALL';let list=PIZZAS.filter(p=>(state.cat==='ALL'||p.cat===state.cat)&&p[state.size]!=null);if(state.mode==='half'){list=list.filter(p=>halfFirstEligible(p.id));if(state.left)list=list.filter(p=>halfAllowed(state.left,p.id));}if(state.set)list=list.filter(p=>p.cat!=='THIN');if(state.bannerTakeout&&state.dough!=='씬도우')list=list.filter(p=>p.cat!=='THIN');if(state.promo==='upup')list=list.filter(p=>p.id!=='P011');const quickSizes=state.bannerTakeout?`<div class="notice"><b>${t(state.mode==='half'?'ui.pizzaOptions.half':'ui.pizzaOptions.whole')} · ${state.size} · ${customerDoughLabel(state.dough)} · ${customerCrustLabel(state.crust)}</b><br><button class="tabs" style="display:inline-block;margin:8px 0 0" onclick="state.step='pizzaOptions';state.left=null;state.right=null;render()">${t('ui.pizzaScreen.changeOptions')}</button></div>`:'';return shell(`${state.mode==='half'&&state.left?`<div class="halfPreview"><div class="preview">${itemPic(po(state.left))}<b>${pizzaName(po(state.left))}</b></div><div class="preview"><div class="pic">?</div><b>${t('ui.pizzaScreen.secondPlaceholder')}</b></div></div>`:''}${quickSizes}<h1 class="title">${t(state.mode==='half'?(state.left?'ui.pizzaScreen.secondTitle':'ui.pizzaScreen.firstTitle'):'ui.pizzaScreen.title')}</h1><div class="tabs">${(state.set?['ALL','BEST','SPECIALTY','CLASSIC']:['ALL','BEST','SPECIALTY','CLASSIC','THIN']).map(c=>`<button class="${state.cat===c?'active':''}" onclick="state.cat='${c}';render()">${t(`ui.pizzaScreen.category.${c.toLowerCase()}`)}</button>`).join('')}</div><div class="grid">${list.map(p=>{const blocked=false;const happy=state.promo==='happy';const normal=p[state.size];const happyDiscount=happy?Math.max(0,normal-15000):0;const priceHtml=happy?`<div class="muted" style="text-decoration:line-through;margin-top:6px">${t('ui.pizzaScreen.normalAmount')} ${money(normal)}</div><div class="discount" style="margin-top:5px">${t('ui.pizzaScreen.discountAmount')} −${money(happyDiscount)}</div><div class="price" style="margin-top:6px">${t('ui.pizzaScreen.afterDiscount')} ${money(15000)}</div>`:(state.bannerTakeout?bannerPizzaPriceHtml(p):`<div class="price">${money(normal)}</div>`);return `<button class="card" ${blocked?'disabled':''} onclick="pickPizza('${p.id}')">${itemPic(p)}<h3>${pizzaName(p)}</h3>${priceHtml}${blocked?`<div class="disabledReason">${t('ui.pizzaScreen.halfUnavailable')}</div>`:''}</button>`}).join('')}</div>`)};
  if(state.step==='crust'){let list=state.promo==='upup'?CRUSTS.filter(c=>['골드링','치즈롤','크루아상'].includes(c.name)):CRUSTS.filter(c=>c[state.size]!=null&&c.hidden!==true);if(state.set)list=list.filter(c=>!['씬','크루아상'].includes(c.name));return shell(`<h1 class="title">${t('ui.crustScreen.title')}</h1><p class="sub">${t('ui.crustScreen.subtitle')}</p><div class="crustTextGrid">${list.map(c=>`<button class="crustTextCard ${state.crust===c.name?'active':''}" onclick="selectCrust('${c.name}')">${state.crust===c.name?'<span class="crustCheck">✓</span>':''}<h2>${customerCrustLabel(c.name)}${customerCrustSizeLabel(c.name)?` <span class="sizeTag">${customerCrustSizeLabel(c.name)}</span>`:''}</h2><p>${customerCrustDescription(c.name)}</p><div class="price">${state.promo==='upup'?t('ui.common.free'):c[state.size]?'+ '+money(c[state.size]):t('ui.common.noExtraCharge')}</div>${state.promo==='upup'&&c.name==='크루아상'?`<p class="disabledReason">${t('ui.crustScreen.upUpLarge')}</p>`:''}</button>`).join('')}</div>`)};
- if(state.step==='topping'){if(!state.toppingChoice)return shell(`<h1 class="title">${t('ui.toppingScreen.question')}</h1><div class="grid two toppingDecisionGrid"><button class="card skipCard toppingDecisionCard" onclick="skipTopping()"><h2>${t('ui.common.next')}</h2><p>${t('ui.toppingScreen.skipDesc')}</p></button><button class="card toppingDecisionCard toppingAddCard" onclick="state.toppingChoice='add';render()"><h2>${t('ui.toppingScreen.add')}</h2><p>${t('ui.toppingScreen.addDesc')}</p></button></div>`);return shell(`<h1 class="title">${t('ui.toppingScreen.title')}</h1><div class="notice">${t('ui.toppingScreen.limit',{count:sum(state.toppings)})}</div><div class="grid"><button class="card skipCard" onclick="finishTopping()"><h2>${t('ui.common.next')}</h2><p>${t('ui.toppingScreen.continueDesc')}</p></button>${TOPPINGS.map(item=>{let q=state.toppings[item.id]||0;return `<div class="card v4ToppingCard ${q?'active':''}" onclick="toppingQty('${item.id}',1)">${q?`<span class="badge">${t('ui.common.selectedCount',{count:q})}</span>`:''}${toppingVisual(item.name)}<h3>${toppingName(item)}</h3><div class="price">+${money(item.price[state.size])}</div><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name:toppingName(item)}))}" onclick="event.stopPropagation();toppingQty('${item.id}',-1)">−</button><b>${q}</b><button aria-label="${escAttr(t('ui.common.quantityIncrease',{name:toppingName(item)}))}" onclick="event.stopPropagation();toppingQty('${item.id}',1)">＋</button></div></div>`}).join('')}</div>`)};
- if(state.step==='side'){if(state.finalAddMode==='side')return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.sideScreen.paidBanner')}</div><div class="grid"><button class="card skipCard" onclick="skipSide()"><h2>${t('nav.next')}</h2><p>${t('ui.sideScreen.skipReview')}</p></button>${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>`);if(state.set){const need=state.set===4?2:1;const complete=sum(state.setSides)===need;if(state.setSideExtraMode)return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.sideScreen.extraComplete',{count:sum(state.setSides)})}</div><div class="grid"><button class="card skipCard" onclick="skipSideExtra()"><h2>${t('nav.next')}</h2><p>${t('ui.sideScreen.finishToDrink')}</p></button>${SIDES.filter(x=>!state.setSides[x.id]).map(x=>qcard(x,'extraSides')).join('')}</div>`);return shell(`<h1 class="title">${t('ui.sideScreen.includedTitle')} ${complete?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="notice">${t('ui.sideScreen.selectionGuide',{need,current:sum(state.setSides)})}</div><div class="grid">${SIDES.filter(x=>state.set===2?x.set2:x.set).map(x=>setSideCard(x,need)).join('')}</div>${complete?`<button class="next setSideContinue" onclick="continueSetSide()">${t('nav.next')}</button>`:''}`)}return shell(`<h1 class="title">${t('ui.sideScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.sideScreen.recommendation')}</div><div class="grid"><button class="card skipCard" onclick="skipSide()"><h2>${t('nav.next')}</h2><p>${t('ui.sideScreen.skipToDrink')}</p></button>${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>`)};
- if(state.step==='drink'){if(state.finalAddMode==='drink')return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.drinkScreen.paidBanner')}</div><div class="grid four drinkTextGrid v3DrinkGrid"><button class="card skipCard" onclick="skipDrink()"><h2>${t('nav.next')}</h2><p>${t('ui.drinkScreen.finishNext')}</p></button>${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}`);if(state.set){let provided=state.set===2?DRINKS.filter(x=>x.small):DRINKS.filter(x=>x.large);return shell(`<h1 class="title">${t('ui.drinkScreen.includedTitle')} ${state.setDrink?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="grid four drinkTextGrid">${provided.map(x=>setDrinkCard(x)).join('')}</div>${state.setDrinkExtraMode?`<div class="extraModeBanner">${t('ui.drinkScreen.extraPaidBanner')}</div><h2>${t('ui.drinkScreen.additionalPurchase')}</h2><p class="sub">${t('ui.drinkScreen.selectTypeSize')}</p><div class="grid four drinkTextGrid v3DrinkGrid"><button class="card skipCard" onclick="skipDrinkExtra()"><h2>${t('nav.next')}</h2><p>${t('ui.drinkScreen.finishNext')}</p></button>${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}`:''}`)}return shell(`<h1 class="title">${t('ui.drinkScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.recommendation')}</div><p class="sub">${t('ui.drinkScreen.subtitle')}</p><div class="grid four drinkTextGrid v3DrinkGrid"><button class="card skipCard" onclick="skipDrink()"><h2>${t('nav.next')}</h2><p>${t('ui.drinkScreen.finishNext')}</p></button>${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}`)};
+ if(state.step==='topping'){if(!state.toppingChoice)return shell(`<h1 class="title">${t('ui.toppingScreen.question')}</h1><div class="grid two toppingDecisionGrid"><button class="card skipCard toppingDecisionCard" onclick="skipTopping()"><h2>${t('ui.common.next')}</h2><p>${t('ui.toppingScreen.skipDesc')}</p></button><button class="card toppingDecisionCard toppingAddCard" onclick="state.toppingChoice='add';render()"><h2>${t('ui.toppingScreen.add')}</h2><p>${t('ui.toppingScreen.addDesc')}</p></button></div>`);return shell(`<h1 class="title">${t('ui.toppingScreen.title')}</h1><div class="notice">${t('ui.toppingScreen.limit',{count:sum(state.toppings)})}</div><div class="grid">${TOPPINGS.map(item=>{let q=state.toppings[item.id]||0;return `<div class="card v4ToppingCard ${q?'active':''}" onclick="toppingQty('${item.id}',1)">${q?`<span class="badge">${t('ui.common.selectedCount',{count:q})}</span>`:''}${toppingVisual(item.name)}<h3>${toppingName(item)}</h3><div class="price">+${money(item.price[state.size])}</div><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name:toppingName(item)}))}" onclick="event.stopPropagation();toppingQty('${item.id}',-1)">−</button><b>${q}</b><button aria-label="${escAttr(t('ui.common.quantityIncrease',{name:toppingName(item)}))}" onclick="event.stopPropagation();toppingQty('${item.id}',1)">＋</button></div></div>`}).join('')}</div>${selectionFooter('finishTopping()',t('ui.toppingScreen.continueDesc'))}`)};
+ if(state.step==='side'){if(state.finalAddMode==='side')return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.sideScreen.paidBanner')}</div><div class="grid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipReview'))}`);if(state.set){const need=state.set===4?2:1;const complete=sum(state.setSides)===need;if(state.setSideExtraMode)return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.sideScreen.extraComplete',{count:sum(state.setSides)})}</div><div class="grid">${SIDES.filter(x=>!state.setSides[x.id]).map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSideExtra()',t('ui.sideScreen.finishToDrink'))}`);return shell(`<h1 class="title">${t('ui.sideScreen.includedTitle')} ${complete?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="notice">${t('ui.sideScreen.selectionGuide',{need,current:sum(state.setSides)})}</div><div class="grid">${SIDES.filter(x=>state.set===2?x.set2:x.set).map(x=>setSideCard(x,need)).join('')}</div>${complete?selectionFooter('continueSetSide()',t('ui.sideScreen.finishToDrink'),'setSideContinue'):''}`)}return shell(`<h1 class="title">${t('ui.sideScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.sideScreen.recommendation')}</div><div class="grid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipToDrink'))}`)};
+ if(state.step==='drink'){if(state.finalAddMode==='drink')return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.drinkScreen.paidBanner')}</div><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`);if(state.set){let provided=state.set===2?DRINKS.filter(x=>x.small):DRINKS.filter(x=>x.large);return shell(`<h1 class="title">${t('ui.drinkScreen.includedTitle')} ${state.setDrink?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="grid four drinkTextGrid">${provided.map(x=>setDrinkCard(x)).join('')}</div>${state.setDrinkExtraMode?`<div class="extraModeBanner">${t('ui.drinkScreen.extraPaidBanner')}</div><h2>${t('ui.drinkScreen.additionalPurchase')}</h2><p class="sub">${t('ui.drinkScreen.selectTypeSize')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrinkExtra()',t('ui.drinkScreen.finishNext'))}`:(state.setDrink?selectionFooter('continueSetDrink()',t('ui.drinkScreen.finishNext')):'')}`)}return shell(`<h1 class="title">${t('ui.drinkScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.recommendation')}</div><p class="sub">${t('ui.drinkScreen.subtitle')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`)};
  if(state.step==='accompaniment')return shell(`<h1 class="title">${t('ui.drinkScreen.accompanimentTitle')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.accompanimentRecommendation')}</div><p class="sub">${t('ui.drinkScreen.optional')}</p><div class="grid four accompanimentGrid"><button class="card skipCard" onclick="finishAccompaniment()"><h2>${t('nav.next')}</h2><p>${t('ui.drinkScreen.finishReview')}</p></button>${SAUCES.map(x=>textQtyCard(x,'extraDrinks')).join('')}</div>`);
  if(state.step==='cartReview')return shell(`<div class="cartPage"><h1 class="title">${t('cart.title')}</h1><p class="sub">${t('cart.subtitle')}</p>${state.cartItems.length?state.cartItems.map((x,i)=>cartItemHtml(x,i)).join(''):`<div class="cartEmpty"><h2>${t('cart.empty')}</h2></div>`}<div class="multiCartTotal"><span>${t('cart.totalPayment')}</span><strong>${money(cartTotal())}</strong></div><div class="multiCartButtons"><button class="addSetBtn" onclick="addAnotherSet()">${t('cart.addSet')}</button><button class="addUpUpBtn" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button class="addSingleBtn" onclick="addAnotherSingle()">${t('cart.addSingle')}</button><button class="orderNowBtn" ${state.cartItems.length?'':'disabled'} onclick="checkoutCart()">${t('cart.orderNow')}</button></div></div>`);
- if(state.step==='review')return shell(`<h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p>${reviewOrdersHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn" onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div>`);
+ if(state.step==='review')return shell(`<h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p>${reviewOrdersHTML()}${takeoutAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn" onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div>`);
  if(state.step==='phone')return shell(`<div class="phoneStep"><h1 class="title stepTitleIcon">${uiIcon("phone")} ${t('phone.title')}</h1><p class="sub">${t('phone.subtitle')}</p><div class="summary"><div id="phoneDisplay" class="phoneDisplay ${validPhone()?'isComplete':'isIncomplete'}">${formatPhone(state.phone)}</div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pressPhone('${n}')">${n}</button>`).join('')}<button onclick="clearPhone()">${t('phone.clear')}</button><button onclick="pressPhone('0')">0</button><button onclick="backPhone()">⌫</button></div><div id="phoneNotice" class="notice ${validPhone()?'isComplete':'isIncomplete'}">${phoneNoticeHTML()}</div><button id="phoneNext" class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPhone()?'':'disabled'} onclick="goPayment()">${t('phone.next')}</button></div></div>`);
  if(state.step==='payment'){const total=currentOrderTotal()+cartTotal();return shell(`<h1 class="title">${t('ui.payment.title')}</h1><p class="sub">${t('ui.payment.subtitle')}</p><div class="summary"><div class="row grand"><span>${t('ui.payment.amount')}</span><strong>${money(total)}</strong></div><div class="paymentGrid">${['cash','card','meal_ticket','bizle'].map(method=>`<button class="paymentCard ${state.paymentMethod===method?'active':''}" onclick="selectPayment('${method}')">${paymentName(method)}</button>`).join('')}</div>${isSplitPayment()?splitPaymentHTML(total):''}<button type="button" id="paymentSubmitBtn" data-action="submit-order" class="next paymentSubmitBtn" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPayment()?'':'disabled'}>${t('ui.payment.submit')}</button><div id="submitError" class="submitError"></div></div>`)};
  if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${state.orderNo}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="reset();render()">${t('done.home')}</button></div>`)
@@ -2630,8 +2630,9 @@ function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompani
 function skipDrink(){routeAfterDrink()}
 function skipDrinkExtra(){state.setDrinkExtraMode=false;routeAfterDrink()}
 function finishAccompaniment(){if(state.finalAddMode==='drink'){state.finalAddMode=null;state.step='review';render();return}continueAfterDrink()}
+function selectionFooter(action,description,extraClass=''){return `<div class="selectionFooter"><button class="card skipCard selectionFooterCard ${extraClass}" onclick="${action}"><h2>${t('nav.next')}</h2><p>${description}</p></button></div>`}
 function qcard(x,key){let q=state[key][x.id]||0,name=optionDisplayName(x,key==='extraDrinks'?[...DRINKS,...SAUCES]:SIDES);return `<div class="card ${q?'active':''}" onclick="qty('${key}','${x.id}',1,9,99)">${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}${itemPic(x,'🍽️')}<h3>${name}</h3><div class="price">${money(x.price)}</div><small class="v5TapAddHint">${t('ui.common.tapAdd')}</small><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button><b>${q}</b></div></div>`}
-function textQtyCard(x,key,buttonOnly=false){let q=state[key][x.id]||0,name=optionDisplayName(x,[...DRINKS,...SAUCES]);return `<div class="card textQtyCard ${buttonOnly?'buttonOnlyQty':''} ${q?'active':''}" ${buttonOnly?'':`onclick="qty('${key}','${x.id}',1,9,99)"`}>${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}<h3>${name}</h3><div class="price">${money(x.price)}</div>${buttonOnly?'':`<small class="v5TapAddHint">${t('ui.common.tapAdd')}</small>`}<div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button><b>${q}</b>${buttonOnly?`<button aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',1,9,99)">+</button>`:''}</div></div>`}
+function textQtyCard(x,key,buttonOnly=false){let q=state[key][x.id]||0,name=optionDisplayName(x,[...DRINKS,...SAUCES]);return `<div class="card textQtyCard ${buttonOnly?'buttonOnlyQty':''} ${q?'active':''}" ${buttonOnly?'':`onclick="qty('${key}','${x.id}',1,9,99)"`}>${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}<h3>${name}</h3><div class="price">${money(x.price)}</div>${buttonOnly?'':`<small class="v5TapAddHint">${t('ui.common.tapAdd')}</small>`}<div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button>${buttonOnly?`<span class="drinkQuantityReadout"><small>${t('ui.common.quantityLabel')}</small><strong>${q}</strong></span>`:`<b>${q}</b>`}${buttonOnly?`<button aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',1,9,99)">+</button>`:''}</div></div>`}
 function setSideCard(x,need){let q=state.setSides[x.id]||0,name=sideName(x);return `<div class="card ${q?'active':''}" onclick="qty('setSides','${x.id}',1,2,${need})">${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}${itemPic(x,'🍽️')}<h3>${name}</h3><div class="price">${t('ui.common.included')}</div><small class="v5TapAddHint">${t('ui.common.tapSelect')}</small><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('setSides','${x.id}',-1,2,${need})">−</button><b>${q}</b></div></div>`}
 function drinkGroups(){return [
  {key:'coke',small:'D001',large:'D002'},
@@ -2644,11 +2645,11 @@ function standaloneDrinkCards(){const list=standaloneDrinks();return list.length
 function drinkGroupCard(g){
  let a=DRINKS.find(x=>x.id===g.small),b=DRINKS.find(x=>x.id===g.large),qa=state.extraDrinks[a.id]||0,qb=state.extraDrinks[b.id]||0,total=qa+qb;
  const family=g.key.startsWith('coke')?'cola':'sprite',variant=g.key.toLowerCase().includes('zero')?'zero':'regular';
- const control=(item,q)=>{const name=drinkName(item);return `<div class="v3DrinkRow"><button type="button" aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="qty('extraDrinks','${item.id}',-1,9,99)">−</button><span class="v3DrinkVolume"><strong>${item.small?'500ml':family==='cola'?'1.25L':'1.5L'}</strong><small>${money(item.price)}</small><em>${t('ui.common.quantity',{count:q})}</em></span><button type="button" aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="qty('extraDrinks','${item.id}',1,9,99)">+</button></div>`};
+ const control=(item,q)=>{const name=drinkName(item);return `<div class="v3DrinkRow"><button type="button" aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="qty('extraDrinks','${item.id}',-1,9,99)">−</button><span class="v3DrinkVolume"><strong>${item.small?'500ml':family==='cola'?'1.25L':'1.5L'}</strong><small>${money(item.price)}</small><em class="v3DrinkQuantity"><span>${t('ui.common.quantityLabel')}</span><strong>${q}</strong></em></span><button type="button" aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="qty('extraDrinks','${item.id}',1,9,99)">+</button></div>`};
  const groupName=t(`drink.group.${g.key}`);return `<div class="v3DrinkCard ${family} ${variant} ${total?'active':''}" role="group" aria-label="${escAttr(t('ui.drinkScreen.additionalGroup',{name:groupName}))}">${total?`<span class="v3DrinkCount">${t('ui.common.totalCount',{count:total})}</span>`:''}<span class="srOnly">${t('ui.drinkScreen.volumeQuantity',{name:groupName})}</span><div class="v3DrinkControls">${control(a,qa)}${control(b,qb)}</div></div>`
 }
 function setDrinkTheme(id){if(['D001','D002'].includes(id))return 'setCola';if(['D003','D004'].includes(id))return 'setColaZero';if(['D005','D006'].includes(id))return 'setSprite';return 'setSpriteZero'}
-function setDrinkCard(x){const zero=['D003','D004','D007','D008'].includes(x.id),localizedName=drinkName(x),name=zero?localizedName.replace(/\s*(제로|Zero)\s*/i,' ').trim():localizedName,label=t(zero?'ui.drinkScreen.zero':'ui.drinkScreen.regular');return `<button class="card drinkTextCard setDrinkTextCard setDrinkVariantCard ${setDrinkTheme(x.id)} ${zero?'zeroDrinkCard':'regularDrinkCard'} ${state.setDrink===x.id?'active':''}" onclick="chooseSetDrink('${x.id}')">${state.setDrink===x.id?`<span class="badge">${t('ui.common.selected')}</span>`:''}<span class="drinkVariantLabel ${zero?'zeroDrinkLabel':'regularDrinkLabel'}">${label}</span><h3>${name}</h3><div class="price">${t('ui.common.included')}</div></button>`}
+function setDrinkCard(x){const selected=state.setDrink===x.id,zero=['D003','D004','D007','D008'].includes(x.id),localizedName=drinkName(x),name=zero?localizedName.replace(/\s*(제로|Zero)\s*/i,' ').trim():localizedName,label=t(zero?'ui.drinkScreen.zero':'ui.drinkScreen.regular');return `<button class="card drinkTextCard setDrinkTextCard setDrinkVariantCard ${setDrinkTheme(x.id)} ${zero?'zeroDrinkCard':'regularDrinkCard'} ${selected?'active':''}" onclick="chooseSetDrink('${x.id}')">${selected?`<span class="badge">${t('ui.common.selected')}</span>`:''}<span class="drinkVariantLabel ${zero?'zeroDrinkLabel':'regularDrinkLabel'}">${label}</span><h3>${name}</h3><div class="price">${t('ui.common.included')}</div><span class="setDrinkQuantity"><small>${t('ui.common.quantityLabel')}</small><strong>${selected?1:0}</strong></span></button>`}
 
 function qty(key,id,d,maxEach,maxTotal){let o=state[key],n=Math.max(0,Math.min(maxEach,(o[id]||0)+d));if(d>0&&sum(o)>=maxTotal)return;if(n)o[id]=n;else delete o[id];render();if(key==='setSides')setTimeout(maybePromptSetSideExtra,120)}function toppingQty(id,d){let q=state.toppings[id]||0,total=sum(state.toppings);if(d>0&&q>=2){state.modal='toppingLimitEach';render();return}if(d>0&&total>=5){state.modal='toppingLimitTotal';render();return}let n=Math.max(0,q+d);if(n)state.toppings[id]=n;else delete state.toppings[id];render()}
 function pizzaBase(){let a=po(state.left)?.[state.promo==='upup'?'L':state.size]||0;if(state.mode==='half'){if(!state.right)return a;let b=po(state.right)?.[state.promo==='upup'?'L':state.size]||0;return (a+b)/2}return a}
@@ -2683,6 +2684,8 @@ function detailList(title,lines,included=false){if(!lines.length)return '';retur
 function reviewOrderCard(order,index){const d=orderDetailData(order);const benefit=d.setNo?setOrderName(d.setNo):benefitName(d.promo);const doughNote=d.dough&&d.dough!=='오리지널'?` · ${customerDoughLabel(d.dough)}`:'';return `<div class="reviewOrderCard"><div class="reviewOrderHead"><div><h3>${index+1}. ${d.pizzaTitle}${d.qty>1?' '+t('unit.quantity',{count:d.qty}):''}</h3><div class="reviewMeta">${d.mode==='half'?t('review.halfPizza')+' · ':''}${benefit}${doughNote}</div></div><strong>${money(d.amount.final*d.qty)}</strong></div>${detailList(t('review.additionalToppings'),d.topLines)}${detailList(t('review.includedSides'),d.incSideLines,true)}${detailList(t('review.includedDrinks'),d.incDrinkLines,true)}${detailList(t('review.additionalSides'),d.sideLines)}${detailList(t('review.additionalDrinks'),d.drinkLines)}${d.amount.discount?`<div class="reviewSection"><ul><li><span>${d.amount.label}</span><span class="discount">−${money(d.amount.discount*d.qty)}</span></li></ul></div>`:''}</div>`}
 function allReviewOrders(){const arr=(state.cartItems||[]).map(x=>({...x,__current:false}));if(currentHasItems())arr.push({__current:true,qty:1});return arr}
 function reviewOrdersHTML(){return `<div class="reviewOrderList">${allReviewOrders().map(reviewOrderCard).join('')}</div>`}
+function hasTakeoutDiscountOrder(){return state.orderType==='takeout'&&((state.promo==='takeout'&&currentHasItems())||(state.cartItems||[]).some(order=>order.promo==='takeout'))}
+function takeoutAddActionsHTML(){if(!hasTakeoutDiscountOrder())return '';return `<section class="reviewAddMore"><h2>${t('cart.addMoreTitle')}</h2><div class="reviewAddMoreGrid"><button type="button" onclick="addAnotherSet()">${t('cart.addSet')}</button><button type="button" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button type="button" onclick="addAnotherSingle()">${t('cart.addSingle')}</button></div><p>${t('cart.continueCheckout')}</p></section>`}
 function reviewTotals(){const orders=allReviewOrders();let normal=0,discount=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),q=d.qty||1;normal+=d.amount.normal*q;discount+=d.amount.discount*q;final+=d.amount.final*q;if(d.amount.discount){discounts[d.amount.label]=(discounts[d.amount.label]||0)+d.amount.discount*q}});return {normal,discount,final,discounts}}
 function reviewTotalsHTML(){const totals=reviewTotals();return `<div class="reviewDiscountBox"><div class="line"><span>${t('orderSummary.normalAmount')}</span><strong>${money(totals.normal)}</strong></div>${Object.entries(totals.discounts).map(([k,v])=>`<div class="line discountLine"><span>${k}</span><strong>−${money(v)}</strong></div>`).join('')}<div class="line totalDiscount"><span>${t('orderSummary.totalDiscount')}</span><strong>−${money(totals.discount)}</strong></div><div class="line final"><span>${t('orderSummary.finalPayment')}</span><strong>${money(totals.final)}</strong></div></div>`}
 function price(){let pizza=pizzaBase(),half=state.mode==='half'?SETTINGS.HALF_EXTRA:0,crust=crustFee(),tops=topFee(),side=sideFee(),drink=drinkFee(),discount=0,label='';let product=state.left?(pizza+half+crust+tops):0;if(state.set){product=(state.set===2?24000:state.set===3?33000:42000)+half+crust+tops;label=benefitName('set')}else if(state.promo==='happy'&&state.left){let normal=po(state.left).R+tops;discount=Math.max(0,normal-(SETTINGS.HAPPY_PRICE+tops));product=SETTINGS.HAPPY_PRICE+tops;label=benefitName('happy')}else if(state.promo==='takeout'&&['L','F'].includes(state.size)){discount=Math.round(product*(SETTINGS.PACK_DISCOUNT/100));product-=discount;label=benefitName('takeout')}else if(state.promo==='upup'&&state.left){let normalSize=effectiveSize(),leftPrice=po(state.left)?.[normalSize]||0,rightPrice=po(state.right)?.[normalSize]||0,normalPizza=state.mode==='half'&&state.right?((leftPrice+rightPrice)/2):leftPrice,normalCrust=state.crust==='크루아상'?6000:(CRUSTS.find(c=>c.name===state.crust)?.[normalSize]||0),normal=normalPizza+half+normalCrust+tops;let pay=pizza+half+tops;discount=Math.max(0,normal-pay);product=pay;label=benefitName('upup')}return{pizza,half,crust,tops,side,drink,discount,label,total:product+side+drink}}
@@ -2739,17 +2742,16 @@ function chooseSetDrink(id){
  state.setDrink=id;
  state.setDrinkPrompted=false;
  state.setDrinkExtraMode=false;
- state.modal='setDrinkUpsell';
- state.setDrinkPrompted=true;
  render()
 }
+function continueSetDrink(){if(!setDrinkBaseComplete())return;maybePromptSetDrinkExtra()}
 
 
 function benefitName(id){return label('promo',id,id)}
 function orderSnapshot(){
- const p=po(state.left),r=po(state.right);
+ const p=po(state.left),r=po(state.right),pricing=price();
  return {
-  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:price().total,qty:1,
+  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:pricing.total,normalPrice:pricing.total+pricing.discount,discount:pricing.discount,discountLabel:pricing.label,qty:1,
   mode:state.mode,pizza:state.left,pizzaLeft:state.left,pizzaRight:state.right,pizzaName:state.mode==='half'?`${pizzaName(p)||''} / ${pizzaName(r)||''}`:(p?pizzaName(p):''),
   crust:state.crust||'오리지널',dough:state.dough||'오리지널',toppings:{...(state.toppings||{})},sides:{...(state.extraSides||{})},drinks:{...(state.extraDrinks||{})},includedSides:{...(state.setSides||{})},includedDrinks:state.setDrink?{[state.setDrink]:1}:{}
  }
@@ -2761,11 +2763,12 @@ function optionLinesHtml(title,map,master,included=false){const lines=mapLines(m
 function cartItemHtml(x,i){const pizzaNames=cartPizzaNames(x);const name=x.set?setOrderName(x.set):(x.promo==='upup'?`${benefitName('upup')} · ${pizzaNames}`:(pizzaNames||t('cart.additionalOrder')));const desc=[x.size?cartSizeLabel(x.size):'',x.pizzaLeft?customerCrustLabel(x.crust):'',x.pizzaLeft?customerDoughLabel(x.dough):'',x.pizzaLeft&&x.mode==='half'?t('cart.halfPizza'):'',pizzaNames].filter(Boolean).join(' - ');const details=[desc?`<div class="cartOrderDesc">${desc}</div>`:'',optionLinesHtml(t('review.additionalToppings'),x.toppings,TOPPINGS),optionLinesHtml(t('review.includedSides'),x.includedSides,SIDES,true),optionLinesHtml(t('review.includedDrinks'),x.includedDrinks,DRINKS,true),optionLinesHtml(t('review.additionalSides'),x.sides,SIDES),optionLinesHtml(t('review.additionalDrinks'),x.drinks,[...DRINKS,...SAUCES])].join('');return `<div class="cartOrderCard"><div class="cartOrderTop"><div><div class="cartOrderName">${name} ${t('unit.quantity',{count:x.qty||1})}</div>${details}</div><div class="cartOrderPrice">${money((x.price||0)*(x.qty||1))}</div></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></div>`}
 function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
-function clearCurrentProduct(){Object.assign(state,{setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null})}
+function clearCurrentProduct(){Object.assign(state,{setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null})}
 function addCurrentOrderToCart(){if(!currentHasItems())return;state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct();state.step='cartReview';render()}
-function addAnotherSet(){clearCurrentProduct();state.promo='set';state.step='setChoice';render()}
-function addAnotherUpUp(){clearCurrentProduct();state.promo='upup';state.size='F';state.step='mode';render()}
-function addAnotherSingle(){clearCurrentProduct();state.step='promo';render()}
+function preserveCurrentOrderForAdd(){if(currentHasItems())state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct()}
+function addAnotherSet(){preserveCurrentOrderForAdd();state.promo='set';state.step='setChoice';render()}
+function addAnotherUpUp(){preserveCurrentOrderForAdd();state.promo='upup';state.size='F';state.step='mode';render()}
+function addAnotherSingle(){preserveCurrentOrderForAdd();state.step='promo';render()}
 function checkoutCart(){if(!state.cartItems.length)return;state.step='phone';render()}
 function selectedItemCosts(map,master,filterFn){
  return Object.entries(map||{}).flatMap(([id,q])=>{const item=master.find(x=>x.id===id);if(!item||!filterFn(item))return[];return Array.from({length:Number(q)||0},()=>Number(item.price)||0)}).sort((a,b)=>b-a)
@@ -5114,43 +5117,95 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
   text-align:center!important;
 }
 
-/* The yellow next card stays below the fixed header while item lists scroll. */
-body[data-step="topping"] .grid:not(.toppingDecisionGrid)>.skipCard,
-body[data-step="side"] .grid>.skipCard,
-body[data-step="drink"] .grid>.skipCard{
-  position:fixed!important;
-  top:139px!important;
-  left:50%!important;
-  right:auto!important;
-  width:min(calc(100vw - 48px),1152px)!important;
-  transform:translateX(-50%)!important;
-  z-index:17!important;
-  box-shadow:0 8px 22px rgba(0,0,0,.24)!important;
+/* Selection CTAs follow the complete menu list instead of covering it. */
+.selectionFooter{
+  width:100%;
+  margin:clamp(22px,4vw,36px) 0 0;
+  padding-bottom:max(16px,env(safe-area-inset-bottom));
 }
-body[data-step="topping"] .grid:not(.toppingDecisionGrid):has(>.skipCard),
-body[data-step="side"] .grid:has(>.skipCard),
-body[data-step="drink"] .grid:has(>.skipCard){
-  padding-top:116px!important;
-  animation:none!important;
+.selectionFooterCard{
+  position:static!important;
+  display:flex!important;
+  width:100%!important;
+  min-height:96px!important;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  margin:0!important;
   transform:none!important;
+  text-align:center!important;
 }
-body[data-step="topping"] .stage,
-body[data-step="side"] .stage,
-body[data-step="drink"] .stage{
-  animation:none!important;
-  transform:none!important;
+.selectionFooterCard h2{margin:0 0 7px!important}
+.selectionFooterCard p{margin:0!important;word-break:keep-all}
+.selectionFooterCard.setSideContinue{border:2px solid #e1b617!important}
+
+/* Drink quantities stay legible between the unchanged minus/plus controls. */
+.v3DrinkVolume .v3DrinkQuantity{
+  display:flex;
+  min-width:58px;
+  margin-top:5px;
+  padding:4px 7px;
+  border-radius:10px;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  background:#17342a;
+  color:#fff;
+  white-space:normal;
 }
+.v3DrinkQuantity span{font-size:clamp(9px,1.45vw,13px);line-height:1.05;font-weight:900;word-break:keep-all}
+.v3DrinkQuantity strong{color:#ffe76a!important;font-size:clamp(18px,3vw,29px)!important;line-height:1!important}
+.drinkQuantityReadout,
+.setDrinkQuantity{
+  display:flex;
+  min-width:76px;
+  padding:7px 10px;
+  border-radius:12px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#17342a;
+  color:#fff;
+  line-height:1;
+}
+.drinkQuantityReadout small,
+.setDrinkQuantity small{font-size:12px;font-weight:900;word-break:keep-all}
+.drinkQuantityReadout strong,
+.setDrinkQuantity strong{margin-top:4px;color:#ffe76a!important;font-size:28px!important;line-height:1!important}
+.setDrinkQuantity{margin-top:7px;align-self:center}
+
+/* Additional order choices are visible but secondary to order confirmation. */
+.reviewAddMore{
+  margin:18px 0;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+}
+.reviewAddMore h2{margin:0 0 12px;font-size:20px}
+.reviewAddMoreGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.reviewAddMoreGrid button{
+  min-height:52px;
+  padding:10px;
+  border:2px solid var(--g);
+  border-radius:13px;
+  background:#fff;
+  color:var(--g);
+  font-weight:900;
+}
+.reviewAddMore p{margin:10px 0 0;color:#687068;font-size:12px;text-align:center}
 
 @media(max-width:560px){
   body[data-step="timing"] .grid.two.timingChoiceGrid .card{min-height:206px!important}
   .setDrinkTextCard.setDrinkVariantCard{min-height:142px!important;gap:7px!important}
   .setDrinkTextCard .drinkVariantLabel{font-size:23px!important}
-  body[data-step="topping"] .grid:not(.toppingDecisionGrid)>.skipCard,
-  body[data-step="side"] .grid>.skipCard,
-  body[data-step="drink"] .grid>.skipCard{
-    top:121px!important;
-    width:calc(100vw - 32px)!important;
-  }
+  .selectionFooter{margin-top:20px}
+  .selectionFooterCard{min-height:88px!important}
+  .reviewAddMoreGrid{grid-template-columns:1fr}
+  .reviewAddMoreGrid button{min-height:48px}
+  .v3DrinkVolume .v3DrinkQuantity{min-width:54px;padding:3px 5px;gap:4px}
+  .v3DrinkQuantity span{font-size:9px}
+  .v3DrinkQuantity strong{font-size:20px!important}
 }
 
 /* kiosk V12 · approved Papa Johns red and larger language-screen logo */
