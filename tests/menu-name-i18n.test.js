@@ -15,6 +15,8 @@ for(const language of languages){
   const file=path.join(root,'i18n',`${language}.js`);
   vm.runInContext(fs.readFileSync(file,'utf8'),context,{filename:file});
 }
+const uiFile=path.join(root,'i18n','ui.js');
+vm.runInContext(fs.readFileSync(uiFile,'utf8'),context,{filename:uiFile});
 const indexFile=path.join(root,'i18n','index.js');
 vm.runInContext(fs.readFileSync(indexFile,'utf8'),context,{filename:indexFile});
 
@@ -30,6 +32,7 @@ const flatten=(object,prefix='',result={})=>{
 };
 const placeholders=value=>[...String(value).matchAll(/\{(\w+)\}/g)].map(match=>match[1]).sort();
 const korean=flatten(locales.ko);
+const uiKeyCount=Object.keys(flatten(locales.ko.ui)).length;
 
 for(const language of languages){
   const locale=flatten(locales[language]);
@@ -82,6 +85,7 @@ for(const language of languages.filter(language=>language!=='ko')){
   for(const [id,name] of Object.entries(englishPizzaNames)){
     assert.strictEqual(i18n.pizzaName({id,name:'한국어 원본'}),name,`${language} ${id}`);
   }
+  assert.ok(!/[가-힣]/.test(JSON.stringify(locales[language].ui)),`${language} UI contains Hangul`);
 }
 
 i18n.setLanguage('es');
@@ -115,8 +119,24 @@ for(const language of languages.filter(language=>language!=='ko')){
 
 const inlineScripts=[...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(match=>match[1]);
 inlineScripts.forEach((source,index)=>assert.doesNotThrow(()=>new Function(source),`inline script ${index+1} syntax`));
+const literalTranslationKeys=[...new Set([...html.matchAll(/\bt\(\s*['"]([^'"]+)['"]/g)].map(match=>match[1]))];
+for(const language of languages){
+  for(const key of literalTranslationKeys){
+    assert.notStrictEqual(i18n.translationValue(language,key),undefined,`${language} missing rendered key ${key}`);
+  }
+}
 for(const pattern of [/<h3>\$\{p\.name\}<\/h3>/,/\$\{po\(state\.left\)\.name\}/,/\$\{po\(state\.right\)\.name\}/,/<h3>\$\{t\.name\}<\/h3>/]){
   assert.ok(!pattern.test(html),`direct customer menu-name rendering remains: ${pattern}`);
 }
 
-console.log(`menu-name i18n: ${Object.keys(korean).length} keys × ${languages.length} languages; rendering helpers and inline scripts passed`);
+const directHangulTextNodes=[...html.matchAll(/>([^<>\n`]*[가-힣][^<>\n`]*)</g)].map(match=>match[1].trim()).filter(Boolean);
+assert.deepStrictEqual(directHangulTextNodes,[],'hardcoded Hangul remains in HTML/customer templates');
+assert.ok(!/content\s*:\s*['"][^'"]*[가-힣]/.test(html),'hardcoded Hangul remains in CSS content');
+for(const pattern of [
+  /(?:alert|confirm|prompt)\(\s*['"`][^'"`]*[가-힣]/,
+  /textContent\s*=\s*['"`][^'"`]*[가-힣]/,
+  /new Error\(\s*['"`][^'"`]*[가-힣]/,
+  />\s*(?:LANGUAGE|DINE IN|TAKE OUT|HAPPY HOUR|REGULAR|ZERO)\s*</
+])assert.ok(!pattern.test(html),`hardcoded customer UI remains: ${pattern}`);
+
+console.log(`i18n: ${Object.keys(korean).length} keys × ${languages.length} languages (${uiKeyCount} global UI keys); rendering helpers and hardcoded-UI checks passed`);
