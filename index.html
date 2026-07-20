@@ -2138,6 +2138,7 @@ const db = firebase.firestore();
 <script src="i18n/ja.js?v=44.2"></script>
 <script src="i18n/zh.js?v=44.2"></script>
 <script src="i18n/vi.js?v=44.2"></script>
+<script src="i18n/es.js?v=44.2"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script>
 const money=n=>new Intl.NumberFormat('ko-KR').format(Math.round(n))+'원';
@@ -2180,10 +2181,10 @@ function uiIcon(name,cls=''){
 }
 
 
-function currentLanguageLabel(){const lang=window.PJ_I18N?.currentLanguage?.()||document.documentElement.lang||'ko';return ({ko:'한국어',en:'English',ja:'日本語',zh:'中文',vi:'Tiếng Việt'}[lang]||lang)}
+function currentLanguageLabel(){const lang=window.PJ_I18N?.currentLanguage?.()||document.documentElement.lang||'ko';return ({ko:'한국어',en:'English',ja:'日本語',zh:'中文',vi:'Tiếng Việt',es:'Español'}[lang]||lang)}
 function homeHappyDealHTML(){const lang=window.PJ_I18N?.currentLanguage?.()||document.documentElement.lang||'ko';return lang==='ko'?'<span class="happyPizzaSize">R사이즈 피자</span> <span class="happyPrice">15,000원</span>':t('home.happyHourDeal')}
 function homeTakeoutDealHTML(){const lang=window.PJ_I18N?.currentLanguage?.()||document.documentElement.lang||'ko';return lang==='ko'?'<span class="takeoutDiscountText">20% 할인</span>':t('home.takeoutDeal')}
-function languageView(){const langs=[['ko','한국어'],['en','English'],['ja','日本語'],['zh','中文'],['vi','Tiếng Việt']];return `<section class="languageScreen"><img class="heroLogoDark" src="assets/images/papajohns_red_logo.png" alt="Papa Johns"><h1>${t('language.title')}</h1><p>${t('language.subtitle')}</p><div class="languageGrid">${langs.map(([id,name])=>`<button onclick="chooseLanguage('${id}')">${name}</button>`).join('')}</div></section>`}
+function languageView(){const langs=[['ko','한국어'],['en','English'],['ja','日本語'],['zh','中文'],['vi','Tiếng Việt'],['es','Español']];return `<section class="languageScreen"><img class="heroLogoDark" src="assets/images/papajohns_red_logo.png" alt="Papa Johns"><h1>${t('language.title')}</h1><p>${t('language.subtitle')}</p><div class="languageGrid">${langs.map(([id,name])=>`<button onclick="chooseLanguage('${id}')">${name}</button>`).join('')}</div></section>`}
 function chooseLanguage(lang){window.PJ_I18N?.setLanguage(lang);sessionStorage.setItem('pjLangSelected','1');state.step='home';render()}
 function openLanguageSelect(){state.step='language';render()}
 function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;state.mode='single';state.dough='오리지널';state.crust='오리지널';state.toppings={};state.step='side';render()}
