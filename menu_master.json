@@ -1,0 +1,84 @@
+{
+  "drinks": [
+    {
+      "id": "coke-500",
+      "name": "코카콜라",
+      "shortName": "코카콜라",
+      "brand": "coke",
+      "zero": false,
+      "volume": "500mL",
+      "price": 1800,
+      "img": "images/coke-500.png"
+    },
+    {
+      "id": "coke-zero-500",
+      "name": "코카콜라 제로",
+      "shortName": "코카콜라 제로",
+      "brand": "coke",
+      "zero": true,
+      "volume": "500mL",
+      "price": 1800,
+      "img": "images/coke-zero-500.png"
+    },
+    {
+      "id": "sprite-500",
+      "name": "스프라이트",
+      "shortName": "스프라이트",
+      "brand": "sprite",
+      "zero": false,
+      "volume": "500mL",
+      "price": 1800,
+      "img": "images/sprite-500.png"
+    },
+    {
+      "id": "sprite-zero-500",
+      "name": "스프라이트 제로",
+      "shortName": "스프라이트 제로",
+      "brand": "sprite",
+      "zero": true,
+      "volume": "500mL",
+      "price": 1800,
+      "img": "images/sprite_zero_500.png"
+    },
+    {
+      "id": "coke-125",
+      "name": "코카콜라",
+      "shortName": "코카콜라",
+      "brand": "coke",
+      "zero": false,
+      "volume": "1.25L",
+      "price": 2500,
+      "img": "images/coke-125.png"
+    },
+    {
+      "id": "coke-zero-125",
+      "name": "코카콜라 제로",
+      "shortName": "코카콜라 제로",
+      "brand": "coke",
+      "zero": true,
+      "volume": "1.25L",
+      "price": 2500,
+      "img": "images/coke-zero-125.png"
+    },
+    {
+      "id": "sprite-15",
+      "name": "스프라이트",
+      "shortName": "스프라이트",
+      "brand": "sprite",
+      "zero": false,
+      "volume": "1.5L",
+      "price": 2500,
+      "img": "images/sprite-15.png"
+    },
+    {
+      "id": "sprite-zero-15",
+      "name": "스프라이트 제로",
+      "shortName": "스프라이트 제로",
+      "brand": "sprite",
+      "zero": true,
+      "volume": "1.5L",
+      "price": 2500,
+      "img": "images/sprite_zero_15l.png"
+    }
+  ]
+}

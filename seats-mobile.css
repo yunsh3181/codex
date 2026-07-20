@@ -1,0 +1,18 @@
+/* v41.3 — SEAT ADMIN MOBILE ONLY. PC styles are intentionally untouched. */
+@media (max-width: 768px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+  .admin-header{padding:12px!important;gap:10px!important;align-items:flex-start!important;flex-direction:column!important}
+  .admin-header h1{font-size:22px!important;margin:0}.admin-header p{font-size:12px!important;margin:3px 0 0}
+  .admin-tools{width:100%!important;display:flex!important;gap:8px!important;justify-content:space-between!important;align-items:center!important}
+  .admin-tools a,.admin-tools button{min-height:44px!important;padding:10px 12px!important;font-size:13px!important}
+  .seat-admin-main{padding:10px!important;width:100%!important;max-width:100%!important}
+  .cad-topbar{padding:13px!important;border-radius:16px!important;gap:10px!important;align-items:flex-start!important;flex-direction:column!important}.cad-topbar h2{font-size:20px!important;margin:0}.cad-topbar p{font-size:12px!important}
+  .cad-summary,.seat-summary{width:100%!important;display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:7px!important}
+  .cad-layout{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;width:100%!important}
+  .overview-zone{padding:11px!important;border-radius:17px!important}.overview-zone h3{font-size:18px!important}.overview-seat-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  .overview-seat{min-height:116px!important;padding:11px!important;border-radius:15px!important}.overview-seat strong{font-size:16px!important}.overview-seat small{font-size:11px!important}
+  .overview-actions,.group-summary-actions{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}.overview-actions button,.group-summary-actions button{min-height:46px!important;font-size:13px!important}
+  .group-summary-grid{grid-template-columns:1fr!important}.group-summary-card{padding:12px!important;border-radius:15px!important}
+  .admin-login-card{width:calc(100% - 24px)!important;max-width:400px!important;padding:20px!important}.admin-login-card h1{font-size:23px!important}.admin-login-card input,.admin-login-card button{min-height:50px!important;font-size:16px!important}
+}
+@media (max-width:390px){.overview-seat-list{grid-template-columns:1fr!important}}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#005b2b" />
+  <title>판교2테크노밸리점 주문 관리자 v43.9.7</title>
+  <link rel="stylesheet" href="../admin.css?v=43.9.7" />
+  <link rel="stylesheet" href="../admin-mobile.css?v=43.9.7" />
+</head>
+<body>
+<div id="adminLoginGate" class="admin-login-gate">
+  <form id="adminLoginForm" class="admin-login-card">
+    <h1>관리자 로그인</h1>
+    <p>Firebase 관리자 계정으로 로그인해 주세요.</p>
+    <input id="adminEmail" type="email" autocomplete="username" placeholder="관리자 이메일">
+    <input id="adminPassword" type="password" autocomplete="current-password" placeholder="비밀번호">
+    <button type="submit">로그인</button>
+    <small id="adminLoginError"></small>
+  </form>
+</div>
+
+  <header class="admin-header">
+    <div>
+      <strong>PAPA JOHNS</strong>
+      <span>판교2테크노밸리점 · 실시간 주문관리 · v43.9.7</span>
+    </div>
+    <div class="header-actions">
+      <button id="soundSettingsButton" class="sound-button">⚙️ 알림 설정</button><button id="soundButton" class="sound-button">🔔 알림음 켜기</button>
+      <span id="connectionBadge" class="connection">연결 중</span>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <nav class="admin-section-tabs">
+      <button id="showOrdersTab" class="active">📋 주문 확인</button>
+      <button id="showSeatsTab">🪑 좌석 관리</button><button id="showWaitingTab">⏳ 줄서기</button><button id="showSalesTab">📈 판매통계</button><button id="showCustomersTab">👤 고객통계</button><button id="showRecommendationsTab">🎯 추천성과</button>
+    </nav>
+    <section id="ordersPanel">
+    <section class="stats">
+      <article><span>결제대기</span><strong id="newCount">0</strong></article>
+      <article><span>접수/조리중</span><strong id="cookingCount">0</strong></article>
+      <article><span>완료</span><strong id="doneCount">0</strong></article>
+      <article><span>오늘 주문금액</span><strong id="todaySales">0원</strong></article>
+    </section>
+
+    <nav class="channel-filters" id="channelFilters"><button class="active" data-channel="all">전체 채널</button><button data-channel="pc">PC</button><button data-channel="mobile">모바일</button></nav>
+    <nav class="filters" id="filters">
+      <button class="active" data-filter="payment_pending">결제대기</button>
+      <button data-filter="accepted">접수</button>
+      <button data-filter="cooking">조리중</button>
+      <button data-filter="completed">완료</button>
+      <button data-filter="all">전체</button>
+    </nav>
+
+    <section id="orderList" class="order-list">
+      <div class="empty">주문을 불러오는 중입니다.</div>
+    </section>
+    </section>
+    <section id="seatsPanel" hidden>
+      <iframe id="seatsFrame" src="../seat/?v=43.9.7" title="좌석 관리"></iframe>
+    </section>
+    <section id="waitingPanel" hidden>
+      <div class="waiting-admin-head"><h2>줄서기 현황</h2><button id="refreshWaiting">새로고침</button></div>
+      <div id="waitingList" class="waiting-admin-list"><div class="empty">대기 정보를 불러오는 중입니다.</div></div>
+    </section>
+    <section id="salesPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>판매 통계</h2><button id="refreshSalesStats">새로고침</button></div><div id="salesSummary" class="analytics-summary"></div><div class="analytics-grid"><article><h3>피자 BEST</h3><div id="bestPizza"></div></article><article><h3>사이드 BEST</h3><div id="bestSide"></div></article><article><h3>음료 BEST</h3><div id="bestDrink"></div></article><article><h3>세트 BEST</h3><div id="bestSet"></div></article></div></section>
+    <section id="customersPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>고객 통계</h2><input id="customerSearch" placeholder="전화번호 뒤 4자리 검색"></div><div id="customerSummary" class="analytics-summary"></div><div id="customerList" class="data-list"></div></section>
+    <section id="recommendationsPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>추천 성과</h2></div><div id="recommendationSummary" class="analytics-summary"></div><div id="recommendationList" class="data-list"></div></section>
+  </main>
+
+  <div id="soundSettingsModal" class="settings-modal" hidden>
+    <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="soundSettingsTitle">
+      <div class="settings-head"><div><strong id="soundSettingsTitle">🔔 알림 설정</strong><span>매장 환경에 맞는 주문 알림을 선택하세요.</span></div><button id="closeSoundSettings" class="icon-button" aria-label="닫기">✕</button></div>
+      <div class="settings-body">
+        <label class="setting-row"><span>알림음</span><select id="soundPreset"><option value="papa">파파존스 기본</option><option value="pos">POS 스타일</option><option value="cafe">카페 스타일</option><option value="voice">음성 안내만</option><option value="custom">사용자 MP3</option></select></label>
+        <label class="setting-row"><span>음량 <b id="volumeValue">80%</b></span><input id="soundVolume" type="range" min="0" max="100" step="5" value="80"></label>
+        <label class="setting-row toggle-row"><span>음성 안내</span><input id="voiceEnabled" type="checkbox" checked></label>
+        <label class="setting-row"><span>사용자 MP3</span><input id="customSoundFile" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"><small id="customSoundName">선택된 파일 없음</small></label>
+        <div class="settings-actions"><button id="previewSound" class="secondary-button">▶ 미리 듣기</button><button id="saveSoundSettings" class="primary-button">설정 저장</button></div>
+        <p class="settings-note">브라우저 보안상 관리자 화면을 연 뒤 한 번은 ‘알림음 켜기’를 눌러야 소리가 재생됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden>
+    <strong>새 주문이 들어왔습니다!</strong>
+    <span id="toastText"></span>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="../firebase-config.js?v=43.9.7"></script>
+  <script src="../common-data.js?v=43.9.7"></script>
+  <script src="../data.js?v=43.9.7"></script>
+  <script src="../admin.js?v=43.9.7"></script>
+  <script src="../admin-dashboard.js?v=43.9.7"></script>
+</body>
+</html>

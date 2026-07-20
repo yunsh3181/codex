@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    function validString(v, max) { return v is string && v.size() <= max; }
+    function validOrderCreate() {
+      return request.resource.data.keys().hasOnly([
+        'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
+        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','orderType','partySize','seat','pickup',
+        'items','itemCount','normalAmount','discountAmount','totalAmount','total','benefit','payment','status',
+        'recommendationEvents','createdAt','createdAtClient','source'
+      ])
+      && request.resource.data.channel == 'mobile'
+      && request.resource.data.status == 'payment_pending'
+      && request.resource.data.orderType in ['dinein','takeout']
+      && validString(request.resource.data.phone, 11)
+      && request.resource.data.phone.matches('^010[0-9]{8}$')
+      && validString(request.resource.data.phoneMasked, 20)
+      && validString(request.resource.data.phoneLast4, 4)
+      && request.resource.data.items is list
+      && request.resource.data.items.size() >= 1
+      && request.resource.data.items.size() <= 30
+      && request.resource.data.itemCount is int
+      && request.resource.data.itemCount >= 1
+      && request.resource.data.itemCount <= 100
+      && request.resource.data.total is number
+      && request.resource.data.total >= 0
+      && request.resource.data.total <= 3000000
+      && request.resource.data.totalAmount == request.resource.data.total
+      && request.resource.data.createdAt == request.time;
+    }
+
+    match /orders/{orderId} {
+      allow create: if validOrderCreate();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /seats/{seatId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        request.resource.data.status == 'occupied'
+        && validString(request.resource.data.orderId, 128)
+        && existsAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId))
+        && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'payment_pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status','partySize','orderNo','orderId','occupiedAt','updatedAt'
+        ])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /waitlist/{waitId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          'seatId','seatName','partySize','phoneLast4','phoneMasked','status','createdAt','createdAtClient'
+        ])
+        && validString(request.resource.data.seatId, 80)
+        && validString(request.resource.data.seatName, 80)
+        && request.resource.data.partySize is int
+        && request.resource.data.partySize >= 1
+        && request.resource.data.partySize <= 16
+        && validString(request.resource.data.phoneLast4, 4)
+        && validString(request.resource.data.phoneMasked, 20)
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin() || (
+        resource.data.status == 'waiting'
+        && request.resource.data.status == 'cancelled'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','cancelledAt'])
+        && request.resource.data.cancelledAt == request.time
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /customers/{customerId} { allow read, write: if isAdmin(); }
+    match /salesStats/{document=**} { allow read, write: if isAdmin(); }
+    match /dailyStats/{document=**} { allow read, write: if isAdmin(); }
+    match /aggregationMarkers/{document=**} { allow read, write: if isAdmin(); }
+    match /recommendationStats/{document=**} { allow read, write: if isAdmin(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}
