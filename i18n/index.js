@@ -1,4 +1,4 @@
-var SUPPORTED_LANGUAGES=['ko','en','ja','zh','vi'];
+var SUPPORTED_LANGUAGES=['ko','en','ja','zh','vi','es'];
 var DEFAULT_LANGUAGE='ko';
 var LANGUAGE_STORAGE_KEY='pj_kiosk_language';
 var I18N=window.PJ_I18N_LOCALES||{};
