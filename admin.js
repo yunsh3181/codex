@@ -41,6 +41,7 @@ function startRealtimeSubscriptions(){
    .sort((a,b)=>(statusPriority[a.status]??9)-(statusPriority[b.status]??9)||toMillis(b)-toMillis(a))
    .slice(0,100);
  render();
+ assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
  if(!initialLoad)notifyNewOrders(added.filter(o=>o.status==='payment_pending'));
  if(soundEnabled&&hasUnacceptedOrders())startNewOrderRepeat();
  else if(!hasUnacceptedOrders())stopNewOrderRepeat();
@@ -113,10 +114,42 @@ const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
-const MOBILE_SIDE_NAMES={S001:'파파스 윙',S002:'치킨 스트립',S003:'파파스 파스타-미트',S004:'파파스 파스타-로제',S005:'더블 초코칩 브라우니',S006:'코울슬로',S007:'콘샐러드',S008:'웨지 포테이토',S009:'메가 초코칩 쿠키',S010:'바베큐 립',S011:'치즈 스틱',S012:'베이컨 치즈 스틱',S013:'브래드 스틱'};
-const MOBILE_DRINK_NAMES={D001:'코카-콜라 500ml',D002:'코카-콜라 1.25L',D003:'코카-콜라 제로 500ml',D004:'코카-콜라 제로 1.25L',D005:'스프라이트 500ml',D006:'스프라이트 1.5L',D007:'스프라이트 제로 500ml',D008:'스프라이트 제로 1.5L',D009:'프레쉬 피클',D010:'갈릭 디핑소스',D011:'생수 500ml',D012:'버드와이저 병맥주'};
-const MOBILE_TOPPING_NAMES={T001:'2블랜드 치즈',T002:'3블랜드 치즈',T003:'엑스트라 치즈',T004:'체다치즈',T005:'이탈리안소세지',T006:'비프',T007:'베이컨',T008:'치킨',T009:'햄',T010:'페퍼로니',T011:'토마토',T012:'포테이토',T013:'콘',T014:'파인애플',T015:'블랙 올리브',T016:'할라피뇨',T017:'양파',T018:'청피망',T019:'양송이'};
-function productName(id,master){return master.find(x=>x.id===id)?.name||MOBILE_TOPPING_NAMES[id]||MOBILE_SIDE_NAMES[id]||MOBILE_DRINK_NAMES[id]||id}
+function seoulBusinessDayKey(value=new Date()){
+ const date=value?.toDate?value.toDate():new Date(value);
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(date).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+ let businessDate=new Date(Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),12));
+ if(Number(parts.hour)<9)businessDate.setUTCDate(businessDate.getUTCDate()-1);
+ return businessDate.toISOString().slice(0,10);
+}
+const sequenceAssignments=new Set();
+async function ensureOrderSequence(order){
+ if(!order?.id||Number(order.sequence||order.dailySequence)>0||sequenceAssignments.has(order.id))return;
+ sequenceAssignments.add(order.id);
+ try{
+  const businessDay=seoulBusinessDayKey(order.createdAt||order.createdAtClient||new Date());
+  const storeId=String(order.storeId||'pangyo2-techno-valley').replace(/[^a-zA-Z0-9_-]/g,'_');
+  const orderRef=db.collection('orders').doc(order.id);
+  const counterRef=db.collection('dailyStats').doc(`order-sequence_${storeId}_${businessDay}`);
+  await db.runTransaction(async transaction=>{
+   const [orderSnapshot,counterSnapshot]=await Promise.all([transaction.get(orderRef),transaction.get(counterRef)]);
+   if(!orderSnapshot.exists)return;
+   const saved=orderSnapshot.data();
+   if(Number(saved.sequence||saved.dailySequence)>0)return;
+   const next=Math.max(0,Number(counterSnapshot.exists?counterSnapshot.data().lastSequence:0)||0)+1;
+   transaction.set(counterRef,{type:'orderSequence',storeId,businessDay,lastSequence:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+   transaction.update(orderRef,{businessDay,sequence:next,dailySequence:next,sequenceAssignedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  });
+ }finally{sequenceAssignments.delete(order.id)}
+}
+async function assignMissingOrderSequences(list){
+ const pending=(list||[]).filter(order=>!Number(order.sequence||order.dailySequence)).sort((a,b)=>{
+  const millis=value=>value?.toMillis?value.toMillis():value?.seconds?value.seconds*1000:new Date(value||0).getTime()||0;
+  return millis(a.createdAt||a.createdAtClient)-millis(b.createdAt||b.createdAtClient);
+ });
+ for(const order of pending)await ensureOrderSequence(order);
+}
+const ORDER_CATALOG=window.PJ_ORDER_CATALOG||{};
+function productName(id,category,legacyMaster=[]){return ORDER_CATALOG[category]?.[id]||legacyMaster.find(x=>x.id===id)?.name||id}
 
 const ADMIN_SEAT_NAMES={
  'papa-2':'파파존 2인석','papa-bar4':'파파존 4인 바테이블',
@@ -161,18 +194,28 @@ function adminCrustDoughLabel(item){
  return labels.join(' ');
 }
 function adminCustomerSizeLabel(item){const raw=String(item?.size||'').toUpperCase();return raw==='F'?'패밀리사이즈':raw==='L'?'라지사이즈':raw==='R'?'레귤러사이즈':adminSizeLabel(item)}
+function adminCustomerDoughLabel(item){const raw=String(item?.dough||item?.doughType||'오리지널');if(raw.includes('씬')||raw.toLowerCase().includes('thin'))return '씬도우';if(raw.includes('크루아상')||raw.toLowerCase().includes('cro'))return '크루아상';return '오리지널'}
 function adminCustomerCrustLabel(item){const raw=String(item?.crust||item?.crustType||'오리지널');if(raw.includes('골드링')||raw.toLowerCase().includes('gold'))return '골드링';if(raw.includes('치즈롤')||raw.toLowerCase().includes('cheese'))return '치즈롤';if(raw.includes('씬')||raw.toLowerCase().includes('thin'))return '씬도우';if(raw.includes('크루아상')||raw.toLowerCase().includes('cro'))return '크루아상';return '오리지널'}
-function adminPizzaLine(item){
- return [adminCustomerCrustLabel(item),adminCustomerSizeLabel(item),item?.pizzaName||'피자'].filter(Boolean).join(' ');
+function adminPizzaName(item){
+ const leftId=item?.pizzaLeft||item?.pizza;
+ const rightId=item?.pizzaRight;
+ if(!leftId)return '추가 상품';
+ const left=productName(leftId,'pizzas',PIZZAS);
+ return (item?.pizzaMode||item?.mode)==='half'&&rightId?`${left} / ${productName(rightId,'pizzas',PIZZAS)}`:left;
 }
-function selectedNames(map,master){return Object.entries(map||{}).filter(([,q])=>q>0).map(([id,q])=>`${productName(id,master)} ×${q}`).join(', ')}
+function adminPizzaLine(item){return [adminCustomerSizeLabel(item),adminCustomerDoughLabel(item),adminCustomerCrustLabel(item),adminPizzaName(item)].filter(Boolean).join(' · ')}
+function selectedNames(map,category,legacyMaster=[]){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>`${productName(id,category,legacyMaster)} ×${Number(q)}`).join(', ')}
+function selectedDrinks(map){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>`${productName(id,ORDER_CATALOG.sauces?.[id]?'sauces':'drinks',DRINKS)} ×${Number(q)}`).join(', ')}
 function itemHTML(item){
  const benefit=item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':'일반주문';
- const top=selectedNames(item.toppings,TOPPINGS),includedSides=selectedNames(item.includedSides,SIDES),includedDrinks=selectedNames(item.includedDrinks,DRINKS),extraSides=selectedNames(item.sides,SIDES),extraDrinks=selectedNames(item.drinks,DRINKS);
- const half=(item.pizzaMode||item.mode)==='half';const discount=Number(item.discountAmount||0);const dough=String(item.dough||item.doughType||'오리지널');return `<div class="order-item"><strong>${Number(item.qty)||1}× ${esc(adminPizzaLine(item))}</strong><span>${half?'반반피자 · ':''}${esc(benefit)}${dough!=='오리지널'?` · ${esc(dough)}`:''}</span>${top?`<small>토핑: ${esc(top)}</small>`:''}${includedSides?`<small>포함 사이드: ${esc(includedSides)}</small>`:''}${includedDrinks?`<small>포함 음료: ${esc(includedDrinks)}</small>`:''}${extraSides?`<small>추가 사이드: ${esc(extraSides)}</small>`:''}${extraDrinks?`<small>추가 음료: ${esc(extraDrinks)}</small>`:''}${discount?`<small class="discount">${esc(item.discountLabel||'할인')} −${money(discount)}</small>`:''}<small>상품금액: ${money(item.total||0)}</small></div>`;
+ const top=selectedNames(item.toppings,'toppings',TOPPINGS),includedSides=selectedNames(item.includedSides,'sides',SIDES),includedDrinks=selectedDrinks(item.includedDrinks),extraSides=selectedNames(item.sides,'sides',SIDES),extraDrinks=selectedDrinks(item.drinks);
+ const half=(item.pizzaMode||item.mode)==='half',discount=Number(item.discountAmount||0),additional=[extraSides&&`사이드 ${extraSides}`,extraDrinks&&`음료·소스 ${extraDrinks}`].filter(Boolean).join(' / ');
+ const rows=[['피자',`${adminPizzaName(item)} ×${Number(item.qty)||1}${half?' (Half & Half)':''}`],['사이즈',adminCustomerSizeLabel(item)||'-'],['도우',adminCustomerDoughLabel(item)],['크러스트',adminCustomerCrustLabel(item)],['토핑',top||'없음'],['사이드',includedSides||'없음'],['음료',includedDrinks||'없음'],['추가상품',additional||'없음'],['할인내역',discount?`${item.discountLabel||benefit} −${money(discount)}`:'없음'],['상품금액',money(item.total||0)]];
+ return `<div class="order-item"><strong>${esc(benefit)}</strong><div class="adminItemSections">${rows.map(([label,value])=>`<div class="adminItemLine ${label==='할인내역'&&discount?'discount':''}"><b>${label}</b><span>${esc(value)}</span></div>`).join('')}</div></div>`;
 }
+function orderBenefitLabel(order){return [...new Set((order.items||[]).map(item=>item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':item.promo==='happy'?'해피아워':'일반주문'))].join(' + ')||'-'}
 function orderDetailsHTML(order){
- const lines=[['주문번호',order.customerNumber||order.orderNo||'-'],['주문채널',PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'],['이용방법',order.orderType==='takeout'?'포장':'먹고가기'],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['예약/수령',order.pickup?.time||'바로 주문'],['인원',order.partySize?order.partySize+'명':'-'],['구역',order.seat?orderZoneLabel(order):'-'],['좌석',orderSeatLabel(order)||'-'],['연락처',order.phoneMasked||'-'],['적용 혜택',order.benefit||order.promo||'-'],['결제수단',order.payment?.methodName||'-'],['분할결제',order.payment?.splitCount>1?order.payment.splitCount+'명 · '+(order.payment.splitAmounts||[]).map(money).join(' / '):'-'],['상품 정상금액',money(order.normalAmount||order.total)],['총 할인',order.discountAmount?'−'+money(order.discountAmount):money(0)],['결제금액',money(order.total)]];
+ const lines=[['순번',order.sequence||order.dailySequence||'배정 중'],['주문번호',order.customerNumber||order.orderNo||'-'],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['주문채널',PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'],['이용방법',order.orderType==='takeout'?'포장':'먹고가기'],['예약',order.pickup?.time||'바로 주문'],['인원',order.partySize?order.partySize+'명':'-'],['구역',order.seat?orderZoneLabel(order):'-'],['좌석',orderSeatLabel(order)||'-'],['연락처',order.phoneMasked||'-'],['적용혜택',orderBenefitLabel(order)],['결제수단',order.payment?.methodName||'-'],['분할결제',order.payment?.splitCount>1?order.payment.splitCount+'명 · '+(order.payment.splitAmounts||[]).map(money).join(' / '):'-'],['상품정상금액',money(order.normalAmount||order.total)],['할인금액',order.discountAmount?'−'+money(order.discountAmount):money(0)],['결제금액',money(order.total)]];
  return `<div class="order-detail" id="detail-${order.id}" hidden><div class="detail-grid">${lines.map(([k,v])=>`<div><b>${k}</b><span>${v}</span></div>`).join('')}</div><h4>전체 주문 구성</h4><div class="detail-items">${(order.items||[]).map(itemHTML).join('')||'<p>저장된 상품 상세가 없습니다.</p>'}</div></div>`
 }
 function toggleOrderDetail(id,button){const box=document.getElementById('detail-'+id);if(!box)return;box.hidden=!box.hidden;button.textContent=box.hidden?'상세보기':'상세접기'}

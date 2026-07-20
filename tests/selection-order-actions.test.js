@@ -52,6 +52,9 @@ assert.match(vm.runInContext("itemPic(po('P011'))",context),/menu_image_018\.png
 assert.ok(html.includes('class="selectionFooter"'),'selection footer component exists');
 assert.ok(html.includes('env(safe-area-inset-bottom)'),'selection footer respects the mobile safe area');
 assert.ok(!html.includes('padding-top:116px!important'),'fixed-CTA compensation padding was removed');
+assert.match(html,/\.selectionFooter\{[\s\S]*?position:fixed;/,'selection CTA is fixed');
+assert.match(html,/bottom:calc\(92px \+ env\(safe-area-inset-bottom\)\)/,'desktop CTA sits above the order bar');
+assert.match(html,/body\[data-step="accompaniment"\] \.stage\{[\s\S]*?padding-bottom:calc\(188px/,'menu area reserves the real CTA height');
 for(const step of ['topping','side','drink']){
   assert.ok(!html.includes(`body[data-step="${step}"] .grid>.skipCard`),`${step} CTA is not fixed over its grid`);
 }
@@ -77,6 +80,51 @@ for(const [name,setup] of Object.entries(variants)){
   assert.ok(footer>grid,`${name} CTA follows the final menu grid`);
   assert.ok(markup.includes('selectionFooterCard'),`${name} uses the shared footer CTA`);
 }
+
+for(const setSize of [2,3,4]){
+  const sideId=vm.runInContext(`SIDES.find(x=>${setSize}===2?x.set2:x.set).id`,context);
+  const sideExtra=render(`Object.assign(state,{step:'side',set:${setSize},finalAddMode:null,setSideExtraMode:true,extraSides:{},setSides:{'${sideId}':1}})`);
+  assert.ok(sideExtra.includes(`qty('extraSides','${sideId}',1,9,99)`),`${setSize}-person paid side list retains the included product`);
+  assert.ok(!sideExtra.includes(`qty('setSides','${sideId}'`),`${setSize}-person paid side view hides included selection controls`);
+  vm.runInContext('prevStep()',context);
+  const sideState=JSON.parse(vm.runInContext('JSON.stringify({mode:state.setSideExtraMode,prompted:state.setSidePrompted,selected:state.setSides})',context));
+  assert.strictEqual(sideState.mode,false,`${setSize}-person side back returns to included mode`);
+  assert.strictEqual(sideState.prompted,false,`${setSize}-person side can re-enter the extra prompt`);
+  assert.strictEqual(sideState.selected[sideId],1,`${setSize}-person included side survives back navigation`);
+
+  const drinkId=setSize===2?'D001':'D002';
+  const drinkExtra=render(`Object.assign(state,{step:'drink',set:${setSize},finalAddMode:null,setDrinkExtraMode:true,extraDrinks:{},setDrink:'${drinkId}'})`);
+  assert.ok(drinkExtra.includes(`'${drinkId}',1,9,99`),`${setSize}-person paid drink list retains the included product`);
+  assert.ok(!drinkExtra.includes(`chooseSetDrink('${drinkId}')`),`${setSize}-person paid drink view hides included selection controls`);
+  vm.runInContext('prevStep()',context);
+  const drinkState=JSON.parse(vm.runInContext('JSON.stringify({mode:state.setDrinkExtraMode,prompted:state.setDrinkPrompted,selected:state.setDrink})',context));
+  assert.strictEqual(drinkState.mode,false,`${setSize}-person drink back returns to included mode`);
+  assert.strictEqual(drinkState.prompted,false,`${setSize}-person drink can re-enter the extra prompt`);
+  assert.strictEqual(drinkState.selected,drinkId,`${setSize}-person included drink survives back navigation`);
+}
+
+const incompleteSide=render("Object.assign(state,{step:'side',set:4,finalAddMode:null,setSideExtraMode:false,extraSides:{},setSides:{}})");
+assert.match(incompleteSide,/selectionFooterCard setSideContinue" disabled/,'incomplete included side keeps a disabled fixed CTA visible');
+const incompleteDrink=render("Object.assign(state,{step:'drink',set:2,finalAddMode:null,setDrinkExtraMode:false,extraDrinks:{},setDrink:null})");
+assert.match(incompleteDrink,/selectionFooterCard setDrinkContinue" disabled/,'incomplete included drink keeps a disabled fixed CTA visible');
+const accompaniment=render("Object.assign(state,{step:'accompaniment',extraDrinks:{}})");
+assert.ok(accompaniment.includes('selectionFooterCard'),'accompaniment uses the shared fixed CTA');
+assert.ok(!accompaniment.includes('card skipCard" onclick="finishAccompaniment()'), 'accompaniment CTA is outside the menu grid');
+
+vm.runInContext("Object.assign(state,{orderType:'takeout',orderTiming:'now',phone:'12345678',paymentMethod:'card',set:3,promo:'set',size:'L',mode:'half',left:'P001',right:'P002',dough:'오리지널',crust:'치즈롤',toppings:{T001:1},setSides:{S004:1},extraSides:{S004:1},setDrink:'D002',extraDrinks:{D002:1,D009:2},cartItems:[]})",context);
+const payload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',context));
+assert.strictEqual(payload.items.length,1,'current order becomes one Firestore item');
+const payloadItem=payload.items[0];
+assert.strictEqual(payloadItem.pizzaLeft,'P001','left half pizza ID is retained');
+assert.strictEqual(payloadItem.pizzaRight,'P002','right half pizza ID is retained');
+assert.strictEqual(payloadItem.toppings.T001,1,'topping quantity is retained');
+assert.strictEqual(payloadItem.includedSides.S004,1,'included side is retained');
+assert.strictEqual(payloadItem.sides.S004,1,'same side can also be retained as a paid extra');
+assert.strictEqual(payloadItem.includedDrinks.D002,1,'included drink is retained');
+assert.strictEqual(payloadItem.drinks.D002,1,'same drink can also be retained as a paid extra');
+assert.strictEqual(payloadItem.drinks.D009,2,'sauce quantity is retained');
+assert.ok(Number.isFinite(payload.normalAmount)&&Number.isFinite(payload.discountAmount)&&Number.isFinite(payload.total),'order amounts are finite');
+assert.ok(!Object.hasOwn(payload,'discountBreakdown'),'payload contains only Firestore-approved summary fields');
 
 const drinkMarkup=render(variants.drinkNormal);
 assert.ok(drinkMarkup.includes('v3DrinkQuantity'),'grouped drink quantity readout exists');
@@ -110,4 +158,4 @@ for(const [action,expected] of Object.entries(flowCases)){
   assert.strictEqual(after.total,before.total,`${action} cart total remains correct`);
 }
 
-console.log('selection footers, drink quantity UI, P011 image, and 3 preserved additional-order flows passed');
+console.log('fixed selection CTAs, 2/3/4-person included/paid state, drink quantities, P011 image, and additional-order flows passed');
