@@ -177,3 +177,272 @@ html[data-layout="kiosk21"] :where(
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Phase 4-3: touch-first product card and selection geometry. Visual state
+ * meaning and all behavior remain owned by the existing application layer. */
+html[data-layout="kiosk21"] :where(
+  .grid,
+  .c-grid,
+  .adaptiveCards,
+  .pizzaGrid,
+  .sideGrid,
+  .drinkGrid,
+  .drinkTextGrid,
+  .accompanimentGrid,
+  .optionGrid,
+  .sizeGrid,
+  .doughGrid,
+  .crustGrid,
+  .crustTextGrid,
+  .setCrustGrid
+) {
+  min-width: 0;
+  max-width: 100%;
+  gap: 24px;
+}
+
+html[data-layout="kiosk21"] :where(
+  .grid,
+  .c-grid,
+  .adaptiveCards,
+  .pizzaGrid,
+  .sideGrid,
+  .drinkGrid,
+  .drinkTextGrid,
+  .accompanimentGrid
+) {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="pizza"],
+  [data-step="topping"],
+  [data-step="side"],
+  [data-step="drink"],
+  [data-step="accompaniment"]
+) .grid.adaptiveCards {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="pizza"],
+  [data-step="topping"],
+  [data-step="side"],
+  [data-step="drink"],
+  [data-step="accompaniment"]
+) .grid.adaptiveCards > * {
+  min-height: 280px;
+}
+
+html[data-layout="kiosk21"] :where(
+  .optionGrid,
+  .sizeGrid,
+  .doughGrid,
+  .crustGrid,
+  .crustTextGrid,
+  .setCrustGrid,
+  .optionButtons
+) {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard,
+  .textQtyCard,
+  .v3DrinkCard
+) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 280px;
+  padding: 24px;
+  overflow: hidden;
+}
+
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard
+) :where(h2, h3, .productName, .menuName) {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard
+) :where(p, small, .muted, .description, .productDescription) {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard,
+  .crustTextCard,
+  .setCrustCard
+) :where(.price, .crustPrice, .darkSetPrice, .originalPrice, .discountPrice) {
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard
+):is(.active, .selected),
+html[data-layout="kiosk21"] :where(
+  .card,
+  .c-card,
+  .productCard,
+  .pizzaCard,
+  .sideCard,
+  .drinkCard,
+  .menuCard
+):disabled {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 280px;
+}
+
+html[data-layout="kiosk21"] :where(
+  .optionBtn,
+  .c-selection-control,
+  .sizeGuideCard,
+  .c-size-card,
+  .doughCard,
+  .crustCard,
+  .crustTextCard,
+  .setCrustCard
+) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 120px;
+  padding: 20px 24px;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+html[data-layout="kiosk21"] :where(.qty, .quantityControl, .c-quantity-control) {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 64px minmax(64px, 1fr) 64px !important;
+  gap: 12px !important;
+  align-items: center;
+}
+
+html[data-layout="kiosk21"] :where(.qty, .quantityControl, .c-quantity-control) :where(
+  button,
+  .qtyBtn,
+  .quantityButton,
+  .minus,
+  .plus
+) {
+  width: 64px !important;
+  min-width: 64px;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 !important;
+  touch-action: manipulation;
+}
+
+html[data-layout="kiosk21"] :where(.qty, .quantityControl, .c-quantity-control) :where(
+  b,
+  strong,
+  .quantity,
+  .drinkQuantityReadout
+) {
+  display: grid;
+  min-width: 64px;
+  min-height: 64px;
+  place-items: center;
+  text-align: center;
+}
+
+html[data-layout="kiosk21"] :where(
+  .pic,
+  .imagePic,
+  .productImage,
+  .cardImage,
+  .crustPic,
+  .darkSetPhoto,
+  .setCrustImage,
+  .c-card-media
+) {
+  min-width: 0;
+  min-height: 180px;
+  overflow: hidden;
+}
+
+html[data-layout="kiosk21"] :where(
+  .pic,
+  .imagePic,
+  .productImage,
+  .cardImage,
+  .crustPic,
+  .darkSetPhoto,
+  .setCrustImage,
+  .c-card-media
+) img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+@media (hover: none) {
+  html[data-layout="kiosk21"] :where(
+    .card,
+    .c-card,
+    .productCard,
+    .pizzaCard,
+    .sideCard,
+    .drinkCard,
+    .menuCard,
+    .optionBtn,
+    .crustTextCard,
+    .setCrustCard
+  ):hover:not(:disabled) {
+    transform: none;
+  }
+}

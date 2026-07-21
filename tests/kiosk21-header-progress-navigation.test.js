@@ -53,8 +53,8 @@ test('stage offset combines header progress and safe top without duplicate paddi
  assert.ok(compact.includes('overflow-x:hidden'));
 });
 
-test('activation changes no behavior-bearing source',()=>{
+test('header activation changes no behavior-bearing source',()=>{
  assert.match(html,/function shell\(c\)/);
  assert.match(html,/onclick="openLanguageSelect\(\)"/);
- assert.doesNotMatch(css,/:where\([^)]*(?:\.card|\.selection|\.checkout|\.payment|\.modal)[^)]*\)\s*\{/);
+ assert.doesNotMatch(css,/(?:onclick|addEventListener|function\s+\w+)\s*[=(]/);
 });
