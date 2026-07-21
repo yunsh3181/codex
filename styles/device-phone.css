@@ -301,3 +301,198 @@ html[data-layout="phone"] :where(
   overflow-wrap: anywhere;
   white-space: normal;
 }
+
+/* Activate the existing checkout and completion geometry for phone portrait.
+ * These rules only contain and reflow the legacy UI; order state, pricing,
+ * fixed CTA, and order-summary behavior remain owned by the existing layers. */
+html[data-layout="phone"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"],
+  [data-step="done"]
+) {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-layout="phone"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"],
+  [data-step="done"]
+) :where(.stage, .cartPage, .summary, .done) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderCard,
+  .cartOrderTop,
+  .cartOrderName,
+  .cartOrderDesc,
+  .reviewOrderCard,
+  .reviewOrderHead,
+  .reviewSection,
+  .reviewSection li,
+  .reviewDiscountBox .line
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderName,
+  .cartOrderDesc,
+  .reviewOrderHead h3,
+  .reviewMeta,
+  .reviewSection li span:first-child,
+  .reviewDiscountBox .line span
+) {
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderPrice,
+  .reviewOrderHead > strong,
+  .reviewSection li span:last-child,
+  .reviewDiscountBox .line strong,
+  .multiCartTotal strong
+) {
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="cartReview"] .cartPage,
+html[data-layout="phone"] body[data-step="review"] .stage {
+  padding-bottom: calc(18px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="phone"] body[data-step="phone"] .phoneStep,
+html[data-layout="phone"] body[data-step="phone"] .summary {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] body[data-step="phone"] .summary {
+  padding-bottom: calc(12px + var(--safe-bottom));
+}
+
+html[data-layout="phone"] body[data-step="phone"] .phoneDisplay {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  font-size: clamp(24px, 8vw, 31px) !important;
+  letter-spacing: clamp(0px, 0.5vw, 2px);
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="phone"] .keypad {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  max-width: 420px;
+  gap: 10px;
+}
+
+html[data-layout="phone"] body[data-step="phone"] .keypad button {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--touch-target-min);
+  padding: 14px 4px;
+  touch-action: manipulation;
+}
+
+html[data-layout="phone"] :where(.field, .field input, .field select) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] body[data-step="payment"] :where(
+  .summary,
+  .paymentGrid,
+  .paymentCard,
+  .splitBox,
+  .paymentSubmitBtn
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] body[data-step="payment"] .paymentGrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+html[data-layout="phone"] body[data-step="payment"] .paymentCard {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="payment"] .summary {
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+
+html[data-layout="phone"] body[data-step="payment"] .paymentSubmitBtn {
+  width: 100%;
+  touch-action: manipulation;
+}
+
+html[data-layout="phone"] body[data-step="done"] .stage {
+  padding-bottom: calc(18px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="phone"] body[data-step="done"] .done {
+  width: 100%;
+  padding: 28px 0 0;
+  overflow-x: hidden;
+}
+
+html[data-layout="phone"] body[data-step="done"] .done .num {
+  max-width: 100%;
+  font-size: clamp(38px, 14vw, 58px);
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="done"] :where(
+  .doneOrderLabel,
+  .paymentRequiredBox,
+  .doneGuide,
+  .doneReserve,
+  .doneHomeBtn
+) {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="done"] .paymentRequiredBox {
+  margin: 20px auto 16px;
+  padding: 20px 14px;
+}
+
+html[data-layout="phone"] body[data-step="done"] .paymentRequiredBox strong {
+  font-size: clamp(22px, 7vw, 27px);
+}
+
+html[data-layout="phone"] body[data-step="done"] .paymentRequiredBox span {
+  font-size: clamp(17px, 5.5vw, 21px);
+}
+
+html[data-layout="phone"] body[data-step="done"] .doneHomeBtn {
+  width: 100%;
+  margin-bottom: var(--safe-bottom);
+  touch-action: manipulation;
+}
