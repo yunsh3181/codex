@@ -3,4 +3,6 @@
   --device-viewport:default;
   --device-orientation:landscape;
   --device-layout:default;
+  --viewport-width:0px;
+  --viewport-height:0px;
 }
