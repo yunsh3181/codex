@@ -21,8 +21,9 @@ test('tablet portrait viewport matrix activates the tablet layout',()=>{
 test('phone and default viewport matrices remain protected',()=>{
  [[390,844],[430,932],[560,900],[360,420],[375,667],[393,852]]
   .forEach(([width,height])=>assert.equal(layoutAt(width,height),LayoutToken.PHONE,`${width}x${height}`));
- [[844,390],[1024,768],[1080,1920],[1280,720]]
+ [[844,390],[1024,768],[1280,720]]
   .forEach(([width,height])=>assert.equal(layoutAt(width,height),LayoutToken.DEFAULT,`${width}x${height}`));
+ assert.equal(layoutAt(1080,1920),LayoutToken.KIOSK21,'1080x1920');
 });
 
 test('tablet stylesheet is runtime scoped and loaded after phone CSS',()=>{

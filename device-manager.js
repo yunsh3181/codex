@@ -6,7 +6,7 @@
  const DeviceToken=Object.freeze({PHONE:'phone',TABLET:'tablet',KIOSK21:'kiosk21',DEFAULT:'default'});
  const ViewportToken=Object.freeze({PHONE:'phone',TABLET_PORTRAIT:'tabletPortrait',KIOSK_PORTRAIT:'kioskPortrait',DEFAULT:'default'});
  const OrientationToken=Object.freeze({PORTRAIT:'portrait',LANDSCAPE:'landscape',SQUARE:'square'});
- const LayoutToken=Object.freeze({DEFAULT:'default',PHONE:'phone',TABLET:'tablet'});
+ const LayoutToken=Object.freeze({DEFAULT:'default',PHONE:'phone',TABLET:'tablet',KIOSK21:'kiosk21'});
 
  function classifyOrientation(width,height){
   if(width===height)return OrientationToken.SQUARE;
@@ -30,6 +30,7 @@
   if(orientation!==OrientationToken.PORTRAIT)return LayoutToken.DEFAULT;
   if(viewport===ViewportToken.PHONE)return LayoutToken.PHONE;
   if(viewport===ViewportToken.TABLET_PORTRAIT)return LayoutToken.TABLET;
+  if(viewport===ViewportToken.KIOSK_PORTRAIT)return LayoutToken.KIOSK21;
   return LayoutToken.DEFAULT;
  }
 
