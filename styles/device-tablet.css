@@ -150,3 +150,221 @@ html[data-layout="tablet"] :where(
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Phase 3-3: card and selection geometry for the tablet portrait runtime.
+ * State classes and component visuals remain owned by the existing layers. */
+html[data-layout="tablet"] :where(
+  .card,
+  .c-card,
+  .darkBenefitCard,
+  .darkSetCard,
+  .sizeGuideCard,
+  .c-size-card,
+  .crustTextCard,
+  .setCrustCard
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="tablet"] :where(
+  .card,
+  .c-card,
+  .darkBenefitCard,
+  .darkSetCard,
+  .sizeGuideCard,
+  .c-size-card,
+  .crustTextCard,
+  .setCrustCard
+) :where(h2, h3, p, small, strong, .crustDesc, .darkSetDesc) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="tablet"] :where(
+  .card,
+  .c-card,
+  .crustTextCard,
+  .setCrustCard,
+  .darkSetCard
+) :where(.price, .crustPrice, .darkSetPrice) {
+  white-space: nowrap;
+}
+
+@media (hover: none) {
+  html[data-layout="tablet"] :where(
+    .card,
+    .c-card,
+    .darkBenefitCard,
+    .darkSetCard,
+    .crustTextCard,
+    .setCrustCard
+  ):hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+html[data-layout="tablet"] :where(
+  .grid,
+  .c-grid,
+  .grid.two,
+  .grid.four,
+  .adaptiveCards,
+  .crustGrid,
+  .crustTextGrid,
+  .setCrustGrid,
+  .sizeGuideGrid,
+  .halfPreview,
+  .darkBenefitGrid,
+  .darkSetGrid
+) {
+  min-width: 0;
+  max-width: 100%;
+  gap: 16px;
+}
+
+html[data-layout="tablet"] :where(
+  .grid,
+  .c-grid,
+  .grid.two,
+  .grid.four,
+  .adaptiveCards,
+  .crustGrid,
+  .darkBenefitGrid,
+  .darkSetGrid
+) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="tablet"] :where(.crustTextGrid, .setCrustGrid) {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="tablet"] .sizeGuideGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="tablet"] .halfPreview {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="tablet"] :where(.sizeGuideCard, .c-size-card) {
+  min-height: 210px;
+}
+
+html[data-layout="tablet"] :where(
+  .optionBtn,
+  .c-selection-control,
+  .crustTextCard,
+  .setCrustCard
+) {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+}
+
+html[data-layout="tablet"] :where(.crustTextCard, .setCrustCard) {
+  min-height: 132px;
+  padding: 18px 20px;
+}
+
+html[data-layout="tablet"] :where(
+  .optionBtn,
+  .c-selection-control,
+  .crustTextCard,
+  .setCrustCard
+):disabled {
+  cursor: not-allowed;
+}
+
+html[data-layout="tablet"] :where(.qty, .c-quantity-control) {
+  min-width: 0;
+  grid-template-columns: 48px minmax(42px, 1fr) 48px !important;
+  gap: 8px !important;
+}
+
+html[data-layout="tablet"] :where(.qty, .c-quantity-control) button {
+  width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  touch-action: manipulation;
+}
+
+html[data-layout="tablet"] :where(.qty, .c-quantity-control) :where(b, .drinkQuantityReadout) {
+  min-width: 0;
+  min-height: 48px;
+}
+
+html[data-layout="tablet"] :where(
+  .pic,
+  .imagePic,
+  .crustPic,
+  .darkSetPhoto,
+  .setCrustImage,
+  .c-card-media
+) img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+html[data-layout="tablet"] body[data-step="pizza"] :where(.card, .c-card) .imagePic {
+  height: 160px !important;
+}
+
+html[data-layout="tablet"] body[data-step="side"] :where(.card, .c-card) .imagePic {
+  height: 144px !important;
+}
+
+html[data-layout="tablet"] .crustPic {
+  height: 132px !important;
+}
+
+html[data-layout="tablet"] .setCrustImage {
+  height: 120px;
+}
+
+html[data-layout="tablet"] .darkSetPhoto {
+  height: 120px;
+}
+
+@media (max-width: 680px) {
+  html[data-layout="tablet"] :where(
+    .grid,
+    .c-grid,
+    .grid.two,
+    .adaptiveCards,
+    .crustGrid,
+    .darkBenefitGrid,
+    .darkSetGrid
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-layout="tablet"] :where(
+    .grid.four,
+    .drinkTextGrid,
+    .v3DrinkGrid,
+    .accompanimentGrid,
+    .crustTextGrid,
+    .setCrustGrid
+  ) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html[data-layout="tablet"] .sizeGuideGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  html[data-layout="tablet"] :where(.sizeGuideCard, .c-size-card) {
+    min-height: 176px;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+}
