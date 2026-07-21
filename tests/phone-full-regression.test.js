@@ -14,7 +14,7 @@ const layoutAt = (width, height) => new DeviceManager({
   viewportSource: { innerWidth: width, innerHeight: height },
 }).current().layout;
 
-test('full viewport matrix activates only phone portrait', () => {
+test('full viewport matrix protects phone portrait activation', () => {
   const matrix = [
     [360, 420, LayoutToken.PHONE],
     [375, 667, LayoutToken.PHONE],
@@ -22,9 +22,9 @@ test('full viewport matrix activates only phone portrait', () => {
     [393, 852, LayoutToken.PHONE],
     [430, 932, LayoutToken.PHONE],
     [560, 900, LayoutToken.PHONE],
-    [561, 900, LayoutToken.DEFAULT],
+    [561, 900, LayoutToken.TABLET],
     [844, 390, LayoutToken.DEFAULT],
-    [820, 1180, LayoutToken.DEFAULT],
+    [820, 1180, LayoutToken.TABLET],
     [1080, 1920, LayoutToken.DEFAULT],
     [1280, 720, LayoutToken.DEFAULT],
   ];

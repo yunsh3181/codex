@@ -1,1 +1,93 @@
-/* Reserved for a future tablet layout. */
+/* Tablet portrait activates only through the runtime layout token. Component
+ * geometry remains owned by later device phases. */
+html[data-layout="tablet"] {
+  --tablet-content-max: 880px;
+  --tablet-page-padding: 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-layout="tablet"] body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-layout="tablet"] :where(#main, .app) {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header),
+html[data-layout="tablet"] :where(.progress, .c-progress),
+html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
+  width: 100%;
+  max-width: var(--tablet-content-max) !important;
+  min-width: 0;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) {
+  height: calc(86px + var(--safe-top)) !important;
+  padding-top: var(--safe-top) !important;
+  padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
+  padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) :where(.brand, .brandName) {
+  min-width: 0;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) .brandName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="tablet"] :where(.progress, .c-progress) {
+  top: calc(86px + var(--safe-top)) !important;
+  padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
+  padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+html[data-layout="tablet"] :where(.progress, .c-progress) > * {
+  flex: 0 0 auto;
+}
+
+html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
+  padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
+  padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
+  padding-bottom: calc(38px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="tablet"] :where(.summaryContainer, .sectionWrapper) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Only neutral collection grids are activated here. Product, option, modal,
+ * checkout, payment, and seat grids keep their established geometry. */
+html[data-layout="tablet"] :where(
+  .c-grid,
+  .grid:not(.adaptiveCards):not(.two):not(.four):not(.crustGrid):not(.sizeGuideGrid):not(.paymentGrid):not(.seatGrid)
+) {
+  min-width: 0;
+  max-width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 680px) {
+  html[data-layout="tablet"] :where(
+    .c-grid,
+    .grid:not(.adaptiveCards):not(.two):not(.four):not(.crustGrid):not(.sizeGuideGrid):not(.paymentGrid):not(.seatGrid)
+  ) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
