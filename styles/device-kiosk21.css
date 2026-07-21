@@ -10,9 +10,29 @@ html[data-layout="kiosk21"] {
   --kiosk21-navigation-target: 64px;
   --kiosk21-navigation-gap: 16px;
   --kiosk21-bottom-reserve: 48px;
+  --kiosk21-cta-height: 128px;
+  --kiosk21-cta-button-height: 96px;
+  --kiosk21-summary-height: 112px;
+  --kiosk21-active-summary-height: 0px;
+  --kiosk21-bottom-gap: 24px;
+  --kiosk21-bottom-stack-height: calc(
+    var(--kiosk21-cta-height) + var(--kiosk21-active-summary-height) +
+      var(--kiosk21-bottom-gap) + var(--safe-bottom)
+  );
+  --kiosk21-modal-width: 840px;
   scroll-padding-top: var(--kiosk21-stage-top-offset);
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not(
+  [data-step="cartReview"]
+) {
+  --kiosk21-active-summary-height: var(--kiosk21-summary-height);
+  --kiosk21-bottom-stack-height: calc(
+    var(--kiosk21-cta-height) + var(--kiosk21-summary-height) +
+      var(--kiosk21-bottom-gap) + var(--safe-bottom)
+  );
 }
 
 html[data-layout="kiosk21"] body {
@@ -445,4 +465,170 @@ html[data-layout="kiosk21"] :where(
   ):hover:not(:disabled) {
     transform: none;
   }
+}
+
+/* Phase 4-4: fixed ordering stack and popup geometry. Presence of the existing
+ * order summary controls its reserved height; application display conditions
+ * and interaction state remain unchanged. */
+html[data-layout="kiosk21"] :where(.selectionFooter, .c-selection-footer) {
+  right: 0;
+  bottom: calc(var(--kiosk21-active-summary-height) + var(--safe-bottom));
+  left: 0;
+  z-index: var(--z-selection-footer);
+  width: min(100%, var(--kiosk21-content-max));
+  height: var(--kiosk21-cta-height);
+  margin-inline: auto;
+  padding: 16px calc(var(--kiosk21-page-padding) + var(--safe-right)) 16px
+    calc(var(--kiosk21-page-padding) + var(--safe-left));
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] :where(.selectionFooter, .c-selection-footer) :where(
+  button,
+  .selectionFooterCard,
+  .next,
+  .confirmBtn,
+  .primaryBtn
+) {
+  min-width: 0;
+  min-height: var(--kiosk21-cta-button-height) !important;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] :where(.cartbar, .c-order-summary) {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-order-summary);
+  width: min(100%, var(--kiosk21-content-max));
+  height: calc(var(--kiosk21-summary-height) + var(--safe-bottom)) !important;
+  margin-inline: auto;
+  padding: 12px calc(var(--kiosk21-page-padding) + var(--safe-right))
+    calc(12px + var(--safe-bottom)) calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+  overflow: hidden;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="topping"],
+  [data-step="side"],
+  [data-step="drink"],
+  [data-step="accompaniment"]
+) :where(.cartbar, .c-order-summary) {
+  height: calc(var(--kiosk21-summary-height) + var(--safe-bottom)) !important;
+  padding-bottom: calc(12px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="kiosk21"] :where(.cartmain, .cartSummary, .orderSummary) {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="kiosk21"] :where(.carttitle, .cartdetail, .summaryText, .orderSummaryText) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(.cartprice, .cartTotal, .cartCount, .summaryPrice) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(.selectionFooterSpacer, .c-selection-footer-spacer, .footerSpacer) {
+  display: block;
+  height: var(--kiosk21-bottom-stack-height);
+}
+
+html[data-layout="kiosk21"] :where(.stage, .mainContent, .sectionWrapper):has(
+  :where(.selectionFooterSpacer, .c-selection-footer-spacer, .footerSpacer)
+) {
+  padding-bottom: 0 !important;
+}
+
+html[data-layout="kiosk21"] :where(.backdrop, .c-popup-backdrop) {
+  inset: 0;
+  z-index: var(--z-backdrop);
+  place-items: center;
+  width: 100%;
+  max-width: 100vw;
+  padding: calc(32px + var(--safe-top)) calc(32px + var(--safe-right))
+    calc(32px + var(--safe-bottom)) calc(32px + var(--safe-left));
+  overflow: hidden;
+}
+
+html[data-layout="kiosk21"] :where(
+  .c-popup,
+  .modal,
+  .popup,
+  .dialog,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal,
+  .discountModal,
+  .helperModal,
+  .setUpsellModal
+) {
+  box-sizing: border-box;
+  width: min(var(--kiosk21-modal-width), 100%);
+  max-width: 880px;
+  max-height: min(86vh, calc(100dvh - var(--safe-top) - var(--safe-bottom) - 64px));
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="kiosk21"] :where(.modalBody, .modalContent, .popupBody, .dialogBody) {
+  min-width: 0;
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+html[data-layout="kiosk21"] :where(.modalClose, .closeBtn, .popupClose, .dialogClose) {
+  display: inline-flex;
+  width: 64px;
+  min-width: 64px;
+  height: 64px;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+}
+
+html[data-layout="kiosk21"] :where(
+  .modalBtns,
+  .modalActions,
+  .modalFooter,
+  .upsellActions,
+  .finalUpsellGrid,
+  .benefitActions
+) {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-action);
+  min-width: 0;
+  padding-bottom: var(--safe-bottom);
+}
+
+html[data-layout="kiosk21"] :where(
+  .modalBtns,
+  .modalActions,
+  .modalFooter,
+  .upsellActions,
+  .finalUpsellGrid,
+  .benefitActions
+) button {
+  min-width: 0;
+  min-height: 72px !important;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
