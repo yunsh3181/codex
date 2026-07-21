@@ -80,3 +80,59 @@ html[data-layout="phone"] :where(
     var(--selection-footer-margin)
   );
 }
+
+/* Keep the existing popup visuals and behavior, while constraining their
+ * geometry to the phone portrait viewport selected by DeviceManager. */
+html[data-layout="phone"] :where(.backdrop, .c-popup-backdrop) {
+  inset: 0;
+  box-sizing: border-box;
+  max-width: 100vw;
+  padding-top: calc(18px + var(--safe-top));
+  padding-right: calc(18px + var(--safe-right));
+  padding-bottom: calc(18px + var(--safe-bottom));
+  padding-left: calc(18px + var(--safe-left));
+  overflow-x: hidden;
+}
+
+html[data-layout="phone"] :where(
+  .c-popup,
+  .modal,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal
+) {
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="phone"] :where(.c-popup, .modal) {
+  width: min(var(--popup-width), 100%);
+}
+
+html[data-layout="phone"] :where(
+  .modalBtns,
+  .upsellActions,
+  .finalUpsellGrid,
+  .benefitActions
+) {
+  grid-template-columns: minmax(0, 1fr) !important;
+  padding-bottom: var(--safe-bottom);
+}
+
+html[data-layout="phone"] :where(
+  .modalBtns,
+  .upsellActions,
+  .finalUpsellGrid,
+  .benefitActions
+) button {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
