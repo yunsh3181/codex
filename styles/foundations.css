@@ -11,8 +11,13 @@
  * Progress: .c-progress <-> .progress
  * CTA: .c-selection-footer <-> .selectionFooter
  * Order Summary: .c-order-summary <-> .cartbar
- * Card: .c-card <-> .card
+ * Card: .c-card <-> .card, .sizeGuideCard, .darkBenefitCard, .darkSetCard
  * Grid: .c-grid <-> .grid
+ * Selection: .c-selection-control <-> .optionBtn, .crustTextCard,
+ *            .setCrustCard
+ * Quantity: .c-quantity-control <-> .qty
+ * Media: .c-card-media <-> .pic, .imagePic, .crustPic,
+ *        .darkSetPhoto, .setCrustImage
  * Button: .c-button <-> button, .next, .prev, .start
  * Popup / Modal: .c-popup-backdrop <-> .backdrop;
  *                .c-popup <-> .modal, .upsellModal,
@@ -50,7 +55,7 @@
 }
 
 /* Card owns the positioning context used by badges and card decoration. */
-:where(.c-card, .card) {
+:where(.c-card, .card, .sizeGuideCard, .darkBenefitCard, .darkSetCard) {
   position: relative;
   box-sizing: border-box;
 }
@@ -59,6 +64,34 @@
 :where(.c-grid, .grid) {
   display: grid;
   box-sizing: border-box;
+}
+
+/* Selection controls retain their legacy state classes and visual rules. */
+:where(
+  .c-selection-control,
+  .optionBtn,
+  .crustTextCard,
+  .setCrustCard
+) {
+  box-sizing: border-box;
+}
+
+/* Quantity controls expose a neutral migration target without changing clicks. */
+:where(.c-quantity-control, .qty) {
+  box-sizing: border-box;
+}
+
+/* Card media owns image containment; dimensions remain with the device layer. */
+:where(
+  .c-card-media,
+  .pic,
+  .imagePic,
+  .crustPic,
+  .darkSetPhoto,
+  .setCrustImage
+) {
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Button foundation is neutral; visual variants remain existing selectors. */

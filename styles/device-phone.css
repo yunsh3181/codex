@@ -38,6 +38,171 @@ html[data-layout="phone"] body[data-step] .grid.adaptiveCards {
   grid-template-columns: minmax(0, 1fr) !important;
 }
 
+/* Activate the approved mobile card geometry through the phone device layer.
+ * Legacy selectors remain paired with migration aliases so markup and order
+ * behavior do not need to change. */
+html[data-layout="phone"] :where(.card, .c-card) {
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 16px !important;
+  padding: 8px !important;
+}
+
+html[data-layout="phone"] :where(.card, .c-card):hover:not(:disabled) {
+  transform: none;
+}
+
+html[data-layout="phone"] :where(.card, .c-card) :where(h2, h3) {
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] :where(.card, .c-card) .price {
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] :where(
+  .grid,
+  .c-grid,
+  .grid.two,
+  .grid.four,
+  .crustGrid,
+  .crustTextGrid,
+  .setCrustGrid,
+  .halfPreview
+) {
+  min-width: 0;
+  max-width: 100%;
+  gap: 7px !important;
+}
+
+html[data-layout="phone"] :where(
+  .grid,
+  .c-grid,
+  .grid.two,
+  .grid.four,
+  .crustGrid,
+  .crustTextGrid,
+  .setCrustGrid,
+  .halfPreview,
+  .adaptiveCards
+) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+html[data-layout="phone"] body[data-step] .grid.adaptiveCards {
+  gap: 9px !important;
+}
+
+html[data-layout="phone"] :where(.darkBenefitCard, .darkSetCard) {
+  min-width: 0;
+  max-width: 100%;
+  padding: 13px 8px !important;
+  border-radius: 16px !important;
+}
+
+html[data-layout="phone"] .sizeGuideGrid {
+  min-width: 0;
+  max-width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+
+html[data-layout="phone"] :where(.sizeGuideCard, .c-size-card) {
+  min-width: 0;
+  min-height: 150px !important;
+  padding: 9px 5px !important;
+}
+
+html[data-layout="phone"] :where(
+  .optionBtn,
+  .c-selection-control,
+  .crustTextCard,
+  .setCrustCard
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="phone"] :where(.optionBtn, .c-selection-control) {
+  min-height: 42px;
+  padding: 10px 5px;
+}
+
+html[data-layout="phone"] :where(.crustTextCard, .setCrustCard) {
+  min-height: 112px;
+  padding: 17px 18px;
+}
+
+html[data-layout="phone"] :where(
+  .optionBtn,
+  .c-selection-control,
+  .crustTextCard,
+  .setCrustCard
+):disabled {
+  cursor: not-allowed;
+}
+
+html[data-layout="phone"] :where(.qty, .c-quantity-control) {
+  min-width: 0;
+  grid-template-columns: 42px minmax(34px, 1fr) 42px !important;
+  gap: 5px !important;
+}
+
+html[data-layout="phone"] :where(.qty, .c-quantity-control) button {
+  width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  font-size: 26px !important;
+  touch-action: manipulation;
+}
+
+html[data-layout="phone"] :where(.qty, .c-quantity-control) b {
+  min-height: 40px;
+  font-size: 20px;
+}
+
+html[data-layout="phone"] :where(
+  .pic,
+  .imagePic,
+  .crustPic,
+  .darkSetPhoto,
+  .setCrustImage,
+  .c-card-media
+) img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] :where(.card, .c-card) .imagePic {
+  height: 118px !important;
+  border-radius: 12px !important;
+}
+
+html[data-layout="phone"] body[data-step="side"] :where(.card, .c-card) .imagePic {
+  height: 103px !important;
+  border-radius: 12px !important;
+}
+
+html[data-layout="phone"] .crustPic {
+  height: 92px !important;
+  margin: 2px 0 6px !important;
+  border-radius: 10px;
+}
+
+html[data-layout="phone"] .setCrustImage {
+  height: 72px;
+}
+
+html[data-layout="phone"] .darkSetPhoto {
+  height: 105px;
+}
+
 /* Keep the established CTA/order geometry, but activate it through the
  * device layer only when the runtime selects the phone portrait layout. */
 html[data-layout="phone"] :where(.selectionFooter, .c-selection-footer) {
