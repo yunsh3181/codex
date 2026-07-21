@@ -25,7 +25,9 @@ html[data-layout="kiosk21"] {
   overflow-y: auto;
 }
 
-html[data-layout="kiosk21"] body:has(.cartbar, .c-order-summary) {
+html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not(
+  [data-step="cartReview"]
+) {
   --kiosk21-active-summary-height: var(--kiosk21-summary-height);
   --kiosk21-bottom-stack-height: calc(
     var(--kiosk21-cta-height) + var(--kiosk21-summary-height) +
