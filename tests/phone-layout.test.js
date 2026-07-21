@@ -17,7 +17,7 @@ test('phone layout is limited to portrait phone viewports',()=>{
   [561,900,LayoutToken.TABLET],
   [844,390,LayoutToken.DEFAULT],
   [820,1180,LayoutToken.TABLET],
-  [1080,1920,LayoutToken.DEFAULT],
+  [1080,1920,LayoutToken.KIOSK21],
   [1280,720,LayoutToken.DEFAULT]
  ];
  cases.forEach(([width,height,expected])=>assert.equal(layoutAt(width,height),expected,`${width}x${height}`));

@@ -25,7 +25,7 @@ test('full viewport matrix protects phone portrait activation', () => {
     [561, 900, LayoutToken.TABLET],
     [844, 390, LayoutToken.DEFAULT],
     [820, 1180, LayoutToken.TABLET],
-    [1080, 1920, LayoutToken.DEFAULT],
+    [1080, 1920, LayoutToken.KIOSK21],
     [1280, 720, LayoutToken.DEFAULT],
   ];
   matrix.forEach(([width, height, expected]) => {

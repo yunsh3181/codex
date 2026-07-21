@@ -24,7 +24,7 @@ test('complete viewport matrix preserves phone, tablet portrait, and default lay
     [810, 850, LayoutToken.TABLET], [810, 1080, LayoutToken.TABLET],
     [820, 1180, LayoutToken.TABLET], [834, 1194, LayoutToken.TABLET],
     [1024, 1366, LayoutToken.TABLET], [844, 390, LayoutToken.DEFAULT],
-    [1024, 768, LayoutToken.DEFAULT], [1080, 1920, LayoutToken.DEFAULT],
+    [1024, 768, LayoutToken.DEFAULT], [1080, 1920, LayoutToken.KIOSK21],
     [1280, 720, LayoutToken.DEFAULT],
   ];
   matrix.forEach(([width, height, expected]) => {

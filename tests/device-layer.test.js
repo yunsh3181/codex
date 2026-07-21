@@ -8,7 +8,7 @@ const {
 test('device tokens remain stable',()=>{
  assert.deepEqual(Object.values(DeviceToken),['phone','tablet','kiosk21','default']);
  assert.deepEqual(Object.values(ViewportToken),['phone','tabletPortrait','kioskPortrait','default']);
- assert.deepEqual(Object.values(LayoutToken),['default','phone','tablet']);
+ assert.deepEqual(Object.values(LayoutToken),['default','phone','tablet','kiosk21']);
 });
 
 test('viewport classification is independent from the current layout',()=>{

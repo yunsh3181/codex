@@ -1,0 +1,134 @@
+/* 21-inch portrait kiosk foundation. Component-specific geometry remains in
+ * later phases and this layer activates only through the runtime token. */
+html[data-layout="kiosk21"] {
+  --kiosk21-content-max: 960px;
+  --kiosk21-page-padding: 32px;
+  --kiosk21-header-height: 96px;
+  --kiosk21-progress-height: 64px;
+  --kiosk21-bottom-reserve: 48px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-layout="kiosk21"] body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-layout="kiosk21"] :where(#main, .app) {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+html[data-layout="kiosk21"] :where(
+  .head,
+  .c-header,
+  .progress,
+  .c-progress,
+  .stage,
+  .mainContent,
+  .sectionWrapper,
+  .summaryContainer
+) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--kiosk21-content-max) !important;
+  min-width: 0;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) {
+  height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
+  min-height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
+  padding-top: var(--safe-top) !important;
+  padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
+  padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+  gap: var(--space-4);
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) :where(
+  .brand,
+  .brandName,
+  .storeName
+) {
+  min-width: 0;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) .brand {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) :where(.brandName, .storeName) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) :where(
+  .headerActions,
+  .homeBtn,
+  .backBtn,
+  .langBtn,
+  .langTopBtn
+) {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 40%;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) {
+  top: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
+  min-height: var(--kiosk21-progress-height);
+  padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
+  padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) :where(
+  .progressStep,
+  .step,
+  .stepLabel,
+  span
+) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(.stage, .mainContent, .sectionWrapper) {
+  padding-top: var(--kiosk21-page-padding) !important;
+  padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
+  padding-bottom: calc(var(--kiosk21-bottom-reserve) + var(--safe-bottom)) !important;
+  padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+}
+
+html[data-layout="kiosk21"] :where(.summaryContainer) {
+  padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right));
+  padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left));
+}
+
+html[data-layout="kiosk21"] :where(
+  .c-grid,
+  .grid:not(.adaptiveCards):not(.two):not(.four):not(.crustGrid):not(.sizeGuideGrid):not(.paymentGrid):not(.seatGrid):not(.areaGrid):not(.tableGrid):not(.modalGrid)
+) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+}
+
+@media (min-width: 1200px) {
+  html[data-layout="kiosk21"] :where(
+    .c-grid,
+    .grid:not(.adaptiveCards):not(.two):not(.four):not(.crustGrid):not(.sizeGuideGrid):not(.paymentGrid):not(.seatGrid):not(.areaGrid):not(.tableGrid):not(.modalGrid)
+  ) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
