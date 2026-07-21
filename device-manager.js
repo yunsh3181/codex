@@ -6,7 +6,7 @@
  const DeviceToken=Object.freeze({PHONE:'phone',TABLET:'tablet',KIOSK21:'kiosk21',DEFAULT:'default'});
  const ViewportToken=Object.freeze({PHONE:'phone',TABLET_PORTRAIT:'tabletPortrait',KIOSK_PORTRAIT:'kioskPortrait',DEFAULT:'default'});
  const OrientationToken=Object.freeze({PORTRAIT:'portrait',LANDSCAPE:'landscape',SQUARE:'square'});
- const LayoutToken=Object.freeze({DEFAULT:'default'});
+ const LayoutToken=Object.freeze({DEFAULT:'default',PHONE:'phone'});
 
  function classifyOrientation(width,height){
   if(width===height)return OrientationToken.SQUARE;
@@ -26,6 +26,12 @@
   return {width:Number(view?.innerWidth)||0,height:Number(view?.innerHeight)||0};
  }
 
+ function classifyLayout(viewport,orientation){
+  return viewport===ViewportToken.PHONE&&orientation===OrientationToken.PORTRAIT
+   ?LayoutToken.PHONE
+   :LayoutToken.DEFAULT;
+ }
+
  class DeviceManager{
   constructor(options={}){
    this.deviceType=Object.values(DeviceToken).includes(options.deviceType)?options.deviceType:DeviceToken.DEFAULT;
@@ -34,11 +40,13 @@
 
   current(){
    const {width,height}=viewportSize(this.viewportSource);
+   const viewport=classifyViewport(width,height);
+   const orientation=classifyOrientation(width,height);
    return Object.freeze({
     deviceType:this.deviceType,
-    viewport:classifyViewport(width,height),
-    orientation:classifyOrientation(width,height),
-    layout:LayoutToken.DEFAULT,
+    viewport,
+    orientation,
+    layout:classifyLayout(viewport,orientation),
     width,
     height
    });
@@ -56,5 +64,5 @@
   });
  }
 
- return Object.freeze({DeviceToken,ViewportToken,OrientationToken,LayoutToken,DeviceManager,createDeviceContext,classifyViewport,classifyOrientation});
+ return Object.freeze({DeviceToken,ViewportToken,OrientationToken,LayoutToken,DeviceManager,createDeviceContext,classifyViewport,classifyOrientation,classifyLayout});
 });

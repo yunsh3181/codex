@@ -26,10 +26,10 @@ test('initial runtime applies data attributes and custom properties',()=>{
  const f=fixture();
  new DeviceRuntime({view:f.view,target:f.target}).initialize();
  assert.deepEqual(Object.fromEntries(f.attributes),{
-  'data-device':'default','data-viewport':'phone','data-orientation':'portrait','data-layout':'default'
+  'data-device':'default','data-viewport':'phone','data-orientation':'portrait','data-layout':'phone'
  });
  assert.deepEqual(Object.fromEntries(f.properties),{
-  '--device-type':'default','--device-viewport':'phone','--device-orientation':'portrait','--device-layout':'default',
+  '--device-type':'default','--device-viewport':'phone','--device-orientation':'portrait','--device-layout':'phone',
   '--viewport-width':'390px','--viewport-height':'844px'
  });
 });

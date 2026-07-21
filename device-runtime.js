@@ -27,7 +27,7 @@
   apply(){
    if(!this.target)return null;
    const current=this.manager.current();
-   const values={device:current.deviceType,viewport:current.viewport,orientation:current.orientation,layout:deviceApi.LayoutToken.DEFAULT};
+   const values={device:current.deviceType,viewport:current.viewport,orientation:current.orientation,layout:current.layout};
    DATA_KEYS.forEach(key=>this.target.setAttribute(`data-${key}`,values[key]));
    Object.entries(values).forEach(([key,value])=>this.target.style.setProperty(STYLE_KEYS[key],value));
    this.target.style.setProperty(STYLE_KEYS.width,`${current.width}px`);
