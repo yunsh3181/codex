@@ -8,7 +8,7 @@ const {
 test('device tokens remain stable',()=>{
  assert.deepEqual(Object.values(DeviceToken),['phone','tablet','kiosk21','default']);
  assert.deepEqual(Object.values(ViewportToken),['phone','tabletPortrait','kioskPortrait','default']);
- assert.deepEqual(Object.values(LayoutToken),['default','phone']);
+ assert.deepEqual(Object.values(LayoutToken),['default','phone','tablet']);
 });
 
 test('viewport classification is independent from the current layout',()=>{
@@ -18,12 +18,12 @@ test('viewport classification is independent from the current layout',()=>{
  assert.equal(classifyViewport(1280,720),ViewportToken.DEFAULT);
 });
 
-test('device context keeps tablet UI on the default layout',()=>{
+test('device context activates the tablet portrait layout',()=>{
  const context=createDeviceContext({deviceType:DeviceToken.TABLET,viewportSource:{innerWidth:820,innerHeight:1180}});
  assert.equal(context.deviceType,DeviceToken.TABLET);
  assert.equal(context.viewport,ViewportToken.TABLET_PORTRAIT);
  assert.equal(context.orientation,OrientationToken.PORTRAIT);
- assert.equal(context.layout,LayoutToken.DEFAULT);
+ assert.equal(context.layout,LayoutToken.TABLET);
 });
 
 test('device manager falls back to the default device token',()=>{

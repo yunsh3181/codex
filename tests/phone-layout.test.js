@@ -14,9 +14,9 @@ test('phone layout is limited to portrait phone viewports',()=>{
   [390,844,LayoutToken.PHONE],
   [430,932,LayoutToken.PHONE],
   [560,900,LayoutToken.PHONE],
-  [561,900,LayoutToken.DEFAULT],
+  [561,900,LayoutToken.TABLET],
   [844,390,LayoutToken.DEFAULT],
-  [820,1180,LayoutToken.DEFAULT],
+  [820,1180,LayoutToken.TABLET],
   [1080,1920,LayoutToken.DEFAULT],
   [1280,720,LayoutToken.DEFAULT]
  ];
