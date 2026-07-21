@@ -632,3 +632,196 @@ html[data-layout="kiosk21"] :where(
   overflow-wrap: anywhere;
   white-space: normal;
 }
+
+/* Phase 4-5: checkout, payment, and completion geometry. The kiosk runtime
+ * token is the only activation switch; state, copy, and component styling
+ * continue to come from the existing application layers. */
+html[data-layout="kiosk21"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"],
+  [data-step="done"]
+) :where(.stage, .cartPage, .phoneStep, .summary, .done) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--kiosk21-content-max);
+  margin-inline: auto;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"]
+) .stage {
+  padding-bottom: calc(48px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderTop > :first-child,
+  .cartOrderName,
+  .cartOrderDesc,
+  .reviewOrderHead > :first-child,
+  .reviewOrderHead h3,
+  .reviewMeta,
+  .reviewSection li span:first-child,
+  .reviewDiscountBox .line span
+) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderPrice,
+  .reviewOrderHead > strong,
+  .reviewSection li span:last-child,
+  .reviewDiscountBox .line strong,
+  .multiCartTotal strong
+) {
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(.cartOrderTop, .reviewOrderHead, .reviewSection li, .reviewDiscountBox .line, .multiCartTotal) {
+  min-width: 0;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] .summary {
+  padding-bottom: calc(32px + var(--safe-bottom));
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] .phoneDisplay {
+  width: 100%;
+  min-width: 0;
+  min-height: 96px;
+  padding: 24px 32px;
+  overflow: hidden;
+  font-size: clamp(36px, 5vw, 52px);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] .keypad {
+  display: grid;
+  width: min(100%, 660px);
+  max-width: 660px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px auto;
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] .keypad button {
+  width: 100%;
+  min-width: 0;
+  min-height: 72px;
+  padding: 16px;
+  touch-action: manipulation;
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] #phoneNext {
+  min-height: 72px;
+  touch-action: manipulation;
+}
+
+html[data-layout="kiosk21"] body[data-step="payment"] :where(
+  .summary,
+  .paymentGrid,
+  .paymentCard,
+  .paymentSubmitBtn,
+  .paymentRequiredBox,
+  .submitError
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="kiosk21"] body[data-step="payment"] .summary {
+  padding-bottom: calc(32px + var(--safe-bottom));
+}
+
+html[data-layout="kiosk21"] body[data-step="payment"] .paymentGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+html[data-layout="kiosk21"] body[data-step="payment"] :where(.paymentCard, .paymentSubmitBtn) {
+  min-height: 72px;
+  touch-action: manipulation;
+}
+
+html[data-layout="kiosk21"] body[data-step="payment"] .paymentSubmitBtn {
+  position: relative;
+  z-index: var(--z-action);
+  margin-bottom: var(--safe-bottom);
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] .stage {
+  min-height: calc(100dvh - var(--kiosk21-stage-top-offset));
+  max-height: calc(100dvh - var(--kiosk21-stage-top-offset));
+  padding-bottom: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] :where(.done) {
+  min-height: 100%;
+  padding: 56px 32px calc(48px + var(--safe-bottom));
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] :where(.done) .num {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(72px, 10vw, 112px);
+  line-height: 1;
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] :where(
+  .doneGuide,
+  .doneReserve,
+  .paymentRequiredBox
+) {
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] :where(.doneGuide, .doneReserve) {
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.5;
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] .doneHomeBtn {
+  min-width: min(420px, 100%);
+  min-height: 80px;
+  margin-bottom: var(--safe-bottom);
+  touch-action: manipulation;
+}
+
+@media (max-width: 760px) {
+  html[data-layout="kiosk21"] body[data-step="payment"] .paymentGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-layout="kiosk21"] body[data-step="done"] .doneHomeBtn {
+    width: 100%;
+    min-width: 0;
+  }
+}
