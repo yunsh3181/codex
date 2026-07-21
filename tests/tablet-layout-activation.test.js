@@ -46,11 +46,11 @@ test('tablet page geometry uses a centered max width and safe areas',()=>{
  assert.ok(compact.includes('overflow-y:auto'));
 });
 
-test('header, progress, and neutral grids receive tablet foundations only',()=>{
+test('tablet foundations remain scoped away from checkout geometry',()=>{
  ['.head','.c-header','.progress','.c-progress','.c-grid','.summaryContainer','.sectionWrapper']
   .forEach(selector=>assert.ok(css.includes(selector),selector));
  assert.ok(compact.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
  ['.crustGrid','.sizeGuideGrid','.paymentGrid','.seatGrid','.adaptiveCards']
   .forEach(selector=>assert.ok(css.includes(`:not(${selector})`),`${selector} excluded`));
- assert.doesNotMatch(css,/\.cartbar|\.selectionFooter|\.modal|\.checkout/);
+ assert.doesNotMatch(css,/\.checkout/);
 });

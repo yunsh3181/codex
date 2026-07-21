@@ -48,9 +48,9 @@ test('tablet progress preserves state selectors and touch overflow',()=>{
  assert.match(html,/n<i\?'done':n===i\?'on':''/);
 });
 
-test('stage offset follows the tablet header and progress without component changes',()=>{
+test('stage offset follows the tablet header and progress without checkout changes',()=>{
  assert.ok(compact.includes('--tablet-stage-top-offset:calc(var(--tablet-header-height)+var(--tablet-progress-height)+var(--safe-top))'));
  assert.ok(compact.includes('scroll-margin-top:var(--tablet-stage-top-offset)'));
- assert.doesNotMatch(css,/\.cartbar|\.selectionFooter|\.modal|\.checkout/);
+ assert.doesNotMatch(css,/\.checkout/);
  assert.ok(compact.includes('overflow-x:hidden'));
 });

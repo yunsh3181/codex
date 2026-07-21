@@ -5,6 +5,14 @@ html[data-layout="tablet"] {
   --tablet-page-padding: 24px;
   --tablet-header-height: 80px;
   --tablet-progress-height: 56px;
+  --tablet-cta-height: 104px;
+  --tablet-summary-height: 92px;
+  --tablet-bottom-gap: 24px;
+  --tablet-bottom-stack-height: calc(
+    var(--tablet-cta-height) + var(--tablet-summary-height) +
+    var(--tablet-bottom-gap) + var(--safe-bottom)
+  );
+  --tablet-modal-width: 720px;
   --tablet-stage-top-offset: calc(
     var(--tablet-header-height) + var(--tablet-progress-height) + var(--safe-top)
   );
@@ -122,8 +130,135 @@ html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
   box-sizing: border-box;
   padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
-  padding-bottom: calc(38px + var(--safe-bottom)) !important;
+  padding-bottom: calc(
+    var(--tablet-summary-height) + var(--tablet-bottom-gap) + var(--safe-bottom)
+  ) !important;
   scroll-margin-top: var(--tablet-stage-top-offset);
+}
+
+/* Phase 3-4: fixed ordering controls and popup geometry. These selectors are
+ * deliberately runtime-scoped so the phone and default layers remain owners
+ * of their existing geometry. */
+html[data-layout="tablet"] :where(.selectionFooter, .c-selection-footer) {
+  right: 0;
+  bottom: calc(var(--tablet-summary-height) + var(--safe-bottom));
+  left: 0;
+  z-index: var(--z-selection-footer);
+  width: min(100%, var(--tablet-content-max));
+  height: var(--tablet-cta-height);
+  margin-inline: auto;
+  padding: 10px calc(var(--tablet-page-padding) + var(--safe-right)) 10px
+    calc(var(--tablet-page-padding) + var(--safe-left));
+}
+
+html[data-layout="tablet"] :where(.selectionFooter, .c-selection-footer) :where(
+  button,
+  .selectionFooterCard,
+  .next,
+  .prev,
+  .start,
+  .doneBtn,
+  .confirmBtn,
+  .submitBtn
+) {
+  min-width: 0;
+  min-height: var(--touch-target-min) !important;
+}
+
+html[data-layout="tablet"] :where(.cartbar, .c-order-summary) {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-order-summary);
+  width: min(100%, var(--tablet-content-max));
+  height: calc(var(--tablet-summary-height) + var(--safe-bottom)) !important;
+  margin-inline: auto;
+  padding: 8px calc(var(--tablet-page-padding) + var(--safe-right))
+    calc(8px + var(--safe-bottom)) calc(var(--tablet-page-padding) + var(--safe-left)) !important;
+}
+
+html[data-layout="tablet"] :where(.cartmain, .cartSummary, .orderSummary) {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+html[data-layout="tablet"] :where(.cartprice, .cartTotal, .cartCount) {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+html[data-layout="tablet"] :where(.cartbar, .c-order-summary) button {
+  flex: 0 0 auto;
+  min-height: var(--touch-target-min);
+}
+
+html[data-layout="tablet"] :where(.selectionFooterSpacer, .c-selection-footer-spacer, .footerSpacer) {
+  display: block;
+  height: var(--tablet-bottom-stack-height);
+}
+
+html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper):has(
+  :where(.selectionFooterSpacer, .c-selection-footer-spacer, .footerSpacer)
+) {
+  padding-bottom: 0 !important;
+}
+
+html[data-layout="tablet"] :where(.backdrop, .c-popup-backdrop) {
+  inset: 0;
+  z-index: var(--z-backdrop);
+  place-items: center;
+  max-width: 100vw;
+  padding: calc(24px + var(--safe-top)) calc(24px + var(--safe-right))
+    calc(24px + var(--safe-bottom)) calc(24px + var(--safe-left));
+  overflow: hidden;
+}
+
+html[data-layout="tablet"] :where(
+  .c-popup,
+  .modal,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal,
+  .discountModal,
+  .helperModal,
+  .setUpsellModal
+) {
+  box-sizing: border-box;
+  width: min(var(--tablet-modal-width), 100%);
+  max-width: 760px;
+  max-height: min(88vh, calc(100dvh - var(--safe-top) - var(--safe-bottom) - 48px));
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="tablet"] :where(.modalGrid, .modal .grid, .upsellModal .grid, .discountModal .grid, .helperModal .grid) {
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html[data-layout="tablet"] :where(.modalBtns, .modalActions, .modalFooter, .upsellActions, .finalUpsellGrid, .benefitActions) {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-action);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: var(--safe-bottom);
+}
+
+html[data-layout="tablet"] :where(.modalBtns, .modalActions, .modalFooter, .upsellActions, .finalUpsellGrid, .benefitActions) button {
+  min-width: 0;
+  min-height: var(--touch-target-min);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+@media (max-width: 680px), (max-height: 850px) {
+  html[data-layout="tablet"] :where(.modalGrid, .modal .grid, .upsellModal .grid, .discountModal .grid, .helperModal .grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }
 
 html[data-layout="tablet"] :where(.summaryContainer, .sectionWrapper) {
