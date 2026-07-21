@@ -1,0 +1,98 @@
+/*
+ * Core component foundations
+ *
+ * This layer is intentionally loaded before the legacy inline styles. The
+ * :where() groups keep specificity at zero while connecting new component
+ * names to selectors that are already used by markup, scripts, and tests.
+ * Existing selectors remain authoritative during the incremental migration.
+ *
+ * Component selector inventory
+ * Header: .c-header <-> .head
+ * Progress: .c-progress <-> .progress
+ * CTA: .c-selection-footer <-> .selectionFooter
+ * Order Summary: .c-order-summary <-> .cartbar
+ * Card: .c-card <-> .card
+ * Grid: .c-grid <-> .grid
+ * Button: .c-button <-> button, .next, .prev, .start
+ * Popup / Modal: .c-popup-backdrop <-> .backdrop;
+ *                .c-popup <-> .modal, .upsellModal,
+ *                .finalUpsellModal, .benefitHelperModal
+ * Utility: .u-text-center <-> .done; .u-muted <-> .muted
+ */
+
+/* Header owns the sticky top-level navigation row. */
+:where(.c-header, .head) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+}
+
+/* Progress owns the sticky, horizontally scrollable step list. */
+:where(.c-progress, .progress) {
+  display: flex;
+  position: sticky;
+  overflow: auto;
+}
+
+/* CTA owns viewport placement; its card remains a separate Card concern. */
+:where(.c-selection-footer, .selectionFooter) {
+  position: fixed;
+  box-sizing: border-box;
+}
+
+/* Order Summary owns the fixed summary/action bar at the viewport edge. */
+:where(.c-order-summary, .cartbar) {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  box-sizing: border-box;
+}
+
+/* Card owns the positioning context used by badges and card decoration. */
+:where(.c-card, .card) {
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Grid owns component collection layout; column variants remain legacy. */
+:where(.c-grid, .grid) {
+  display: grid;
+  box-sizing: border-box;
+}
+
+/* Button foundation is neutral; visual variants remain existing selectors. */
+:where(.c-button, button, .next, .prev, .start) {
+  box-sizing: border-box;
+  font: inherit;
+}
+
+/* Popup owns the viewport overlay; Modal owns the scrollable dialog surface. */
+:where(.c-popup-backdrop, .backdrop) {
+  display: grid;
+  position: fixed;
+  box-sizing: border-box;
+}
+
+:where(
+  .c-popup,
+  .modal,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal
+) {
+  box-sizing: border-box;
+}
+
+:where(.c-popup, .modal) {
+  overflow: auto;
+}
+
+/* Utilities provide migration targets without replacing legacy selectors. */
+:where(.u-text-center, .done) {
+  text-align: center;
+}
+
+:where(.u-muted, .muted) {
+  color: var(--muted, #747b74);
+}
