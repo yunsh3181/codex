@@ -37,3 +37,46 @@ html[data-layout="phone"] .halfPreview {
 html[data-layout="phone"] body[data-step] .grid.adaptiveCards {
   grid-template-columns: minmax(0, 1fr) !important;
 }
+
+/* Keep the established CTA/order geometry, but activate it through the
+ * device layer only when the runtime selects the phone portrait layout. */
+html[data-layout="phone"] :where(.selectionFooter, .c-selection-footer) {
+  position: fixed;
+  bottom: calc(
+    var(--order-summary-bottom) +
+    var(--order-summary-height) +
+    var(--safe-bottom)
+  );
+  z-index: var(--z-selection-footer);
+  height: var(--selection-footer-height);
+}
+
+html[data-layout="phone"] :where(.cartbar, .c-order-summary) {
+  position: fixed;
+  bottom: var(--order-summary-bottom);
+  z-index: var(--z-order-summary);
+  height: var(--order-summary-height) !important;
+}
+
+html[data-layout="phone"] body:is(
+  [data-step="topping"],
+  [data-step="side"],
+  [data-step="drink"],
+  [data-step="accompaniment"]
+) :where(.cartbar, .c-order-summary) {
+  height: calc(var(--order-summary-height) + var(--safe-bottom)) !important;
+  padding-bottom: calc(8px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="phone"] :where(
+  .selectionFooterSpacer,
+  .c-selection-footer-spacer
+) {
+  display: block;
+  height: calc(
+    var(--selection-footer-height) +
+    var(--order-summary-height) +
+    var(--safe-bottom) +
+    var(--selection-footer-margin)
+  );
+}
