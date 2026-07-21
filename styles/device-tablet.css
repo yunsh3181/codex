@@ -3,6 +3,11 @@
 html[data-layout="tablet"] {
   --tablet-content-max: 880px;
   --tablet-page-padding: 24px;
+  --tablet-header-height: 80px;
+  --tablet-progress-height: 56px;
+  --tablet-stage-top-offset: calc(
+    var(--tablet-header-height) + var(--tablet-progress-height) + var(--safe-top)
+  );
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -33,38 +38,92 @@ html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
 }
 
 html[data-layout="tablet"] :where(.head, .c-header) {
-  height: calc(86px + var(--safe-top)) !important;
+  box-sizing: border-box;
+  height: calc(var(--tablet-header-height) + var(--safe-top)) !important;
+  min-height: calc(var(--tablet-header-height) + var(--safe-top)) !important;
   padding-top: var(--safe-top) !important;
   padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
+  gap: var(--space-4);
+  z-index: var(--z-header);
 }
 
-html[data-layout="tablet"] :where(.head, .c-header) :where(.brand, .brandName) {
+html[data-layout="tablet"] :where(.head, .c-header) :where(.brand, .brandName, .storeName) {
   min-width: 0;
 }
 
-html[data-layout="tablet"] :where(.head, .c-header) .brandName {
+html[data-layout="tablet"] :where(.head, .c-header) :where(.brand, .headerActions) {
+  display: flex;
+  align-items: center;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) .brand {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) :where(.brandName, .storeName) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) :where(
+  .headerActions,
+  .homeBtn,
+  .backBtn,
+  .langBtn,
+  .langTopBtn
+) {
+  flex: 0 0 auto;
+}
+
+html[data-layout="tablet"] :where(.head, .c-header) :where(
+  button,
+  .homeBtn,
+  .backBtn,
+  .langBtn,
+  .langTopBtn
+) {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min) !important;
+  max-width: min(42vw, 260px);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 html[data-layout="tablet"] :where(.progress, .c-progress) {
-  top: calc(86px + var(--safe-top)) !important;
+  box-sizing: border-box;
+  top: calc(var(--tablet-header-height) + var(--safe-top)) !important;
+  min-height: var(--tablet-progress-height);
   padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  z-index: var(--z-progress);
 }
 
-html[data-layout="tablet"] :where(.progress, .c-progress) > * {
+html[data-layout="tablet"] :where(.progress, .c-progress) :where(
+  .progressStep,
+  .step,
+  .stepLabel,
+  span
+) {
   flex: 0 0 auto;
+  max-width: none;
+  white-space: nowrap;
 }
 
 html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
+  box-sizing: border-box;
   padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--tablet-page-padding) + var(--safe-left)) !important;
   padding-bottom: calc(38px + var(--safe-bottom)) !important;
+  scroll-margin-top: var(--tablet-stage-top-offset);
 }
 
 html[data-layout="tablet"] :where(.summaryContainer, .sectionWrapper) {
