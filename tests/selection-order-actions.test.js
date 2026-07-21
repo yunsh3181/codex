@@ -55,10 +55,10 @@ assert.ok(!html.includes('padding-top:116px!important'),'fixed-CTA compensation 
 assert.match(html,/\.selectionFooter\{[\s\S]*?position:fixed;/,'selection CTA is fixed');
 const footerCss=html.match(/\.selectionFooter\{([\s\S]*?)\n\}/)?.[1]||'';
 assert.ok(!/position\s*:\s*(?:sticky|absolute)/.test(footerCss),'selection CTA never uses sticky or absolute positioning');
-assert.match(footerCss,/bottom:calc\(var\(--selection-order-bar-height\) \+ env\(safe-area-inset-bottom\)\)/,'CTA sits directly above the measured order bar');
+assert.match(footerCss,/bottom:calc\(var\(--order-summary-height\) \+ var\(--safe-bottom\)\)/,'CTA sits directly above the measured order bar');
 assert.match(footerCss,/animation:none!important/,'fixed CTA is not displaced by stage-child animation');
 assert.match(footerCss,/transform:translateX\(-50%\)!important/,'fixed CTA stays centered across the viewport');
-assert.match(html,/\.selectionFooterSpacer\{[\s\S]*?height:calc\(var\(--selection-cta-height\) \+ var\(--selection-order-bar-height\) \+ env\(safe-area-inset-bottom\) \+ var\(--selection-footer-margin\)\)/,'spacer reserves CTA, order bar, safe area, and margin');
+assert.match(html,/\.selectionFooterSpacer\{[\s\S]*?height:calc\(var\(--selection-footer-height\) \+ var\(--order-summary-height\) \+ var\(--safe-bottom\) \+ var\(--selection-footer-margin\)\)/,'spacer reserves CTA, order bar, safe area, and margin');
 assert.match(html,/body\[data-step="accompaniment"\] \.stage\{[\s\S]*?animation:none!important;[\s\S]*?transform:none!important;[\s\S]*?padding-bottom:0!important/,'selection stage avoids a transformed fixed-position containing block and relies on the measured spacer');
 for(const step of ['topping','side','drink']){
   assert.ok(!html.includes(`body[data-step="${step}"] .grid>.skipCard`),`${step} CTA is not fixed over its grid`);

@@ -5125,7 +5125,6 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
 .selectionFooter{
   position:fixed;
   left:50%;
-  bottom:calc(var(--selection-order-bar-height) + env(safe-area-inset-bottom));
   bottom:calc(var(--order-summary-height) + var(--safe-bottom));
   z-index:var(--z-selection-footer);
   height:var(--selection-footer-height);
@@ -5170,7 +5169,6 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
 .selectionFooterSpacer{
   display:block;
   width:100%;
-  height:calc(var(--selection-cta-height) + var(--selection-order-bar-height) + env(safe-area-inset-bottom) + var(--selection-footer-margin));
   height:calc(var(--selection-footer-height) + var(--order-summary-height) + var(--safe-bottom) + var(--selection-footer-margin));
   animation:none!important;
   pointer-events:none;
