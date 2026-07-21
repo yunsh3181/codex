@@ -286,6 +286,210 @@ html[data-layout="tablet"] :where(
   }
 }
 
+/* Phase 3-5: checkout, payment, and completion geometry. Runtime layout
+ * scoping keeps phone and landscape/default ownership unchanged. */
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"],
+  [data-step="done"]
+) :where(.stage, .cartPage, .summary, .done) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--tablet-content-max);
+}
+
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"],
+  [data-step="phone"],
+  [data-step="payment"]
+) .stage {
+  padding-bottom: calc(32px + var(--safe-bottom)) !important;
+}
+
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .summary,
+  .review,
+  .cartReview,
+  .reviewOrderCard,
+  .reviewSection,
+  .cartOrderCard
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderTop > :first-child,
+  .cartOrderName,
+  .cartOrderDesc,
+  .reviewOrderHead > :first-child,
+  .reviewOrderHead h3,
+  .reviewMeta,
+  .reviewSection li span:first-child
+) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(
+  .cartOrderPrice,
+  .reviewOrderHead > strong,
+  .reviewSection li span:last-child,
+  .reviewDiscountBox .line strong,
+  .multiCartTotal strong
+) {
+  flex: 0 0 auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="tablet"] body:is(
+  [data-step="cartReview"],
+  [data-step="review"]
+) :where(.multiCartTotal, .reviewDiscountBox .line) {
+  justify-content: space-between;
+  text-align: right;
+}
+
+html[data-layout="tablet"] body[data-step="phone"] :where(.phoneStep, .summary) {
+  width: 100%;
+  min-width: 0;
+  max-width: var(--tablet-content-max);
+  margin-inline: auto;
+}
+
+html[data-layout="tablet"] body[data-step="phone"] .summary {
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+
+html[data-layout="tablet"] body[data-step="phone"] .phoneDisplay {
+  width: 100%;
+  min-width: 0;
+  min-height: 76px;
+  padding: 20px;
+  overflow: hidden;
+  font-size: clamp(32px, 5vw, 42px);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-layout="tablet"] body[data-step="phone"] .keypad {
+  display: grid;
+  width: min(100%, 520px);
+  max-width: 520px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px auto;
+}
+
+html[data-layout="tablet"] body[data-step="phone"] .keypad button {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 14px;
+  touch-action: manipulation;
+}
+
+html[data-layout="tablet"] body[data-step="phone"] #phoneNext {
+  min-height: 56px;
+  touch-action: manipulation;
+}
+
+html[data-layout="tablet"] body[data-step="payment"] :where(
+  .summary,
+  .paymentGrid,
+  .paymentCard,
+  .paymentSubmitBtn,
+  .paymentRequiredBox
+) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-layout="tablet"] body[data-step="payment"] .summary {
+  padding-bottom: calc(20px + var(--safe-bottom));
+}
+
+html[data-layout="tablet"] body[data-step="payment"] .paymentGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html[data-layout="tablet"] body[data-step="payment"] :where(
+  .paymentCard,
+  .paymentSubmitBtn
+) {
+  min-height: 56px;
+  touch-action: manipulation;
+}
+
+html[data-layout="tablet"] body[data-step="payment"] .paymentSubmitBtn {
+  position: relative;
+  z-index: var(--z-action);
+  margin-bottom: var(--safe-bottom);
+}
+
+html[data-layout="tablet"] body[data-step="done"] .stage {
+  min-height: calc(100dvh - var(--tablet-stage-top-offset));
+  padding-bottom: calc(32px + var(--safe-bottom)) !important;
+  overflow: visible;
+}
+
+html[data-layout="tablet"] body[data-step="done"] :where(.done) {
+  min-height: 100%;
+  padding: 48px 20px calc(32px + var(--safe-bottom));
+  overflow: visible;
+}
+
+html[data-layout="tablet"] body[data-step="done"] :where(.done) .num {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(60px, 10vw, 88px);
+  line-height: 1;
+}
+
+html[data-layout="tablet"] body[data-step="done"] :where(
+  .doneGuide,
+  .doneReserve,
+  .paymentRequiredBox
+) {
+  max-width: 720px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+html[data-layout="tablet"] body[data-step="done"] .doneHomeBtn {
+  min-width: min(320px, 100%);
+  min-height: 56px;
+  margin-bottom: var(--safe-bottom);
+  touch-action: manipulation;
+}
+
+@media (max-width: 680px) {
+  html[data-layout="tablet"] body[data-step="payment"] .paymentGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-layout="tablet"] body[data-step="done"] .doneHomeBtn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 /* Phase 3-3: card and selection geometry for the tablet portrait runtime.
  * State classes and component visuals remain owned by the existing layers. */
 html[data-layout="tablet"] :where(
