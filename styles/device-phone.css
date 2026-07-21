@@ -1,1 +1,39 @@
-/* Reserved for a future phone layout. */
+html[data-layout="phone"] {
+  --phone-header-height: 72px;
+  --phone-header-padding: 6px 10px;
+  --phone-progress-padding: 8px 9px;
+  --phone-progress-gap: 6px;
+  --phone-stage-padding-top: 20px;
+  --phone-stage-padding-inline: 10px;
+}
+
+html[data-layout="phone"] .head {
+  height: var(--phone-header-height) !important;
+  padding: var(--phone-header-padding) !important;
+}
+
+html[data-layout="phone"] .progress {
+  top: var(--phone-header-height) !important;
+  padding: var(--phone-progress-padding) !important;
+  gap: var(--phone-progress-gap) !important;
+  overflow-x: auto;
+}
+
+html[data-layout="phone"] .stage {
+  min-width: 0;
+  max-width: 100%;
+  padding-top: var(--phone-stage-padding-top) !important;
+  padding-right: var(--phone-stage-padding-inline) !important;
+  padding-left: var(--phone-stage-padding-inline) !important;
+}
+
+html[data-layout="phone"] .grid,
+html[data-layout="phone"] .grid.two,
+html[data-layout="phone"] .grid.four,
+html[data-layout="phone"] .halfPreview {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+html[data-layout="phone"] body[data-step] .grid.adaptiveCards {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
