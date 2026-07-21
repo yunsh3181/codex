@@ -4090,7 +4090,9 @@ body[data-step="side"] .card h3,
 
 /* fixed order bar and actions */
 .cartbar{
-  height:92px!important;
+  bottom:var(--order-summary-bottom);
+  z-index:var(--z-order-summary);
+  height:var(--order-summary-height)!important;
   padding:10px 14px!important;
   gap:9px!important;
   background:linear-gradient(110deg,#073825,var(--v4-green-2))!important;
@@ -4156,7 +4158,7 @@ body[data-step="side"] .card h3,
   .qty{grid-template-columns:42px minmax(34px,1fr) 42px!important;gap:5px!important}
   .qty button{width:42px!important;height:42px!important;font-size:26px!important}
   .qty b{min-height:40px;font-size:20px}
-  .cartbar{height:86px!important;padding:8px!important}
+  .cartbar{height:var(--order-summary-height)!important;padding:8px!important}
   .cartmain{max-width:38%!important}
   .carttitle{font-size:12px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cartprice{font-size:16px!important}
@@ -5120,17 +5122,13 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
 }
 
 /* Selection screens use one measured spacer and one viewport-fixed CTA card. */
-:root{
-  --selection-order-bar-height:92px;
-  --selection-cta-height:104px;
-  --selection-footer-margin:24px;
-}
 .selectionFooter{
   position:fixed;
   left:50%;
   bottom:calc(var(--selection-order-bar-height) + env(safe-area-inset-bottom));
-  z-index:39;
-  height:var(--selection-cta-height);
+  bottom:calc(var(--order-summary-height) + var(--safe-bottom));
+  z-index:var(--z-selection-footer);
+  height:var(--selection-footer-height);
   width:min(1200px,100%);
   padding:0 24px;
   animation:none!important;
@@ -5173,6 +5171,7 @@ body[data-step="timing"] .grid.two.timingChoiceGrid .card{
   display:block;
   width:100%;
   height:calc(var(--selection-cta-height) + var(--selection-order-bar-height) + env(safe-area-inset-bottom) + var(--selection-footer-margin));
+  height:calc(var(--selection-footer-height) + var(--order-summary-height) + var(--safe-bottom) + var(--selection-footer-margin));
   animation:none!important;
   pointer-events:none;
 }
@@ -5194,8 +5193,8 @@ body[data-step="topping"] .cartbar,
 body[data-step="side"] .cartbar,
 body[data-step="drink"] .cartbar,
 body[data-step="accompaniment"] .cartbar{
-  height:calc(var(--selection-order-bar-height) + env(safe-area-inset-bottom))!important;
-  padding-bottom:calc(10px + env(safe-area-inset-bottom))!important;
+  height:calc(var(--order-summary-height) + var(--safe-bottom))!important;
+  padding-bottom:calc(10px + var(--safe-bottom))!important;
 }
 
 /* Drink quantities stay legible between the unchanged minus/plus controls. */
@@ -5255,11 +5254,6 @@ body[data-step="accompaniment"] .cartbar{
 .reviewAddMore p{margin:10px 0 0;color:#687068;font-size:12px;text-align:center}
 
 @media(max-width:560px){
-  :root{
-    --selection-order-bar-height:86px;
-    --selection-cta-height:96px;
-    --selection-footer-margin:16px;
-  }
   body[data-step="timing"] .grid.two.timingChoiceGrid .card{min-height:206px!important}
   .setDrinkTextCard.setDrinkVariantCard{min-height:142px!important;gap:7px!important}
   .setDrinkTextCard .drinkVariantLabel{font-size:23px!important}
@@ -5270,7 +5264,7 @@ body[data-step="accompaniment"] .cartbar{
   body[data-step="topping"] .cartbar,
   body[data-step="side"] .cartbar,
   body[data-step="drink"] .cartbar,
-  body[data-step="accompaniment"] .cartbar{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+  body[data-step="accompaniment"] .cartbar{padding-bottom:calc(8px + var(--safe-bottom))!important}
   .reviewAddMoreGrid{grid-template-columns:1fr}
   .reviewAddMoreGrid button{min-height:48px}
   .v3DrinkVolume .v3DrinkQuantity{min-width:54px;padding:3px 5px;gap:4px}

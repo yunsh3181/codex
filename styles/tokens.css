@@ -47,6 +47,7 @@
   --selection-footer-height: 104px;
   --selection-footer-margin: 24px;
   --order-summary-height: 92px;
+  --order-summary-bottom: 0px;
 
   /* Touch Target Tokens */
   --touch-target-min: 48px;
@@ -78,5 +79,14 @@
   --motion-slow: 0.38s;
 
   /* Legacy Compatibility Aliases */
-  /* Existing inline custom properties remain authoritative until migration. */
+  --selection-cta-height: var(--selection-footer-height);
+  --selection-order-bar-height: var(--order-summary-height);
+}
+
+@media (max-width: 560px) {
+  :root {
+    --selection-footer-height: 96px;
+    --selection-footer-margin: 16px;
+    --order-summary-height: 86px;
+  }
 }
