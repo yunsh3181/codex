@@ -1,11 +1,16 @@
-/* 21-inch portrait kiosk foundation. Component-specific geometry remains in
- * later phases and this layer activates only through the runtime token. */
+/* 21-inch portrait kiosk geometry activates only through the runtime token. */
 html[data-layout="kiosk21"] {
   --kiosk21-content-max: 960px;
   --kiosk21-page-padding: 32px;
-  --kiosk21-header-height: 96px;
-  --kiosk21-progress-height: 64px;
+  --kiosk21-header-height: 108px;
+  --kiosk21-progress-height: 76px;
+  --kiosk21-stage-top-offset: calc(
+    var(--kiosk21-header-height) + var(--kiosk21-progress-height) + var(--safe-top)
+  );
+  --kiosk21-navigation-target: 64px;
+  --kiosk21-navigation-gap: 16px;
   --kiosk21-bottom-reserve: 48px;
+  scroll-padding-top: var(--kiosk21-stage-top-offset);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -44,12 +49,15 @@ html[data-layout="kiosk21"] :where(
 }
 
 html[data-layout="kiosk21"] :where(.head, .c-header) {
+  box-sizing: border-box;
   height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
   min-height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
   padding-top: var(--safe-top) !important;
   padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
-  gap: var(--space-4);
+  gap: var(--kiosk21-navigation-gap);
+  align-items: center;
+  z-index: var(--z-header);
 }
 
 html[data-layout="kiosk21"] :where(.head, .c-header) :where(
@@ -61,6 +69,8 @@ html[data-layout="kiosk21"] :where(.head, .c-header) :where(
 }
 
 html[data-layout="kiosk21"] :where(.head, .c-header) .brand {
+  display: flex;
+  align-items: center;
   flex: 1 1 auto;
   overflow: hidden;
 }
@@ -79,19 +89,52 @@ html[data-layout="kiosk21"] :where(.head, .c-header) :where(
   .langTopBtn
 ) {
   flex: 0 0 auto;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) .headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--kiosk21-navigation-gap);
   min-width: 0;
-  max-width: 40%;
+  max-width: 50%;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) :where(
+  button,
+  .homeBtn,
+  .backBtn,
+  .langBtn,
+  .langTopBtn
+) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--kiosk21-navigation-target);
+  min-height: var(--kiosk21-navigation-target) !important;
+  max-width: min(42vw, 320px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress) {
+  box-sizing: border-box;
   top: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
+  height: var(--kiosk21-progress-height);
   min-height: var(--kiosk21-progress-height);
   padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
   padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+  align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  z-index: var(--z-progress);
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress)::-webkit-scrollbar {
+  display: none;
 }
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress) :where(
@@ -101,10 +144,12 @@ html[data-layout="kiosk21"] :where(.progress, .c-progress) :where(
   span
 ) {
   flex: 0 0 auto;
+  max-width: none;
   white-space: nowrap;
 }
 
 html[data-layout="kiosk21"] :where(.stage, .mainContent, .sectionWrapper) {
+  scroll-margin-top: var(--kiosk21-stage-top-offset);
   padding-top: var(--kiosk21-page-padding) !important;
   padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
   padding-bottom: calc(var(--kiosk21-bottom-reserve) + var(--safe-bottom)) !important;
