@@ -28,6 +28,6 @@ assert.strictEqual(adminContext.adminOrderNumberLabel({sequence:123,customerNumb
 assert.strictEqual(adminContext.adminOrderNumberLabel({dailySequence:45,orderNo:'D1234'}),'#45');
 assert.ok(html.includes('orderNo:displayOrderNo(),customerNumber:displayOrderNo()'),'stored order-number fields remain unchanged');
 assert.ok(html.includes('orderNumberLabel(state.orderNo)'),'completion screen uses the display label');
-assert.ok(admin.includes('spokenOrderNumber(order.customerNumber||order.orderNo)'),'completion speech reads only the last four digits');
+assert.ok(admin.includes("callCustomer(order.customerNumber||order.orderNo||'',order.language)"),'completion passes the stored order number to the customer-call path that strips its P/D prefix');
 assert.ok(!admin.includes('`#${orderNumberLabel(order.customerNumber||order.orderNo)}'), 'new-order toast does not prefix customer numbers with a hash');
 console.log('order-number display labels and speech normalization passed');

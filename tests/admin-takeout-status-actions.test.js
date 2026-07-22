@@ -37,21 +37,22 @@ assert.match(markup('completed'),/data-action="call-customer"/, 'completed order
 const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\norderList\?\.addEventListener/)?.[0].replace(/\n\norderList\?\.addEventListener[\s\S]*/,'');
 const statusBlock=`const statusUpdateLocks=new Set();\n${setStatusSource||''}`;
 assert.ok(statusBlock,'status update implementation exists');
-async function exerciseStatus(order,status,{holdCommit=false}={}){
- const writes=[],seatWrites=[];
- let commits=0,releaseCommit;
+async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}={}){
+ const writes=[],seatWrites=[],customerCalls=[],loggedErrors=[];
+ let commits=0,releaseCommit,commitSucceeded=false;
  const commitGate=holdCommit?new Promise(resolve=>{releaseCommit=resolve}):Promise.resolve();
  const batch={
   update(ref,data){writes.push({ref,data})},
   set(ref,data,options){seatWrites.push({ref,data,options})},
-  async commit(){commits++;await commitGate}
+  async commit(){commits++;await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}
  };
  const context={
   Set,orders:[order],db:{batch:()=>batch,collection:name=>({doc:id=>({name,id})})},
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
   orderSeatIds:value=>value.seatIds||[],stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
-  hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},playPreset(){},enqueueSpeech(){},spokenOrderNumber:value=>String(value).replace(/^[PD]/,''),
-  console
+  hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},
+  callCustomer(orderNo,language){customerCalls.push({orderNo,language,commitSucceeded})},
+  console:{error(...args){loggedErrors.push(args)}}
  };
  vm.createContext(context);
  vm.runInContext(statusBlock,context);
@@ -59,7 +60,7 @@ async function exerciseStatus(order,status,{holdCommit=false}={}){
  const duplicate=holdCommit?context.setStatus(order.id,status,null):null;
  if(holdCommit)releaseCommit();
  const results=holdCommit?await Promise.all([first,duplicate]):[await first];
- return {writes,seatWrites,commits,results};
+ return {writes,seatWrites,customerCalls,loggedErrors,commits,results};
 }
 
 (async()=>{
@@ -69,17 +70,24 @@ async function exerciseStatus(order,status,{holdCommit=false}={}){
  assert.strictEqual(acceptedTakeout.writes[0].data.status,'accepted','takeout acceptance never writes completed');
  assert.strictEqual(acceptedTakeout.seatWrites.length,0,'takeout acceptance does not touch seats');
 
- const completedTakeout=await exerciseStatus({id:'t2',status:'accepted',orderType:'takeout',seatIds:[]},'completed',{holdCommit:true});
+ const completedTakeout=await exerciseStatus({id:'t2',status:'accepted',orderType:'takeout',seatIds:[],customerNumber:'P1234',language:'en'},'completed',{holdCommit:true});
  assert.strictEqual(completedTakeout.commits,1,'double-clicked takeout completion commits once');
  assert.strictEqual(completedTakeout.writes[0].data.status,'completed');
  assert.strictEqual(completedTakeout.seatWrites.length,0,'takeout completion does not touch seats');
+ assert.deepStrictEqual(completedTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'double-clicked completion calls once, after commit, in the order language');
 
  const acceptedDineIn=await exerciseStatus({id:'d1',status:'payment_pending',orderType:'dinein',seatIds:['s1']},'accepted');
  assert.strictEqual(acceptedDineIn.seatWrites.length,1,'dine-in acceptance marks its seat occupied');
  assert.strictEqual(acceptedDineIn.seatWrites[0].data.status,'occupied');
- const completedDineIn=await exerciseStatus({id:'d2',status:'accepted',orderType:'dinein',seatIds:['s2']},'completed');
+ const completedDineIn=await exerciseStatus({id:'d2',status:'accepted',orderType:'dinein',seatIds:['s2'],customerNumber:'D5678',language:'es'},'completed');
  assert.strictEqual(completedDineIn.seatWrites.length,1,'dine-in completion releases its seat');
  assert.strictEqual(completedDineIn.seatWrites[0].data.status,'empty');
+ assert.deepStrictEqual(completedDineIn.customerCalls,[{orderNo:'D5678',language:'es',commitSucceeded:true}],'dine-in completion calls after releasing its seat in the same commit');
+
+ const failedCompletion=await exerciseStatus({id:'f1',status:'accepted',orderType:'takeout',seatIds:[],customerNumber:'P9012',language:'ja'},'completed',{rejectCommit:true});
+ assert.deepStrictEqual(failedCompletion.results,[false],'failed completion reports failure');
+ assert.strictEqual(failedCompletion.customerCalls.length,0,'failed completion does not play or queue a customer call');
+ assert.strictEqual(failedCompletion.loggedErrors.length,1,'failed completion preserves the existing error report');
 
  assert.ok(admin.includes("event.preventDefault();\n event.stopPropagation();"),'delegated actions stop the original click before rerender');
  assert.ok(admin.includes("if(action==='call-customer'){\n  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);\n  return;"),'customer calls return without invoking setStatus');
