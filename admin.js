@@ -28,17 +28,11 @@ function startRealtimeSubscriptions(){
  snapshot.docChanges().forEach(change=>{
    if(change.type==='added')added.push({id:change.doc.id,...change.doc.data()});
  });
- const toMillis=o=>{
-   const v=o.createdAt||o.createdAtClient;
-   if(v?.toMillis)return v.toMillis();
-   if(v?.seconds)return v.seconds*1000;
-   const ms=new Date(v||0).getTime();
-   return Number.isNaN(ms)?0:ms;
- };
- const statusPriority={payment_pending:0,new:0,accepted:1,paid:1,cooking:2,ready:3,completed:3,cancelled:4};
  orders=snapshot.docs
    .map(doc=>({id:doc.id,...doc.data()}))
-   .sort((a,b)=>(statusPriority[a.status]??9)-(statusPriority[b.status]??9)||toMillis(b)-toMillis(a))
+   .map((order,index)=>({order,index}))
+   .sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index)
+   .map(entry=>entry.order)
    .slice(0,100);
  render();
  assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
@@ -114,6 +108,22 @@ const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
+function orderTimeMillis(value){
+ if(value?.toMillis)return value.toMillis();
+ if(Number.isFinite(Number(value?.seconds)))return Number(value.seconds)*1000;
+ const millis=value?new Date(value).getTime():NaN;
+ return Number.isFinite(millis)?millis:null;
+}
+function compareOrdersOldestFirst(a,b){
+ const aTime=orderTimeMillis(a?.createdAt)??orderTimeMillis(a?.createdAtClient);
+ const bTime=orderTimeMillis(b?.createdAt)??orderTimeMillis(b?.createdAtClient);
+ if(aTime!==bTime){if(aTime==null)return 1;if(bTime==null)return -1;return aTime-bTime}
+ const aSequence=Number(a?.sequence??a?.dailySequence);
+ const bSequence=Number(b?.sequence??b?.dailySequence);
+ const aValid=Number.isFinite(aSequence)&&aSequence>0,bValid=Number.isFinite(bSequence)&&bSequence>0;
+ if(aValid!==bValid)return aValid?-1:1;
+ return aValid&&aSequence!==bSequence?aSequence-bSequence:0;
+}
 function seoulBusinessDayKey(value=new Date()){
  const date=value?.toDate?value.toDate():new Date(value);
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(date).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
@@ -225,25 +235,44 @@ function itemHTML(item){
  return `<div class="order-item admin-pizza-item"><div class="admin-product-row admin-pizza-row"><strong class="admin-pizza-heading">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="admin-pizza-name">${esc(adminPizzaName(item))}</span></strong>${quantityHTML(item.qty)}</div>${toppings.length?`<div class="admin-toppings"><b>토핑</b>${itemListHTML(toppings)}</div>`:''}<small>${esc(benefit)} · ${money(item.total||0)}</small></div>`;
 }
 function orderBenefitLabel(order){return [...new Set((order.items||[]).map(item=>item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':item.promo==='happy'?'해피아워':'일반주문'))].join(' + ')||'-'}
-function orderDetailsHTML(order){
+function safeAmounts(order){
+ const candidates=[order?.originalAmount,order?.normalAmount,order?.subtotal,order?.totalAmount,order?.total];
+ const original=Math.max(0,Number(candidates.find(value=>Number.isFinite(Number(value))))||0);
+ const paidCandidates=[order?.finalAmount,order?.totalAmount,order?.total,order?.amount,original];
+ const paid=Math.max(0,Number(paidCandidates.find(value=>Number.isFinite(Number(value))))||0);
+ const savedDiscount=Number(order?.discountAmount);
+ const discount=Math.max(0,order?.discountAmount!=null&&Number.isFinite(savedDiscount)?savedDiscount:original-paid);
+ return {original,discount,paid};
+}
+function splitPaymentSummary(order,paid=safeAmounts(order).paid){
+ const stored=Array.isArray(order?.payment?.splitAmounts)?order.payment.splitAmounts.map(Number).filter(value=>Number.isFinite(value)&&value>=0):[];
+ const requested=Number(order?.payment?.splitCount);
+ const count=Number.isInteger(requested)&&requested>1?requested:stored.length>1?stored.length:0;
+ if(count<2)return null;
+ const amounts=stored.length>1?stored:Array.from({length:count},(_,index)=>Math.floor(paid/count)+(index>=count-paid%count?1:0));
+ const groups=[];
+ amounts.forEach(amount=>{const found=groups.find(group=>group.amount===amount);if(found)found.count++;else groups.push({amount,count:1})});
+ return {count,amounts,groups,total:amounts.reduce((sum,value)=>sum+value,0),matchesPaid:amounts.reduce((sum,value)=>sum+value,0)===paid};
+}
+function orderMenuHTML(order){
  const items=Array.isArray(order.items)?order.items:[];
- const original=Math.max(0,Number(order.originalAmount??order.normalAmount??order.subtotal??order.totalAmount??order.total??0)||0);
- const paid=Math.max(0,Number(order.finalAmount??order.totalAmount??order.total??order.amount??original)||0);
- const savedDiscount=order.discountAmount==null?NaN:Number(order.discountAmount);
- const discount=Math.max(0,Number.isFinite(savedDiscount)?savedDiscount:original-paid);
- const lines=[['순번',order.sequence||order.dailySequence||'배정 중'],['주문번호',order.customerNumber||order.orderNo||'-'],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['주문채널',PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'],['이용방법',order.orderType==='takeout'?'포장':'먹고가기'],['예약',order.pickup?.time||'바로 주문'],['인원',order.partySize?order.partySize+'명':'-'],['구역',order.seat?orderZoneLabel(order):'-'],['좌석',orderSeatLabel(order)||'-'],['연락처',order.phoneMasked||'-'],['적용혜택',orderBenefitLabel(order)],['결제수단',order.payment?.methodName||'-'],['분할결제',order.payment?.splitCount>1?order.payment.splitCount+'명 · '+(order.payment.splitAmounts||[]).map(money).join(' / '):'-']];
  const sides=items.flatMap(item=>[...selectionEntries(item.includedSides,'sides',SIDES),...selectionEntries(item.sides,'sides',SIDES)]);
  const drinks=items.flatMap(item=>[...drinkEntries(item.includedDrinks),...drinkEntries(item.drinks)]);
- const sections=[items.length?`<section><h4>피자</h4><div class="detail-items">${items.map(itemHTML).join('')}</div></section>`:'',sides.length?`<section><h4>사이드</h4>${itemListHTML(sides)}</section>`:'',drinks.length?`<section><h4>음료</h4>${itemListHTML(drinks)}</section>`:''].join('');
- const amounts=`<section class="admin-amounts"><h4>금액 정보</h4><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount>0?'−'+money(discount):money(0)}</strong></div><div class="payment"><span>결제금액</span><strong>${money(paid)}</strong></div></section>`;
- return `<div class="order-detail" id="detail-${esc(order.id)}" hidden><div class="detail-grid">${lines.map(([k,v])=>`<div><b>${k}</b><span>${esc(v)}</span></div>`).join('')}</div>${sections||'<p>저장된 상품 상세가 없습니다.</p>'}${amounts}</div>`
+ return `${items.length?`<section><h4>피자</h4><div class="detail-items">${items.map(itemHTML).join('')}</div></section>`:'<p class="empty-items">저장된 피자 정보가 없습니다.</p>'}${sides.length?`<section><h4>사이드</h4>${itemListHTML(sides)}</section>`:''}${drinks.length?`<section><h4>음료</h4>${itemListHTML(drinks)}</section>`:''}`;
 }
-function toggleOrderDetail(id,button){const box=document.getElementById('detail-'+id);if(!box)return;box.hidden=!box.hidden;button.textContent=box.hidden?'상세보기':'상세접기'}
-window.toggleOrderDetail=toggleOrderDetail;
+function orderOperationsHTML(order){
+ const {original,discount,paid}=safeAmounts(order),split=splitPaymentSummary(order,paid);
+ const phone=displayText(order.phone||order.phoneMasked,'-');
+ const takeout=order.orderType==='takeout';
+ const seat=takeout?'포장':displayText(orderSeatLabel(order));
+ const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
+ const splitHTML=split?`<div class="payment-metric split-metric"><span>1인당 결제금액</span><strong>${money(split.groups[0].amount)}</strong><small>${split.groups.map(group=>`${money(group.amount)} × ${group.count}명`).join(' · ')}${split.matchesPaid?'':' · 저장 합계 '+money(split.total)}</small></div>`:'';
+ return `<div class="key-info"><div><span>인원</span><strong>${party}</strong></div><div><span>${takeout?'이용방법':'좌석'}</span><strong>${esc(seat)}</strong></div><div class="phone-info"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div></div><div class="order-context"><span>${PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'}</span><span>${takeout?'포장':'매장식사'}</span><span>${esc(order.pickup?.time?`예약 ${order.pickup.time}`:'바로 주문')}</span><span>${esc(orderBenefitLabel(order))}</span></div><div class="payment-grid"><div class="payment-metric"><span>결제수단</span><strong>${esc(displayText(order.payment?.methodName))}</strong>${split?`<small>${split.count}명 분할결제</small>`:''}</div>${splitHTML}<div class="payment-metric"><span>원 금액</span><strong>${money(original)}</strong></div><div class="payment-metric discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment-metric paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>`;
+}
 function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(activeChannel!=='all'&&channel!==activeChannel)return false;if(activeFilter==='all')return true;if(activeFilter==='payment_pending')return ['payment_pending','new'].includes(order.status);if(activeFilter==='accepted')return ['accepted','paid'].includes(order.status);if(activeFilter==='completed')return ['completed','ready'].includes(order.status);return order.status===activeFilter}
 function render(){
- const filtered=orders.filter(filterOrders);
- orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><div class="order-head"><span class="channel-badge ${PJCommon.legacyChannel(order)}">${PJCommon.legacyChannel(order)==="mobile"?"모바일":"PC"}</span><div><div class="order-no">#${esc(order.customerNumber||order.orderNo||order.phoneMasked||'-')}</div><small>${formatTime(order.createdAt||order.createdAtClient)}</small></div><span class="status-badge ${order.status}">${esc(statusNames[order.status]||order.status)}</span></div><div class="order-meta"><span>${order.orderType==='takeout'?'🥡 포장':'🍽️ 먹고가기'}</span>${order.partySize?`<span>👥 ${Number(order.partySize)||0}명</span>`:''}${orderSeatLabel(order)?`<span>🪑 ${esc(orderSeatLabel(order))}${order.seat?.groupSize?` · ${order.seat.groupSize}명`:''}</span>`:''}${order.pickup?.time?`<span>🕒 오늘 ${order.pickup.time}${order.pickup.isHappyHour?' · 해피아워':''}</span>`:''}${order.phoneMasked?`<span>☎️ ${esc(order.phoneMasked)}</span>`:''}${order.payment?.methodName?`<span>💳 ${esc(order.payment.methodName)}${order.payment.splitCount>1?` · ${order.payment.splitCount}명 분할`:''}</span>`:''}<span>상품 ${order.itemCount||0}개</span></div><div class="order-items">${(order.items||[]).map(itemHTML).join('')}</div><button type="button" class="detail-toggle" data-action="toggle-detail" data-order-id="${esc(order.id)}">상세보기</button>${orderDetailsHTML(order)}<div class="order-foot"><div class="order-total"><span>결제금액</span><strong>${money(order.total)}</strong></div><div class="actions">${['payment_pending','new'].includes(order.status)?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:''}${['accepted','paid'].includes(order.status)?`<button type="button" class="cook" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">조리 시작</button>`:''}${order.status==='cooking'?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">완료</button>`:''}${['ready','completed'].includes(order.status)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}</div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
+ orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-')}</div><span class="status-badge ${order.status}">${esc(statusNames[order.status]||displayText(order.status))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${['payment_pending','new'].includes(order.status)?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:''}${['accepted','paid'].includes(order.status)?`<button type="button" class="cook" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">조리 시작</button>`:''}${order.status==='cooking'?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">완료</button>`:''}${['ready','completed'].includes(order.status)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}</div></div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -303,8 +332,8 @@ orderList?.addEventListener('click',async event=>{
  event.preventDefault();
  event.stopPropagation();
  const action=button.dataset.action;
- if(action==='toggle-detail'){
-  toggleOrderDetail(button.dataset.orderId,button);
+ if(action==='copy-phone'){
+  try{await navigator.clipboard.writeText(button.dataset.phone||'');showAdminMessage('연락처가 복사되었습니다.');button.textContent='복사됨';setTimeout(()=>{if(button.isConnected)button.textContent='복사'},1200)}catch(error){showAdminMessage('연락처를 복사하지 못했습니다.',true)}
   return;
  }
  if(action==='call-customer'){
