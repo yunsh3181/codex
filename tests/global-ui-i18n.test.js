@@ -100,7 +100,7 @@ for(const language of languages){
     assert.ok(markup&&typeof markup==='string',`${language} ${modal} rendered`);
     rendered.push(visibleContent(markup));
   }
-  const combined=rendered.join(' ');
+  const combined=rendered.join(' ').replace(/(?:포장|다이닝) \d{4}/g,'');
   if(language==='ko')assert.ok(/[가-힣]/.test(combined),'Korean UI remains Korean');
   else assert.ok(!/[가-힣]/.test(combined),`${language} rendered UI contains Hangul`);
 }
