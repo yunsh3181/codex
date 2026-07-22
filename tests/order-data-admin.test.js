@@ -119,12 +119,43 @@ assert.ok(rules.includes("match /dailyStats/{document=**} { allow read, write: i
 
 const functionMatch=adminSource.match(/function seoulBusinessDayKey[\s\S]*?\n}\nconst sequenceAssignments/);
 assert.ok(functionMatch,'business day helper found');
-const timeContext={Intl,Date,Object,Number};
+const timeContext={Intl,Date,Object,Number,compareOrdersOldestFirst:sortContext.compareOrdersOldestFirst};
 vm.createContext(timeContext);
 vm.runInContext(functionMatch[0].replace(/\nconst sequenceAssignments[\s\S]*/,''),timeContext);
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-20T00:00:00.000Z')),'2026-07-20','09:00 KST starts a new business day');
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-19T23:59:59.000Z')),'2026-07-19','08:59:59 KST remains on the previous business day');
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-20T13:00:00.000Z')),'2026-07-20','22:00 KST remains on the current business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-21T23:59:00.000Z')),'2026-07-21','08:59 KST remains on the previous business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-22T00:00:00.000Z')),'2026-07-22','09:00 KST starts the next business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-22T14:59:00.000Z')),'2026-07-22','23:59 KST stays on the current business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-22T15:30:00.000Z')),'2026-07-22','00:30 KST stays on the previous calendar business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-23T00:00:00.000Z')),'2026-07-23','next 09:00 KST starts a new business day');
+assert.strictEqual(timeContext.seoulBusinessDayKey('not-a-date'),null,'invalid dates are rejected safely');
+
+const businessNow=new Date('2026-07-22T03:00:00.000Z');
+const businessOrders=[
+ {id:'today-pending',businessDay:'2026-07-22',status:'payment_pending',createdAtClient:'2026-07-22T01:00:00.000Z'},
+ {id:'today-done',businessDay:'2026-07-22',status:'completed',createdAtClient:'2026-07-22T02:00:00.000Z'},
+ {id:'yesterday-active',businessDay:'2026-07-21',status:'accepted',createdAtClient:'2026-07-21T02:00:00.000Z'},
+ {id:'yesterday-ready',businessDay:'2026-07-21',status:'ready',createdAtClient:'2026-07-21T03:00:00.000Z'},
+ {id:'yesterday-cancelled',businessDay:'2026-07-21',status:'cancelled',createdAtClient:'2026-07-21T04:00:00.000Z'},
+ {id:'created-at-fallback',status:'completed',createdAt:'2026-07-22T02:30:00.000Z'},
+ {id:'client-fallback',status:'completed',createdAtClient:'2026-07-22T02:45:00.000Z'},
+ {id:'missing-date',status:'payment_pending'}
+];
+const visible=Array.from(timeContext.visibleBusinessDayOrders(businessOrders,businessNow));
+assert.deepStrictEqual(visible.map(order=>order.id),['yesterday-active','today-pending','today-done','created-at-fallback','client-fallback'],'visible orders include current-day and previous active orders in oldest-first order');
+assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[5]),'2026-07-22','createdAt provides a missing business day');
+assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[6]),'2026-07-22','createdAtClient is the final date fallback');
+assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[7]),null,'orders without dates are safely excluded');
+assert.strictEqual(timeContext.isCurrentBusinessDayOrder(businessOrders[0],businessNow),true,'current-day added order is eligible for notification');
+assert.strictEqual(timeContext.isCurrentBusinessDayOrder(businessOrders[2],businessNow),false,'past active added order is not eligible for notification');
+const capped=Array.from(timeContext.visibleBusinessDayOrders(Array.from({length:101},(_,index)=>({id:`order-${index+1}`,businessDay:'2026-07-22',status:'completed',createdAtClient:new Date(Date.UTC(2026,6,22,0,0,index)).toISOString()})),businessNow));
+assert.strictEqual(capped.length,100,'visible order list is capped at 100');
+assert.strictEqual(capped[0].id,'order-2','cap drops the oldest overflow order');
+assert.strictEqual(capped[99].id,'order-101','cap retains the newest order while preserving oldest-first display');
+assert.ok(adminSource.includes("notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)))"),'new-order notification is limited to current-business-day pending orders');
+assert.ok(!adminSource.includes("collection('orders').limit(200)"),'subscription does not truncate current-day orders behind historical documents');
 
 const allowedKeys=rules.match(/request\.resource\.data\.keys\(\)\.hasOnly\(\[([\s\S]*?)\]\)/)[1].match(/'([^']+)'/g).map(x=>x.slice(1,-1));
 const returnBlock=html.match(/return \{\n  channel:'mobile'[\s\S]*?\n \}\n}\nasync function submitMobileOrder/)[0];
