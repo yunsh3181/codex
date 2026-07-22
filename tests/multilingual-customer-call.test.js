@@ -30,13 +30,13 @@ function Utterance(text){this.text=text}
 const context={String,Promise,SpeechSynthesisUtterance:Utterance,spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d{4}$)/,''),soundEnabled:true,settings:{voice:true},speechQueue:Promise.resolve(),window:{speechSynthesis:{getVoices:()=>voices,speak(utterance){spoken.push(utterance);utterance.onend()}}}};
 vm.createContext(context);
 vm.runInContext(helperSource,context);
-for(const [language,expected] of [['ko','ko'],['ko-KR','ko'],['en','en'],['en-US','en'],['es','es'],['es-ES','es'],[undefined,'ko'],['ja','ko']])assert.strictEqual(context.customerCallLanguage(language),expected);
+for(const [language,expected] of [['ko','ko'],['ko-KR','ko'],['en','en'],['en-US','en'],['es','es'],['es-ES','es'],[undefined,'ko'],['','ko'],['ja','ko'],['zh','ko'],['vi','ko'],['unknown','ko']])assert.strictEqual(context.customerCallLanguage(language),expected);
 const cases=[
- ['12','ko','12번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
- ['34','en','Customer number 34, your order is ready. Please come to the counter.','en-US','en-GB'],
- ['56','es','Cliente número 56, su pedido está listo. Por favor, acérquese al mostrador.','es-ES','es-MX'],
- ['78',undefined,'78번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
- ['90','ja','90번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR']
+ ['P1234','en','Customer number 1234, your order is ready. Please come to the counter.','en-US','en-GB'],
+ ['D5678','es','Cliente número 5678, su pedido está listo. Por favor, acérquese al mostrador.','es-ES','es-MX'],
+ ['P9012','ko','9012번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
+ ['P3456',undefined,'3456번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
+ ['D7890','ja','7890번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR']
 ];
 (async()=>{
  for(const [number,language,text,lang,voiceLang] of cases){
@@ -48,7 +48,10 @@ const cases=[
   assert.deepStrictEqual([utterance.rate,utterance.pitch,utterance.volume],[1,1,1]);
  }
  assert.ok(admin.includes("order.customerNumber||order.orderNo||''"),'customerNumber remains ahead of orderNo');
+ assert.ok(admin.includes('data-order-language="${esc(order.language||\'\')}"'),'call button preserves the Firestore order language');
  assert.ok(admin.includes("callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)"),'call button passes the stored order language');
+ assert.ok(admin.includes("function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}"),'customer calls preserve the effect, 420ms delay, and multilingual queue');
+ assert.ok(admin.includes("if(status==='completed'&&order){playPreset('cafe');enqueueSpeech(`${spokenOrderNumber(order.customerNumber||order.orderNo)} 고객님 주문 조리가 완료되었습니다.`)}"),'completion speech remains a separate Korean-only status action');
  assert.ok(!helperSource.includes('female'),'customer call does not force a gendered voice');
  console.log('multilingual order language, compatible rules, and customer call speech passed');
 })().catch(error=>{console.error(error);process.exitCode=1});
