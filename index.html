@@ -2941,8 +2941,9 @@ function pressPhone(n){if(state.phone.length<8){state.phone+=n;updatePhoneUI()}}
 function mobilePhoneFull(){return '010'+state.phone}
 function mobileMaskedPhone(){return '010-****-'+last4()}
 function mobileOrderLanguage(){
- const language=window.PJ_I18N?.currentLanguage?.();
- return ['ko','en','es'].includes(language)?language:'ko'
+ const language=String(window.PJ_I18N?.currentLanguage?.()||'').trim().replace(/_/g,'-').toLowerCase();
+ const supported={ko:'ko','ko-kr':'ko',en:'en','en-us':'en',es:'es','es-es':'es',ja:'ja','ja-jp':'ja',zh:'zh','zh-cn':'zh','zh-hans':'zh','zh-hans-cn':'zh'};
+ return supported[language]||'ko'
 }
 function mobileItemMap(map,master,category){
  return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>{

@@ -463,8 +463,13 @@ function speakText(text){
 function enqueueSpeech(text){speechQueue=speechQueue.then(()=>speakText(text)).catch(()=>{});return speechQueue}
 function speak(text){return enqueueSpeech(text)}
 function customerCallLanguage(language){
- const normalized=String(language||'').toLowerCase().split(/[-_]/)[0];
- return ['ko','en','es'].includes(normalized)?normalized:'ko'
+ const normalized=String(language||'').trim().toLowerCase().replace(/_/g,'-');
+ if(['ko','ko-kr'].includes(normalized))return 'ko';
+ if(['en','en-us'].includes(normalized))return 'en';
+ if(['es','es-es'].includes(normalized))return 'es';
+ if(['ja','ja-jp'].includes(normalized))return 'ja';
+ if(['zh','zh-cn','zh-hans','zh-hans-cn'].includes(normalized))return 'zh';
+ return 'ko'
 }
 function customerCallSpeech(orderNo,language){
  const normalized=customerCallLanguage(language);
@@ -472,7 +477,9 @@ function customerCallSpeech(orderNo,language){
  const speech={
   ko:{lang:'ko-KR',text:`${number}번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
   en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
-  es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`}
+  es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
+  ja:{lang:'ja-JP',text:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
+  zh:{lang:'zh-CN',text:`号码为${number}的顾客，您的餐品已经准备好了，请到柜台取餐。`}
  }[normalized];
  return {...speech,voicePrefix:normalized}
 }

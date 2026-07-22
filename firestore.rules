@@ -14,7 +14,7 @@ service cloud.firestore {
       ])
       && request.resource.data.channel == 'mobile'
       && (!request.resource.data.keys().hasAny(['language'])
-        || request.resource.data.language in ['ko','en','es'])
+        || request.resource.data.language in ['ko','en','es','ja','zh'])
       && request.resource.data.status == 'payment_pending'
       && request.resource.data.orderType in ['dinein','takeout']
       && validString(request.resource.data.phone, 11)
