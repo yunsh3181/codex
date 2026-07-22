@@ -454,9 +454,9 @@ function customerCallLanguage(language){
 function customerCallSpeech(orderNo,language){
  const normalized=customerCallLanguage(language);
  const speech={
-  ko:{lang:'ko-KR',text:`${orderNo}번 고객님, 주문하신 메뉴가 준비되었습니다.`},
-  en:{lang:'en-US',text:`Customer number ${orderNo}, your order is ready.`},
-  es:{lang:'es-ES',text:`Cliente número ${orderNo}, su pedido está listo.`}
+  ko:{lang:'ko-KR',text:`${orderNo}번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
+  en:{lang:'en-US',text:`Customer number ${orderNo}, your order is ready. Please come to the counter.`},
+  es:{lang:'es-ES',text:`Cliente número ${orderNo}, su pedido está listo. Por favor, acérquese al mostrador.`}
  }[normalized];
  return {...speech,voicePrefix:normalized}
 }
