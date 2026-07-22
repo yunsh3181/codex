@@ -270,9 +270,15 @@ function orderOperationsHTML(order){
  return `<div class="key-info"><div><span>인원</span><strong>${party}</strong></div><div><span>${takeout?'이용방법':'좌석'}</span><strong>${esc(seat)}</strong></div><div class="phone-info"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div></div><div class="order-context"><span>${PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'}</span><span>${takeout?'포장':'매장식사'}</span><span>${esc(order.pickup?.time?`예약 ${order.pickup.time}`:'바로 주문')}</span><span>${esc(orderBenefitLabel(order))}</span></div><div class="payment-grid"><div class="payment-metric"><span>결제수단</span><strong>${esc(displayText(order.payment?.methodName))}</strong>${split?`<small>${split.count}명 분할결제</small>`:''}</div>${splitHTML}<div class="payment-metric"><span>원 금액</span><strong>${money(original)}</strong></div><div class="payment-metric discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment-metric paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>`;
 }
 function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(activeChannel!=='all'&&channel!==activeChannel)return false;if(activeFilter==='all')return true;if(activeFilter==='payment_pending')return ['payment_pending','new'].includes(order.status);if(activeFilter==='accepted')return ['accepted','paid'].includes(order.status);if(activeFilter==='completed')return ['completed','ready'].includes(order.status);return order.status===activeFilter}
+function adminStatusName(order){if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';if(order.orderType==='takeout'&&['accepted','paid','cooking'].includes(order.status))return '포장완료';return statusNames[order.status]||order.status}
+function adminOrderActions(order){
+ const pending=['payment_pending','new'].includes(order.status),done=['ready','completed'].includes(order.status),takeout=order.orderType==='takeout';
+ const primary=pending?`<button type="button" class="${takeout?'ready':'accept'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${takeout?'completed':'accepted'}">${takeout?'포장완료':'사용중'}</button>`:(!takeout&&['accepted','paid','cooking'].includes(order.status))?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">주문 완료</button>`:(takeout&&['accepted','paid','cooking'].includes(order.status))?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">포장완료</button>`:'';
+ return `${primary}${done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
+}
 function render(){
  const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-')}</div><span class="status-badge ${order.status}">${esc(statusNames[order.status]||displayText(order.status))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${['payment_pending','new'].includes(order.status)?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:''}${['accepted','paid'].includes(order.status)?`<button type="button" class="cook" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">조리 시작</button>`:''}${order.status==='cooking'?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">완료</button>`:''}${['ready','completed'].includes(order.status)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}</div></div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-')}</div><span class="status-badge ${order.status}">${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -299,21 +305,27 @@ async function setStatus(id,status,button){
   const order=orders.find(o=>o.id===id);
   if(!order)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
   if(status==='accepted')stopNewOrderRepeat();
-  await db.collection('orders').doc(id).update({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  showAdminMessage(status==='accepted'?'주문이 접수되었습니다.':status==='cooking'?'조리를 시작했습니다.':status==='completed'?'주문을 완료했습니다.':'주문 상태가 변경되었습니다.');
-  if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
   const seatIds=orderSeatIds(order);
-  if(seatIds.length&&['completed','cancelled'].includes(status)){
-   const seatStatus=status==='completed'?'cleaning':'empty';
-   const batch=db.batch();
+  const batch=db.batch();
+  batch.update(db.collection('orders').doc(id),{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  if(seatIds.length&&status==='accepted'&&order.orderType!=='takeout'){
    seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),{
-    status:seatStatus,
-    orderId:null,orderNo:null,partySize:null,groupId:null,
-    occupiedAt:null,heldAt:null,heldUntil:null,
+    status:'occupied',heldBy:null,heldUntil:null,
+    occupiedAt:firebase.firestore.FieldValue.serverTimestamp(),
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
    },{merge:true}));
-   await batch.commit();
   }
+  if(seatIds.length&&['completed','cancelled'].includes(status)){
+   seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),{
+    status:'empty',
+    orderId:null,orderNo:null,partySize:null,groupId:null,
+    occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+   },{merge:true}));
+  }
+  await batch.commit();
+  showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'포장 주문을 완료했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
+  if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
   if(status==='completed'&&order){playPreset('cafe');enqueueSpeech(`${order.customerNumber||order.orderNo} 고객님 주문 조리가 완료되었습니다.`)}
   return true;
  }catch(error){

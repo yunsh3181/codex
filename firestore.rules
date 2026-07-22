@@ -41,12 +41,33 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isAdmin();
       allow update: if isAdmin() || (
-        request.resource.data.status == 'occupied'
+        request.resource.data.status == 'held'
+        && validString(request.resource.data.heldBy, 128)
+        && request.resource.data.heldUntil is timestamp
+        && request.resource.data.heldUntil > request.time
+        && (resource.data.status == 'empty'
+          || (resource.data.status == 'held' && resource.data.heldBy == request.resource.data.heldBy)
+          || (resource.data.status == 'held' && resource.data.orderId == null && resource.data.heldUntil <= request.time))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status','heldBy','heldAt','heldUntil','updatedAt'
+        ])
+      ) || (
+        resource.data.status == 'held'
+        && resource.data.orderId == null
+        && request.resource.data.status == 'empty'
+        && request.resource.data.heldBy == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status','heldBy','heldAt','heldUntil','partySize','updatedAt'
+        ])
+      ) || (
+        resource.data.status == 'held'
+        && request.resource.data.status == 'held'
+        && request.resource.data.heldBy == null
         && validString(request.resource.data.orderId, 128)
         && existsAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId))
         && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'payment_pending'
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'status','partySize','orderNo','orderId','occupiedAt','updatedAt'
+          'status','partySize','orderNo','orderId','heldBy','heldUntil','updatedAt'
         ])
       );
       allow delete: if isAdmin();

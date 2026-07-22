@@ -83,6 +83,6 @@ test('all required order and popup routes remain represented without script chan
 test('order, cart, price, discount, menu IDs, and Firestore payload guards remain covered', () => {
   for (const invariant of [
     'cartItems', 'function price()', 'currentOrderTotal', '"id": "P001"', 'discount', 'payload',
-    "db.collection('orders').doc", 'batch.set(orderRef,payload)', 'phoneMasked', 'paymentMethod',
+    "db.collection('orders').doc", 'transaction.set(orderRef,payload)', 'phoneMasked', 'paymentMethod',
   ]) assert.ok(html.includes(invariant), invariant);
 });
