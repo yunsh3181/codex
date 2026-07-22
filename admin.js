@@ -123,6 +123,21 @@ const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
+function orderNumberLabel(value){
+ const raw=String(value??'');
+ const match=raw.match(/^([PD])(\d{4})$/);
+ if(!match)return raw;
+ return `${match[1]==='P'?'포장':'다이닝'} ${match[2]}`
+}
+function spokenOrderNumber(value){
+ const raw=String(value??'');
+ const match=raw.match(/^[PD](\d{4})$/);
+ return match?match[1]:raw
+}
+function adminOrderNumberLabel(order){
+ const sequence=order?.sequence||order?.dailySequence;
+ return sequence?`#${sequence}`:orderNumberLabel(order?.customerNumber||order?.orderNo||'-')
+}
 function orderTimeMillis(value){
  if(value?.toMillis)return value.toMillis();
  if(Number.isFinite(Number(value?.seconds)))return Number(value.seconds)*1000;
@@ -319,7 +334,7 @@ function adminOrderActions(order){
 }
 function render(){
  const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-')}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -367,7 +382,7 @@ async function setStatus(id,status,button){
   await batch.commit();
   showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'포장 주문을 완료했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
-  if(status==='completed'&&order){playPreset('cafe');enqueueSpeech(`${order.customerNumber||order.orderNo} 고객님 주문 조리가 완료되었습니다.`)}
+  if(status==='completed'&&order){playPreset('cafe');enqueueSpeech(`${spokenOrderNumber(order.customerNumber||order.orderNo)} 고객님 주문 조리가 완료되었습니다.`)}
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
@@ -453,10 +468,11 @@ function customerCallLanguage(language){
 }
 function customerCallSpeech(orderNo,language){
  const normalized=customerCallLanguage(language);
+ const number=spokenOrderNumber(orderNo);
  const speech={
-  ko:{lang:'ko-KR',text:`${orderNo}번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
-  en:{lang:'en-US',text:`Customer number ${orderNo}, your order is ready. Please come to the counter.`},
-  es:{lang:'es-ES',text:`Cliente número ${orderNo}, su pedido está listo. Por favor, acérquese al mostrador.`}
+  ko:{lang:'ko-KR',text:`${number}번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
+  en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
+  es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`}
  }[normalized];
  return {...speech,voicePrefix:normalized}
 }
@@ -527,7 +543,7 @@ async function notifyNewOrders(added){
   soundButton.classList.add('attention');soundButton.textContent='🔔 화면을 눌러 알림음 활성화';
  }
 }
-function showToast(order){document.getElementById('toastText').textContent=`#${order.orderNo} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
+function showToast(order){document.getElementById('toastText').textContent=`${orderNumberLabel(order.customerNumber||order.orderNo)} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
 function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}
 window.callCustomer=callCustomer;window.setStatus=setStatus;
 

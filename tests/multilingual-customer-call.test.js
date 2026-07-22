@@ -27,7 +27,7 @@ assert.ok(helperSource,'customer call speech helpers exist');
 const spoken=[];
 const voices=[{lang:'en-GB',name:'English'},{lang:'es-MX',name:'Spanish'},{lang:'ko-KR',name:'Korean'}];
 function Utterance(text){this.text=text}
-const context={String,Promise,SpeechSynthesisUtterance:Utterance,soundEnabled:true,settings:{voice:true},speechQueue:Promise.resolve(),window:{speechSynthesis:{getVoices:()=>voices,speak(utterance){spoken.push(utterance);utterance.onend()}}}};
+const context={String,Promise,SpeechSynthesisUtterance:Utterance,spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d{4}$)/,''),soundEnabled:true,settings:{voice:true},speechQueue:Promise.resolve(),window:{speechSynthesis:{getVoices:()=>voices,speak(utterance){spoken.push(utterance);utterance.onend()}}}};
 vm.createContext(context);
 vm.runInContext(helperSource,context);
 for(const [language,expected] of [['ko','ko'],['ko-KR','ko'],['en','en'],['en-US','en'],['es','es'],['es-ES','es'],[undefined,'ko'],['ja','ko']])assert.strictEqual(context.customerCallLanguage(language),expected);
