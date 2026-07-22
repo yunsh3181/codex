@@ -107,16 +107,74 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .admin-login-card button{width:100%;margin-top:12px;padding:15px;border:0;border-radius:13px;background:#087348;color:white;font-weight:900;font-size:16px}
 .admin-login-card small{display:block;min-height:20px;margin-top:12px;color:#c81431;font-weight:800}
 
-.detail-toggle{width:100%;margin:14px 0 0;padding:13px;border:1px solid #cbd8d1;border-radius:14px;background:#f5faf7;color:#087348;font-weight:900;font-size:15px}
-.order-detail{margin-top:10px;padding:16px;border-radius:16px;background:#f7faf8;border:1px solid #dce6e0}
 .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .detail-grid>div{display:flex;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:10px;background:white}
 .detail-grid b{color:#5e6b65}.detail-grid span{text-align:right;font-weight:800}
-.order-detail h4{margin:18px 0 10px}.detail-items .order-item{background:white;border-radius:12px;padding:12px;margin-bottom:8px}
-.detail-items{display:grid;gap:10px}.detail-items .order-item{border:1px solid #e0e8e3!important;margin:0!important}.detail-items .order-item strong{color:#07532f}.detail-items .order-item small{line-height:1.45}.detail-items .order-item .discount{color:#c81431;font-weight:900}
+.order-detail h4{margin:18px 0 8px}.detail-items .order-item{padding:11px 0}
+.detail-items{border-top:1px solid #d8e1dc}.detail-items .order-item{border:0!important;border-bottom:1px solid #d8e1dc!important;border-radius:0!important;background:transparent!important;margin:0!important}.detail-items .order-item strong{color:#07532f}.detail-items .order-item small{line-height:1.45}.detail-items .order-item .discount{color:#c81431;font-weight:900}
 .adminItemSections{display:grid;gap:5px;margin-top:8px}.adminItemLine{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;padding:5px 0;border-bottom:1px dashed #e1e7e3;font-size:12px}.adminItemLine:last-child{border-bottom:0}.adminItemLine b{color:#5e6b65}.adminItemLine span{min-width:0;text-align:left;color:#263129;overflow-wrap:anywhere}.adminItemLine.discount span{color:#c81431;font-weight:900}
+.pizza-code{display:inline;flex:0 0 auto;margin:0!important;color:inherit!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important}.pizza-code-alpha,.admin-quantity{color:var(--admin-accent-red,#c8102e)!important;font-weight:800}.pizza-code-alpha{display:inline!important;margin:0!important}.admin-product-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;min-width:0}.admin-quantity{display:block!important;flex:0 0 auto;margin:0!important;white-space:nowrap;text-align:right}.admin-pizza-heading{display:flex!important;align-items:baseline;gap:6px;min-width:0;margin:0}.admin-pizza-name{display:inline!important;min-width:0;margin:0!important;color:inherit!important;overflow-wrap:anywhere;word-break:normal}.admin-pizza-item>small{display:block;margin:6px 0 0}.admin-toppings{margin:10px 0 0;font-size:13px;border-top:1px dashed #d8e1dc;padding-top:8px}.admin-toppings>b{display:block;color:#5e6b65}.admin-detail-list{display:grid;margin:0;padding:3px 0;border-top:1px solid #d8e1dc}.admin-detail-list>.admin-product-row{padding:7px 0;border-bottom:1px dashed #e1e7e3}.admin-detail-list>.admin-product-row:last-child{border-bottom:0}.admin-item-name{min-width:0;overflow-wrap:anywhere;word-break:normal}.admin-toppings .admin-detail-list{margin:4px 0 0;border-top:0}.admin-toppings .admin-detail-list>.admin-product-row{gap:10px;padding:5px 0}.admin-toppings .admin-detail-list>.admin-product-row::before{content:'•';flex:0 0 auto}.admin-toppings .admin-item-name{margin-right:auto}.order-detail>section>h4{color:#07532f}.admin-amounts>div{display:flex;justify-content:space-between;gap:14px;padding:9px 11px;background:#fff;border-bottom:1px solid #edf0ee}.admin-amounts .discount{color:var(--admin-accent-red,#c8102e)}.admin-amounts .payment{font-size:20px;font-weight:900;border-bottom:0}
 @media(max-width:620px){.detail-grid{grid-template-columns:1fr}}
 
 /* v43.9.7 admin action hotfix */
-.actions button,.detail-toggle{position:relative;z-index:2;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.actions button{position:relative;z-index:2;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .actions button:disabled{opacity:.65;cursor:wait}
+
+/* Full-width order operations cards */
+.order-list{display:grid;grid-template-columns:minmax(0,1fr);gap:15px;width:100%}
+.order-card{width:100%;min-width:0}
+.order-head{align-items:center;padding:13px 18px}
+.order-head time{color:#657269;font-size:13px;font-weight:700}
+.order-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.order-no{font-size:27px;line-height:1;font-weight:1000}
+.status-badge.payment_pending,.status-badge.new{background:#fff0cf;color:#935b00}
+.status-badge.accepted,.status-badge.paid{background:#ffe3e3;color:#a20d19}
+.status-badge.cooking{background:#ffe1e1;color:#a20d19}
+.status-badge.ready,.status-badge.completed{background:#dff8e8;color:#006b35}
+.status-badge.cancelled{background:#e9ecea;color:#5f6863}
+.order-card-body{display:grid;grid-template-columns:minmax(0,45fr) minmax(0,55fr)}
+.order-menu{min-width:0;padding:13px 18px;border-right:1px solid var(--line)}
+.order-menu section+section{margin-top:11px}
+.order-menu h4{margin:0 0 5px;color:#07532f;font-size:13px}
+.order-menu .order-item{padding:7px 0}
+.order-menu .admin-pizza-item>small{display:inline-flex;padding:3px 7px;border-radius:999px;background:#eaf4ee;color:#087348;font-size:11px}
+.order-menu .admin-toppings{margin-top:6px;padding-top:5px}
+.empty-items{margin:0;color:#657269;font-size:13px}
+.order-operations{display:flex;flex-direction:column;min-width:0;padding:13px 18px;gap:12px}
+.key-info{display:grid;grid-template-columns:minmax(90px,.7fr) minmax(120px,1fr) minmax(190px,1.5fr);gap:10px}
+.key-info>div{min-width:0;padding:9px 11px;border-radius:12px;background:#f3f8f5}
+.key-info span,.payment-metric span{display:block;color:#657269;font-size:11px;font-weight:800}
+.key-info strong{display:block;margin-top:2px;color:#07532f;font-size:clamp(22px,2.25vw,32px);line-height:1.15;overflow-wrap:anywhere}
+.phone-info{position:relative;padding-right:58px!important}
+.phone-info strong{font-size:clamp(19px,1.9vw,28px);white-space:nowrap}
+.phone-info button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;border-radius:8px;padding:7px;background:#dfece5;color:#07532f;font-size:11px;font-weight:900;cursor:pointer}
+.order-context{display:flex;flex-wrap:wrap;gap:5px}
+.order-context span{padding:4px 8px;border-radius:999px;background:#edf2ef;color:#526159;font-size:11px;font-weight:800}
+.payment-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:auto}
+.payment-metric{min-width:0;padding:8px;border-left:1px solid var(--line)}
+.payment-metric:first-child{border-left:0}
+.payment-metric strong{display:block;margin-top:3px;font-size:15px;overflow-wrap:anywhere}
+.payment-metric small{display:block;margin-top:3px;color:#657269;font-size:10px;line-height:1.35}
+.payment-metric.split-metric{grid-column:span 1}
+.payment-metric.split-metric strong{color:#1769aa}
+.payment-metric.discount strong{color:#c8102e}
+.payment-metric.paid strong{color:#006b35;font-size:21px;font-weight:1000;white-space:nowrap}
+.order-operations .actions{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0}
+.order-operations .actions button{padding:9px 8px}
+@media(max-width:1050px){
+ .order-card-body{grid-template-columns:1fr}
+ .order-menu{border-right:0;border-bottom:1px solid var(--line)}
+ .payment-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .order-head{align-items:flex-start;flex-direction:column}
+ .order-card-body{display:block}
+ .order-menu,.order-operations{padding:12px}
+ .key-info{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .phone-info{grid-column:1/-1}
+ .key-info strong{font-size:23px}
+ .phone-info strong{font-size:22px}
+ .payment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .payment-metric{border-left:0;border-top:1px solid var(--line)}
+ .payment-metric.paid strong{font-size:20px}
+}

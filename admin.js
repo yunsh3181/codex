@@ -28,17 +28,11 @@ function startRealtimeSubscriptions(){
  snapshot.docChanges().forEach(change=>{
    if(change.type==='added')added.push({id:change.doc.id,...change.doc.data()});
  });
- const toMillis=o=>{
-   const v=o.createdAt||o.createdAtClient;
-   if(v?.toMillis)return v.toMillis();
-   if(v?.seconds)return v.seconds*1000;
-   const ms=new Date(v||0).getTime();
-   return Number.isNaN(ms)?0:ms;
- };
- const statusPriority={payment_pending:0,new:0,accepted:1,paid:1,cooking:2,ready:3,completed:3,cancelled:4};
  orders=snapshot.docs
    .map(doc=>({id:doc.id,...doc.data()}))
-   .sort((a,b)=>(statusPriority[a.status]??9)-(statusPriority[b.status]??9)||toMillis(b)-toMillis(a))
+   .map((order,index)=>({order,index}))
+   .sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index)
+   .map(entry=>entry.order)
    .slice(0,100);
  render();
  assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
@@ -114,6 +108,22 @@ const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
+function orderTimeMillis(value){
+ if(value?.toMillis)return value.toMillis();
+ if(Number.isFinite(Number(value?.seconds)))return Number(value.seconds)*1000;
+ const millis=value?new Date(value).getTime():NaN;
+ return Number.isFinite(millis)?millis:null;
+}
+function compareOrdersOldestFirst(a,b){
+ const aTime=orderTimeMillis(a?.createdAt)??orderTimeMillis(a?.createdAtClient);
+ const bTime=orderTimeMillis(b?.createdAt)??orderTimeMillis(b?.createdAtClient);
+ if(aTime!==bTime){if(aTime==null)return 1;if(bTime==null)return -1;return aTime-bTime}
+ const aSequence=Number(a?.sequence??a?.dailySequence);
+ const bSequence=Number(b?.sequence??b?.dailySequence);
+ const aValid=Number.isFinite(aSequence)&&aSequence>0,bValid=Number.isFinite(bSequence)&&bSequence>0;
+ if(aValid!==bValid)return aValid?-1:1;
+ return aValid&&aSequence!==bSequence?aSequence-bSequence:0;
+}
 function seoulBusinessDayKey(value=new Date()){
  const date=value?.toDate?value.toDate():new Date(value);
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(date).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
@@ -149,7 +159,11 @@ async function assignMissingOrderSequences(list){
  for(const order of pending)await ensureOrderSequence(order);
 }
 const ORDER_CATALOG=window.PJ_ORDER_CATALOG||{};
-function productName(id,category,legacyMaster=[]){return ORDER_CATALOG[category]?.[id]||legacyMaster.find(x=>x.id===id)?.name||id}
+function displayText(value,fallback='-'){
+ if(typeof value==='string'||typeof value==='number')return String(value).trim()||fallback;
+ return fallback;
+}
+function productName(id,category,legacyMaster=[]){return displayText(ORDER_CATALOG[category]?.[id]||legacyMaster.find(x=>x.id===id)?.name||id)}
 
 const ADMIN_SEAT_NAMES={
  'papa-2':'파파존 2인석','papa-bar4':'파파존 4인 바테이블',
@@ -180,46 +194,81 @@ function adminSizeLabel(item){
  if(['f','family','패밀리','14','14inch','14인치'].includes(n))return '14"';
  return raw;
 }
-function adminCrustDoughLabel(item){
- const dough=normalizedOption(item?.dough||item?.doughType);
- const crust=normalizedOption(item?.crust||item?.crustType);
- const labels=[];
- if(dough.includes('thin')||dough.includes('씬'))labels.push('TH');
- else if(dough.includes('croissant')||dough.includes('크루아상')||dough==='cro')labels.push('CRO');
- else if(dough&&!dough.includes('original')&&!dough.includes('오리지널'))labels.push(item.dough||item.doughType);
- if(crust.includes('cheeseroll')||crust.includes('치즈롤')||crust==='ch')labels.push('치즈롤');
- else if(crust.includes('goldring')||crust.includes('골드링')||crust==='g')labels.push('골드링');
- else if(crust&&!crust.includes('original')&&!crust.includes('오리지널')&&!labels.length)labels.push(item.crust||item.crustType);
- if(!labels.length)labels.push('오리지널');
- return labels.join(' ');
+function optionIs(value,words){const normalized=normalizedOption(value);return words.some(word=>normalized===word||normalized.includes(word))}
+function formatPizzaDisplayCode(pizza){
+ const size=adminSizeLabel(pizza);
+ const dough=pizza?.dough||pizza?.doughType;
+ const crust=pizza?.crust||pizza?.crustType;
+ const croissant=optionIs(dough,['croissant','크루아상','cro'])||optionIs(crust,['croissant','크루아상','cro']);
+ const thin=optionIs(dough,['thin','씬도우','씬']);
+ const cheeseRoll=optionIs(crust,['cheeseroll','치즈롤','ch']);
+ const goldRing=optionIs(crust,['goldring','골드링','gold','g']);
+ const defaultCrust=!normalizedOption(crust)||optionIs(crust,['original','오리지널','기본']);
+ if(croissant&&size==='12"')return 'CRO12';
+ if(thin&&goldRing&&size==='14"')return 'T14G';
+ if(thin&&defaultCrust&&size==='14"')return 'TH';
+ if(cheeseRoll&&size==='12"')return 'CH12';
+ if(cheeseRoll&&size==='14"')return 'CH14';
+ if(goldRing&&size==='12"')return '12G';
+ if(goldRing&&size==='14"')return '14G';
+ return ['9"','12"','14"'].includes(size)?size:(displayText(pizza?.size||pizza?.pizzaSize||pizza?.selectedSize,'-'));
 }
-function adminCustomerSizeLabel(item){const raw=String(item?.size||'').toUpperCase();return raw==='F'?'패밀리사이즈':raw==='L'?'라지사이즈':raw==='R'?'레귤러사이즈':adminSizeLabel(item)}
-function adminCustomerDoughLabel(item){const raw=String(item?.dough||item?.doughType||'오리지널');if(raw.includes('씬')||raw.toLowerCase().includes('thin'))return '씬도우';if(raw.includes('크루아상')||raw.toLowerCase().includes('cro'))return '크루아상';return '오리지널'}
-function adminCustomerCrustLabel(item){const raw=String(item?.crust||item?.crustType||'오리지널');if(raw.includes('골드링')||raw.toLowerCase().includes('gold'))return '골드링';if(raw.includes('치즈롤')||raw.toLowerCase().includes('cheese'))return '치즈롤';if(raw.includes('씬')||raw.toLowerCase().includes('thin'))return '씬도우';if(raw.includes('크루아상')||raw.toLowerCase().includes('cro'))return '크루아상';return '오리지널'}
+function renderPizzaDisplayCode(code){
+ const parts=displayText(code).match(/[A-Za-z]+|[^A-Za-z]+/g)||['-'];
+ return `<span class="pizza-code">[${parts.map(part=>/^[A-Za-z]+$/.test(part)?`<span class="pizza-code-alpha">${esc(part)}</span>`:esc(part)).join('')}]</span>`;
+}
 function adminPizzaName(item){
  const leftId=item?.pizzaLeft||item?.pizza;
  const rightId=item?.pizzaRight;
- if(!leftId)return '추가 상품';
+ if(!leftId)return displayText(item?.name||item?.menuName||item?.id||item?.code);
  const left=productName(leftId,'pizzas',PIZZAS);
- return (item?.pizzaMode||item?.mode)==='half'&&rightId?`${left} / ${productName(rightId,'pizzas',PIZZAS)}`:left;
+ const names=[left,(item?.pizzaMode||item?.mode)==='half'&&rightId?productName(rightId,'pizzas',PIZZAS):''].filter(Boolean);
+ return names.join(' / ')||'-';
 }
-function adminPizzaLine(item){return [adminCustomerSizeLabel(item),adminCustomerDoughLabel(item),adminCustomerCrustLabel(item),adminPizzaName(item)].filter(Boolean).join(' · ')}
-function selectedNames(map,category,legacyMaster=[]){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>`${productName(id,category,legacyMaster)} ×${Number(q)}`).join(', ')}
-function selectedDrinks(map){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>`${productName(id,ORDER_CATALOG.sauces?.[id]?'sauces':'drinks',DRINKS)} ×${Number(q)}`).join(', ')}
+function quantityHTML(quantity){const qty=Math.max(1,Number(quantity)||1);return qty>1?` <span class="admin-quantity">×${qty}</span>`:''}
+function selectionEntries(map,category,legacyMaster=[]){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,category,legacyMaster),quantity:Number(q)||1}))}
+function drinkEntries(map){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,ORDER_CATALOG.sauces?.[id]?'sauces':'drinks',DRINKS),quantity:Number(q)||1}))}
+function itemListHTML(entries){return `<div class="admin-detail-list">${entries.map(entry=>`<div class="admin-product-row"><span class="admin-item-name">${esc(entry.name)}</span>${quantityHTML(entry.quantity)}</div>`).join('')}</div>`}
 function itemHTML(item){
  const benefit=item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':'일반주문';
- const top=selectedNames(item.toppings,'toppings',TOPPINGS),includedSides=selectedNames(item.includedSides,'sides',SIDES),includedDrinks=selectedDrinks(item.includedDrinks),extraSides=selectedNames(item.sides,'sides',SIDES),extraDrinks=selectedDrinks(item.drinks);
- const half=(item.pizzaMode||item.mode)==='half',discount=Number(item.discountAmount||0),additional=[extraSides&&`사이드 ${extraSides}`,extraDrinks&&`음료·소스 ${extraDrinks}`].filter(Boolean).join(' / ');
- const rows=[['피자',`${adminPizzaName(item)} ×${Number(item.qty)||1}${half?' (Half & Half)':''}`],['사이즈',adminCustomerSizeLabel(item)||'-'],['도우',adminCustomerDoughLabel(item)],['크러스트',adminCustomerCrustLabel(item)],['토핑',top||'없음'],['사이드',includedSides||'없음'],['음료',includedDrinks||'없음'],['추가상품',additional||'없음'],['할인내역',discount?`${item.discountLabel||benefit} −${money(discount)}`:'없음'],['상품금액',money(item.total||0)]];
- return `<div class="order-item"><strong>${esc(benefit)}</strong><div class="adminItemSections">${rows.map(([label,value])=>`<div class="adminItemLine ${label==='할인내역'&&discount?'discount':''}"><b>${label}</b><span>${esc(value)}</span></div>`).join('')}</div></div>`;
+ const toppings=selectionEntries(item.toppings,'toppings',TOPPINGS);
+ return `<div class="order-item admin-pizza-item"><div class="admin-product-row admin-pizza-row"><strong class="admin-pizza-heading">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="admin-pizza-name">${esc(adminPizzaName(item))}</span></strong>${quantityHTML(item.qty)}</div>${toppings.length?`<div class="admin-toppings"><b>토핑</b>${itemListHTML(toppings)}</div>`:''}<small>${esc(benefit)} · ${money(item.total||0)}</small></div>`;
 }
 function orderBenefitLabel(order){return [...new Set((order.items||[]).map(item=>item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':item.promo==='happy'?'해피아워':'일반주문'))].join(' + ')||'-'}
-function orderDetailsHTML(order){
- const lines=[['순번',order.sequence||order.dailySequence||'배정 중'],['주문번호',order.customerNumber||order.orderNo||'-'],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['주문채널',PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'],['이용방법',order.orderType==='takeout'?'포장':'먹고가기'],['예약',order.pickup?.time||'바로 주문'],['인원',order.partySize?order.partySize+'명':'-'],['구역',order.seat?orderZoneLabel(order):'-'],['좌석',orderSeatLabel(order)||'-'],['연락처',order.phoneMasked||'-'],['적용혜택',orderBenefitLabel(order)],['결제수단',order.payment?.methodName||'-'],['분할결제',order.payment?.splitCount>1?order.payment.splitCount+'명 · '+(order.payment.splitAmounts||[]).map(money).join(' / '):'-'],['상품정상금액',money(order.normalAmount||order.total)],['할인금액',order.discountAmount?'−'+money(order.discountAmount):money(0)],['결제금액',money(order.total)]];
- return `<div class="order-detail" id="detail-${order.id}" hidden><div class="detail-grid">${lines.map(([k,v])=>`<div><b>${k}</b><span>${v}</span></div>`).join('')}</div><h4>전체 주문 구성</h4><div class="detail-items">${(order.items||[]).map(itemHTML).join('')||'<p>저장된 상품 상세가 없습니다.</p>'}</div></div>`
+function safeAmounts(order){
+ const candidates=[order?.originalAmount,order?.normalAmount,order?.subtotal,order?.totalAmount,order?.total];
+ const original=Math.max(0,Number(candidates.find(value=>Number.isFinite(Number(value))))||0);
+ const paidCandidates=[order?.finalAmount,order?.totalAmount,order?.total,order?.amount,original];
+ const paid=Math.max(0,Number(paidCandidates.find(value=>Number.isFinite(Number(value))))||0);
+ const savedDiscount=Number(order?.discountAmount);
+ const discount=Math.max(0,order?.discountAmount!=null&&Number.isFinite(savedDiscount)?savedDiscount:original-paid);
+ return {original,discount,paid};
 }
-function toggleOrderDetail(id,button){const box=document.getElementById('detail-'+id);if(!box)return;box.hidden=!box.hidden;button.textContent=box.hidden?'상세보기':'상세접기'}
-window.toggleOrderDetail=toggleOrderDetail;
+function splitPaymentSummary(order,paid=safeAmounts(order).paid){
+ const stored=Array.isArray(order?.payment?.splitAmounts)?order.payment.splitAmounts.map(Number).filter(value=>Number.isFinite(value)&&value>=0):[];
+ const requested=Number(order?.payment?.splitCount);
+ const count=Number.isInteger(requested)&&requested>1?requested:stored.length>1?stored.length:0;
+ if(count<2)return null;
+ const amounts=stored.length>1?stored:Array.from({length:count},(_,index)=>Math.floor(paid/count)+(index>=count-paid%count?1:0));
+ const groups=[];
+ amounts.forEach(amount=>{const found=groups.find(group=>group.amount===amount);if(found)found.count++;else groups.push({amount,count:1})});
+ return {count,amounts,groups,total:amounts.reduce((sum,value)=>sum+value,0),matchesPaid:amounts.reduce((sum,value)=>sum+value,0)===paid};
+}
+function orderMenuHTML(order){
+ const items=Array.isArray(order.items)?order.items:[];
+ const sides=items.flatMap(item=>[...selectionEntries(item.includedSides,'sides',SIDES),...selectionEntries(item.sides,'sides',SIDES)]);
+ const drinks=items.flatMap(item=>[...drinkEntries(item.includedDrinks),...drinkEntries(item.drinks)]);
+ return `${items.length?`<section><h4>피자</h4><div class="detail-items">${items.map(itemHTML).join('')}</div></section>`:'<p class="empty-items">저장된 피자 정보가 없습니다.</p>'}${sides.length?`<section><h4>사이드</h4>${itemListHTML(sides)}</section>`:''}${drinks.length?`<section><h4>음료</h4>${itemListHTML(drinks)}</section>`:''}`;
+}
+function orderOperationsHTML(order){
+ const {original,discount,paid}=safeAmounts(order),split=splitPaymentSummary(order,paid);
+ const phone=displayText(order.phone||order.phoneMasked,'-');
+ const takeout=order.orderType==='takeout';
+ const seat=takeout?'포장':displayText(orderSeatLabel(order));
+ const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
+ const splitHTML=split?`<div class="payment-metric split-metric"><span>1인당 결제금액</span><strong>${money(split.groups[0].amount)}</strong><small>${split.groups.map(group=>`${money(group.amount)} × ${group.count}명`).join(' · ')}${split.matchesPaid?'':' · 저장 합계 '+money(split.total)}</small></div>`:'';
+ return `<div class="key-info"><div><span>인원</span><strong>${party}</strong></div><div><span>${takeout?'이용방법':'좌석'}</span><strong>${esc(seat)}</strong></div><div class="phone-info"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div></div><div class="order-context"><span>${PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'}</span><span>${takeout?'포장':'매장식사'}</span><span>${esc(order.pickup?.time?`예약 ${order.pickup.time}`:'바로 주문')}</span><span>${esc(orderBenefitLabel(order))}</span></div><div class="payment-grid"><div class="payment-metric"><span>결제수단</span><strong>${esc(displayText(order.payment?.methodName))}</strong>${split?`<small>${split.count}명 분할결제</small>`:''}</div>${splitHTML}<div class="payment-metric"><span>원 금액</span><strong>${money(original)}</strong></div><div class="payment-metric discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment-metric paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>`;
+}
 function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(activeChannel!=='all'&&channel!==activeChannel)return false;if(activeFilter==='all')return true;if(activeFilter==='payment_pending')return ['payment_pending','new'].includes(order.status);if(activeFilter==='accepted')return ['accepted','paid'].includes(order.status);if(activeFilter==='completed')return ['completed','ready'].includes(order.status);return order.status===activeFilter}
 function adminStatusName(order){if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';if(order.orderType==='takeout'&&['accepted','paid','cooking'].includes(order.status))return '포장완료';return statusNames[order.status]||order.status}
 function adminOrderActions(order){
@@ -228,8 +277,8 @@ function adminOrderActions(order){
  return `${primary}${done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
 }
 function render(){
- const filtered=orders.filter(filterOrders);
- orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><div class="order-head"><span class="channel-badge ${PJCommon.legacyChannel(order)}">${PJCommon.legacyChannel(order)==="mobile"?"모바일":"PC"}</span><div><div class="order-no">#${esc(order.customerNumber||order.orderNo||order.phoneMasked||'-')}</div><small>${formatTime(order.createdAt||order.createdAtClient)}</small></div><span class="status-badge ${order.status}">${esc(adminStatusName(order))}</span></div><div class="order-meta"><span>${order.orderType==='takeout'?'🥡 포장':'🍽️ 먹고가기'}</span>${order.partySize?`<span>👥 ${Number(order.partySize)||0}명</span>`:''}${orderSeatLabel(order)?`<span>🪑 ${esc(orderSeatLabel(order))}${order.seat?.groupSize?` · ${order.seat.groupSize}명`:''}</span>`:''}${order.pickup?.time?`<span>🕒 오늘 ${order.pickup.time}${order.pickup.isHappyHour?' · 해피아워':''}</span>`:''}${order.phoneMasked?`<span>☎️ ${esc(order.phoneMasked)}</span>`:''}${order.payment?.methodName?`<span>💳 ${esc(order.payment.methodName)}${order.payment.splitCount>1?` · ${order.payment.splitCount}명 분할`:''}</span>`:''}<span>상품 ${order.itemCount||0}개</span></div><div class="order-items">${(order.items||[]).map(itemHTML).join('')}</div><button type="button" class="detail-toggle" data-action="toggle-detail" data-order-id="${esc(order.id)}">상세보기</button>${orderDetailsHTML(order)}<div class="order-foot"><div class="order-total"><span>결제금액</span><strong>${money(order.total)}</strong></div><div class="actions">${adminOrderActions(order)}</div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
+ orderList.innerHTML=filtered.length?filtered.map(order=>`<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-')}</div><span class="status-badge ${order.status}">${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -295,8 +344,8 @@ orderList?.addEventListener('click',async event=>{
  event.preventDefault();
  event.stopPropagation();
  const action=button.dataset.action;
- if(action==='toggle-detail'){
-  toggleOrderDetail(button.dataset.orderId,button);
+ if(action==='copy-phone'){
+  try{await navigator.clipboard.writeText(button.dataset.phone||'');showAdminMessage('연락처가 복사되었습니다.');button.textContent='복사됨';setTimeout(()=>{if(button.isConnected)button.textContent='복사'},1200)}catch(error){showAdminMessage('연락처를 복사하지 못했습니다.',true)}
   return;
  }
  if(action==='call-customer'){
