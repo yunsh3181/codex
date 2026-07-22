@@ -62,10 +62,15 @@ const renderedT14G=pizzaContext.renderPizzaDisplayCode('T14G');
 assert.strictEqual((renderedT14G.match(/pizza-code-alpha/g)||[]).length,2,'T14G highlights T and G separately');
 assert.ok(!pizzaContext.renderPizzaDisplayCode('12"').includes('pizza-code-alpha'),'plain size code has no alpha class');
 assert.ok(adminSource.includes('<span class="admin-item-name">'),'detail lists separate product names from quantities');
-assert.ok(adminCssSource.includes('.admin-detail-list>div{display:flex'),'detail product rows use flex layout');
+assert.ok(adminSource.includes('class="admin-pizza-heading"'),'pizza code and name share a dedicated one-line heading');
+assert.ok(adminSource.includes('class="admin-pizza-name"'),'pizza name uses an element separate from the code');
+assert.ok(adminCssSource.includes('.admin-product-row{display:flex'),'detail product rows use flex layout');
 assert.ok(adminCssSource.includes('justify-content:space-between'),'detail quantities align to the right edge');
-assert.ok(adminCssSource.includes('.admin-quantity{flex:0 0 auto;white-space:nowrap}'),'detail quantities do not wrap');
-assert.ok(adminCssSource.includes(".admin-toppings .admin-detail-list>div::before{content:'·'"),'topping rows retain their bullet');
+assert.ok(adminCssSource.includes('white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important'),'pizza codes override inherited wrapping rules');
+assert.ok(adminCssSource.includes('.pizza-code-alpha{display:inline!important;margin:0!important}'),'pizza code letters override the generic order-item block span rule');
+assert.ok(adminCssSource.includes('.admin-quantity{display:block!important;flex:0 0 auto'),'detail quantities stay at the right edge and do not shrink');
+assert.ok(adminCssSource.includes(".admin-toppings .admin-detail-list>.admin-product-row::before{content:'•'"),'topping rows retain their bullet');
+assert.ok(adminCssSource.includes('border-radius:0!important;background:transparent!important'),'pizza detail uses a compact POS-style list instead of cards');
 
 assert.ok(adminSource.includes("db.collection('dailyStats').doc(`order-sequence_"),'sequence uses the admin-writable dailyStats counter');
 assert.ok(adminSource.includes('db.runTransaction(async transaction=>'),'sequence allocation uses a Firestore transaction');

@@ -218,11 +218,11 @@ function adminPizzaName(item){
 function quantityHTML(quantity){const qty=Math.max(1,Number(quantity)||1);return qty>1?` <span class="admin-quantity">×${qty}</span>`:''}
 function selectionEntries(map,category,legacyMaster=[]){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,category,legacyMaster),quantity:Number(q)||1}))}
 function drinkEntries(map){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,ORDER_CATALOG.sauces?.[id]?'sauces':'drinks',DRINKS),quantity:Number(q)||1}))}
-function itemListHTML(entries){return `<div class="admin-detail-list">${entries.map(entry=>`<div><span class="admin-item-name">${esc(entry.name)}</span>${quantityHTML(entry.quantity)}</div>`).join('')}</div>`}
+function itemListHTML(entries){return `<div class="admin-detail-list">${entries.map(entry=>`<div class="admin-product-row"><span class="admin-item-name">${esc(entry.name)}</span>${quantityHTML(entry.quantity)}</div>`).join('')}</div>`}
 function itemHTML(item){
  const benefit=item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':'일반주문';
  const toppings=selectionEntries(item.toppings,'toppings',TOPPINGS);
- return `<div class="order-item admin-pizza-item"><strong>${renderPizzaDisplayCode(formatPizzaDisplayCode(item))} ${esc(adminPizzaName(item))}${quantityHTML(item.qty)}</strong>${toppings.length?`<div class="admin-toppings"><b>토핑</b>${itemListHTML(toppings)}</div>`:''}<small>${esc(benefit)} · ${money(item.total||0)}</small></div>`;
+ return `<div class="order-item admin-pizza-item"><div class="admin-product-row admin-pizza-row"><strong class="admin-pizza-heading">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="admin-pizza-name">${esc(adminPizzaName(item))}</span></strong>${quantityHTML(item.qty)}</div>${toppings.length?`<div class="admin-toppings"><b>토핑</b>${itemListHTML(toppings)}</div>`:''}<small>${esc(benefit)} · ${money(item.total||0)}</small></div>`;
 }
 function orderBenefitLabel(order){return [...new Set((order.items||[]).map(item=>item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':item.promo==='happy'?'해피아워':'일반주문'))].join(' + ')||'-'}
 function orderDetailsHTML(order){
