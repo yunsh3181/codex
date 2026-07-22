@@ -25,6 +25,7 @@ window.PJ_I18N_LOCALES.vi={
     phone:{title:'Nhập số điện thoại',subtitle:'010 được cố định. Vui lòng nhập 8 số còn lại.',clear:'Xóa tất cả',orderNumber:'Mã đơn hàng (4 số cuối điện thoại):',invalid:'Vui lòng nhập chính xác 8 số cuối.',next:'Chọn phương thức thanh toán'},
     done:{title:'Đơn hàng đã được tiếp nhận',orderLabel:'Mã đơn hàng · 4 số cuối điện thoại',paymentRequired:'Vui lòng thanh toán bằng {payment} tại quầy',paymentGuide:'Pizza sẽ bắt đầu được làm sau khi thanh toán hoàn tất.',reserveTime:'Giờ đặt trước {time}',guide:'Vui lòng kiểm tra mã đơn hàng và đến quầy.',home:'Về đầu'}
   };
+window.PJ_I18N_LOCALES.vi.party.label='Số người';
 window.PJ_I18N_LOCALES.vi.benefit.card.normal.sideDrinkOnlyDesc='Bạn cũng có thể chỉ gọi món ăn kèm và đồ uống.';
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.normal,{title:'Regular Order'});

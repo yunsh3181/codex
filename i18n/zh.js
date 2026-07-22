@@ -25,6 +25,7 @@ window.PJ_I18N_LOCALES.zh={
     phone:{title:'请输入手机号码',subtitle:'010为固定号码。请输入后8位。',clear:'全部清除',orderNumber:'订单号（手机号后4位）:',invalid:'请正确输入手机号后8位。',next:'选择支付方式'},
     done:{title:'订单已接收',orderLabel:'订单号 · 手机号后4位',paymentRequired:'请在柜台使用{payment}支付',paymentGuide:'支付完成后将开始制作披萨。',reserveTime:'预约时间 {time}',guide:'请确认订单号后前往柜台。',home:'返回首页'}
   };
+window.PJ_I18N_LOCALES.zh.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.zh.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.normal,{title:'Regular Order'});

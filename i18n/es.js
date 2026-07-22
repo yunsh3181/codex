@@ -25,3 +25,4 @@ window.PJ_I18N_LOCALES.es={
     phone:{title:'Introduce tu número de teléfono',subtitle:'010 es fijo. Introduce los 8 dígitos restantes.',clear:'Borrar todo',orderNumber:'Número de pedido (últimos 4 dígitos):',invalid:'Introduce correctamente los últimos 8 dígitos.',next:'Elegir método de pago'},
     done:{title:'Tu pedido ha sido recibido',orderLabel:'Número de pedido · últimos 4 dígitos',paymentRequired:'Paga con {payment} en el mostrador',paymentGuide:'La pizza empezará a prepararse después del pago.',reserveTime:'Hora de reserva {time}',guide:'Comprueba el número de pedido y acércate al mostrador.',home:'Volver al inicio'}
   };
+window.PJ_I18N_LOCALES.es.party.label='Personas';

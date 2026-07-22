@@ -25,6 +25,7 @@ window.PJ_I18N_LOCALES.ja={
     phone:{title:'電話番号を入力してください',subtitle:'010は固定です。残り8桁を入力してください。',clear:'すべて削除',orderNumber:'注文番号（電話番号下4桁）:',invalid:'電話番号の下8桁を正しく入力してください。',next:'決済方法を選択'},
     done:{title:'注文を受け付けました',orderLabel:'注文番号・電話番号下4桁',paymentRequired:'カウンターで{payment}にてお支払いください',paymentGuide:'お支払い完了後、ピザの調理を開始します。',reserveTime:'予約時間 {time}',guide:'注文番号をご確認のうえ、カウンターまでお越しください。',home:'最初へ'}
   };
+window.PJ_I18N_LOCALES.ja.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.ja.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.normal,{title:'Regular Order'});

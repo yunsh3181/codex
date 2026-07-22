@@ -25,3 +25,4 @@ window.PJ_I18N_LOCALES.en={
     phone:{title:'Enter your phone number',subtitle:'010 is fixed. Please enter the remaining 8 digits.',clear:'Clear all',orderNumber:'Order number (last 4 digits):',invalid:'Please enter the last 8 digits correctly.',next:'Select payment method'},
     done:{title:'Your order has been received',orderLabel:'Order number · last 4 digits of phone',paymentRequired:'Please pay by {payment} at the counter',paymentGuide:'Pizza making starts after payment is complete.',reserveTime:'Reservation time {time}',guide:'Please check your order number and come to the counter.',home:'Start over'}
   };
+window.PJ_I18N_LOCALES.en.party.label='Guests';

@@ -2296,7 +2296,7 @@ function view(){
 
  if(state.step==='party'){const areas=getDiningAreas();const roomOk=state.partySize>=6;const outdoorOnly=state.partySize>=13;return shell(`<h1 class="title">${t('party.title')}</h1><p class="sub">${t('party.guide')}</p>
  <div class="partyStepperWrap">
-   <div class="partyPeopleIcon">${uiIcon("users")}</div>
+   <div class="partyCountLabel">${t('party.label')}</div>
    <div class="partyStepper">
      <button class="partyStepBtn" aria-label="${t('party.decrease')}" ${state.partySize<=1?'disabled':''} onclick="changeParty(-1)">−</button>
      <div class="partyCountDisplay">${t('party.count',{count:state.partySize,unit:t('party.personUnit')})}</div>
@@ -5387,6 +5387,83 @@ body[data-step="payment"] .paymentSubmitBtn:not(:disabled){
 .tableCard .status{display:inline-flex;align-items:center;width:max-content;margin-top:7px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.72);font-size:13px!important;font-weight:950}
 .tableCard,.tableCard h2,.tableCard .status{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
 .seat-status-icon{font-size:.75em}
+
+/* Dine-in party and zone status clarity */
+body[data-step="party"] .partyCountLabel{
+  margin:0 auto 16px;
+  color:#fff;
+  font-size:clamp(30px,5vw,46px);
+  line-height:1;
+  font-weight:1000;
+}
+body[data-step="party"] .stage{
+  padding-bottom:calc(var(--order-summary-height) + var(--safe-bottom) + 28px)!important;
+  overflow:visible;
+}
+body[data-step="party"] .partyNext{
+  margin-bottom:8px;
+}
+body[data-step="area"] .areaCard{
+  border-width:3px!important;
+  opacity:1!important;
+  filter:none!important;
+}
+body[data-step="area"] .areaCard:not(.disabled):not(.policyDisabled){
+  background:#e8f7ec!important;
+  border-color:#1f7a3a!important;
+  color:#155b2a!important;
+}
+body[data-step="area"] .areaCard.disabled,
+body[data-step="area"] .areaCard.policyDisabled{
+  background:#fde7e7!important;
+  border-color:#c62828!important;
+  color:#8f1d1d!important;
+}
+body[data-step="area"] .areaCard.selected{
+  background:#fff4d6!important;
+  border-color:#c77b00!important;
+  box-shadow:0 0 0 5px rgba(199,123,0,.24)!important;
+}
+body[data-step="area"] .areaCard::after{
+  position:absolute;
+  top:10px;
+  right:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#1f7a3a;
+  color:#fff;
+  content:'\C120\D0DD\20\AC00\B2A5';
+  font-size:12px;
+  font-weight:1000;
+}
+body[data-step="area"] .areaCard.disabled::after,
+body[data-step="area"] .areaCard.policyDisabled::after{
+  background:#c62828;
+  content:'\C120\D0DD\20\BD88\AC00';
+}
+body[data-step="area"] .areaCard.disabled::before,
+body[data-step="area"] .areaCard.policyDisabled::before{display:none!important}
+body[data-step="area"] .areaCard:not(.disabled) .areaIcon{color:#1f7a3a!important}
+body[data-step="area"] .areaCard.disabled .areaIcon,
+body[data-step="area"] .areaCard.policyDisabled .areaIcon{color:#c62828!important}
+body[data-step="area"] .areaCard:not(.disabled) h2,
+body[data-step="area"] .areaCard:not(.disabled) p,
+body[data-step="area"] .areaCard:not(.disabled) strong,
+body[data-step="area"] .areaCard:not(.disabled) .areaHours{color:#155b2a!important}
+body[data-step="area"] .areaCard.disabled h2,
+body[data-step="area"] .areaCard.disabled p,
+body[data-step="area"] .areaCard.disabled strong,
+body[data-step="area"] .areaCard.disabled .areaHours,
+body[data-step="area"] .areaCard.policyDisabled h2,
+body[data-step="area"] .areaCard.policyDisabled p,
+body[data-step="area"] .areaCard.policyDisabled strong,
+body[data-step="area"] .areaCard.policyDisabled .areaHours{color:#8f1d1d!important}
+body[data-step="area"] .title,
+body[data-step="area"] .sub{white-space:normal!important;word-break:keep-all;overflow-wrap:anywhere}
+@media(max-width:560px){
+  body[data-step="party"] .stage{padding-bottom:calc(var(--order-summary-height) + var(--safe-bottom) + 20px)!important}
+  body[data-step="party"] .partyCountLabel{font-size:30px;margin-bottom:10px}
+}
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">
