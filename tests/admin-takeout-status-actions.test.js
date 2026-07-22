@@ -26,6 +26,11 @@ for(const orderType of ['takeout','dinein'])for(const status of ['paid','accepte
  assert.match(html,/data-action="call-customer"/,`${orderType} ${status} remains callable`);
  assert.match(html,/data-order-language="en"/,`${orderType} ${status} preserves the order language on the call button`);
 }
+for(const [customerNumber,language] of [['P1234','en'],['D5678','es'],['P9012','ko'],['P3456',undefined]]){
+ const html=markup('accepted',customerNumber.startsWith('P')?'takeout':'dinein',{customerNumber,language});
+ assert.match(html,new RegExp(`data-order-no="${customerNumber}"`),`${customerNumber} keeps its customer number on the call button`);
+ assert.match(html,new RegExp(`data-order-language="${language||''}"`),`${customerNumber} keeps its order language on the call button`);
+}
 assert.doesNotMatch(markup('completed'),/data-action="set-status"/, 'completed orders have no further status action');
 assert.match(markup('completed'),/data-action="call-customer"/, 'completed orders keep the existing repeatable call action');
 
