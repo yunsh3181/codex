@@ -132,6 +132,14 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .status-badge.cooking{background:#ffe1e1;color:#a20d19}
 .status-badge.ready,.status-badge.completed{background:#dff8e8;color:#006b35}
 .status-badge.cancelled{background:#e9ecea;color:#5f6863}
+.status-badge{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease}
+.status-badge.seat-available{background:#E8F7EC;color:#1F7A3A}
+.status-badge.seat-ordering{background:#FFF4D6;color:#C77B00}
+.status-badge.seat-occupied{background:#FDE7E7;color:#C62828}
+.actions .accept{background:#FFF4D6;color:#C77B00}
+.actions .occupied-action{background:#FDE7E7;color:#C62828}
+.actions .ready{background:#E8F7EC;color:#1F7A3A}
+.actions button{transition:background-color 180ms ease,color 180ms ease}
 .order-card-body{display:grid;grid-template-columns:minmax(0,45fr) minmax(0,55fr)}
 .order-menu{min-width:0;padding:13px 18px;border-right:1px solid var(--line)}
 .order-menu section+section{margin-top:11px}
