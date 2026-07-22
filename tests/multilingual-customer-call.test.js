@@ -32,10 +32,11 @@ vm.createContext(context);
 vm.runInContext(helperSource,context);
 for(const [language,expected] of [['ko','ko'],['ko-KR','ko'],['en','en'],['en-US','en'],['es','es'],['es-ES','es'],[undefined,'ko'],['ja','ko']])assert.strictEqual(context.customerCallLanguage(language),expected);
 const cases=[
- ['12','ko','12번 고객님, 주문하신 메뉴가 준비되었습니다.','ko-KR','ko-KR'],
- ['34','en','Customer number 34, your order is ready.','en-US','en-GB'],
- ['56','es','Cliente número 56, su pedido está listo.','es-ES','es-MX'],
- ['78',undefined,'78번 고객님, 주문하신 메뉴가 준비되었습니다.','ko-KR','ko-KR']
+ ['12','ko','12번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
+ ['34','en','Customer number 34, your order is ready. Please come to the counter.','en-US','en-GB'],
+ ['56','es','Cliente número 56, su pedido está listo. Por favor, acérquese al mostrador.','es-ES','es-MX'],
+ ['78',undefined,'78번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
+ ['90','ja','90번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR']
 ];
 (async()=>{
  for(const [number,language,text,lang,voiceLang] of cases){
