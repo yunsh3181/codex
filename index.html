@@ -3036,8 +3036,8 @@ async function handlePaymentSubmit(event){
  try{
   await complete(event);
  }finally{
-  /* 성공 시 done 화면으로 교체되어 버튼이 사라진다. 실패한 경우에만 다시 허용 */
-  if(state.step==='payment')mobileOrderSubmitting=false;
+  /* 완료 화면의 자동 reset 뒤 다음 고객도 주문할 수 있도록 요청 단위 잠금을 해제한다. */
+  mobileOrderSubmitting=false;
  }
 }
 document.addEventListener('click',function(event){
