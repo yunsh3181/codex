@@ -26,8 +26,40 @@ assert.ok(!adminSource.includes('MOBILE_DRINK_NAMES'),'stale drink-name guesses 
 assert.ok(!adminSource.includes('item?.pizzaName||'),'admin pizza display does not trust a stored locale string');
 assert.ok(adminSource.includes("productName(leftId,'pizzas'"),'admin pizza display looks up IDs');
 assert.ok(adminSource.includes("ORDER_CATALOG.sauces?.[id]?'sauces':'drinks'"),'admin distinguishes sauces by ID');
-for(const label of ['순번','주문번호','주문시간','주문채널','이용방법','예약','인원','구역','좌석','연락처','적용혜택','결제수단','분할결제','상품정상금액','할인금액','결제금액'])assert.ok(adminSource.includes(`'${label}'`),`admin detail includes ${label}`);
-for(const label of ['피자','사이즈','도우','크러스트','토핑','사이드','음료','추가상품','할인내역','상품금액'])assert.ok(adminSource.includes(`'${label}'`),`admin item detail includes ${label}`);
+for(const label of ['순번','주문번호','주문시간','주문채널','이용방법','예약','인원','구역','좌석','연락처','적용혜택','결제수단','분할결제'])assert.ok(adminSource.includes(`'${label}'`),`admin detail includes ${label}`);
+for(const label of ['피자','토핑','사이드','음료','금액 정보','원 금액','할인금액','결제금액'])assert.ok(adminSource.includes(label),`admin item detail includes ${label}`);
+assert.ok(!adminSource.includes("['사이즈',adminCustomerSizeLabel"),'size is not repeated as a separate item row');
+assert.ok(!adminSource.includes("['도우',adminCustomerDoughLabel"),'dough is not repeated as a separate item row');
+assert.ok(!adminSource.includes("['크러스트',adminCustomerCrustLabel"),'crust is not repeated as a separate item row');
+
+const pizzaHelperMatch=adminSource.match(/function normalizedOption[\s\S]*?\nfunction adminPizzaName/);
+assert.ok(pizzaHelperMatch,'pizza display helpers found');
+const pizzaContext={String,Number,Math,displayText(value,fallback='-'){if(typeof value==='string'||typeof value==='number')return String(value).trim()||fallback;return fallback},esc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}};
+vm.createContext(pizzaContext);
+vm.runInContext(pizzaHelperMatch[0].replace(/\nfunction adminPizzaName$/,''),pizzaContext,{filename:'pizza-display-helpers.js'});
+const code=pizzaContext.formatPizzaDisplayCode;
+for(const [pizza,expected] of [
+ [{size:'R',dough:'오리지널',crust:'오리지널'},'9"'],
+ [{size:'L',dough:'오리지널',crust:'오리지널'},'12"'],
+ [{size:'F',dough:'오리지널',crust:'오리지널'},'14"'],
+ [{size:'F',dough:'씬도우',crust:'오리지널'},'TH'],
+ [{size:'L',crust:'치즈롤'},'CH12'],
+ [{size:'F',crust:'치즈롤'},'CH14'],
+ [{size:'L',crust:'골드링'},'12G'],
+ [{size:'F',crust:'골드링'},'14G'],
+ [{size:'F',dough:'씬도우',crust:'골드링'},'T14G'],
+ [{size:'L',dough:'크루아상',crust:'오리지널'},'CRO12']
+])assert.strictEqual(code(pizza),expected,`${JSON.stringify(pizza)} becomes ${expected}`);
+assert.strictEqual(code({size:'F',dough:'씬도우',crust:'골드링'}),'T14G','thin gold ring takes priority over thin default');
+assert.notStrictEqual(code({size:'L',dough:'씬도우',crust:'오리지널'}),'TH','unsupported thin combination is not converted to TH');
+assert.notStrictEqual(code({size:'F',dough:'씬도우',crust:'임의크러스트'}),'TH','unsupported thin crust is not converted to TH');
+const renderedTH=pizzaContext.renderPizzaDisplayCode('TH');
+assert.strictEqual((renderedTH.match(/pizza-code-alpha/g)||[]).length,1,'TH uses one alpha span containing both letters');
+assert.ok(renderedTH.includes('pizza-code-alpha">TH</span>'),'T and H both receive the alpha class');
+assert.ok(renderedTH.startsWith('<span class="pizza-code">[')&&renderedTH.endsWith(']</span>'),'TH brackets stay outside the alpha span');
+const renderedT14G=pizzaContext.renderPizzaDisplayCode('T14G');
+assert.strictEqual((renderedT14G.match(/pizza-code-alpha/g)||[]).length,2,'T14G highlights T and G separately');
+assert.ok(!pizzaContext.renderPizzaDisplayCode('12"').includes('pizza-code-alpha'),'plain size code has no alpha class');
 
 assert.ok(adminSource.includes("db.collection('dailyStats').doc(`order-sequence_"),'sequence uses the admin-writable dailyStats counter');
 assert.ok(adminSource.includes('db.runTransaction(async transaction=>'),'sequence allocation uses a Firestore transaction');
