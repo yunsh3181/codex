@@ -1,0 +1,41 @@
+const assert=require('assert');
+const fs=require('fs');
+const path=require('path');
+
+const root=path.resolve(__dirname,'..');
+const kiosk=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
+const seats=fs.readFileSync(path.join(root,'seats.js'),'utf8');
+const seatCss=fs.readFileSync(path.join(root,'seats.css'),'utf8');
+const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
+
+assert.ok(kiosk.includes('const SEAT_IDLE_MS=30000'),'seat inactivity timeout is exactly 30 seconds');
+assert.ok(kiosk.includes("transaction.set(ref,{status:'held'"),'seat selection writes the ordering state transactionally');
+assert.ok(kiosk.includes("saved.heldBy!==seatClientId")||kiosk.includes("saved.heldBy!==seatClientId"),'another kiosk cannot claim an active seat');
+assert.ok(kiosk.includes("throw new Error('SEAT_UNAVAILABLE')"),'duplicate seat claims are rejected');
+assert.ok(kiosk.includes("seatIdleTimer=setTimeout(async()=>{await releaseSeats();reset();render()},SEAT_IDLE_MS)"),'idle timeout releases seats, clears state, and returns home');
+for(const eventName of ['pointerdown','keydown','change'])assert.ok(kiosk.includes(`'${eventName}'`),`${eventName} resets the inactivity timer`);
+assert.ok(kiosk.includes("window.addEventListener('pagehide'"),'page close releases an unpaid seat');
+assert.ok(kiosk.includes("window.addEventListener('beforeunload'"),'browser unload attempts seat release');
+assert.ok(kiosk.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'payment keeps dine-in seats in ordering state');
+assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'payment no longer marks a seat in use');
+
+assert.strictEqual([...seats.matchAll(/const statusNames=\{([^}]+)\}/g)].length,1,'seat manager has one canonical status map');
+for(const label of ['사용가능','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
+assert.ok(seats.includes("function normalizedSeatStatus(status){return status==='held'?'held':status==='occupied'?'occupied':'empty'}"),'legacy statuses normalize to the three-state model');
+assert.ok(seatCss.includes('.simple-seat.empty{background:#16613a'),'available seats are green');
+assert.ok(seatCss.includes('.simple-seat.held{background:linear-gradient'),'ordering seats are yellow');
+assert.ok(seatCss.includes('.simple-seat.occupied{background:linear-gradient'),'in-use seats are red');
+
+assert.ok(admin.includes("${takeout?'포장완료':'사용중'}"),'pending action label differs for takeout and dine-in');
+assert.ok(admin.includes("data-status=\"${takeout?'completed':'accepted'}\""),'takeout completes in one click while dine-in enters in-use state');
+assert.ok(admin.includes("status:'occupied',heldBy:null,heldUntil:null"),'first dine-in click marks seats in use');
+assert.ok(admin.includes("status:'empty'"),'second dine-in click releases seats');
+assert.ok(admin.includes("batch.update(db.collection('orders').doc(id)"),'order status and seat changes share one batch');
+assert.ok(admin.includes('await batch.commit()'),'workflow changes commit atomically');
+
+assert.ok(rules.includes("request.resource.data.status == 'held'"),'rules allow a constrained kiosk seat claim');
+assert.ok(rules.includes("existsAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderId))"),'paid seat linkage requires the new order in the same transaction');
+assert.ok(!rules.match(/match \/orders\/{orderId}[\s\S]*?discountBreakdown/),'order payload schema remains unchanged');
+
+console.log('seat claim, idle release, three-state display, and admin dine-in/takeout lifecycle checks passed');

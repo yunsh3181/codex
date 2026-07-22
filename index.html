@@ -1287,7 +1287,7 @@ button:active:not(:disabled){transform:scale(.98)}
 .keypad button:active{transform:none!important;background:#f1f3f1!important}
 
 /* ===== v43.6.4 결제수단 · 실시간 좌석 · 줄서기 ===== */
-.paymentGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}.paymentCard{border:2px solid var(--line);background:#fff;border-radius:18px;padding:22px;text-align:center;font-weight:900;font-size:20px;cursor:pointer}.paymentCard.active{border-color:var(--r);background:#fff4f4;color:var(--r)}.splitBox{margin-top:18px;padding:20px;border-radius:18px;background:#f3f7f4}.splitCounter{display:grid;grid-template-columns:58px 1fr 58px;gap:12px;align-items:center;margin:14px 0}.splitCounter button{height:54px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:28px;font-weight:1000}.splitCounter button:disabled{opacity:.35;cursor:not-allowed}.splitCountView{text-align:center;background:#fff;border-radius:14px;padding:14px 10px;font-size:23px;font-weight:1000}.splitSummary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.splitSummary>div{background:#fff;border-radius:12px;padding:13px;text-align:center}.splitSummary span{display:block;color:#747b74;font-size:13px;margin-bottom:5px}.splitSummary strong{font-size:20px}.splitAmounts{margin-top:12px;display:grid;gap:7px}.splitAmounts div{display:flex;justify-content:space-between;background:#fff;padding:10px 12px;border-radius:10px}.seatTime{display:block;color:#d71920;font-weight:900;margin-top:6px}.seatQueueBtn{margin-top:10px;width:100%;border:0;border-radius:10px;padding:10px;background:#17231d;color:#fff;font-weight:900}.tableCard.occupiedCard{opacity:1;background:#ecefec;border-color:#a8aea9;cursor:default}.queueCount{display:block;margin-top:5px;color:#775700;font-weight:900}.cancelQueueBtn{margin-top:12px;border:1px solid #999;background:#fff;border-radius:10px;padding:10px 14px;font-weight:800}@media(max-width:560px){.paymentGrid{grid-template-columns:1fr}}
+.paymentGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0}.paymentCard{border:2px solid var(--line);background:#fff;border-radius:18px;padding:22px;text-align:center;font-weight:900;font-size:20px;cursor:pointer}.paymentCard.active{border-color:var(--r);background:#fff4f4;color:var(--r)}.splitBox{margin-top:18px;padding:20px;border-radius:18px;background:#f3f7f4}.splitCounter{display:grid;grid-template-columns:58px 1fr 58px;gap:12px;align-items:center;margin:14px 0}.splitCounter button{height:54px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:28px;font-weight:1000}.splitCounter button:disabled{opacity:.35;cursor:not-allowed}.splitCountView{text-align:center;background:#fff;border-radius:14px;padding:14px 10px;font-size:23px;font-weight:1000}.splitSummary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.splitSummary>div{background:#fff;border-radius:12px;padding:13px;text-align:center}.splitSummary span{display:block;color:#747b74;font-size:13px;margin-bottom:5px}.splitSummary strong{font-size:20px}.splitAmounts{margin-top:12px;display:grid;gap:7px}.splitAmounts div{display:flex;justify-content:space-between;background:#fff;padding:10px 12px;border-radius:10px}.seatTime{display:block;color:#d71920;font-weight:900;margin-top:6px}.seatQueueBtn{margin-top:10px;width:100%;border:0;border-radius:10px;padding:10px;background:#17231d;color:#fff;font-weight:900}.tableCard.occupiedCard{opacity:1;cursor:default}.tableCard.occupiedCard.ordering{background:#fff2b8;border-color:#d4a500;color:#5f4800}.tableCard.occupiedCard.occupied{background:#ffe0e0;border-color:#d71920;color:#7d0d14}.queueCount{display:block;margin-top:5px;color:#775700;font-weight:900}.cancelQueueBtn{margin-top:12px;border:1px solid #999;background:#fff;border-radius:10px;padding:10px 14px;font-weight:800}@media(max-width:560px){.paymentGrid{grid-template-columns:1fr}}
 
 
 /* ===== v43.8 모바일 첫 화면·만석 줄서기·사이즈 안내 ===== */
@@ -2156,9 +2156,9 @@ function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&qu
 function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/images\//,'');return 'assets/images/'+encodeURIComponent(clean).replace(/%2F/g,'/')}
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
 const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
-const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
+const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(){Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 
 function uiIcon(name,cls=''){
  const paths={
@@ -2315,7 +2315,7 @@ function view(){
 
  if(state.step==='area'){const areas=getDiningAreas();return shell(`<h1 class="title">${t('seat.areaTitle')}</h1><p class="sub">${t('seat.areaGuide')}</p><div class="areaGrid">${areas.map(a=>`<button type="button" data-unavailable-label="${escAttr(t('ui.common.unavailable'))}" data-alcohol-label="${escAttr(t('ui.common.alcoholOnly'))}" aria-disabled="${a.enabled?'false':'true'}" class="areaCard ${a.enabled?'':'disabled policyDisabled'} ${a.policy.alcoholOnly&&a.enabled?'alcoholOnly':''} ${a.full?'full':''} ${state.diningArea===a.id?'selected':''}" onclick="handleAreaClick('${a.id}')"><div class="areaIcon">${uiIcon(a.icon)}</div><div><h2>${seatAreaName(a.id)}</h2><p>${a.desc}</p><span class="areaHours">${a.hours}</span>${a.enabled?'':`<span class="areaPolicyReason">${a.disabledReason}</span>`}</div><strong>${a.enabled?(a.full?t('seat.fullWaitlist'):t('seat.availableSeats',{count:a.availableSeats})):t('seat.currentUnavailable')}</strong></button>`).join('')}</div><div class="seatRuleNotice">${areaRuleText()}</div><div class="areaPolicyGuide"><b>${t('seat.policyTitle')}</b><br>${t('seat.policyGuide')}</div><div class="occupancyNote">${t('seat.occupancyNote')}</div>`)};
 
- if(state.step==='table'){const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${tables.map(table=>table.occupied?`<div class="tableCard occupiedCard"><div><h2>${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusLabel('occupied')}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="joinWaitlist('${table.id}')">${t('seat.queueButton')}</button></div></div>`:`<button class="tableCard ${state.selectedTables.includes(table.id)?'selected':''}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${state.selectedTables.includes(table.id)?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" onclick="toggleTable('${table.id}')"><div><h2>${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${state.selectedTables.includes(table.id)?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`).join('')}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)};
+ if(state.step==='table'){const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${tables.map(table=>table.occupied?`<div class="tableCard occupiedCard ${table.seatStatus}"><div><h2>${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusLabel(table.seatStatus)}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="joinWaitlist('${table.id}')">${t('seat.queueButton')}</button></div></div>`:`<button class="tableCard ${state.selectedTables.includes(table.id)?'selected':''}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${state.selectedTables.includes(table.id)?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" onclick="toggleTable('${table.id}')"><div><h2>${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${state.selectedTables.includes(table.id)?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`).join('')}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)};
  if(state.step==='promo'){const dine=state.orderType==='dinein';const items=dine?[
  {id:'set',icon:'set',best:true},
  {id:'upup',icon:'up'},
@@ -2384,11 +2384,17 @@ const DINING_TABLES={
  ]
 };
 let mobileSeatDocs={};let mobileWaitlist=[];let mobileSeatTimer=null;
+const SEAT_IDLE_MS=30000;
+const seatClientId=sessionStorage.getItem('pjSeatClientId')||('seat-'+Date.now()+'-'+Math.random().toString(36).slice(2));
+sessionStorage.setItem('pjSeatClientId',seatClientId);
+let seatIdleTimer=null;let lastSeatLeaseRefresh=0;
 function seatDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d}
 function seatElapsed(v){const d=seatDate(v);if(!d)return '';const m=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));return m<60?t('ui.seatExtra.elapsedMinutes',{count:m}):t('ui.seatExtra.elapsedHours',{hours:Math.floor(m/60),minutes:m%60})}
+function seatLeaseExpired(doc){const until=seatDate(doc?.heldUntil);return doc?.status==='held'&&until&&until.getTime()<=Date.now()&&!doc?.orderId}
+function seatIsUnavailable(doc){return doc?.status==='occupied'||(doc?.status==='held'&&!seatLeaseExpired(doc))}
 function getAreaTables(area){
  const n=state.partySize||0;
- let tables=(DINING_TABLES[area]||[]).map(t=>{const d=mobileSeatDocs[t.id]||{};const occupied=['held','occupied','cleaning','reserved'].includes(d.status);return {...t,occupied,elapsed:occupied?seatElapsed(d.occupiedAt||d.heldAt||d.cleaningAt):'',queueCount:mobileWaitlist.filter(w=>w.seatId===t.id&&w.status==='waiting').length}});
+ let tables=(DINING_TABLES[area]||[]).map(t=>{const d=mobileSeatDocs[t.id]||{};const occupied=seatIsUnavailable(d);return {...t,occupied,seatStatus:d.status==='occupied'?'occupied':d.status==='held'?'ordering':'available',elapsed:occupied?seatElapsed(d.occupiedAt||d.heldAt):'',queueCount:mobileWaitlist.filter(w=>w.seatId===t.id&&w.status==='waiting').length}});
  if(n<=2&&area==='papa')tables=tables.filter(t=>['papa-2','papa-bar4'].includes(t.id));
  if(n<=2&&area==='annex')tables=tables.filter(t=>['annex-1','annex-4'].includes(t.id));
  if(n>=3&&n<=4&&area==='papa')tables=tables.filter(t=>t.id==='papa-bar4');
@@ -2458,7 +2464,7 @@ function areaRuleText(){
  return t('seat.rule.outdoorOnly',{count:needed});
 }
 const SEAT_AREA_LABEL_KEYS={papa:'seat.area.papaZone',annex:'seat.area.annex',room:'seat.area.privateRoom',outdoor:'seat.area.outdoor'};
-const SEAT_STATUS_LABEL_KEYS={available:'seat.status.available',selected:'seat.status.selected',occupied:'seat.status.occupied',unavailable:'seat.status.unavailable'};
+const SEAT_STATUS_LABEL_KEYS={available:'seat.status.available',selected:'seat.status.selected',ordering:'seat.status.selected',occupied:'seat.status.occupied',unavailable:'seat.status.unavailable'};
 const SEAT_TYPE_LABEL_KEYS={twoPerson:'seat.type.twoPerson',barTable:'seat.type.barTable',room:'seat.type.room',outdoorTable:'seat.type.outdoorTable'};
 function seatAreaName(id){return t(SEAT_AREA_LABEL_KEYS[id]||SEAT_AREA_LABEL_KEYS.papa)}
 function seatStatusLabel(status){return t(SEAT_STATUS_LABEL_KEYS[status]||SEAT_STATUS_LABEL_KEYS.unavailable)}
@@ -2545,19 +2551,45 @@ function selectArea(id){
  if(!area||!area.enabled)return;
  state.diningArea=id;state.selectedTables=[];state.step='table';render()
 }
-function toggleTable(id){
+async function claimSeat(id){
+ const ref=db.collection('seats').doc(id),now=Date.now();
+ await db.runTransaction(async transaction=>{
+  const snapshot=await transaction.get(ref),saved=snapshot.exists?snapshot.data():{};
+  if(seatIsUnavailable(saved)&&saved.heldBy!==seatClientId)throw new Error('SEAT_UNAVAILABLE');
+  transaction.set(ref,{status:'held',heldBy:seatClientId,heldAt:saved.heldAt||firebase.firestore.FieldValue.serverTimestamp(),heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ });
+}
+async function releaseSeats(ids=[...state.selectedTables]){
+ if(state.firebaseOrderId||!ids.length)return;
+ await Promise.all(ids.map(async id=>{const ref=db.collection('seats').doc(id);await db.runTransaction(async transaction=>{const snapshot=await transaction.get(ref);if(!snapshot.exists)return;const saved=snapshot.data();if(saved.status==='held'&&saved.heldBy===seatClientId&&!saved.orderId)transaction.set(ref,{status:'empty',heldBy:null,heldAt:null,heldUntil:null,partySize:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})})}));
+}
+async function refreshSeatLeases(){
+ if(state.firebaseOrderId||!state.selectedTables.length)return;
+ const now=Date.now();if(now-lastSeatLeaseRefresh<5000)return;lastSeatLeaseRefresh=now;
+ await Promise.all(state.selectedTables.map(id=>db.collection('seats').doc(id).set({heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
+}
+function armSeatIdleTimer(){
+ clearTimeout(seatIdleTimer);
+ if(state.orderType!=='dinein'||state.firebaseOrderId||!state.selectedTables.length)return;
+ seatIdleTimer=setTimeout(async()=>{await releaseSeats();reset();render()},SEAT_IDLE_MS);
+ refreshSeatLeases().catch(error=>console.warn('좌석 주문중 시간 갱신 실패',error));
+}
+async function toggleTable(id){
  const table=getAreaTables(state.diningArea).find(t=>t.id===id);
  if(!table||table.occupied)return;
  const needed=requiredTableCount();
  if(state.selectedTables.includes(id)){
+   await releaseSeats([id]);
    state.selectedTables=state.selectedTables.filter(x=>x!==id)
  }else{
    if(state.selectedTables.length>=needed){
-     if(needed===1)state.selectedTables=[id];
+     if(needed===1){const previous=[...state.selectedTables];await claimSeat(id);state.selectedTables=[id];await releaseSeats(previous)}
      else return alert(t('ui.seatExtra.maxTables',{count:needed}))
-   }else state.selectedTables=[...state.selectedTables,id]
+   }else{
+    try{await claimSeat(id);state.selectedTables=[...state.selectedTables,id]}catch(error){alert(t('seat.currentUnavailable'));return}
+   }
  }
- render()
+ armSeatIdleTimer();render()
 }
 function selectedSeatCount(){
  const set=new Set(state.selectedTables);
@@ -2952,22 +2984,15 @@ async function submitMobileOrder(){
  if(!Number.isFinite(payload.total)||payload.total<0||payload.total>3000000)throw new Error(t('ui.payment.invalidAmount'));
  if(!/^010\d{8}$/.test(payload.phone||''))throw new Error(t('ui.payment.phoneCheck'));
  const orderRef=db.collection('orders').doc();
- const batch=db.batch();
- batch.set(orderRef,payload);
- if(state.orderType==='dinein'&&state.selectedTables.length){
-  state.selectedTables.forEach(id=>{
-   batch.set(db.collection('seats').doc(id),{
-    status:'occupied',
-    partySize:state.partySize||null,
-    orderNo:state.orderNo,
-    orderId:orderRef.id,
-    occupiedAt:firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-   },{merge:true});
-  });
- }
- await batch.commit();
+ const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
+ await db.runTransaction(async transaction=>{
+  const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
+  if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
+  transaction.set(orderRef,payload);
+  seatRefs.forEach(ref=>transaction.set(ref,{status:'held',heldBy:null,heldUntil:null,partySize:state.partySize||null,orderNo:state.orderNo,orderId:orderRef.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
+ });
  state.firebaseOrderId=orderRef.id;
+ clearTimeout(seatIdleTimer);
  return orderRef.id
 }
 
@@ -3022,6 +3047,9 @@ document.addEventListener('keydown',function(event){
 db.collection('seats').onSnapshot(snap=>{mobileSeatDocs={};snap.forEach(d=>mobileSeatDocs[d.id]=d.data());if(['area','table'].includes(state.step))render()});
 db.collection('waitlist').onSnapshot(snap=>{mobileWaitlist=snap.docs.map(d=>({id:d.id,...d.data()}));if(state.step==='table')render()});
 mobileSeatTimer=setInterval(()=>{if(state.step==='table')render()},30000);
+['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
+window.addEventListener('pagehide',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
+window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();
 window.__PJ_BOOT_OK=true;
 
