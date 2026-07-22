@@ -8,11 +8,30 @@ async function verifyAdminUser(user){if(!user)return false;const token=await use
 let unsubscribeOrders=null;
 let unsubscribeWaitlist=null;
 let subscriptionsStarted=false;
+let receivedOrders=[];
+let businessDayRefreshTimer=null;
 
 function stopRealtimeSubscriptions(){
  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
  if(unsubscribeWaitlist){unsubscribeWaitlist();unsubscribeWaitlist=null}
+ if(businessDayRefreshTimer){clearTimeout(businessDayRefreshTimer);businessDayRefreshTimer=null}
  subscriptionsStarted=false;
+}
+
+function refreshVisibleOrders(now=new Date()){
+ orders=visibleBusinessDayOrders(receivedOrders,now);
+ render();
+ assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
+}
+
+function scheduleBusinessDayRefresh(){
+ if(businessDayRefreshTimer)clearTimeout(businessDayRefreshTimer);
+ const now=new Date();
+ const seoulParts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(now).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+ const currentSeoulAsUtc=Date.UTC(Number(seoulParts.year),Number(seoulParts.month)-1,Number(seoulParts.day),Number(seoulParts.hour),Number(seoulParts.minute),Number(seoulParts.second));
+ const boundaryAsUtc=Date.UTC(Number(seoulParts.year),Number(seoulParts.month)-1,Number(seoulParts.day)+(Number(seoulParts.hour)>=9?1:0),9,0,0);
+ const delay=Math.max(1000,boundaryAsUtc-currentSeoulAsUtc+1000);
+ businessDayRefreshTimer=setTimeout(()=>{refreshVisibleOrders();scheduleBusinessDayRefresh()},delay);
 }
 
 function startRealtimeSubscriptions(){
@@ -21,22 +40,17 @@ function startRealtimeSubscriptions(){
  initialLoad=true;
  waitingInitialLoad=true;
 
- unsubscribeOrders=db.collection('orders').limit(200).onSnapshot(snapshot=>{
+ unsubscribeOrders=db.collection('orders').onSnapshot(snapshot=>{
  connectionBadge.textContent='실시간 연결';
  connectionBadge.className='connection live';
  const added=[];
  snapshot.docChanges().forEach(change=>{
    if(change.type==='added')added.push({id:change.doc.id,...change.doc.data()});
  });
- orders=snapshot.docs
-   .map(doc=>({id:doc.id,...doc.data()}))
-   .map((order,index)=>({order,index}))
-   .sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index)
-   .map(entry=>entry.order)
-   .slice(0,100);
- render();
- assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
- if(!initialLoad)notifyNewOrders(added.filter(o=>o.status==='payment_pending'));
+ receivedOrders=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+ const now=new Date();
+ refreshVisibleOrders(now);
+ if(!initialLoad)notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)));
  if(soundEnabled&&hasUnacceptedOrders())startNewOrderRepeat();
  else if(!hasUnacceptedOrders())stopNewOrderRepeat();
  initialLoad=false;
@@ -46,6 +60,7 @@ function startRealtimeSubscriptions(){
  connectionBadge.className='connection error';
  orderList.innerHTML=`<div class="empty">Firestore 연결 오류: ${esc(error.message)}</div>`;
 });
+ scheduleBusinessDayRefresh();
 
  unsubscribeWaitlist=db.collection('waitlist').onSnapshot(snapshot=>{
  const added=[];
@@ -126,10 +141,35 @@ function compareOrdersOldestFirst(a,b){
 }
 function seoulBusinessDayKey(value=new Date()){
  const date=value?.toDate?value.toDate():new Date(value);
+ if(Number.isNaN(date.getTime()))return null;
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(date).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
  let businessDate=new Date(Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),12));
  if(Number(parts.hour)<9)businessDate.setUTCDate(businessDate.getUTCDate()-1);
  return businessDate.toISOString().slice(0,10);
+}
+const ACTIVE_ORDER_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking']);
+function orderBusinessDayKey(order){
+ if(typeof order?.businessDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(order.businessDay))return order.businessDay;
+ const createdAtKey=order?.createdAt!=null?seoulBusinessDayKey(order.createdAt):null;
+ if(createdAtKey)return createdAtKey;
+ return order?.createdAtClient!=null?seoulBusinessDayKey(order.createdAtClient):null;
+}
+function isCurrentBusinessDayOrder(order,now=new Date()){
+ const currentBusinessDay=seoulBusinessDayKey(now);
+ const orderBusinessDay=orderBusinessDayKey(order);
+ return Boolean(currentBusinessDay&&orderBusinessDay&&orderBusinessDay===currentBusinessDay);
+}
+function shouldShowBusinessDayOrder(order,now=new Date()){
+ const orderBusinessDay=orderBusinessDayKey(order);
+ if(!orderBusinessDay)return false;
+ return orderBusinessDay===seoulBusinessDayKey(now)||ACTIVE_ORDER_STATUSES.has(order.status);
+}
+function visibleBusinessDayOrders(list,now=new Date(),limit=100){
+ const sorted=(list||[])
+  .filter(order=>shouldShowBusinessDayOrder(order,now))
+  .map((order,index)=>({order,index}))
+  .sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index);
+ return sorted.slice(Math.max(0,sorted.length-limit)).map(entry=>entry.order);
 }
 const sequenceAssignments=new Set();
 async function ensureOrderSequence(order){
