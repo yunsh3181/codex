@@ -8,11 +8,13 @@ service cloud.firestore {
     function validOrderCreate() {
       return request.resource.data.keys().hasOnly([
         'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
-        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','orderType','partySize','seat','pickup',
+        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','orderType','partySize','seat','pickup',
         'items','itemCount','normalAmount','discountAmount','totalAmount','total','benefit','payment','status',
         'recommendationEvents','createdAt','createdAtClient','source'
       ])
       && request.resource.data.channel == 'mobile'
+      && (!request.resource.data.keys().hasAny(['language'])
+        || request.resource.data.language in ['ko','en','es'])
       && request.resource.data.status == 'payment_pending'
       && request.resource.data.orderType in ['dinein','takeout']
       && validString(request.resource.data.phone, 11)
