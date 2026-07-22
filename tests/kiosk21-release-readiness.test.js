@@ -11,7 +11,7 @@ const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
 test('release changes do not alter protected application sources', () => {
-  assert.equal(sha256(html), 'f61ad512e335ca7b763dacdd255d91c1fde9afa813b3c39beea885b629a2e59b');
+  assert.equal(sha256(html), 'a56612d1e47d8cc0e09b074ee229b145991c642c7470824bd23ca18ec3f9a4a0');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '8c5e9f7173716292cabf2d86e39f4f8ac51add3fbcbac605e8323dca59dd41ea');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
@@ -32,7 +32,9 @@ test('completion remains behind successful order persistence', () => {
   const done = html.indexOf("state.step='done';render();", submit);
   assert.ok(submit > 0);
   assert.ok(done > submit);
-  assert.ok(html.includes("if(state.step==='payment')mobileOrderSubmitting=false"));
+  const handler = html.match(/async function handlePaymentSubmit[\s\S]*?\n}\ndocument\.addEventListener\('click'/)?.[0] || '';
+  assert.match(handler, /finally\{[\s\S]*?mobileOrderSubmitting=false;/);
+  assert.doesNotMatch(handler, /if\(state\.step==='payment'\)mobileOrderSubmitting=false;/);
 });
 
 test('safe-area tokens cover every kiosk edge and fixed surface', () => {

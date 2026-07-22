@@ -2285,7 +2285,7 @@ function view(){
 
   <div class="heroPromoStrip">
     <div class="heroPromo happyPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startHappyHourBanner()"><h3>${t('ui.hero.happyHour')}</h3><strong class="happyHours">16:00~20:00</strong><p class="happyDealLine">${homeHappyDealHTML()}</p></div>
-    <div class="heroPromo takeoutPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startTakeoutDiscountBanner()"><h3>${t('ui.hero.takeout')}</h3><strong class="takeoutDiscount">${homeTakeoutDealHTML()}</strong><p>${t('home.takeoutDealDesc')}</p></div>
+    <div class="heroPromo takeoutPromo clickable" role="button" tabindex="0" onclick="startTakeoutDiscountBanner()"><h3>${t('ui.hero.takeout')}</h3><span class="takeoutSizeNote">${t('home.takeoutSizeNote')}</span><strong class="takeoutDiscount">${t('home.takeoutDiscountRate')}</strong><p class="takeoutOrderNow">${t('ui.hero.orderNow')}</p></div>
     <div class="heroPromo beerAd"><h3>${t('home.beerTitle')}</h3><strong>${t('home.beerHeineken')}</strong><p>${t('home.beerBudweiser')}</p></div>
   </div>
 </section>`;
@@ -3036,8 +3036,8 @@ async function handlePaymentSubmit(event){
  try{
   await complete(event);
  }finally{
-  /* 성공 시 done 화면으로 교체되어 버튼이 사라진다. 실패한 경우에만 다시 허용 */
-  if(state.step==='payment')mobileOrderSubmitting=false;
+  /* 완료 화면의 자동 reset 뒤 다음 고객도 주문할 수 있도록 요청 단위 잠금을 해제한다. */
+  mobileOrderSubmitting=false;
  }
 }
 document.addEventListener('click',function(event){
@@ -5387,6 +5387,68 @@ body[data-step="payment"] .paymentSubmitBtn:not(:disabled){
 .tableCard .status{display:inline-flex;align-items:center;width:max-content;margin-top:7px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.72);font-size:13px!important;font-weight:950}
 .tableCard,.tableCard h2,.tableCard .status{transition:background-color 180ms ease,color 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
 .seat-status-icon{font-size:.75em}
+
+/* Home order-type presentation */
+body[data-step="home"]{
+  --home-accent-yellow:var(--v10-yellow,#f7cf2b);
+}
+body[data-step="home"] .heroChoiceGrid{
+  align-items:stretch!important;
+}
+body[data-step="home"] .heroChoice{
+  height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+body[data-step="home"] .heroChoice .heroChoiceFeatures{
+  margin-top:auto!important;
+}
+body[data-step="home"] .heroPromo{
+  min-height:150px!important;
+  height:100%!important;
+  padding:16px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:6px!important;
+}
+body[data-step="home"] .heroPromo h3,
+body[data-step="home"] .heroPromo strong,
+body[data-step="home"] .heroPromo p,
+body[data-step="home"] .takeoutSizeNote{
+  margin:0!important;
+}
+body[data-step="home"] .takeoutSizeNote{
+  display:block;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:800!important;
+}
+body[data-step="home"] .takeoutPromo .takeoutDiscount{
+  display:block;
+  color:var(--home-accent-yellow)!important;
+  font-size:34px!important;
+  line-height:1.05!important;
+  font-weight:1000!important;
+}
+body[data-step="home"] .takeoutOrderNow{
+  color:#fff!important;
+  font-weight:950!important;
+}
+body[data-step="home"] .heroPromo.clickable::after{display:none!important}
+body[data-step="home"] .happyPromo .happyHours,
+body[data-step="home"] .happyPromo .happyPrice,
+body[data-step="home"] .beerAd strong{
+  color:var(--home-accent-yellow)!important;
+}
+@media(max-width:560px){
+  body[data-step="home"] .heroPromo{min-height:118px!important;padding:10px 6px!important;gap:4px!important}
+  body[data-step="home"] .takeoutSizeNote{font-size:10px!important}
+  body[data-step="home"] .takeoutPromo .takeoutDiscount{font-size:22px!important}
+  body[data-step="home"] .takeoutOrderNow{font-size:10px!important}
+}
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">

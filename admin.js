@@ -134,6 +134,10 @@ function spokenOrderNumber(value){
  const match=raw.match(/^[PD](\d{4})$/);
  return match?match[1]:raw
 }
+function adminOrderNumberLabel(order){
+ const sequence=order?.sequence||order?.dailySequence;
+ return sequence?`#${sequence}`:orderNumberLabel(order?.customerNumber||order?.orderNo||'-')
+}
 function orderTimeMillis(value){
  if(value?.toMillis)return value.toMillis();
  if(Number.isFinite(Number(value?.seconds)))return Number(value.seconds)*1000;
@@ -330,7 +334,7 @@ function adminOrderActions(order){
 }
 function render(){
  const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order),number=order.sequence||order.dailySequence||order.customerNumber||order.orderNo||'-';return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">#${esc(order.sequence||order.dailySequence?number:orderNumberLabel(number))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -539,7 +543,7 @@ async function notifyNewOrders(added){
   soundButton.classList.add('attention');soundButton.textContent='🔔 화면을 눌러 알림음 활성화';
  }
 }
-function showToast(order){document.getElementById('toastText').textContent=`#${orderNumberLabel(order.customerNumber||order.orderNo)} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
+function showToast(order){document.getElementById('toastText').textContent=`${orderNumberLabel(order.customerNumber||order.orderNo)} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
 function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}
 window.callCustomer=callCustomer;window.setStatus=setStatus;
 
