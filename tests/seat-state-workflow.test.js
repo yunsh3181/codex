@@ -37,14 +37,14 @@ assert.ok(kiosk.includes('.tableCard.ordering,.tableCard.selected{background:#FF
 assert.ok(kiosk.includes('.tableCard.occupiedCard.occupied{background:#FDE7E7'),'kiosk occupied cards use the unified red');
 for(const label of ["available:'사용가능'","selected:'주문중'","occupied:'사용중'"])assert.ok(ko.includes(label),`Korean kiosk label ${label} uses the three-state wording`);
 
-assert.ok(admin.includes("${takeout?'포장완료':'사용중'}"),'pending action label differs for takeout and dine-in');
-assert.ok(admin.includes("data-status=\"${takeout?'completed':'accepted'}\""),'takeout completes in one click while dine-in enters in-use state');
+assert.ok(admin.includes('data-status="accepted">접수</button>'),'pending takeout and dine-in orders share the explicit accept action');
+assert.ok(admin.includes('data-status="completed">조리완료</button>'),'accepted takeout and dine-in orders share the cooking-complete action');
 assert.ok(admin.includes("status:'occupied',heldBy:null,heldUntil:null"),'first dine-in click marks seats in use');
 assert.ok(admin.includes("status:'empty'"),'second dine-in click releases seats');
 assert.ok(admin.includes("batch.update(db.collection('orders').doc(id)"),'order status and seat changes share one batch');
 assert.ok(admin.includes('await batch.commit()'),'workflow changes commit atomically');
 for(const [visual,background,color] of [['seat-available','#E8F7EC','#1F7A3A'],['seat-ordering','#FFF4D6','#C77B00'],['seat-occupied','#FDE7E7','#C62828']])assert.ok(adminCss.includes(`.status-badge.${visual}{background:${background};color:${color}}`),`${visual} admin badge uses the unified palette`);
-assert.ok(admin.includes("class=\"occupied-action\""),'dine-in completion action remains visually red while the seat is in use');
+assert.ok(admin.includes("takeout?'ready':'occupied-action'"),'dine-in completion action remains visually red while the seat is in use');
 assert.ok(adminCss.includes('.actions .ready{background:#E8F7EC;color:#1F7A3A}'),'takeout completion action is green');
 
 assert.ok(rules.includes("request.resource.data.status == 'held'"),'rules allow a constrained kiosk seat claim');
