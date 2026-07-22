@@ -315,7 +315,7 @@ function adminStatusVisual(order){if(['payment_pending','new'].includes(order.st
 function adminOrderActions(order){
  const pending=['payment_pending','new'].includes(order.status),done=['ready','completed'].includes(order.status),takeout=order.orderType==='takeout';
  const primary=pending?`<button type="button" class="${takeout?'ready':'accept'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${takeout?'completed':'accepted'}">${takeout?'포장완료':'사용중'}</button>`:(!takeout&&['accepted','paid','cooking'].includes(order.status))?`<button type="button" class="occupied-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">주문 완료</button>`:(takeout&&['accepted','paid','cooking'].includes(order.status))?`<button type="button" class="ready" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">포장완료</button>`:'';
- return `${primary}${done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
+ return `${primary}${done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
 }
 function render(){
  const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
@@ -390,7 +390,7 @@ orderList?.addEventListener('click',async event=>{
   return;
  }
  if(action==='call-customer'){
-  callCustomer(button.dataset.orderNo||'');
+  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);
   return;
  }
  if(action==='set-status'){
@@ -447,6 +447,32 @@ function speakText(text){
 }
 function enqueueSpeech(text){speechQueue=speechQueue.then(()=>speakText(text)).catch(()=>{});return speechQueue}
 function speak(text){return enqueueSpeech(text)}
+function customerCallLanguage(language){
+ const normalized=String(language||'').toLowerCase().split(/[-_]/)[0];
+ return ['ko','en','es'].includes(normalized)?normalized:'ko'
+}
+function customerCallSpeech(orderNo,language){
+ const normalized=customerCallLanguage(language);
+ const speech={
+  ko:{lang:'ko-KR',text:`${orderNo}번 고객님, 주문하신 메뉴가 준비되었습니다.`},
+  en:{lang:'en-US',text:`Customer number ${orderNo}, your order is ready.`},
+  es:{lang:'es-ES',text:`Cliente número ${orderNo}, su pedido está listo.`}
+ }[normalized];
+ return {...speech,voicePrefix:normalized}
+}
+function speakCustomerCall(orderNo,language){
+ return new Promise(resolve=>{
+  if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
+  const speech=customerCallSpeech(orderNo,language);
+  const utterance=new SpeechSynthesisUtterance(speech.text);
+  utterance.lang=speech.lang;utterance.rate=1;utterance.pitch=1;utterance.volume=1;
+  const voice=(window.speechSynthesis.getVoices?.()||[]).find(candidate=>String(candidate.lang||'').toLowerCase().startsWith(speech.voicePrefix));
+  if(voice)utterance.voice=voice;
+  utterance.onend=resolve;utterance.onerror=resolve;
+  window.speechSynthesis.speak(utterance);
+ });
+}
+function enqueueCustomerCall(orderNo,language){speechQueue=speechQueue.then(()=>speakCustomerCall(orderNo,language)).catch(()=>{});return speechQueue}
 
 let announcementQueue=Promise.resolve();
 function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
@@ -502,7 +528,7 @@ async function notifyNewOrders(added){
  }
 }
 function showToast(order){document.getElementById('toastText').textContent=`#${order.orderNo} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
-function callCustomer(orderNo){playPreset('cafe');setTimeout(()=>speak(`${orderNo}번 고객님, 주문이 준비되었습니다.`),420)}
+function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}
 window.callCustomer=callCustomer;window.setStatus=setStatus;
 
 soundButton.textContent=soundEnabled?'🔔 알림음 켜짐':'🔕 알림음 꺼짐';

@@ -2940,6 +2940,10 @@ function reserveLimit(){let d=new Date();d.setHours(state.happyReserveOnly?20:21
 function pressPhone(n){if(state.phone.length<8){state.phone+=n;updatePhoneUI()}}function backPhone(){state.phone=state.phone.slice(0,-1);updatePhoneUI()}function clearPhone(){state.phone='';updatePhoneUI()}function formatPhone(v){let x=v.replace(/\D/g,'').slice(0,8);return '010-'+(x.slice(0,4).padEnd(4,'•'))+'-'+(x.slice(4,8).padEnd(4,'•'))}function validPhone(){return /^\d{8}$/.test(state.phone)}function last4(){return state.phone.slice(-4)}function orderPrefix(){return state.orderType==='takeout'?'P':'D'}function displayOrderNo(){return orderPrefix()+last4()}
 function mobilePhoneFull(){return '010'+state.phone}
 function mobileMaskedPhone(){return '010-****-'+last4()}
+function mobileOrderLanguage(){
+ const language=window.PJ_I18N?.currentLanguage?.();
+ return ['ko','en','es'].includes(language)?language:'ko'
+}
 function mobileItemMap(map,master,category){
  return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>{
   const item=master.find(x=>x.id===id)||{};
@@ -2966,6 +2970,7 @@ function buildMobileOrderPayload(){
   appVersion:'mobile-v43.9.6',schemaVersion:2,aggregationVersion:1,
   storeId:'pangyo2-techno-valley',storeName:'판교2테크노밸리점',
   orderNo:displayOrderNo(),customerNumber:displayOrderNo(),phone:mobilePhoneFull(),
+  language:mobileOrderLanguage(),
   phoneMasked:mobileMaskedPhone(),phoneLast4:last4(),
   orderType:state.orderType||'unknown',partySize:state.partySize||null,
   seat:state.orderType==='dinein'?{zone:state.diningArea,tables:[...(state.selectedTables||[])]}:null,
