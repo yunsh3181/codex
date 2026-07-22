@@ -382,7 +382,7 @@ async function setStatus(id,status,button){
   await batch.commit();
   showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'포장 주문을 완료했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
-  if(status==='completed'&&order){playPreset('cafe');enqueueSpeech(`${spokenOrderNumber(order.customerNumber||order.orderNo)} 고객님 주문 조리가 완료되었습니다.`)}
+  if(status==='completed'&&order)callCustomer(order.customerNumber||order.orderNo||'',order.language);
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
