@@ -6,6 +6,7 @@ const vm=require('vm');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const adminSource=fs.readFileSync(path.join(root,'admin.js'),'utf8');
+const adminCssSource=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 const catalogSource=fs.readFileSync(path.join(root,'order-catalog.js'),'utf8');
 const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
 
@@ -60,6 +61,11 @@ assert.ok(renderedTH.startsWith('<span class="pizza-code">[')&&renderedTH.endsWi
 const renderedT14G=pizzaContext.renderPizzaDisplayCode('T14G');
 assert.strictEqual((renderedT14G.match(/pizza-code-alpha/g)||[]).length,2,'T14G highlights T and G separately');
 assert.ok(!pizzaContext.renderPizzaDisplayCode('12"').includes('pizza-code-alpha'),'plain size code has no alpha class');
+assert.ok(adminSource.includes('<span class="admin-item-name">'),'detail lists separate product names from quantities');
+assert.ok(adminCssSource.includes('.admin-detail-list>div{display:flex'),'detail product rows use flex layout');
+assert.ok(adminCssSource.includes('justify-content:space-between'),'detail quantities align to the right edge');
+assert.ok(adminCssSource.includes('.admin-quantity{flex:0 0 auto;white-space:nowrap}'),'detail quantities do not wrap');
+assert.ok(adminCssSource.includes(".admin-toppings .admin-detail-list>div::before{content:'·'"),'topping rows retain their bullet');
 
 assert.ok(adminSource.includes("db.collection('dailyStats').doc(`order-sequence_"),'sequence uses the admin-writable dailyStats counter');
 assert.ok(adminSource.includes('db.runTransaction(async transaction=>'),'sequence allocation uses a Firestore transaction');

@@ -218,7 +218,7 @@ function adminPizzaName(item){
 function quantityHTML(quantity){const qty=Math.max(1,Number(quantity)||1);return qty>1?` <span class="admin-quantity">×${qty}</span>`:''}
 function selectionEntries(map,category,legacyMaster=[]){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,category,legacyMaster),quantity:Number(q)||1}))}
 function drinkEntries(map){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>({name:productName(id,ORDER_CATALOG.sauces?.[id]?'sauces':'drinks',DRINKS),quantity:Number(q)||1}))}
-function itemListHTML(entries){return `<div class="admin-detail-list">${entries.map(entry=>`<div>${esc(entry.name)}${quantityHTML(entry.quantity)}</div>`).join('')}</div>`}
+function itemListHTML(entries){return `<div class="admin-detail-list">${entries.map(entry=>`<div><span class="admin-item-name">${esc(entry.name)}</span>${quantityHTML(entry.quantity)}</div>`).join('')}</div>`}
 function itemHTML(item){
  const benefit=item.set?`${Number(item.set)||0}인 세트`:item.promo==='upup'?'UP & UP':item.promo==='takeout'?'포장 20%':'일반주문';
  const toppings=selectionEntries(item.toppings,'toppings',TOPPINGS);
