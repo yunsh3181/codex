@@ -12,10 +12,10 @@ assert.ok(html.includes('class="stats-toolbar"'),'compact stats and manual intak
 assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1.05fr)'),'wide toolbar keeps compact stats and manual intake on one row');
 assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
 assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px)'),'wide view has the requested three-column operations layout');
-assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'seat overview uses a three-column desktop grid');
-assert.ok(css.includes('grid-auto-rows:minmax(76px,84px)')&&css.includes('max-height:444px'),'seat overview fits five compact rows and scrolls only when needed');
-assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:auto'),'seat cards use compact non-square geometry');
-assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}'),'mobile seat overview keeps a two-column grid');
+assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,104px))'),'seat overview uses three compact desktop columns');
+assert.ok(css.includes('max-height:544px'),'seat overview fits five compact square rows and scrolls only when needed');
+assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:1/1'),'all seat cards use square geometry');
+assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}'),'mobile seat overview keeps a two-column grid');
 assert.ok(css.includes('overflow-x:hidden'),'seat overview prevents horizontal scrolling');
 assert.ok(css.includes('position:sticky;top:58px'),'operations tabs remain visible below the compact header');
 
@@ -29,7 +29,9 @@ const expected=[
 assert.strictEqual((seatBlock.match(/\{id:/g)||[]).length,13,'exactly 13 real seats are configured');
 expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}'`),`${id} maps to ${name}`));
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("status==='occupied'?`<button type=\"button\" data-action=\"clear-seat\""),'only occupied seats render a clear button');
+assert.ok(admin.includes("status!=='empty'?`<button type=\"button\" data-action=\"clear-seat\""),'occupied and held seats render a clear button');
+assert.ok(admin.includes('>빈자리로</button>'),'the clear action uses the requested label');
+assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');
 assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
 const releaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0]||'';
 const clearSource=admin.match(/async function clearSeat[\s\S]*?\n\}/)?.[0]||'';

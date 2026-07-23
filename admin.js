@@ -391,7 +391,7 @@ function renderSeatOverview(){
  seatOverviewGrid.innerHTML=ADMIN_SEATS.map(seat=>{
   const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
   const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
-  return `<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}"><strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>주문 ${esc(orderNumber)}</small>`:''}${status==='occupied'?`<button type="button" data-action="clear-seat" data-seat-id="${esc(seat.id)}">비우기</button>`:''}</article>`;
+  return `<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}"><strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>주문 ${esc(orderNumber)}</small>`:''}${status!=='empty'?`<button type="button" data-action="clear-seat" data-seat-id="${esc(seat.id)}">빈자리로</button>`:''}</article>`;
  }).join('');
 }
 function render(){
@@ -568,10 +568,10 @@ async function clearSeat(id,button){
  const lockId=`seat:${id}`;
  if(!id||statusUpdateLocks.has(lockId))return false;
  const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
- if(!seat||normalizedSeatStatus(data.status)!=='occupied')return false;
+ if(!seat||normalizedSeatStatus(data.status)==='empty')return false;
  if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false;
  statusUpdateLocks.add(lockId);
- const originalText=button?.textContent||'비우기';
+ const originalText=button?.textContent||'빈자리로';
  if(button){button.disabled=true;button.textContent='처리 중…'}
  try{
   await db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true});
