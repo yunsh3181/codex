@@ -9,11 +9,11 @@ const rules=read('firestore.rules'),tvHTML=read('waiting-tv/index.html'),tvJS=re
 for(const id of ['takeoutPending','takeoutProcessing'])assert.ok(html.includes(`id="${id}"`),`${id} is present`);
 assert.ok(admin.includes('takeoutPendingCard(pendingTakeout[0])'),'only the oldest pending takeout is the large priority card');
 assert.ok(admin.includes("['accepted','paid','cooking','ready'].includes(order.status)"),'all active takeout statuses share one processing area');
-assert.ok(css.includes('grid-template-columns:repeat(auto-fill,minmax(210px,1fr))'),'processing cards use horizontal-first responsive grid');
+assert.ok(css.includes('.takeout-processing{display:grid;grid-template-columns:1fr'),'processing cards use one-column left rail');
 assert.ok(!html.includes('id="takeoutCooking"')&&!html.includes('id="takeoutReady"'),'processing cards are not split by status');
 for(const transition of [
- ["label:'조리중',status:'cooking'"],
- ["label:'제조완료',status:'ready'"],
+ ["data-status=\"cooking\">주문접수"],
+ ["label:'조리완료',status:'ready'"],
  ["label:'픽업완료',status:'completed'"]
 ])assert.ok(admin.includes(transition),`${transition} transition is configured`);
 assert.ok(admin.includes("batch.delete(displayRef)"),'pickup removes only the public display document');

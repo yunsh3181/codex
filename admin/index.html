@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
-  <title>판교2테크노밸리점 주문 관리자 v43.9.7</title>
-  <link rel="stylesheet" href="../admin.css?v=43.9.8" />
-  <link rel="stylesheet" href="../admin-mobile.css?v=43.9.7" />
+  <title>판교2테크노밸리점 주문 관리자 v44.0.0</title>
+  <link rel="stylesheet" href="../admin.css?v=44.0.0" />
+  <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
 </head>
 <body>
 <div id="adminLoginGate" class="admin-login-gate">
@@ -23,7 +23,7 @@
   <header class="admin-header">
     <div>
       <strong>PAPA JOHNS</strong>
-      <span>판교2테크노밸리점 · 실시간 주문관리 · v43.9.7</span>
+      <span>판교2테크노밸리점 · 실시간 주문관리 · v44.0.0</span>
     </div>
     <div class="header-actions">
       <button id="soundSettingsButton" class="sound-button">⚙️ 알림 설정</button><button id="soundButton" class="sound-button">🔔 알림음 켜기</button>
@@ -32,9 +32,9 @@
   </header>
 
   <main class="admin-main">
-    <nav class="admin-section-tabs">
-      <button id="showOrdersTab" class="active">📋 주문 확인</button>
-      <button id="showSeatsTab">🪑 좌석 관리</button><button id="showWaitingTab">⏳ 줄서기</button><button id="showSalesTab">📈 판매통계</button><button id="showCustomersTab">👤 고객통계</button><button id="showRecommendationsTab">🎯 추천성과</button>
+    <nav class="admin-section-tabs" aria-label="관리자 메뉴">
+      <div class="primary-admin-tabs"><button id="showOrdersTab" class="active">📋 주문관리</button><button id="showSeatsTab">🪑 좌석관리</button><button id="showWaitingTab">⏳ 줄서기</button></div>
+      <div class="secondary-admin-tabs" aria-label="통계 메뉴"><button id="showSalesTab">판매통계</button><button id="showCustomersTab">고객통계</button><button id="showRecommendationsTab">추천성과</button></div>
     </nav>
     <section id="ordersPanel">
     <section class="stats">
@@ -53,30 +53,27 @@
       <button data-filter="all">전체</button>
     </nav>
 
-    <section class="takeout-workflow" aria-labelledby="takeoutWorkflowTitle">
-      <div class="takeout-section-head">
-        <div><p>포장 주문 단일화면</p><h2 id="takeoutWorkflowTitle">신규 주문</h2></div>
-        <span>결제대기 주문을 순서대로 접수하세요.</span>
+    <section class="operations-layout">
+      <aside class="takeout-rail" aria-labelledby="takeoutProcessingTitle">
+        <div class="operations-section-head"><div><p>포장</p><h2 id="takeoutProcessingTitle">처리중 주문</h2></div></div>
+        <section id="takeoutProcessing" class="takeout-processing"><div class="empty">처리중인 포장 주문이 없습니다.</div></section>
+      </aside>
+      <div class="order-workspace">
+        <section class="takeout-workflow" aria-labelledby="takeoutWorkflowTitle">
+          <div class="takeout-section-head"><div><p>신규 포장</p><h2 id="takeoutWorkflowTitle">결제대기 주문</h2></div><span>가장 오래된 주문부터 표시합니다.</span></div>
+          <section id="takeoutPending" class="takeout-pending"><div class="empty">신규 포장 주문을 불러오는 중입니다.</div></section>
+        </section>
+        <h2 class="other-orders-title">매장식사 주문</h2>
+        <section id="orderList" class="order-list"><div class="empty">주문을 불러오는 중입니다.</div></section>
       </div>
-      <section id="takeoutPending" class="takeout-pending">
-        <div class="empty">신규 포장 주문을 불러오는 중입니다.</div>
-      </section>
-      <div class="takeout-section-head processing-head">
-        <div><p>한 영역에서 계속 진행</p><h2>처리중 주문</h2></div>
-        <span>버튼을 눌러 조리중 → 제조완료 → 픽업완료로 진행합니다.</span>
-      </div>
-      <section id="takeoutProcessing" class="takeout-processing">
-        <div class="empty">처리중인 포장 주문이 없습니다.</div>
-      </section>
-    </section>
-
-    <h2 class="other-orders-title">기타 주문</h2>
-    <section id="orderList" class="order-list">
-      <div class="empty">주문을 불러오는 중입니다.</div>
+      <aside class="seat-overview" aria-labelledby="seatOverviewTitle">
+        <div class="operations-section-head"><div><p>실시간</p><h2 id="seatOverviewTitle">좌석 현황</h2></div><span id="seatOverviewConnection">연결 중</span></div>
+        <div id="seatOverviewGrid" class="seat-overview-grid"><div class="empty">좌석 정보를 불러오는 중입니다.</div></div>
+      </aside>
     </section>
     </section>
     <section id="seatsPanel" hidden>
-      <iframe id="seatsFrame" src="../seat/?v=43.9.7" title="좌석 관리"></iframe>
+      <iframe id="seatsFrame" src="../seat/?v=44.0.0" title="좌석 관리"></iframe>
     </section>
     <section id="waitingPanel" hidden>
       <div class="waiting-admin-head"><h2>줄서기 현황</h2><button id="refreshWaiting">새로고침</button></div>
@@ -109,11 +106,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="../firebase-config.js?v=43.9.7"></script>
-  <script src="../common-data.js?v=43.9.7"></script>
-  <script src="../order-catalog.js?v=43.9.8"></script>
-  <script src="../data.js?v=43.9.7"></script>
-  <script src="../admin.js?v=43.9.8"></script>
-  <script src="../admin-dashboard.js?v=43.9.7"></script>
+  <script src="../firebase-config.js?v=44.0.0"></script>
+  <script src="../common-data.js?v=44.0.0"></script>
+  <script src="../order-catalog.js?v=44.0.0"></script>
+  <script src="../data.js?v=44.0.0"></script>
+  <script src="../admin.js?v=44.0.0"></script>
+  <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>

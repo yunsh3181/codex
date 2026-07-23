@@ -35,7 +35,8 @@ assert.doesNotMatch(markup('completed'),/data-action="set-status"/, 'completed o
 assert.match(markup('completed'),/data-action="call-customer"/, 'completed orders keep the existing repeatable call action');
 
 const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\ndocument\.getElementById\('ordersPanel'\)/)?.[0].replace(/\n\ndocument\.getElementById\('ordersPanel'\)[\s\S]*/,'');
-const statusBlock=`const statusUpdateLocks=new Set();\n${setStatusSource||''}`;
+const seatReleaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0];
+const statusBlock=`${seatReleaseSource||''}\nconst statusUpdateLocks=new Set();\n${setStatusSource||''}`;
 assert.ok(statusBlock,'status update implementation exists');
 async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}={}){
  const writes=[],seatWrites=[],displayWrites=[],displayDeletes=[],customerCalls=[],loggedErrors=[];
