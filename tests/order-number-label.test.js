@@ -17,17 +17,19 @@ const adminContext={String};
 vm.createContext(adminContext);
 vm.runInContext(adminHelpers,adminContext);
 
-for(const [stored,label,spoken] of [['P1234','포장 1234','1234'],['D1234','다이닝 1234','1234'],['P0001','포장 0001','0001'],['A1234','A1234','A1234'],['1234','1234','1234'],['legacy-42','legacy-42','legacy-42'],['','',''],[undefined,'','']]){
+for(const [stored,label,spoken] of [['P1234','1234','1234'],['D1234','1234','1234'],['P-0001','0001','0001'],['A1234','1234','1234'],['1234','1234','1234'],['legacy-42','legacy-42','legacy-42'],['','',''],[undefined,'','']]){
  assert.strictEqual(customerContext.orderNumberLabel(stored),label);
  assert.strictEqual(adminContext.orderNumberLabel(stored),label);
  assert.strictEqual(adminContext.spokenOrderNumber(stored),spoken);
 }
-assert.strictEqual(adminContext.adminOrderNumberLabel({customerNumber:'P1234'}),'포장 1234');
-assert.strictEqual(adminContext.adminOrderNumberLabel({orderNo:'D1234'}),'다이닝 1234');
-assert.strictEqual(adminContext.adminOrderNumberLabel({sequence:123,customerNumber:'P1234'}),'#123');
-assert.strictEqual(adminContext.adminOrderNumberLabel({dailySequence:45,orderNo:'D1234'}),'#45');
+assert.strictEqual(adminContext.adminOrderNumberLabel({customerNumber:'P1234'}),'1234');
+assert.strictEqual(adminContext.adminOrderNumberLabel({orderNo:'D1234'}),'1234');
+assert.strictEqual(adminContext.adminOrderNumberLabel({sequence:123,customerNumber:'P1234'}),'1234');
+assert.strictEqual(adminContext.adminOrderNumberLabel({dailySequence:45}),'0045');
 assert.ok(html.includes('orderNo:displayOrderNo(),customerNumber:displayOrderNo()'),'stored order-number fields remain unchanged');
 assert.ok(html.includes('orderNumberLabel(state.orderNo)'),'completion screen uses the display label');
 assert.ok(admin.includes("callCustomer(order.customerNumber||order.orderNo||'',order.language)"),'completion passes the stored order number to the customer-call path that strips its P/D prefix');
 assert.ok(!admin.includes('`#${orderNumberLabel(order.customerNumber||order.orderNo)}'), 'new-order toast does not prefix customer numbers with a hash');
+assert.ok(admin.includes('orderNumberLabel(call.orderNumber)'),'manual intake cards use the numeric display helper');
+assert.ok(admin.includes("orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'')"),'seat cards use the numeric display helper');
 console.log('order-number display labels and speech normalization passed');

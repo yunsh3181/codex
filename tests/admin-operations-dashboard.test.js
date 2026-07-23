@@ -13,7 +13,8 @@ assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1
 assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
 assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px)'),'wide view has the requested three-column operations layout');
 assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'seat overview uses a three-column desktop grid');
-assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:1/1'),'seat cards remain square without a conflicting fixed minimum height');
+assert.ok(css.includes('grid-auto-rows:minmax(76px,84px)')&&css.includes('max-height:444px'),'seat overview fits five compact rows and scrolls only when needed');
+assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:auto'),'seat cards use compact non-square geometry');
 assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}'),'mobile seat overview keeps a two-column grid');
 assert.ok(css.includes('overflow-x:hidden'),'seat overview prevents horizontal scrolling');
 assert.ok(css.includes('position:sticky;top:58px'),'operations tabs remain visible below the compact header');

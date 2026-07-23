@@ -3,6 +3,7 @@ const fs=require('fs');
 const path=require('path');
 const vm=require('vm');
 
+const speechSource=fs.readFileSync(path.resolve(__dirname,'../speech.js'),'utf8');
 const source=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/waiting-tv.js'),'utf8');
 const spoken=[];
 const subscriptions={};
@@ -23,6 +24,7 @@ const context={
  window:{
   speechSynthesis:{
    getVoices:()=>[{lang:'ko-KR',name:'Korean'}],
+   addEventListener(){},
    speak(utterance){
     spoken.push(utterance.text);
     queueMicrotask(()=>utterance.onend());
@@ -35,6 +37,9 @@ const context={
   return {onSnapshot(next){subscriptions[name]=next}};
  }}
 };
+context.window.SpeechSynthesisUtterance=Utterance;
+vm.runInNewContext(speechSource,context);
+context.PJSpeech=context.window.PJSpeech;
 vm.runInNewContext(source,context);
 
 const doc=(id,orderNumber,displayStatus)=>({

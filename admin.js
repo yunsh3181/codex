@@ -160,18 +160,17 @@ const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(val
 const dateValue=value=>value?.toMillis?value.toMillis():value?.seconds?value.seconds*1000:Number(new Date(value||0))||0;
 function orderNumberLabel(value){
  const raw=String(value??'');
- const match=raw.match(/^([PD])(\d{4})$/);
- if(!match)return raw;
- return `${match[1]==='P'?'포장':'다이닝'} ${match[2]}`
+ const digits=raw.replace(/\D/g,'');
+ return digits.length>=4?digits.slice(-4):raw
 }
 function spokenOrderNumber(value){
- const raw=String(value??'');
- const match=raw.match(/^[PD](\d{4})$/);
- return match?match[1]:raw
+ return orderNumberLabel(value)
 }
 function adminOrderNumberLabel(order){
+ const stored=order?.customerNumber||order?.orderNo;
+ if(stored)return orderNumberLabel(stored);
  const sequence=order?.sequence||order?.dailySequence;
- return sequence?`#${sequence}`:orderNumberLabel(order?.customerNumber||order?.orderNo||'-')
+ return sequence?String(sequence).padStart(4,'0').slice(-4):'-'
 }
 function orderTimeMillis(value){
  if(value?.toMillis)return value.toMillis();
@@ -384,14 +383,14 @@ function takeoutProcessingCard(order){
 }
 function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
- return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
+ return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
 function renderSeatOverview(){
  if(!seatOverviewGrid)return;
  seatOverviewGrid.innerHTML=ADMIN_SEATS.map(seat=>{
   const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
-  const orderNumber=data.orderNo||data.customerNumber||data.orderId||'';
+  const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
   return `<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}"><strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>주문 ${esc(orderNumber)}</small>`:''}${status==='occupied'?`<button type="button" data-action="clear-seat" data-seat-id="${esc(seat.id)}">비우기</button>`:''}</article>`;
  }).join('');
 }
@@ -620,17 +619,10 @@ async function playPreset(forcePreset){
  [[660,0,.22],[880,.22,.30],[1040,.48,.30]].forEach(x=>tone(...x,.36,'sine'));
 }
 let speechQueue=Promise.resolve();
-function chooseKoreanVoice(){
- const voices=window.speechSynthesis?.getVoices?.()||[];
- const korean=voices.filter(v=>/^ko(-|_)?KR/i.test(v.lang)||/^ko/i.test(v.lang));
- return korean.find(v=>/female|여성|yuna|sora|sunhi|google 한국어/i.test(`${v.name} ${v.voiceURI}`))||korean[0]||null;
-}
 function speakText(text){
  return new Promise(resolve=>{
   if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang='ko-KR';u.rate=1.08;u.pitch=1.48;u.volume=1;
-  const voice=chooseKoreanVoice();if(voice)u.voice=voice;
+  const u=PJSpeech.createSpeechUtterance(text);
   u.onend=resolve;u.onerror=resolve;
   window.speechSynthesis.speak(u);
  });
@@ -662,10 +654,7 @@ function speakCustomerCall(orderNo,language){
  return new Promise(resolve=>{
   if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
   const speech=customerCallSpeech(orderNo,language);
-  const utterance=new SpeechSynthesisUtterance(speech.text);
-  utterance.lang=speech.lang;utterance.rate=1;utterance.pitch=1;utterance.volume=1;
-  const voice=(window.speechSynthesis.getVoices?.()||[]).find(candidate=>String(candidate.lang||'').toLowerCase().startsWith(speech.voicePrefix));
-  if(voice)utterance.voice=voice;
+  const utterance=PJSpeech.createSpeechUtterance(speech.text,{lang:speech.lang});
   utterance.onend=resolve;utterance.onerror=resolve;
   window.speechSynthesis.speak(utterance);
  });
