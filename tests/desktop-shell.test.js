@@ -33,10 +33,17 @@ test('desktop shell prevents duplicate instances and display sleep', () => {
 });
 
 test('Windows build emits both NSIS and portable x64 artifacts', () => {
+  assert.match(
+    packageJson.scripts['desktop:build:win'],
+    /process\.platform !== 'win32'/
+  );
   const targets = packageJson.build.win.target;
   assert.deepEqual(targets.map(({ target }) => target), ['nsis', 'portable']);
   assert.ok(targets.every(({ arch }) => arch.includes('x64')));
   assert.equal(packageJson.build.nsis.artifactName, 'PapaJohns-Kiosk-Setup-${version}.${ext}');
+  assert.equal(packageJson.build.nsis.oneClick, false);
+  assert.equal(packageJson.build.nsis.allowToChangeInstallationDirectory, true);
+  assert.equal(packageJson.build.nsis.runAfterFinish, false);
   assert.equal(
     packageJson.build.portable.artifactName,
     'PapaJohns-Kiosk-Portable-${version}.${ext}'

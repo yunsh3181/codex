@@ -1,6 +1,6 @@
 {
   "name": "papajohns-kiosk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "PapaJohn's customer web kiosk and Windows Electron shell",
   "author": "PapaJohn's Pangyo 2nd Techno Valley",
@@ -9,11 +9,11 @@
     "test": "node --test tests/*.test.js",
     "desktop:dev": "electron . --dev",
     "desktop:build": "electron-builder",
-    "desktop:build:win": "electron-builder --win --x64"
+    "desktop:build:win": "node -e \"if (process.platform !== 'win32') { console.error('Windows NSIS artifacts must be built on Windows to preserve uninstaller integrity.'); process.exit(1); }\" && electron-builder --win --x64"
   },
   "devDependencies": {
     "electron": "43.2.0",
-    "electron-builder": "26.15.3"
+    "electron-builder": "26.15.6"
   },
   "build": {
     "appId": "kr.co.papajohns.kiosk",
@@ -37,18 +37,23 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
     "nsis": {
       "artifactName": "PapaJohns-Kiosk-Setup-${version}.${ext}",
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false
     },
     "portable": {
       "artifactName": "PapaJohns-Kiosk-Portable-${version}.${ext}"
