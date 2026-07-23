@@ -384,7 +384,7 @@ function takeoutProcessingCard(order){
 }
 function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
- return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'제조완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
+ return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
 function renderSeatOverview(){
@@ -440,7 +440,7 @@ async function createManualCustomerCall(orderNumber,status,buttons=[]){
    if(existing.exists){const error=new Error(`${number}번은 이미 고객 화면에 표시 중입니다.`);error.code='manual-call/duplicate';throw error}
    transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
-  showAdminMessage(`${number}번을 ${status==='ready'?'제조완료':'조리중'}에 등록했습니다.`);
+  showAdminMessage(`${number}번을 ${status==='ready'?'조리완료':'조리중'}에 등록했습니다.`);
   return true;
  }catch(error){
   showAdminMessage(error.code==='manual-call/duplicate'?error.message:`대면 포장 주문접수 실패: ${error.message}`,true);
@@ -457,7 +457,7 @@ async function setManualCustomerCallStatus(id,status,button){
   const ref=db.collection('manualCustomerCalls').doc(id);
   if(status==='picked-up')await ref.delete();
   else await ref.update({displayStatus:'ready',announceVersion:1,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  showAdminMessage(status==='picked-up'?'픽업 완료로 처리했습니다.':'제조완료로 변경했습니다.');
+  showAdminMessage(status==='picked-up'?'픽업 완료로 처리했습니다.':'조리완료로 변경했습니다.');
   return true;
  }catch(error){showAdminMessage(`대면 포장 상태 처리 실패: ${error.message}`,true);return false}
  finally{manualCallLocks.delete(id);if(button&&button.isConnected){button.disabled=false;button.textContent=original;button.removeAttribute('aria-busy')}}
