@@ -2,13 +2,16 @@
 
 const path = require('node:path');
 const { fileURLToPath } = require('node:url');
-const { app, BrowserWindow, Menu, powerSaveBlocker } = require('electron');
+const { app, BrowserWindow, Menu, powerSaveBlocker, screen } = require('electron');
 
-const isDevelopment = process.argv.includes('--dev');
 const entryFile = path.resolve(__dirname, '..', 'index.html');
 let mainWindow = null;
 let powerSaveBlockerId = null;
 let quitting = false;
+
+function isDevelopmentMode() {
+  return !app.isPackaged && process.argv.includes('--dev');
+}
 
 function isLocalEntryNavigation(targetUrl) {
   try {
@@ -26,10 +29,15 @@ function requestQuit() {
 }
 
 function createWindow() {
+  const isDevelopment = isDevelopmentMode();
+  const primaryDisplayBounds = screen.getPrimaryDisplay().bounds;
+
   mainWindow = new BrowserWindow({
     title: 'PapaJohns Kiosk',
+    ...(!isDevelopment ? primaryDisplayBounds : {}),
     kiosk: !isDevelopment,
     fullscreen: !isDevelopment,
+    show: false,
     frame: isDevelopment,
     resizable: isDevelopment,
     minimizable: isDevelopment,
@@ -48,6 +56,16 @@ function createWindow() {
 
   mainWindow.removeMenu();
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+
+  mainWindow.once('ready-to-show', () => {
+    if (!isDevelopment) {
+      mainWindow.setBounds(primaryDisplayBounds);
+      mainWindow.setKiosk(true);
+      mainWindow.setFullScreen(true);
+    }
+    mainWindow.show();
+    mainWindow.focus();
+  });
 
   mainWindow.webContents.on('will-navigate', (event, targetUrl) => {
     if (!isLocalEntryNavigation(targetUrl)) event.preventDefault();

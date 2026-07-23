@@ -15,6 +15,12 @@ test('desktop shell loads the shared root customer app with hardened web prefere
   assert.match(mainSource, /nodeIntegration:\s*false/);
   assert.match(mainSource, /sandbox:\s*true/);
   assert.match(mainSource, /fileURLToPath\(target\)/);
+  assert.match(mainSource, /!app\.isPackaged && process\.argv\.includes\('--dev'\)/);
+  assert.match(mainSource, /mainWindow\.setKiosk\(true\)/);
+  assert.match(mainSource, /mainWindow\.setFullScreen\(true\)/);
+  assert.match(mainSource, /screen\.getPrimaryDisplay\(\)\.bounds/);
+  assert.match(mainSource, /mainWindow\.setBounds\(primaryDisplayBounds\)/);
+  assert.match(mainSource, /show:\s*false/);
   assert.match(mainSource, /setWindowOpenHandler\(\(\) => \(\{ action: 'deny' \}\)\)/);
   assert.match(mainSource, /'will-navigate'/);
 });
