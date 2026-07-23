@@ -53,6 +53,24 @@
       <button data-filter="all">전체</button>
     </nav>
 
+    <section class="takeout-workflow" aria-labelledby="takeoutWorkflowTitle">
+      <div class="takeout-section-head">
+        <div><p>포장 주문 단일화면</p><h2 id="takeoutWorkflowTitle">신규 주문</h2></div>
+        <span>결제대기 주문을 순서대로 접수하세요.</span>
+      </div>
+      <section id="takeoutPending" class="takeout-pending">
+        <div class="empty">신규 포장 주문을 불러오는 중입니다.</div>
+      </section>
+      <div class="takeout-section-head processing-head">
+        <div><p>한 영역에서 계속 진행</p><h2>처리중 주문</h2></div>
+        <span>버튼을 눌러 조리중 → 제조완료 → 픽업완료로 진행합니다.</span>
+      </div>
+      <section id="takeoutProcessing" class="takeout-processing">
+        <div class="empty">처리중인 포장 주문이 없습니다.</div>
+      </section>
+    </section>
+
+    <h2 class="other-orders-title">기타 주문</h2>
     <section id="orderList" class="order-list">
       <div class="empty">주문을 불러오는 중입니다.</div>
     </section>
