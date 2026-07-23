@@ -7,6 +7,7 @@ async function verifyAdminUser(user){if(!user)return false;const token=await use
 
 let unsubscribeOrders=null;
 let unsubscribeWaitlist=null;
+let unsubscribeSeats=null;
 let subscriptionsStarted=false;
 let receivedOrders=[];
 let businessDayRefreshTimer=null;
@@ -14,6 +15,7 @@ let businessDayRefreshTimer=null;
 function stopRealtimeSubscriptions(){
  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
  if(unsubscribeWaitlist){unsubscribeWaitlist();unsubscribeWaitlist=null}
+ if(unsubscribeSeats){unsubscribeSeats();unsubscribeSeats=null}
  if(businessDayRefreshTimer){clearTimeout(businessDayRefreshTimer);businessDayRefreshTimer=null}
  subscriptionsStarted=false;
 }
@@ -70,8 +72,19 @@ function startRealtimeSubscriptions(){
  if(!waitingInitialLoad&&added.length){
    playPreset();setTimeout(()=>speak(`새로운 줄서기 ${added.length}건이 등록되었습니다.`),500);
  }
- waitingInitialLoad=false;
-});
+  waitingInitialLoad=false;
+ });
+ unsubscribeSeats=db.collection('seats').onSnapshot(snapshot=>{
+  seatDocuments={};
+  snapshot.forEach(doc=>seatDocuments[doc.id]=doc.data());
+  const badge=document.getElementById('seatOverviewConnection');
+  if(badge){badge.textContent='실시간 연결';badge.className='live'}
+  renderSeatOverview();
+ },error=>{
+  console.error('좌석 연결 실패',error);
+  const badge=document.getElementById('seatOverviewConnection');
+  if(badge){badge.textContent='연결 오류';badge.className='error'}
+ });
 }
 
 firebase.auth().onAuthStateChanged(async user=>{
@@ -99,6 +112,7 @@ const soundSettingsButton=document.getElementById('soundSettingsButton');
 const connectionBadge=document.getElementById('connectionBadge');
 const takeoutPending=document.getElementById('takeoutPending');
 const takeoutProcessing=document.getElementById('takeoutProcessing');
+const seatOverviewGrid=document.getElementById('seatOverviewGrid');
 const settingsModal=document.getElementById('soundSettingsModal');
 const soundPreset=document.getElementById('soundPreset');
 const soundVolume=document.getElementById('soundVolume');
@@ -124,6 +138,14 @@ const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt
 const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
+const ADMIN_SEATS=[
+ {id:'papa-2',name:'파파존 2인석'},{id:'papa-bar4',name:'파파존 바테이블'},
+ {id:'outdoor-1',name:'야외존1번'},{id:'outdoor-2',name:'야외존2번'},{id:'outdoor-3',name:'야외존3번'},{id:'outdoor-4',name:'야외존4번'},
+ {id:'annex-1',name:'별관1'},{id:'annex-2',name:'별관2'},{id:'annex-3',name:'별관3'},{id:'annex-4',name:'별관4'},
+ {id:'room-1',name:'룸1'},{id:'room-2',name:'룸2'},{id:'room-3',name:'룸3'}
+];
+const seatStatusNames={empty:'빈자리',occupied:'사용중',held:'주문중'};
+let seatDocuments={};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
 function orderNumberLabel(value){
  const raw=String(value??'');
@@ -339,16 +361,24 @@ function takeoutItemCount(order){
 }
 function takeoutPendingCard(order){
  const visual=adminStatusVisual(order);
- return `<article class="order-card takeout-large ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">주문접수</button></div></div></div></article>`;
+ return `<article class="order-card takeout-large ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button></div></div></div></article>`;
 }
 function takeoutProgressAction(order){
- if(['accepted','paid'].includes(order.status))return {label:'조리중',status:'cooking',className:'cook'};
- if(order.status==='cooking')return {label:'제조완료',status:'ready',className:'ready'};
+ if(['accepted','paid','cooking'].includes(order.status))return {label:'조리완료',status:'ready',className:'ready'};
  return {label:'픽업완료',status:'completed',className:'pickup'};
 }
 function takeoutProcessingCard(order){
  const action=takeoutProgressAction(order);
  return `<article class="takeout-small" data-order-status="${esc(order.status)}"><div class="takeout-small-number">${esc(adminOrderNumberLabel(order))}</div><strong>포장 주문</strong><span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span><span>상품 ${takeoutItemCount(order)}개</span><button type="button" class="${action.className}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${action.status}">${action.label}</button></article>`;
+}
+function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
+function renderSeatOverview(){
+ if(!seatOverviewGrid)return;
+ seatOverviewGrid.innerHTML=ADMIN_SEATS.map(seat=>{
+  const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
+  const orderNumber=data.orderNo||data.customerNumber||data.orderId||'';
+  return `<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}"><strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>주문 ${esc(orderNumber)}</small>`:''}${status==='occupied'?`<button type="button" data-action="clear-seat" data-seat-id="${esc(seat.id)}">비우기</button>`:''}</article>`;
+ }).join('');
 }
 function render(){
  const sortedTakeout=orders.filter(order=>order.orderType==='takeout').sort(compareOrdersOldestFirst);
@@ -383,7 +413,7 @@ async function setStatus(id,status,button){
  try{
   const order=orders.find(o=>o.id===id);
   if(!order)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
-  if(status==='accepted')stopNewOrderRepeat();
+  if((status==='accepted'&&order.orderType!=='takeout')||(status==='cooking'&&order.orderType==='takeout'))stopNewOrderRepeat();
   const seatIds=orderSeatIds(order);
   const batch=db.batch();
   batch.update(db.collection('orders').doc(id),{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -446,8 +476,40 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  }
  if(action==='set-status'){
   await setStatus(button.dataset.orderId,button.dataset.status,button);
+  return;
+ }
+ if(action==='clear-seat'){
+  await clearSeat(button.dataset.seatId,button);
  }
 });
+
+async function clearSeat(id,button){
+ const lockId=`seat:${id}`;
+ if(!id||statusUpdateLocks.has(lockId))return false;
+ const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
+ if(!seat||normalizedSeatStatus(data.status)!=='occupied')return false;
+ if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false;
+ statusUpdateLocks.add(lockId);
+ const originalText=button?.textContent||'비우기';
+ if(button){button.disabled=true;button.textContent='처리 중…'}
+ try{
+  await db.collection('seats').doc(id).set({
+   status:'empty',partySize:null,groupSize:null,groupId:null,groupLabel:null,groupTableCount:null,
+   orderId:null,orderNo:null,heldBy:null,heldAt:null,heldUntil:null,occupiedAt:null,cleaningAt:null,
+   reservationName:null,reservationPartySize:null,reservationAt:null,reservationPhone:null,
+   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
+  showAdminMessage(`${seat.name}을 빈자리로 변경했습니다.`);
+  return true;
+ }catch(error){
+  console.error('좌석 비우기 실패',error);
+  showAdminMessage(`좌석 비우기 실패 (${error.code||'unknown'}): ${error.message}`,true);
+  return false;
+ }finally{
+  statusUpdateLocks.delete(lockId);
+  if(button&&button.isConnected){button.disabled=false;button.textContent=originalText}
+ }
+}
 
 function ensureAudio(){
  audioContext=audioContext||new (window.AudioContext||window.webkitAudioContext)();

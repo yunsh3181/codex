@@ -199,3 +199,40 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
  .payment-metric{border-left:0;border-top:1px solid var(--line)}
  .payment-metric.paid strong{font-size:20px}
 }
+
+/* v44 admin operations dashboard */
+.admin-header{padding:8px 16px;min-height:58px;box-shadow:0 3px 10px #005b2b2b}
+.admin-header strong{font-size:21px}.admin-header>div:first-child span{font-size:12px}
+.header-actions{gap:7px}.sound-button{padding:7px 10px;border-radius:8px;font-size:12px}.connection{padding:6px 9px;font-size:12px}
+.admin-main{max-width:1900px;padding:10px 14px}
+.admin-section-tabs{position:sticky;top:58px;z-index:19;display:flex!important;align-items:center;justify-content:space-between;gap:8px;margin:0 -2px 9px;padding:6px 2px;background:var(--bg)}
+.primary-admin-tabs,.secondary-admin-tabs{display:flex;gap:6px}
+.admin-section-tabs button{min-height:36px;padding:6px 12px;border-radius:8px;font-size:13px}
+.secondary-admin-tabs button{min-height:30px;padding:4px 9px;color:#53645b;font-size:11px}
+.stats{gap:7px}.stats article{padding:9px 12px;border-radius:10px;box-shadow:none}.stats span{font-size:12px}.stats strong{display:inline-block;margin:2px 0 0;font-size:23px}
+.channel-filters{gap:5px;margin:7px 0 5px}.channel-filters button,.filters button{padding:6px 10px;border-radius:8px;font-size:12px}
+.filters{gap:5px;margin:0 0 8px}
+.operations-layout{display:grid;grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px);grid-template-areas:"rail workspace seats";gap:10px;align-items:start}
+.takeout-rail{grid-area:rail}.order-workspace{grid-area:workspace;min-width:0}.seat-overview{grid-area:seats}
+.takeout-rail,.seat-overview{position:sticky;top:112px;max-height:calc(100vh - 124px);overflow:auto;padding:10px;border:1px solid #d5e1d9;border-radius:10px;background:#f8fbf9}
+.operations-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.operations-section-head p,.takeout-section-head p{margin:0;color:#08703c;font-size:10px;font-weight:900}.operations-section-head h2,.takeout-section-head h2{margin:1px 0 0;color:#173d29;font-size:17px}.operations-section-head>span{font-size:10px;font-weight:800;color:#68766e}.operations-section-head>span.live{color:#08703c}.operations-section-head>span.error{color:#b31820}
+.takeout-workflow{margin:0;padding:10px;border-width:1px;border-radius:10px}.takeout-section-head{margin-bottom:7px}.takeout-section-head>span{font-size:11px}
+.takeout-processing{display:grid;grid-template-columns:1fr;gap:7px}.takeout-processing>.empty,.takeout-pending>.empty{padding:24px 8px}
+.takeout-small{gap:4px;padding:10px;border-radius:9px;box-shadow:none}.takeout-small-number{font-size:25px}.takeout-small>span{font-size:11px}.takeout-small>button{margin-top:4px;padding:9px 6px;border-radius:7px;font-size:13px}
+.takeout-large .order-card-body{grid-template-columns:minmax(0,43fr) minmax(0,57fr)}.takeout-accept-action button{min-height:40px;font-size:15px}
+.other-orders-title{margin:10px 0 7px;font-size:17px}.order-list{gap:8px}.order-card{border-radius:10px;box-shadow:none}
+.seat-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.seat-overview-card{display:flex;min-height:108px;flex-direction:column;gap:5px;padding:8px;border:1px solid;border-radius:8px}
+.seat-overview-card>strong{font-size:12px;line-height:1.25}.seat-overview-card small{font-size:10px;overflow-wrap:anywhere}.seat-overview-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:900}.seat-overview-status i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.seat-overview-card.empty{color:#176b35;border-color:#78b88b;background:#f0faf3}.seat-overview-card.occupied{color:#ac2027;border-color:#dc8589;background:#fff4f4}.seat-overview-card.held{color:#a35e00;border-color:#dfaa55;background:#fff8ec}
+.seat-overview-card button{margin-top:auto;border:0;border-radius:6px;padding:6px;background:#b82028;color:#fff;font-size:11px;font-weight:900;cursor:pointer}.seat-overview-card button:disabled{opacity:.6;cursor:wait}
+@media(max-width:1300px){
+ .operations-layout{grid-template-columns:minmax(210px,240px) minmax(0,1fr);grid-template-areas:"rail workspace" "seats seats"}
+ .seat-overview{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.seat-overview-card{min-height:88px}
+}
+@media(max-width:768px){
+ .admin-header{position:relative;min-height:0}.admin-section-tabs{top:0;display:block!important;margin:0 -9px 7px!important;padding:6px 9px!important}.primary-admin-tabs,.secondary-admin-tabs{overflow-x:auto}.secondary-admin-tabs{margin-top:5px}
+ .operations-layout{display:flex;flex-direction:column}.order-workspace{display:contents}.takeout-workflow{order:1;width:100%}.takeout-rail{order:2;width:100%}.seat-overview{order:3;width:100%}.other-orders-title{order:4;width:100%}.order-list{order:5;width:100%}
+ .takeout-rail{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seat-overview-card{min-height:92px}
+ .takeout-large .order-card-body{grid-template-columns:1fr}
+}
