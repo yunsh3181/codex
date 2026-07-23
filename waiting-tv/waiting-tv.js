@@ -4,16 +4,22 @@ const ready=document.getElementById('readyOrders');
 const enableVoice=document.getElementById('enableVoice');
 const escapeHTML=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const millis=value=>value?.toMillis?.()||value?.seconds*1000||0;
+const READY_HIGHLIGHT_MS=5*60*1000;
+const isReadyOverdue=item=>{
+ const readyAt=millis(item.updatedAt);
+ return item.displayStatus==='ready'&&readyAt>0&&Date.now()-readyAt>=READY_HIGHLIGHT_MS;
+};
 function renderDisplay(target,items,emptyText){
- target.innerHTML=items.length?items.map(item=>`<div class="order-number">${escapeHTML(item.orderNumber)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+ target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}">${escapeHTML(item.orderNumber)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
 }
 let publicRows=[];
 let manualRows=[];
 function renderAll(){
  const rows=[...publicRows,...manualRows].sort((a,b)=>millis(a.updatedAt)-millis(b.updatedAt));
  renderDisplay(cooking,rows.filter(row=>row.displayStatus==='cooking'),'조리중인 주문이 없습니다.');
- renderDisplay(ready,rows.filter(row=>row.displayStatus==='ready'),'제조완료 주문이 없습니다.');
+ renderDisplay(ready,rows.filter(row=>row.displayStatus==='ready'),'조리완료 주문이 없습니다.');
 }
+window.setInterval?.(renderAll,30*1000);
 let voiceEnabled=false;
 try{voiceEnabled=localStorage.getItem('pjTvVoiceEnabled')==='true'}catch(error){}
 function updateVoiceButton(){
