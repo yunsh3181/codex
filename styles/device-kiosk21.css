@@ -825,3 +825,68 @@ html[data-layout="kiosk21"] body[data-step="done"] .doneHomeBtn {
     min-width: 0;
   }
 }
+
+/* Keep kiosk touch feedback quiet and stable without changing persistent
+ * selected, active, disabled, or validation states. */
+html[data-layout="kiosk21"] button {
+  transition:
+    background-color 80ms linear,
+    color 80ms linear,
+    opacity 80ms linear !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-layout="kiosk21"] button:active:not(:disabled) {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  opacity: 0.88;
+}
+
+html[data-layout="kiosk21"] .ripple {
+  display: none !important;
+  animation: none !important;
+}
+
+/* The home order-type artwork does not need a pointer-created frame. */
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice,
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:hover,
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active {
+  border: 0 !important;
+  outline: 0;
+  transform: none !important;
+  box-shadow: 0 6px 16px rgba(61, 47, 29, 0.1) !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:focus-visible {
+  outline: 2px solid var(--r) !important;
+  outline-offset: 3px;
+}
+
+/* Rapid phone entry must never resize, move, flash, or cast a new shadow. */
+html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,
+html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {
+  transform: none !important;
+  animation: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transition:
+    background-color 80ms linear,
+    opacity 80ms linear !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-layout="kiosk21"] *,
+  html[data-layout="kiosk21"] *::before,
+  html[data-layout="kiosk21"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
