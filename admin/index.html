@@ -57,11 +57,11 @@
       <aside class="takeout-rail" aria-labelledby="takeoutProcessingTitle">
         <div class="operations-section-head"><div><p>포장</p><h2 id="takeoutProcessingTitle">처리중 주문</h2></div></div>
         <form id="manualCustomerCallForm" class="manual-call-form">
-          <strong>수동 고객 호출</strong>
+          <strong>대면 포장 수동접수</strong>
           <label for="manualCustomerNumber">전화번호 뒤 4자리</label>
           <input id="manualCustomerNumber" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="예: 3333" pattern="[0-9]{4}">
-          <div><button type="submit" data-manual-status="cooking">조리중 등록</button><button type="button" data-manual-status="ready">바로 조리완료</button></div>
-          <small>전화번호 전체가 아닌 뒤 4자리만 입력하세요.</small>
+          <div><button type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button><button type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button></div>
+          <small>키오스크 외 대면으로 접수한 포장 주문의 고객 전화번호 뒤 4자리를 입력하세요.</small>
         </form>
         <section id="takeoutProcessing" class="takeout-processing"><div class="empty">처리중인 포장 주문이 없습니다.</div></section>
       </aside>

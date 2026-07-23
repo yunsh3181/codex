@@ -92,8 +92,8 @@ function startRealtimeSubscriptions(){
   manualCustomerCalls=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
   render();
  },error=>{
-  console.error('수동 고객 호출 연결 실패',error);
-  showAdminMessage(`수동 고객 호출을 불러오지 못했습니다: ${error.message}`,true);
+  console.error('대면 포장 수동접수 연결 실패',error);
+  showAdminMessage(`대면 포장 접수 현황을 불러오지 못했습니다: ${error.message}`,true);
  });
 }
 
@@ -384,7 +384,7 @@ function takeoutProcessingCard(order){
 }
 function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
- return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">수동 호출</span><strong>${ready?'제조완료':'조리중'}</strong><span>등록시간 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
+ return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'제조완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
 function renderSeatOverview(){
@@ -421,6 +421,8 @@ function seatReleasePayload(){
  };
 }
 const statusUpdateLocks=new Set();
+// Counter/in-person takeout intake only: this displays waiting status outside the kiosk flow.
+// Menu, payment, and sales records remain in their existing systems and are never created here.
 const MANUAL_CALL_STORE_ID='pangyo2-techno-valley';
 const manualCallLocks=new Set();
 function validManualCustomerNumber(value){return /^[0-9]{4}$/.test(String(value??'').trim())}
@@ -441,7 +443,7 @@ async function createManualCustomerCall(orderNumber,status,buttons=[]){
   showAdminMessage(`${number}번을 ${status==='ready'?'제조완료':'조리중'}에 등록했습니다.`);
   return true;
  }catch(error){
-  showAdminMessage(error.code==='manual-call/duplicate'?error.message:`수동 고객 호출 등록 실패: ${error.message}`,true);
+  showAdminMessage(error.code==='manual-call/duplicate'?error.message:`대면 포장 주문접수 실패: ${error.message}`,true);
   return false;
  }finally{
   manualCallLocks.delete(id);buttons.forEach(button=>{button.disabled=false;button.removeAttribute('aria-busy')});
@@ -457,7 +459,7 @@ async function setManualCustomerCallStatus(id,status,button){
   else await ref.update({displayStatus:'ready',announceVersion:1,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   showAdminMessage(status==='picked-up'?'픽업 완료로 처리했습니다.':'제조완료로 변경했습니다.');
   return true;
- }catch(error){showAdminMessage(`수동 고객 호출 처리 실패: ${error.message}`,true);return false}
+ }catch(error){showAdminMessage(`대면 포장 상태 처리 실패: ${error.message}`,true);return false}
  finally{manualCallLocks.delete(id);if(button&&button.isConnected){button.disabled=false;button.textContent=original;button.removeAttribute('aria-busy')}}
 }
 function showAdminMessage(message,isError=false){
