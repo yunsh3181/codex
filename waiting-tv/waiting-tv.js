@@ -10,7 +10,7 @@ const isReadyOverdue=item=>{
  return item.displayStatus==='ready'&&readyAt>0&&Date.now()-readyAt>=READY_HIGHLIGHT_MS;
 };
 function renderDisplay(target,items,emptyText){
- target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}">${escapeHTML(item.orderNumber)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+ target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}">${escapeHTML(spokenOrderNumber(item.orderNumber))}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
 }
 let publicRows=[];
 let manualRows=[];
@@ -29,18 +29,11 @@ function updateVoiceButton(){
 }
 updateVoiceButton();
 let speechQueue=Promise.resolve();
-const spokenOrderNumber=value=>String(value??'').replace(/^[PD](?=\d{4}$)/,'');
-function chooseKoreanVoice(){
- const voices=window.speechSynthesis?.getVoices?.()||[];
- const korean=voices.filter(voice=>/^ko(-|_)?KR/i.test(voice.lang)||/^ko/i.test(voice.lang));
- return korean.find(voice=>/female|여성|yuna|sora|sunhi|google 한국어/i.test(`${voice.name} ${voice.voiceURI}`))||korean[0]||null;
-}
+const spokenOrderNumber=value=>{const raw=String(value??'');const digits=raw.replace(/\D/g,'');return digits.length>=4?digits.slice(-4):raw};
 function speakReadyOrder(orderNumber){
  return new Promise(resolve=>{
   if(!voiceEnabled||!('speechSynthesis'in window)){resolve();return}
-  const utterance=new SpeechSynthesisUtterance(`${spokenOrderNumber(orderNumber)}번 고객님, 주문이 준비되었습니다.`);
-  utterance.lang='ko-KR';utterance.rate=1.08;utterance.pitch=1.48;utterance.volume=1;
-  const voice=chooseKoreanVoice();if(voice)utterance.voice=voice;
+  const utterance=PJSpeech.createSpeechUtterance(`${spokenOrderNumber(orderNumber)}번 고객님, 주문이 준비되었습니다.`);
   utterance.onend=resolve;
   utterance.onerror=()=>{voiceEnabled=false;try{localStorage.removeItem('pjTvVoiceEnabled')}catch(error){}updateVoiceButton();resolve()};
   window.speechSynthesis.speak(utterance);
@@ -54,7 +47,7 @@ enableVoice?.addEventListener('click',()=>{
  voiceEnabled=true;
  try{localStorage.setItem('pjTvVoiceEnabled','true')}catch(error){}
  updateVoiceButton();
- if('speechSynthesis'in window)window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+ if('speechSynthesis'in window)window.speechSynthesis.speak(PJSpeech.createSpeechUtterance(''));
 });
 
 let hasInitialPublicSnapshot=false;
