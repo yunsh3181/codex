@@ -8,7 +8,13 @@ const html=fs.readFileSync(path.resolve(__dirname,'../admin/index.html'),'utf8')
 const rules=fs.readFileSync(path.resolve(__dirname,'../firestore.rules'),'utf8');
 const tv=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/waiting-tv.js'),'utf8');
 
-for(const token of ['manualCustomerCallForm','manualCustomerNumber','대면 포장 수동접수','주문접수','바로 조리완료','키오스크 외 대면으로 접수한 포장 주문의 고객 전화번호 뒤 4자리를 입력하세요.'])assert.ok(html.includes(token),`${token} UI exists`);
+for(const token of ['stats-toolbar','manualCustomerCallForm','manualCustomerNumber','대면 포장 접수','주문접수','바로 조리완료','키오스크 외 대면 포장 · 뒤 4자리','키오스크 외 대면으로 접수한 포장 주문의 고객 전화번호 뒤 4자리를 입력하세요.'])assert.ok(html.includes(token),`${token} UI exists`);
+const toolbar=html.match(/<section class="stats-toolbar"[\s\S]*?<\/section>/)?.[0]||'';
+const rail=html.match(/<aside class="takeout-rail"[\s\S]*?<\/aside>/)?.[0]||'';
+assert.ok(toolbar.includes('id="manualCustomerCallForm"'),'manual intake form is inside the top stats toolbar');
+assert.ok(!rail.includes('id="manualCustomerCallForm"'),'processing rail contains cards only, not the intake form');
+assert.strictEqual((html.match(/id="manualCustomerCallForm"/g)||[]).length,1,'manual intake form id is unique');
+assert.strictEqual((html.match(/id="manualCustomerNumber"/g)||[]).length,1,'manual number input id is unique');
 assert.ok(html.includes('type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button>'),'order intake is the primary submit button');
 assert.ok(html.includes('type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button>'),'direct completion is a secondary button');
 assert.ok(admin.includes('<span class="manual-badge">대면접수</span>')&&admin.includes('<strong>대면 포장</strong>'),'cards identify in-person takeout intake');

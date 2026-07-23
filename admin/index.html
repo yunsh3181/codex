@@ -37,11 +37,22 @@
       <div class="secondary-admin-tabs" aria-label="통계 메뉴"><button id="showSalesTab">판매통계</button><button id="showCustomersTab">고객통계</button><button id="showRecommendationsTab">추천성과</button></div>
     </nav>
     <section id="ordersPanel">
-    <section class="stats">
-      <article><span>결제대기</span><strong id="newCount">0</strong></article>
-      <article><span>접수/조리중</span><strong id="cookingCount">0</strong></article>
-      <article><span>완료</span><strong id="doneCount">0</strong></article>
-      <article><span>오늘 주문금액</span><strong id="todaySales">0원</strong></article>
+    <section class="stats-toolbar" aria-label="주문 현황 및 대면 포장 접수">
+      <div class="stats">
+        <article><span>결제대기</span><strong id="newCount">0</strong></article>
+        <article><span>접수/조리중</span><strong id="cookingCount">0</strong></article>
+        <article><span>완료</span><strong id="doneCount">0</strong></article>
+        <article><span>오늘 주문금액</span><strong id="todaySales">0원</strong></article>
+      </div>
+      <form id="manualCustomerCallForm" class="manual-call-form" aria-describedby="manualCustomerCallHint">
+        <div class="manual-call-heading">
+          <strong>대면 포장 접수</strong>
+          <small id="manualCustomerCallHint" title="키오스크 외 대면으로 접수한 포장 주문의 고객 전화번호 뒤 4자리를 입력하세요.">키오스크 외 대면 포장 · 뒤 4자리</small>
+        </div>
+        <label class="sr-only" for="manualCustomerNumber">전화번호 뒤 4자리</label>
+        <input id="manualCustomerNumber" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="예: 3333" pattern="[0-9]{4}" aria-label="전화번호 뒤 4자리">
+        <div class="manual-call-actions"><button type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button><button type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button></div>
+      </form>
     </section>
 
     <nav class="channel-filters" id="channelFilters"><button class="active" data-channel="all">전체 채널</button><button data-channel="pc">PC</button><button data-channel="mobile">모바일</button></nav>
@@ -56,13 +67,6 @@
     <section class="operations-layout">
       <aside class="takeout-rail" aria-labelledby="takeoutProcessingTitle">
         <div class="operations-section-head"><div><p>포장</p><h2 id="takeoutProcessingTitle">처리중 주문</h2></div></div>
-        <form id="manualCustomerCallForm" class="manual-call-form">
-          <strong>대면 포장 수동접수</strong>
-          <label for="manualCustomerNumber">전화번호 뒤 4자리</label>
-          <input id="manualCustomerNumber" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="예: 3333" pattern="[0-9]{4}">
-          <div><button type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button><button type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button></div>
-          <small>키오스크 외 대면으로 접수한 포장 주문의 고객 전화번호 뒤 4자리를 입력하세요.</small>
-        </form>
         <section id="takeoutProcessing" class="takeout-processing"><div class="empty">처리중인 포장 주문이 없습니다.</div></section>
       </aside>
       <div class="order-workspace">
