@@ -151,3 +151,27 @@ npm run desktop:build:win
 - 고객 주문·가격·결제 로직을 변경할 때는 모바일 화면과 주문 검토 화면을 함께 테스트합니다.
 - 신규 이미지 적용 전 별도 시안을 승인받습니다.
 - 향후 안내와 변경 내역은 새 문서를 만들지 않고 이 `README.md`에 누적합니다.
+
+## Windows 키오스크 로컬 런타임
+
+고객 주문 화면은 Electron `file://`과 GitHub Pages의 저장소 하위 경로에서 같은
+`index.html`, 메뉴 데이터, 언어팩, CSS, JavaScript, 이미지를 사용합니다. Firebase
+SDK 10.12.5 compat 배포 파일도 `assets/vendor/firebase/`에 고정해 앱 시작과 메뉴
+탐색에 CDN 연결이 필요하지 않습니다. Firestore 주문 저장, 좌석, 대기열 기능은
+계속 온라인 연결이 필요하며 실패 주문을 로컬 저장하거나 자동 재전송하지 않습니다.
+
+개발 모드(`npm run desktop:dev`)에서는 Electron 콘솔에 URL의 origin/path, 도메인,
+리소스 종류, Firebase 여부만 기록합니다. 쿼리 문자열, 전화번호, 주문 payload는
+기록하지 않으며 운영 빌드에서는 이 로그와 개발자도구를 사용하지 않습니다.
+
+### 고객 키오스크 외부 리소스 조사
+
+| 외부 리소스 URL | 사용 파일 | 사용 목적 | 로컬화 | 유지 이유 | 변경 방법 |
+| --- | --- | --- | --- | --- | --- |
+| `https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js` | `index.html` | Firebase 앱 초기화 | 가능 | 없음 | 동일 버전을 `assets/vendor/firebase/`에서 로드 |
+| `https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js` | `index.html` | Firestore compat API | 가능 | 없음 | 동일 버전을 `assets/vendor/firebase/`에서 로드 |
+| `*.googleapis.com`, Firebase 프로젝트 엔드포인트 | Firebase SDK 런타임 | 주문 저장, 좌석·대기열 동기화 | 불가 | 서버 데이터 통신 | 온라인 전용으로 유지하고 오류 콜백 및 사용자 안내 적용 |
+
+고객 `index.html`에는 외부 이미지, CSS CDN, 웹폰트, 아이콘, JSON, analytics,
+tracking 요청이 없습니다. 메뉴는 인라인 `window.KIOSK_DATA`, 언어팩은 `i18n/*.js`,
+이미지는 `assets/images/` 상대경로를 공유합니다.

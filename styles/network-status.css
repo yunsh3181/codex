@@ -1,0 +1,20 @@
+.networkStatus {
+  position: fixed;
+  right: 14px;
+  bottom: 86px;
+  z-index: 55;
+  max-width: calc(100vw - 28px);
+  padding: 7px 11px;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 999px;
+  background: rgba(18,80,51,.92);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  font-size: 12px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.networkStatus[data-online="false"] {
+  background: rgba(183,18,43,.95);
+}

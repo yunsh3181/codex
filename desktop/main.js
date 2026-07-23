@@ -57,6 +57,20 @@ function createWindow() {
   mainWindow.removeMenu();
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
 
+  if (isDevelopment) {
+    mainWindow.webContents.session.webRequest.onBeforeRequest((details, callback) => {
+      const requestUrl = new URL(details.url);
+      const isFirebase = /(^|\.)firebaseio\.com$|(^|\.)googleapis\.com$|(^|\.)firebaseapp\.com$/.test(requestUrl.hostname);
+      console.info('[network]', {
+        url: `${requestUrl.origin}${requestUrl.pathname}`,
+        domain: requestUrl.hostname,
+        resourceType: details.resourceType,
+        firebase: isFirebase
+      });
+      callback({});
+    });
+  }
+
   mainWindow.once('ready-to-show', () => {
     if (!isDevelopment) {
       mainWindow.setBounds(primaryDisplayBounds);
