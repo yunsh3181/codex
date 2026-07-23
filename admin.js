@@ -8,14 +8,17 @@ async function verifyAdminUser(user){if(!user)return false;const token=await use
 let unsubscribeOrders=null;
 let unsubscribeWaitlist=null;
 let unsubscribeSeats=null;
+let unsubscribeManualCalls=null;
 let subscriptionsStarted=false;
 let receivedOrders=[];
+let manualCustomerCalls=[];
 let businessDayRefreshTimer=null;
 
 function stopRealtimeSubscriptions(){
  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
  if(unsubscribeWaitlist){unsubscribeWaitlist();unsubscribeWaitlist=null}
  if(unsubscribeSeats){unsubscribeSeats();unsubscribeSeats=null}
+ if(unsubscribeManualCalls){unsubscribeManualCalls();unsubscribeManualCalls=null}
  if(businessDayRefreshTimer){clearTimeout(businessDayRefreshTimer);businessDayRefreshTimer=null}
  subscriptionsStarted=false;
 }
@@ -85,6 +88,13 @@ function startRealtimeSubscriptions(){
   const badge=document.getElementById('seatOverviewConnection');
   if(badge){badge.textContent='연결 오류';badge.className='error'}
  });
+ unsubscribeManualCalls=db.collection('manualCustomerCalls').onSnapshot(snapshot=>{
+  manualCustomerCalls=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+  render();
+ },error=>{
+  console.error('수동 고객 호출 연결 실패',error);
+  showAdminMessage(`수동 고객 호출을 불러오지 못했습니다: ${error.message}`,true);
+ });
 }
 
 firebase.auth().onAuthStateChanged(async user=>{
@@ -147,6 +157,7 @@ const ADMIN_SEATS=[
 const seatStatusNames={empty:'빈자리',occupied:'사용중',held:'주문중'};
 let seatDocuments={};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
+const dateValue=value=>value?.toMillis?value.toMillis():value?.seconds?value.seconds*1000:Number(new Date(value||0))||0;
 function orderNumberLabel(value){
  const raw=String(value??'');
  const match=raw.match(/^([PD])(\d{4})$/);
@@ -371,6 +382,10 @@ function takeoutProcessingCard(order){
  const action=takeoutProgressAction(order);
  return `<article class="takeout-small" data-order-status="${esc(order.status)}"><div class="takeout-small-number">${esc(adminOrderNumberLabel(order))}</div><strong>포장 주문</strong><span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span><span>상품 ${takeoutItemCount(order)}개</span><button type="button" class="${action.className}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${action.status}">${action.label}</button></article>`;
 }
+function manualCustomerCallCard(call){
+ const ready=call.displayStatus==='ready';
+ return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(call.orderNumber)}</div><span class="manual-badge">수동 호출</span><strong>${ready?'제조완료':'조리중'}</strong><span>등록시간 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
+}
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
 function renderSeatOverview(){
  if(!seatOverviewGrid)return;
@@ -385,7 +400,11 @@ function render(){
  const pendingTakeout=sortedTakeout.filter(order=>['payment_pending','new'].includes(order.status));
  const processingTakeout=sortedTakeout.filter(order=>['accepted','paid','cooking','ready'].includes(order.status));
  if(takeoutPending)takeoutPending.innerHTML=pendingTakeout.length?takeoutPendingCard(pendingTakeout[0]):'<div class="empty">결제대기 포장 주문이 없습니다.</div>';
- if(takeoutProcessing)takeoutProcessing.innerHTML=processingTakeout.length?processingTakeout.map(takeoutProcessingCard).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
+ const processingCards=[
+  ...processingTakeout.map(order=>({time:order.createdAt||order.createdAtClient,html:takeoutProcessingCard(order)})),
+  ...manualCustomerCalls.map(call=>({time:call.createdAt,html:manualCustomerCallCard(call)}))
+ ].sort((a,b)=>dateValue(a.time)-dateValue(b.time));
+ if(takeoutProcessing)takeoutProcessing.innerHTML=processingCards.length?processingCards.map(card=>card.html).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
  const filtered=orders.filter(order=>order.orderType!=='takeout').filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
  orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
@@ -402,6 +421,45 @@ function seatReleasePayload(){
  };
 }
 const statusUpdateLocks=new Set();
+const MANUAL_CALL_STORE_ID='pangyo2-techno-valley';
+const manualCallLocks=new Set();
+function validManualCustomerNumber(value){return /^[0-9]{4}$/.test(String(value??'').trim())}
+function manualCallDocumentId(orderNumber){return `${MANUAL_CALL_STORE_ID}_${orderNumber}`}
+async function createManualCustomerCall(orderNumber,status,buttons=[]){
+ const number=String(orderNumber??'').trim();
+ if(!validManualCustomerNumber(number)){showAdminMessage('전화번호 뒤 4자리 숫자를 정확히 입력해 주세요.',true);return false}
+ const id=manualCallDocumentId(number);
+ if(manualCallLocks.has(id))return false;
+ manualCallLocks.add(id);buttons.forEach(button=>{button.disabled=true;button.setAttribute('aria-busy','true')});
+ try{
+  await db.runTransaction(async transaction=>{
+   const ref=db.collection('manualCustomerCalls').doc(id);
+   const existing=await transaction.get(ref);
+   if(existing.exists){const error=new Error(`${number}번은 이미 고객 화면에 표시 중입니다.`);error.code='manual-call/duplicate';throw error}
+   transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  });
+  showAdminMessage(`${number}번을 ${status==='ready'?'제조완료':'조리중'}에 등록했습니다.`);
+  return true;
+ }catch(error){
+  showAdminMessage(error.code==='manual-call/duplicate'?error.message:`수동 고객 호출 등록 실패: ${error.message}`,true);
+  return false;
+ }finally{
+  manualCallLocks.delete(id);buttons.forEach(button=>{button.disabled=false;button.removeAttribute('aria-busy')});
+ }
+}
+async function setManualCustomerCallStatus(id,status,button){
+ if(!id||manualCallLocks.has(id))return false;
+ manualCallLocks.add(id);const original=button?.textContent||'';
+ if(button){button.disabled=true;button.textContent='처리 중…';button.setAttribute('aria-busy','true')}
+ try{
+  const ref=db.collection('manualCustomerCalls').doc(id);
+  if(status==='picked-up')await ref.delete();
+  else await ref.update({displayStatus:'ready',announceVersion:1,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  showAdminMessage(status==='picked-up'?'픽업 완료로 처리했습니다.':'제조완료로 변경했습니다.');
+  return true;
+ }catch(error){showAdminMessage(`수동 고객 호출 처리 실패: ${error.message}`,true);return false}
+ finally{manualCallLocks.delete(id);if(button&&button.isConnected){button.disabled=false;button.textContent=original;button.removeAttribute('aria-busy')}}
+}
 function showAdminMessage(message,isError=false){
  const toast=document.getElementById('toast');
  const text=document.getElementById('toastText');
@@ -481,9 +539,28 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   await setStatus(button.dataset.orderId,button.dataset.status,button);
   return;
  }
+ if(action==='set-manual-status'){
+  await setManualCustomerCallStatus(button.dataset.callId,button.dataset.status,button);
+  return;
+ }
  if(action==='clear-seat'){
   await clearSeat(button.dataset.seatId,button);
  }
+});
+
+const manualCustomerCallForm=document.getElementById('manualCustomerCallForm');
+const manualCustomerNumber=document.getElementById('manualCustomerNumber');
+manualCustomerNumber?.addEventListener('input',()=>{manualCustomerNumber.value=manualCustomerNumber.value.replace(/[^0-9]/g,'').slice(0,4)});
+manualCustomerCallForm?.addEventListener('click',async event=>{
+ const button=event.target.closest('button[data-manual-status]');
+ if(!button||button.type==='submit')return;
+ const ok=await createManualCustomerCall(manualCustomerNumber.value,button.dataset.manualStatus,[...manualCustomerCallForm.querySelectorAll('button')]);
+ if(ok)manualCustomerNumber.value='';
+});
+manualCustomerCallForm?.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const ok=await createManualCustomerCall(manualCustomerNumber.value,'cooking',[...manualCustomerCallForm.querySelectorAll('button')]);
+ if(ok)manualCustomerNumber.value='';
 });
 
 async function clearSeat(id,button){

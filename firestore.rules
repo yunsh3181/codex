@@ -50,6 +50,30 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /manualCustomerCalls/{callId} {
+      allow read: if true;
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','announceVersion','createdAt','updatedAt'])
+        && request.resource.data.orderNumber is string
+        && request.resource.data.orderNumber.matches('^[0-9]{4}$')
+        && request.resource.data.displayStatus in ['cooking','ready']
+        && validString(request.resource.data.storeId, 80)
+        && request.resource.data.announceVersion == (request.resource.data.displayStatus == 'ready' ? 1 : 0)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','announceVersion','createdAt','updatedAt'])
+        && request.resource.data.orderNumber == resource.data.orderNumber
+        && request.resource.data.storeId == resource.data.storeId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && resource.data.displayStatus == 'cooking'
+        && request.resource.data.displayStatus == 'ready'
+        && resource.data.announceVersion == 0
+        && request.resource.data.announceVersion == 1
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
     match /seats/{seatId} {
       allow read: if true;
       allow create: if isAdmin();
