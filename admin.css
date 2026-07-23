@@ -227,24 +227,25 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .stats-toolbar .manual-call-form .manual-call-primary{background:#08703c;box-shadow:none}.stats-toolbar .manual-call-form .manual-call-secondary{border:1px solid #ad7b33;background:#fff;color:#714000}
 .channel-filters{gap:5px;margin:7px 0 5px}.channel-filters button,.filters button{padding:6px 10px;border-radius:8px;font-size:12px}
 .filters{gap:5px;margin:0 0 8px}
-.operations-layout{display:grid;grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px);grid-template-areas:"rail workspace seats";gap:10px;align-items:start}
-.takeout-rail{grid-area:rail}.order-workspace{grid-area:workspace;min-width:0}.seat-overview{grid-area:seats}
+.operations-layout{display:grid;grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(240px,280px);grid-template-areas:"rail workspace seats";gap:10px;align-items:start}
+.takeout-rail{grid-area:rail}.order-workspace{grid-area:workspace;min-width:0}.seat-overview{grid-area:seats;min-width:240px}
 .takeout-rail,.seat-overview{position:sticky;top:112px;max-height:calc(100vh - 124px);overflow:auto;padding:10px;border:1px solid #d5e1d9;border-radius:10px;background:#f8fbf9}
+.seat-overview{max-height:none;overflow:visible}
 .operations-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.operations-section-head p,.takeout-section-head p{margin:0;color:#08703c;font-size:10px;font-weight:900}.operations-section-head h2,.takeout-section-head h2{margin:1px 0 0;color:#173d29;font-size:17px}.operations-section-head>span{font-size:10px;font-weight:800;color:#68766e}.operations-section-head>span.live{color:#08703c}.operations-section-head>span.error{color:#b31820}
 .takeout-workflow{margin:0;padding:10px;border-width:1px;border-radius:10px}.takeout-section-head{margin-bottom:7px}.takeout-section-head>span{font-size:11px}
 .takeout-processing{display:grid;grid-template-columns:1fr;gap:7px}.takeout-processing>.empty,.takeout-pending>.empty{padding:24px 8px}
 .takeout-small{gap:4px;padding:10px;border-radius:9px;box-shadow:none}.takeout-small-number{font-size:25px}.takeout-small>span{font-size:11px}.takeout-small>button{margin-top:4px;padding:9px 6px;border-radius:7px;font-size:13px}
 .takeout-large .order-card-body{grid-template-columns:minmax(0,43fr) minmax(0,57fr)}.takeout-accept-action button{min-height:40px;font-size:15px}
 .other-orders-title{margin:10px 0 7px;font-size:17px}.order-list{gap:8px}.order-card{border-radius:10px;box-shadow:none}
-.seat-overview-grid{display:grid;grid-template-columns:repeat(3,50px);grid-auto-rows:50px;gap:4px;max-height:none;overflow:visible}
-.seat-overview-card{display:flex;width:50px;height:50px;min-width:50px;min-height:50px;max-width:50px;max-height:50px;aspect-ratio:1/1;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:1px;overflow:visible;margin:0;padding:3px;border:1px solid;border-radius:8px;font:inherit;text-align:center}
-.seat-overview-card>strong{display:block;overflow:visible;font-size:9px;line-height:1.05;overflow-wrap:anywhere}.seat-overview-card small{font-size:7px;line-height:1.05;overflow-wrap:anywhere}.seat-overview-status{display:flex;align-items:center;justify-content:center;gap:2px;font-size:7px;font-weight:900;line-height:1.05}.seat-overview-status i{width:5px;height:5px;flex:0 0 auto;border-radius:50%;background:currentColor}
+.seat-overview-grid{display:grid;grid-template-columns:repeat(3,70px)!important;grid-auto-rows:70px;grid-auto-flow:row;justify-content:start;align-content:start;gap:6px;width:222px;min-width:222px;max-width:222px;max-height:none;overflow:visible}
+.seat-overview-card{display:flex;width:70px;height:70px;min-width:70px;min-height:70px;max-width:70px;max-height:70px;aspect-ratio:1/1;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:2px;overflow:visible;margin:0;padding:5px;border:1px solid;border-radius:8px;font:inherit;text-align:center}
+.seat-overview-card>strong{display:block;overflow:visible;font-size:11px;line-height:1.1;overflow-wrap:anywhere}.seat-overview-card small{font-size:9px;line-height:1.1;overflow-wrap:anywhere}.seat-overview-status{display:flex;align-items:center;justify-content:center;gap:2px;font-size:9px;font-weight:900;line-height:1.1}.seat-overview-status i{width:5px;height:5px;flex:0 0 auto;border-radius:50%;background:currentColor}
 .seat-overview-card.empty{color:#176b35;border-color:#78b88b;background:#f0faf3}.seat-overview-card.occupied{color:#ac2027;border-color:#dc8589;background:#fff4f4}.seat-overview-card.held{color:#a35e00;border-color:#dfaa55;background:#fff8ec}
 .seat-overview-card:is(button){appearance:none;cursor:pointer;transform:none;box-shadow:none}.seat-overview-card:is(button):hover{opacity:.88}.seat-overview-card:is(button):active{transform:none;opacity:.72;box-shadow:none}.seat-overview-card:is(button):focus-visible{outline:2px solid #125fc2;outline-offset:2px}.seat-overview-card:is(button):disabled{opacity:.55;cursor:wait}
 @media(max-width:1300px){
  .stats-toolbar{grid-template-columns:1fr}
  .operations-layout{grid-template-columns:minmax(210px,240px) minmax(0,1fr);grid-template-areas:"rail workspace" "seats seats"}
- .seat-overview{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(3,50px)}
+ .seat-overview{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(3,70px)!important}
 }
 @media(max-width:768px){
  .stats-toolbar{grid-template-columns:minmax(0,1fr);gap:6px}
@@ -256,7 +257,7 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
  .stats-toolbar .manual-call-form input{width:82px;height:36px}
  .admin-header{position:relative;min-height:0}.admin-section-tabs{top:0;display:block!important;margin:0 -9px 7px!important;padding:6px 9px!important}.primary-admin-tabs,.secondary-admin-tabs{overflow-x:auto}.secondary-admin-tabs{margin-top:5px}
  .operations-layout{display:flex;flex-direction:column}.order-workspace{display:contents}.takeout-workflow{order:1;width:100%}.takeout-rail{order:2;width:100%}.seat-overview{order:3;width:100%}.other-orders-title{order:4;width:100%}.order-list{order:5;width:100%}
- .takeout-rail{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(2,50px);grid-auto-rows:50px;max-height:none}
+ .takeout-rail{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(2,70px)!important;width:146px;min-width:146px;max-width:146px}
  .takeout-large .order-card-body{grid-template-columns:1fr}
 }
 @media(max-width:560px){
