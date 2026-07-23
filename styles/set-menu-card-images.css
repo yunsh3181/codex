@@ -1,0 +1,52 @@
+/* Composite set-menu artwork. Versioned filenames provide static cache busting. */
+.darkSetComposition {
+  width: 100% !important;
+  height: clamp(170px, 19vw, 270px) !important;
+  min-height: 0 !important;
+  margin: 18px 0 12px !important;
+  padding: 4px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.darkSetComposition .setMenuImage {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: transparent !important;
+  transform: none !important;
+}
+
+/* The four-person silhouette is widest; retain a little extra safety space. */
+.darkSetComposition .setMenuImage-4 {
+  width: 96% !important;
+  height: 96% !important;
+}
+
+@media (max-width: 1000px) {
+  .darkSetComposition {
+    height: clamp(180px, 42vw, 300px) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .darkSetComposition {
+    height: clamp(90px, 25vw, 132px) !important;
+    margin: 14px 0 5px !important;
+    padding: 2px !important;
+  }
+
+  .darkSetComposition .setMenuImage-4 {
+    width: 94% !important;
+    height: 94% !important;
+  }
+}
