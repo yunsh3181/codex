@@ -12,11 +12,11 @@ assert.ok(html.includes('class="stats-toolbar"'),'compact stats and manual intak
 assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1.05fr)'),'wide toolbar keeps compact stats and manual intake on one row');
 assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
 assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px)'),'wide view has the requested three-column operations layout');
-assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,104px))'),'seat overview uses three compact desktop columns');
-assert.ok(css.includes('max-height:544px'),'seat overview fits five compact square rows and scrolls only when needed');
-assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:1/1'),'all seat cards use square geometry');
-assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}'),'mobile seat overview keeps a two-column grid');
-assert.ok(css.includes('overflow-x:hidden'),'seat overview prevents horizontal scrolling');
+assert.ok(css.includes('grid-template-columns:repeat(3,50px);grid-auto-rows:50px;gap:4px;max-height:none;overflow:visible'),'seat overview uses three fixed desktop columns without scrolling');
+assert.ok(css.includes('.seat-overview-card{display:flex;width:50px;height:50px;min-width:50px;min-height:50px;max-width:50px;max-height:50px;aspect-ratio:1/1'),'all seat cards use fixed 50px square geometry');
+assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,50px);grid-auto-rows:50px;max-height:none}'),'mobile seat overview keeps fixed 50px cards in two columns');
+assert.ok(css.includes('.seat-overview-card:is(button):active{transform:none'),'seat activation never scales or moves the card');
+assert.ok(css.includes('.seat-overview-card:is(button):focus-visible'),'interactive seat cards retain a visible keyboard focus indicator');
 assert.ok(css.includes('position:sticky;top:58px'),'operations tabs remain visible below the compact header');
 
 const seatBlock=admin.match(/const ADMIN_SEATS=\[[\s\S]*?\n\];/)?.[0]||'';
@@ -29,10 +29,15 @@ const expected=[
 assert.strictEqual((seatBlock.match(/\{id:/g)||[]).length,13,'exactly 13 real seats are configured');
 expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}'`),`${id} maps to ${name}`));
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("status!=='empty'?`<button type=\"button\" data-action=\"clear-seat\""),'occupied and held seats render a clear button');
-assert.ok(admin.includes('>빈자리로</button>'),'the clear action uses the requested label');
+assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article class="seat-overview-card ${status}"'),'empty seats render as non-interactive articles');
+assert.ok(admin.includes('`<button type="button" class="seat-overview-card ${status}" data-action="clear-seat"'),'occupied and held seats render as whole-card native buttons');
+assert.ok(!admin.includes('>빈자리로</button>'),'seat cards have no nested clear-seat button or visible clear label');
+assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
 assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');
 assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
+assert.ok(admin.includes("if(button){button.disabled=true;button.setAttribute('aria-busy','true')}"),'seat clearing disables and marks the whole card busy to prevent duplicate activation');
+assert.ok(admin.includes("button.disabled=false;button.removeAttribute('aria-busy')"),'seat clearing restores the card after processing');
+assert.ok(admin.includes("event.target.closest('button[data-action]')"),'native button click and Enter/Space activation reuse the delegated clear-seat action');
 const releaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0]||'';
 const clearSource=admin.match(/async function clearSeat[\s\S]*?\n\}/)?.[0]||'';
 const setStatusSource=admin.match(/async function setStatus[\s\S]*?\n\}\n\ndocument\.getElementById/)?.[0]||'';
