@@ -393,6 +393,14 @@ function render(){
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
  const today=new Date();today.setHours(0,0,0,0);const sales=orders.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAtClient||0);return d>=today&&o.status!=='cancelled'}).reduce((s,o)=>s+Number(o.total||0),0);document.getElementById('todaySales').textContent=money(sales);
 }
+function seatReleasePayload(){
+ return {
+  status:'empty',
+  orderId:null,orderNo:null,partySize:null,groupId:null,
+  occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,
+  updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+ };
+}
 const statusUpdateLocks=new Set();
 function showAdminMessage(message,isError=false){
  const toast=document.getElementById('toast');
@@ -438,12 +446,7 @@ async function setStatus(id,status,button){
    },{merge:true}));
   }
   if(seatIds.length&&['completed','cancelled'].includes(status)){
-   seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),{
-    status:'empty',
-    orderId:null,orderNo:null,partySize:null,groupId:null,
-    occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,
-    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-   },{merge:true}));
+   seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),seatReleasePayload(),{merge:true}));
   }
   await batch.commit();
   showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'픽업 완료로 처리했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
@@ -493,12 +496,7 @@ async function clearSeat(id,button){
  const originalText=button?.textContent||'비우기';
  if(button){button.disabled=true;button.textContent='처리 중…'}
  try{
-  await db.collection('seats').doc(id).set({
-   status:'empty',partySize:null,groupSize:null,groupId:null,groupLabel:null,groupTableCount:null,
-   orderId:null,orderNo:null,heldBy:null,heldAt:null,heldUntil:null,occupiedAt:null,cleaningAt:null,
-   reservationName:null,reservationPartySize:null,reservationAt:null,reservationPhone:null,
-   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
+  await db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true});
   showAdminMessage(`${seat.name}을 빈자리로 변경했습니다.`);
   return true;
  }catch(error){

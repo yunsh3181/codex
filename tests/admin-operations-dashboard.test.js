@@ -24,8 +24,18 @@ expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${n
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
 assert.ok(admin.includes("status==='occupied'?`<button type=\"button\" data-action=\"clear-seat\""),'only occupied seats render a clear button');
 assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
-assert.ok(admin.includes("db.collection('seats').doc(id).set({"),'seat clearing writes only the seat document');
-assert.ok(!admin.match(/async function clearSeat[\s\S]*?\n\}/)?.[0].includes("collection('orders')"),'seat clearing never changes an order');
+const releaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0]||'';
+const clearSource=admin.match(/async function clearSeat[\s\S]*?\n\}/)?.[0]||'';
+const setStatusSource=admin.match(/async function setStatus[\s\S]*?\n\}\n\ndocument\.getElementById/)?.[0]||'';
+const allowedReleaseFields=['status','orderId','orderNo','partySize','groupId','occupiedAt','heldBy','heldAt','heldUntil','cleaningAt','updatedAt'];
+const releaseKeys=[...releaseSource.matchAll(/\b([A-Za-z][A-Za-z0-9]*):/g)].map(match=>match[1]);
+assert.deepStrictEqual(releaseKeys,allowedReleaseFields,'shared release payload contains exactly the established automatic-release fields');
+for(const forbidden of ['groupSize','groupLabel','groupTableCount','reservationName','reservationPartySize','reservationAt','reservationPhone']){
+ assert.ok(!releaseSource.includes(`${forbidden}:`),`${forbidden} is not synthesized by seat release`);
+}
+assert.ok(clearSource.includes("db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true})"),'manual clearing reuses the shared release payload');
+assert.ok(setStatusSource.includes("batch.set(db.collection('seats').doc(seatId),seatReleasePayload(),{merge:true})"),'automatic dine-in release reuses the same payload');
+assert.ok(!clearSource.includes("collection('orders')"),'seat clearing never changes an order');
 assert.ok(rules.includes('match /seats/{seatId}')&&rules.includes('allow create: if isAdmin();'),'existing admin-only seat mutation policy remains');
 assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','updatedAt'])"),'TV public data remains minimal');
 console.log('admin operations layout, exact seat map, status visuals, and safe seat clearing passed');
