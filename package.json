@@ -1,0 +1,57 @@
+{
+  "name": "papajohns-kiosk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PapaJohn's customer web kiosk and Windows Electron shell",
+  "author": "PapaJohn's Pangyo 2nd Techno Valley",
+  "main": "desktop/main.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "desktop:dev": "electron . --dev",
+    "desktop:build": "electron-builder",
+    "desktop:build:win": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "43.2.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "kr.co.papajohns.kiosk",
+    "productName": "PapaJohns Kiosk",
+    "executableName": "PapaJohns-Kiosk",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist{,/**/*}",
+      "!release{,/**/*}",
+      "!artifacts{,/**/*}",
+      "!tests{,/**/*}",
+      "!.git{,/**/*}",
+      "!.github{,/**/*}",
+      "!.DS_Store"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "PapaJohns-Kiosk-Setup-${version}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "PapaJohns-Kiosk-Portable-${version}.${ext}"
+    }
+  }
+}
