@@ -15,6 +15,30 @@
 
 정적 웹 서버의 루트를 이 폴더로 지정한 뒤 `index.html`을 엽니다. 모바일 화면은 아이폰 세로모드 기준으로 확인합니다.
 
+## Windows 키오스크 실행
+
+Electron 셸은 기존 루트의 `index.html`, 이미지, 스타일, 언어팩과 주문 로직을
+그대로 로컬에서 불러옵니다. 웹 배포 파일을 `desktop/`에 복제하지 않습니다.
+
+```bash
+npm install
+npm run desktop:dev
+```
+
+개발 모드는 일반 창으로 실행되며 `Ctrl+Q`(macOS는 `Cmd+Q`)로 종료합니다.
+운영 빌드는 전체 화면 키오스크로 실행되며 관리자가
+`Ctrl+Alt+Shift+Q`를 눌러 종료할 수 있습니다. 고객의 `Ctrl+W`, 일반 창 닫기,
+개발자도구 단축키는 차단됩니다.
+
+Windows x64 NSIS 설치 파일과 Portable 실행 파일은 다음 명령으로 만듭니다.
+
+```bash
+npm run desktop:build:win
+```
+
+결과는 `dist/` 아래의 `PapaJohns-Kiosk-Setup-<version>.exe`와
+`PapaJohns-Kiosk-Portable-<version>.exe`이며 Git에는 포함되지 않습니다.
+
 ## Firebase
 
 1. `firebase-config.js`에서 대상 Firebase 프로젝트 설정을 확인합니다.
