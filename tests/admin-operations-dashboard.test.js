@@ -8,6 +8,9 @@ const admin=read('admin.js'),html=read('admin/index.html'),css=read('admin.css')
 for(const id of ['takeoutProcessing','takeoutPending','orderList','seatOverviewGrid'])assert.ok(html.includes(`id="${id}"`),`${id} exists`);
 assert.ok(html.indexOf('id="takeoutProcessing"')<html.indexOf('id="takeoutPending"'),'desktop source keeps processing rail before the central pending card');
 assert.ok(html.includes('primary-admin-tabs')&&html.includes('secondary-admin-tabs'),'primary operations and secondary statistics remain accessible');
+assert.ok(html.includes('class="stats-toolbar"'),'compact stats and manual intake share the top toolbar');
+assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1.05fr)'),'wide toolbar keeps compact stats and manual intake on one row');
+assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
 assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px)'),'wide view has the requested three-column operations layout');
 assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'seat overview uses a three-column desktop grid');
 assert.ok(css.includes('.seat-overview-card{display:flex;width:100%;min-width:0;min-height:0;aspect-ratio:1/1'),'seat cards remain square without a conflicting fixed minimum height');
