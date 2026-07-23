@@ -11,10 +11,16 @@ assert.ok(html.includes('primary-admin-tabs')&&html.includes('secondary-admin-ta
 assert.ok(html.includes('class="stats-toolbar"'),'compact stats and manual intake share the top toolbar');
 assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1.05fr)'),'wide toolbar keeps compact stats and manual intake on one row');
 assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
-assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(400px,460px)'),'wide view has the requested three-column operations layout');
-assert.ok(css.includes('grid-template-columns:repeat(3,50px);grid-auto-rows:50px;gap:4px;max-height:none;overflow:visible'),'seat overview uses three fixed desktop columns without scrolling');
-assert.ok(css.includes('.seat-overview-card{display:flex;width:50px;height:50px;min-width:50px;min-height:50px;max-width:50px;max-height:50px;aspect-ratio:1/1'),'all seat cards use fixed 50px square geometry');
-assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,50px);grid-auto-rows:50px;max-height:none}'),'mobile seat overview keeps fixed 50px cards in two columns');
+assert.ok(css.includes('grid-template-columns:minmax(220px,250px) minmax(520px,1fr) minmax(240px,280px)'),'wide view reserves at least 240px for the seat column');
+assert.ok(css.includes('.seat-overview{grid-area:seats;min-width:240px}'),'seat panel cannot shrink below the fixed grid');
+assert.ok(css.includes('.seat-overview{max-height:none;overflow:visible}'),'seat panel displays every row without vertical scrolling');
+assert.ok(css.includes('grid-template-columns:repeat(3,70px)!important;grid-auto-rows:70px;grid-auto-flow:row;justify-content:start;align-content:start;gap:6px;width:222px;min-width:222px;max-width:222px;max-height:none;overflow:visible'),'seat overview uses an exact 222px three-column desktop grid');
+assert.ok(css.includes('.seat-overview-card{display:flex;width:70px;height:70px;min-width:70px;min-height:70px;max-width:70px;max-height:70px;aspect-ratio:1/1;box-sizing:border-box'),'all seat cards use fixed 70px square geometry');
+assert.ok(css.includes('font-size:11px;line-height:1.1')&&css.includes('font-size:9px;line-height:1.1'),'70px cards use centered compact seat, status, and order text');
+assert.ok(css.includes('@media(max-width:1300px)')&&css.includes('.seat-overview-grid{grid-template-columns:repeat(3,70px)!important}'),'1300px breakpoint preserves three desktop columns');
+assert.ok(css.includes('@media(max-width:768px)'),'two-column override is scoped to the mobile breakpoint');
+assert.ok(css.includes('.seat-overview-grid{grid-template-columns:repeat(2,70px)!important;width:146px;min-width:146px;max-width:146px}'),'mobile seat overview alone uses two fixed 70px columns');
+assert.ok(!css.includes('repeat(3,50px)')&&!css.includes('repeat(2,50px)'),'no obsolete 50px seat grid rules remain');
 assert.ok(css.includes('.seat-overview-card:is(button):active{transform:none'),'seat activation never scales or moves the card');
 assert.ok(css.includes('.seat-overview-card:is(button):focus-visible'),'interactive seat cards retain a visible keyboard focus indicator');
 assert.ok(css.includes('position:sticky;top:58px'),'operations tabs remain visible below the compact header');
@@ -27,6 +33,7 @@ const expected=[
  ['room-1','룸1'],['room-2','룸2'],['room-3','룸3']
 ];
 assert.strictEqual((seatBlock.match(/\{id:/g)||[]).length,13,'exactly 13 real seats are configured');
+assert.strictEqual(Math.ceil(expected.length/3),5,'13 desktop seats fit within five rows');
 expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}'`),`${id} maps to ${name}`));
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
 assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article class="seat-overview-card ${status}"'),'empty seats render as non-interactive articles');
