@@ -34,22 +34,23 @@ for(const [customerNumber,language] of [['P1234','en'],['D5678','es'],['P9012','
 assert.doesNotMatch(markup('completed'),/data-action="set-status"/, 'completed orders have no further status action');
 assert.match(markup('completed'),/data-action="call-customer"/, 'completed orders keep the existing repeatable call action');
 
-const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\norderList\?\.addEventListener/)?.[0].replace(/\n\norderList\?\.addEventListener[\s\S]*/,'');
+const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\ndocument\.getElementById\('ordersPanel'\)/)?.[0].replace(/\n\ndocument\.getElementById\('ordersPanel'\)[\s\S]*/,'');
 const statusBlock=`const statusUpdateLocks=new Set();\n${setStatusSource||''}`;
 assert.ok(statusBlock,'status update implementation exists');
 async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}={}){
- const writes=[],seatWrites=[],customerCalls=[],loggedErrors=[];
+ const writes=[],seatWrites=[],displayWrites=[],displayDeletes=[],customerCalls=[],loggedErrors=[];
  let commits=0,releaseCommit,commitSucceeded=false;
  const commitGate=holdCommit?new Promise(resolve=>{releaseCommit=resolve}):Promise.resolve();
  const batch={
   update(ref,data){writes.push({ref,data})},
-  set(ref,data,options){seatWrites.push({ref,data,options})},
+  set(ref,data,options){(ref.name==='publicOrderDisplays'?displayWrites:seatWrites).push({ref,data,options})},
+  delete(ref){displayDeletes.push(ref)},
   async commit(){commits++;await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}
  };
  const context={
   Set,orders:[order],db:{batch:()=>batch,collection:name=>({doc:id=>({name,id})})},
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
-  orderSeatIds:value=>value.seatIds||[],stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
+  orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},
   callCustomer(orderNo,language){customerCalls.push({orderNo,language,commitSucceeded})},
   console:{error(...args){loggedErrors.push(args)}}
@@ -60,7 +61,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  const duplicate=holdCommit?context.setStatus(order.id,status,null):null;
  if(holdCommit)releaseCommit();
  const results=holdCommit?await Promise.all([first,duplicate]):[await first];
- return {writes,seatWrites,customerCalls,loggedErrors,commits,results};
+ return {writes,seatWrites,displayWrites,displayDeletes,customerCalls,loggedErrors,commits,results};
 }
 
 (async()=>{
@@ -70,11 +71,11 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(acceptedTakeout.writes[0].data.status,'accepted','takeout acceptance never writes completed');
  assert.strictEqual(acceptedTakeout.seatWrites.length,0,'takeout acceptance does not touch seats');
 
- const completedTakeout=await exerciseStatus({id:'t2',status:'accepted',orderType:'takeout',seatIds:[],customerNumber:'P1234',language:'en'},'completed',{holdCommit:true});
- assert.strictEqual(completedTakeout.commits,1,'double-clicked takeout completion commits once');
- assert.strictEqual(completedTakeout.writes[0].data.status,'completed');
- assert.strictEqual(completedTakeout.seatWrites.length,0,'takeout completion does not touch seats');
- assert.deepStrictEqual(completedTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'double-clicked completion calls once, after commit, in the order language');
+ const readyTakeout=await exerciseStatus({id:'t2',status:'cooking',orderType:'takeout',seatIds:[],customerNumber:'P1234',language:'en'},'ready',{holdCommit:true});
+ assert.strictEqual(readyTakeout.commits,1,'double-clicked takeout ready transition commits once');
+ assert.strictEqual(readyTakeout.writes[0].data.status,'ready');
+ assert.strictEqual(readyTakeout.seatWrites.length,0,'takeout ready transition does not touch seats');
+ assert.deepStrictEqual(readyTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'ready transition calls once, after commit, in the order language');
 
  const acceptedDineIn=await exerciseStatus({id:'d1',status:'payment_pending',orderType:'dinein',seatIds:['s1']},'accepted');
  assert.strictEqual(acceptedDineIn.seatWrites.length,1,'dine-in acceptance marks its seat occupied');
@@ -84,7 +85,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(completedDineIn.seatWrites[0].data.status,'empty');
  assert.deepStrictEqual(completedDineIn.customerCalls,[{orderNo:'D5678',language:'es',commitSucceeded:true}],'dine-in completion calls after releasing its seat in the same commit');
 
- const failedCompletion=await exerciseStatus({id:'f1',status:'accepted',orderType:'takeout',seatIds:[],customerNumber:'P9012',language:'ja'},'completed',{rejectCommit:true});
+ const failedCompletion=await exerciseStatus({id:'f1',status:'cooking',orderType:'takeout',seatIds:[],customerNumber:'P9012',language:'ja'},'ready',{rejectCommit:true});
  assert.deepStrictEqual(failedCompletion.results,[false],'failed completion reports failure');
  assert.strictEqual(failedCompletion.customerCalls.length,0,'failed completion does not play or queue a customer call');
  assert.strictEqual(failedCompletion.loggedErrors.length,1,'failed completion preserves the existing error report');

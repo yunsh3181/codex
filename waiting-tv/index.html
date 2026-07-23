@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071f15">
+  <title>포장 주문 현황</title>
+  <link rel="stylesheet" href="waiting-tv.css?v=1">
+</head>
+<body>
+  <header><img src="../assets/images/papajohns_red_logo.png" alt="Papa Johns"><div><h1>포장 주문 현황</h1><p>주문번호를 확인해 주세요</p></div><span id="tvConnection">연결 중</span></header>
+  <main>
+    <section aria-labelledby="cookingTitle"><h2 id="cookingTitle">조리중</h2><div id="cookingOrders" class="number-grid"><p class="empty">조리중인 주문이 없습니다.</p></div></section>
+    <section class="ready-section" aria-labelledby="readyTitle"><h2 id="readyTitle">제조완료</h2><div id="readyOrders" class="number-grid"><p class="empty">제조완료 주문이 없습니다.</p></div></section>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="waiting-tv.js?v=1"></script>
+</body>
+</html>

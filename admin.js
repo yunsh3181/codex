@@ -97,6 +97,8 @@ adminLoginForm?.addEventListener('submit',async e=>{e.preventDefault();adminLogi
 const soundButton=document.getElementById('soundButton');
 const soundSettingsButton=document.getElementById('soundSettingsButton');
 const connectionBadge=document.getElementById('connectionBadge');
+const takeoutPending=document.getElementById('takeoutPending');
+const takeoutProcessing=document.getElementById('takeoutProcessing');
 const settingsModal=document.getElementById('soundSettingsModal');
 const soundPreset=document.getElementById('soundPreset');
 const soundVolume=document.getElementById('soundVolume');
@@ -332,8 +334,29 @@ function adminOrderActions(order){
  const primary=pending?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:inProgress?`<button type="button" class="${takeout?'ready':'occupied-action'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">조리완료</button>`:'';
  return `${primary}${inProgress||done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
 }
+function takeoutItemCount(order){
+ return Number(order.itemCount)||(order.items||[]).reduce((sum,item)=>sum+Math.max(1,Number(item.qty)||1),0);
+}
+function takeoutPendingCard(order){
+ const visual=adminStatusVisual(order);
+ return `<article class="order-card takeout-large ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">주문접수</button></div></div></div></article>`;
+}
+function takeoutProgressAction(order){
+ if(['accepted','paid'].includes(order.status))return {label:'조리중',status:'cooking',className:'cook'};
+ if(order.status==='cooking')return {label:'제조완료',status:'ready',className:'ready'};
+ return {label:'픽업완료',status:'completed',className:'pickup'};
+}
+function takeoutProcessingCard(order){
+ const action=takeoutProgressAction(order);
+ return `<article class="takeout-small" data-order-status="${esc(order.status)}"><div class="takeout-small-number">${esc(adminOrderNumberLabel(order))}</div><strong>포장 주문</strong><span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span><span>상품 ${takeoutItemCount(order)}개</span><button type="button" class="${action.className}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${action.status}">${action.label}</button></article>`;
+}
 function render(){
- const filtered=orders.filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
+ const sortedTakeout=orders.filter(order=>order.orderType==='takeout').sort(compareOrdersOldestFirst);
+ const pendingTakeout=sortedTakeout.filter(order=>['payment_pending','new'].includes(order.status));
+ const processingTakeout=sortedTakeout.filter(order=>['accepted','paid','cooking','ready'].includes(order.status));
+ if(takeoutPending)takeoutPending.innerHTML=pendingTakeout.length?takeoutPendingCard(pendingTakeout[0]):'<div class="empty">결제대기 포장 주문이 없습니다.</div>';
+ if(takeoutProcessing)takeoutProcessing.innerHTML=processingTakeout.length?processingTakeout.map(takeoutProcessingCard).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
+ const filtered=orders.filter(order=>order.orderType!=='takeout').filter(filterOrders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
  orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card ${order.status}"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
@@ -364,6 +387,19 @@ async function setStatus(id,status,button){
   const seatIds=orderSeatIds(order);
   const batch=db.batch();
   batch.update(db.collection('orders').doc(id),{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  if(order.orderType==='takeout'){
+   const displayRef=db.collection('publicOrderDisplays').doc(id);
+   if(['accepted','paid','cooking','ready'].includes(status)){
+    batch.set(displayRef,{
+     orderNumber:String(order.customerNumber||order.orderNo||adminOrderNumberLabel(order)),
+     displayStatus:status==='ready'?'ready':'cooking',
+     storeId:String(order.storeId||'pangyo2-techno-valley'),
+     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+   }else{
+    batch.delete(displayRef);
+   }
+  }
   if(seatIds.length&&status==='accepted'&&order.orderType!=='takeout'){
    seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),{
     status:'occupied',heldBy:null,heldUntil:null,
@@ -380,9 +416,9 @@ async function setStatus(id,status,button){
    },{merge:true}));
   }
   await batch.commit();
-  showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'포장 주문을 완료했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
+  showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'픽업 완료로 처리했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
-  if(status==='completed'&&order)callCustomer(order.customerNumber||order.orderNo||'',order.language);
+  if((status==='ready'&&order.orderType==='takeout')||(status==='completed'&&order.orderType!=='takeout'))callCustomer(order.customerNumber||order.orderNo||'',order.language);
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
@@ -394,9 +430,9 @@ async function setStatus(id,status,button){
  }
 }
 
-orderList?.addEventListener('click',async event=>{
+document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  const button=event.target.closest('button[data-action]');
- if(!button||!orderList.contains(button))return;
+ if(!button||!document.getElementById('ordersPanel').contains(button))return;
  event.preventDefault();
  event.stopPropagation();
  const action=button.dataset.action;

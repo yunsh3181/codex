@@ -76,7 +76,7 @@ const cases=[
  assert.ok(admin.includes('data-order-language="${esc(order.language||\'\')}"'),'call button preserves the Firestore order language');
  assert.ok(admin.includes("callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)"),'call button passes the stored order language');
  assert.ok(admin.includes("function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}"),'customer calls preserve the effect, 420ms delay, and multilingual queue');
- assert.ok(admin.includes("if(status==='completed'&&order)callCustomer(order.customerNumber||order.orderNo||'',order.language)"),'completion reuses the multilingual customer call with the order language');
+assert.ok(admin.includes("callCustomer(order.customerNumber||order.orderNo||'',order.language)"),'ready/completion reuses the multilingual customer call with the order language');
  assert.ok(!admin.includes('고객님 주문 조리가 완료되었습니다.'),'the Korean-only completion announcement is removed');
  assert.ok(!helperSource.includes('female'),'customer call does not force a gendered voice');
  console.log('multilingual order language, compatible rules, and customer call speech passed');

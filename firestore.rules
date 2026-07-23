@@ -39,6 +39,17 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    match /publicOrderDisplays/{orderId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','updatedAt'])
+        && validString(request.resource.data.orderNumber, 32)
+        && request.resource.data.displayStatus in ['cooking','ready']
+        && validString(request.resource.data.storeId, 80)
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
     match /seats/{seatId} {
       allow read: if true;
       allow create: if isAdmin();
