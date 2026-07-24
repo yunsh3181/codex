@@ -848,19 +848,45 @@ html[data-layout="kiosk21"] .ripple {
   animation: none !important;
 }
 
-/* The home order-type artwork does not need a pointer-created frame. */
+/* The image-free home order-type cards use a stable, explicit selection frame. */
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice,
-html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:hover,
-html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active {
-  border: 0 !important;
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:hover {
   outline: 0;
   transform: none !important;
   box-shadow: 0 6px 16px rgba(61, 47, 29, 0.1) !important;
 }
 
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active {
+  outline: 6px solid currentColor !important;
+  outline-offset: -6px;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:focus-visible {
-  outline: 2px solid var(--r) !important;
+  outline: 5px solid currentColor !important;
   outline-offset: 3px;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .app {
+  min-height: 100vh;
+  padding-bottom: 0 !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice.dinein h2 {
+  color: #075f3d !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice.takeout h2 {
+  color: #b5122b !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoice .eyebrow {
+  color: #5b635d !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroChoiceDescription {
+  color: #3e4741 !important;
 }
 
 /* Rapid phone entry must never resize, move, flash, or cast a new shadow. */

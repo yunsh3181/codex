@@ -2264,26 +2264,18 @@ function view(){
   <div class="heroTagline">${t('home.tagline')}</div>
 
   <div class="heroChoiceGrid">
-    <button class="heroChoice dinein" onclick="startDineIn()">
+    <button class="heroChoice dinein" data-order-type="dinein" onclick="startDineIn()">
       <div class="eyebrow">${t('ui.hero.dineIn')}</div>
       <h2>${t('home.dineInTitle')}</h2>
-      <div class="heroDivider"></div>
-      <div class="heroChoiceFeatures">
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("chair")}</span>${t('home.dineInFeatureMeal')}</div>
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("users")}</span>${t('home.dineInFeatureSeats')}</div>
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("set")}</span>${t('home.dineInFeatureSet')}</div>
-      </div>
+      <p class="heroChoiceDescription">${t('home.dineInFeatureMeal')}</p>
+      <span class="heroChoiceSelected" aria-hidden="true">✓ ${t('ui.hero.dineIn')}</span>
     </button>
 
-    <button class="heroChoice" onclick="startTakeout()">
+    <button class="heroChoice takeout" data-order-type="takeout" onclick="startTakeout()">
       <div class="eyebrow">${t('ui.hero.takeout')}</div>
       <h2>${t('home.takeoutTitle')}</h2>
-      <div class="heroDivider"></div>
-      <div class="heroChoiceFeatures">
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("bag")}</span>${t('home.takeoutFeatureFast')}</div>
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("box")}</span>${t('home.takeoutFeatureReady')}</div>
-        <div class="heroFeature"><span class="heroFeatureIcon">${uiIcon("tag")}</span>${t('home.takeoutFeatureBenefit')}</div>
-      </div>
+      <p class="heroChoiceDescription">${t('home.takeoutFeatureFast')}</p>
+      <span class="heroChoiceSelected" aria-hidden="true">✓ ${t('ui.hero.takeout')}</span>
       </button>
   </div>
 
@@ -3962,7 +3954,7 @@ html,body{background:var(--v4-cream)!important}
 .tabs button{border-color:#dcd3c7!important;background:#fffdf8!important;color:#625c54!important;font-weight:1000!important}
 .tabs button.active{background:var(--v4-green)!important;border-color:var(--v4-green)!important;color:#fff!important}
 
-/* home: existing approved dine-in / take-out artwork */
+/* home: order type selection */
 .darkHero{
   min-height:100vh!important;
   padding:24px clamp(16px,4vw,44px) 44px!important;
@@ -4000,43 +3992,12 @@ html,body{background:var(--v4-cream)!important}
   border:2px solid rgba(6,63,44,.2)!important;
   border-radius:27px!important;
   background-color:#fbf5eb!important;
-  background-size:cover!important;
-  background-repeat:no-repeat!important;
-  background-position:center!important;
   box-shadow:0 13px 30px rgba(61,47,29,.16)!important;
   display:flex!important;
   flex-direction:column!important;
   justify-content:center!important;
   align-items:flex-start!important;
   text-align:left!important;
-}
-.heroChoiceGrid .heroChoice:nth-child(1){
-  background-image:url('assets/images/home_dine_johns_favorite_v4.png')!important;
-  background-size:cover!important;
-  background-position:center!important;
-  background-repeat:no-repeat!important;
-}
-.heroChoiceGrid .heroChoice:nth-child(2){
-  background-image:url('assets/images/home_takeout_paperbag_v4.png')!important;
-  background-size:cover!important;
-  background-position:center!important;
-  background-repeat:no-repeat!important;
-  border-color:rgba(6,63,44,.2)!important;
-}
-.heroChoice::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
-  background:linear-gradient(90deg,rgba(255,251,245,.98) 0%,rgba(255,251,245,.88) 38%,rgba(255,251,245,.18) 57%,transparent 68%);
-}
-.heroChoice>*{
-  opacity:1!important;
-  position:relative;
-  z-index:2;
-  width:43%;
-  box-sizing:border-box;
 }
 .heroChoice .eyebrow{font-size:11px!important;letter-spacing:1.5px!important;color:#68766d!important}
 .heroChoice h2{margin:5px 0 8px!important;font-size:31px!important;line-height:1.05!important;color:var(--v4-green)!important}
@@ -4771,14 +4732,6 @@ body[data-step="party"] .partyRule.active{
   opacity:.82!important;
 }
 
-.heroChoice::after{
-  background:linear-gradient(90deg,rgba(5,35,25,.97) 0%,rgba(7,45,31,.9) 40%,rgba(7,45,31,.35) 59%,rgba(0,0,0,.08) 72%)!important;
-}
-.heroChoice .eyebrow,
-.heroChoice h2,
-.heroChoice .heroFeature{color:#fff!important}
-.heroChoice .heroDivider{background:rgba(255,255,255,.42)!important}
-
 .setDrinkTextCard.setCola{
   background:linear-gradient(145deg,#e52a31,#8f0910)!important;
   border-color:#ff7479!important;
@@ -4922,16 +4875,6 @@ body[data-step="mode"] .card.modeChoiceCard .halfPrice{color:var(--v9-yellow)!im
 .darkBenefitCard .normalOrderGuide{
   color:var(--v10-light-red)!important;
 }
-
-/* Home choice cards keep their images and use high-contrast foreground colors. */
-.darkHero .heroChoiceGrid .heroChoice.dinein .eyebrow,
-.darkHero .heroChoiceGrid .heroChoice:nth-child(2) .eyebrow{color:var(--v10-yellow)!important}
-.darkHero .heroChoiceGrid .heroChoice.dinein h2,
-.darkHero .heroChoiceGrid .heroChoice:nth-child(2) h2,
-.darkHero .heroChoiceGrid .heroChoice.dinein .heroFeature,
-.darkHero .heroChoiceGrid .heroChoice:nth-child(2) .heroFeature{color:#fff!important}
-.darkHero .heroChoiceGrid .heroChoice .heroFeatureIcon{color:var(--v10-yellow)!important}
-.darkHero .heroChoiceGrid .heroChoice .heroDivider{background:rgba(255,255,255,.55)!important}
 
 /* The immediate/reservation cards keep their light backgrounds. */
 body[data-step="timing"] .timingChoiceGrid .card p{color:#111!important}
@@ -5537,6 +5480,150 @@ body[data-step="home"] .beerAd strong{
   body[data-step="home"] .takeoutSizeNote{font-size:10px!important}
   body[data-step="home"] .takeoutPromo .takeoutDiscount{font-size:22px!important}
   body[data-step="home"] .takeoutOrderNow{font-size:10px!important}
+}
+
+/* Kiosk initial screen: large, image-free order type cards */
+body[data-step="home"] .darkHero{
+  min-height:100vh!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+  gap:clamp(14px,2vh,30px)!important;
+  padding:clamp(22px,3vh,52px) clamp(18px,5vw,72px)!important;
+}
+body[data-step="home"] .heroTop,
+body[data-step="home"] .heroHeadline,
+body[data-step="home"] .heroTagline,
+body[data-step="home"] .heroChoiceGrid,
+body[data-step="home"] .heroPromoStrip{
+  width:min(92vw,980px)!important;
+}
+body[data-step="home"] .heroLogoDark{
+  width:clamp(150px,20vw,230px)!important;
+  height:clamp(84px,12vw,132px)!important;
+}
+body[data-step="home"] .heroHeadline{
+  white-space:normal!important;
+  font-size:clamp(42px,5.4vw,72px)!important;
+  line-height:1.08!important;
+}
+body[data-step="home"] .heroTagline{
+  margin-bottom:0!important;
+  font-size:clamp(22px,2.5vw,34px)!important;
+}
+body[data-step="home"] .heroChoiceGrid{
+  flex:1 1 auto!important;
+  margin:0 auto!important;
+  gap:clamp(18px,2.2vh,34px)!important;
+}
+body[data-step="home"] .heroChoice,
+body[data-step="home"] .heroChoice.dinein,
+body[data-step="home"] .heroChoice.takeout{
+  min-height:clamp(300px,31vh,520px)!important;
+  aspect-ratio:auto!important;
+  padding:clamp(34px,5vw,66px)!important;
+  justify-content:center!important;
+  border:4px solid!important;
+  border-radius:clamp(22px,3vw,36px)!important;
+  background-image:none!important;
+  box-shadow:0 5px 14px rgba(38,34,28,.09)!important;
+}
+body[data-step="home"] .heroChoice.dinein{
+  border-color:#087348!important;
+  background:#edf8f2!important;
+}
+body[data-step="home"] .heroChoice.takeout{
+  border-color:#d7192d!important;
+  background:#fff1f2!important;
+}
+body[data-step="home"] .heroChoice::after{display:none!important}
+body[data-step="home"] .heroChoice>*{
+  width:auto!important;
+  position:static!important;
+  z-index:auto!important;
+}
+body[data-step="home"] .heroChoice .eyebrow{
+  font-size:clamp(17px,2vw,25px)!important;
+  color:#5b635d!important;
+}
+body[data-step="home"] .heroChoice h2{
+  margin:12px 0 18px!important;
+  font-size:clamp(46px,6vw,76px)!important;
+  line-height:1.05!important;
+}
+body[data-step="home"] .heroChoice.dinein h2{color:#075f3d!important}
+body[data-step="home"] .heroChoice.takeout h2{color:#b5122b!important}
+body[data-step="home"] .heroChoiceDescription{
+  margin:0!important;
+  font-size:clamp(20px,2.4vw,31px)!important;
+  line-height:1.4!important;
+  color:#3e4741!important;
+  font-weight:800!important;
+}
+body[data-step="home"] .heroChoiceSelected{
+  display:block!important;
+  max-height:0;
+  margin-top:0;
+  overflow:hidden;
+  opacity:0;
+  font-size:clamp(17px,2vw,24px)!important;
+  font-weight:1000!important;
+  transition:opacity 80ms linear,max-height 80ms linear,margin 80ms linear;
+}
+body[data-step="home"] .heroChoice:active .heroChoiceSelected,
+body[data-step="home"] .heroChoice:focus-visible .heroChoiceSelected{
+  max-height:40px;
+  margin-top:18px;
+  opacity:1;
+}
+body[data-step="home"] .heroChoice.dinein .heroChoiceSelected{color:#075f3d!important}
+body[data-step="home"] .heroChoice.takeout .heroChoiceSelected{color:#b5122b!important}
+body[data-step="home"] .heroPromoStrip{flex:0 0 auto!important}
+
+@media (min-width:701px) and (orientation:portrait){
+  body[data-step="home"] .heroChoiceGrid{
+    grid-template-columns:1fr!important;
+    grid-template-rows:repeat(2,minmax(0,1fr))!important;
+  }
+  body[data-step="home"] .heroChoice{
+    min-height:clamp(270px,25vh,460px)!important;
+  }
+}
+@media(max-width:700px){
+  body[data-step="home"] .darkHero{
+    min-height:100vh!important;
+    height:auto!important;
+    gap:10px!important;
+    padding:14px 14px 22px!important;
+  }
+  body[data-step="home"] .heroTop,
+  body[data-step="home"] .heroHeadline,
+  body[data-step="home"] .heroTagline,
+  body[data-step="home"] .heroChoiceGrid,
+  body[data-step="home"] .heroPromoStrip{width:100%!important}
+  body[data-step="home"] .heroLogoDark{width:88px!important;height:52px!important}
+  body[data-step="home"] .heroHeadline{font-size:clamp(24px,7.3vw,32px)!important}
+  body[data-step="home"] .heroTagline{font-size:14px!important}
+  body[data-step="home"] .heroChoiceGrid{
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+  }
+  body[data-step="home"] .heroChoice,
+  body[data-step="home"] .heroChoice.dinein,
+  body[data-step="home"] .heroChoice.takeout{
+    min-height:160px!important;
+    padding:22px 24px!important;
+    border-width:3px!important;
+    border-radius:20px!important;
+    align-items:flex-start!important;
+    text-align:left!important;
+  }
+  body[data-step="home"] .heroChoice h2{font-size:34px!important;margin:5px 0 8px!important}
+  body[data-step="home"] .heroChoice .eyebrow{font-size:12px!important}
+  body[data-step="home"] .heroChoiceDescription{font-size:16px!important}
+  body[data-step="home"] .heroChoiceSelected{font-size:14px!important}
+  body[data-step="home"] .heroPromoStrip{margin-top:2px!important}
 }
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
