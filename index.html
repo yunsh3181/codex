@@ -5086,6 +5086,12 @@ body[data-step="topping"] .qty b{
 body[data-step="timing"] .grid.two.timingChoiceGrid .card{
   min-height:360px!important;
 }
+body[data-step="timing"] .grid.two.timingChoiceGrid .card p{
+  color:var(--v10-yellow)!important;
+  font-size:34px!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+}
 
 /* All included drinks use the same centered three-line hierarchy. */
 .setDrinkTextCard.setDrinkVariantCard{
@@ -5245,6 +5251,7 @@ body[data-step="accompaniment"] .cartbar{
 
 @media(max-width:560px){
   body[data-step="timing"] .grid.two.timingChoiceGrid .card{min-height:206px!important}
+  body[data-step="timing"] .grid.two.timingChoiceGrid .card p{font-size:32px!important}
   .setDrinkTextCard.setDrinkVariantCard{min-height:142px!important;gap:7px!important}
   .setDrinkTextCard .drinkVariantLabel{font-size:23px!important}
   .selectionFooter{padding:0 10px}
@@ -5490,7 +5497,7 @@ body[data-step="home"] .darkHero{
   flex-direction:column!important;
   justify-content:space-between!important;
   gap:clamp(14px,2vh,30px)!important;
-  padding:clamp(22px,3vh,52px) clamp(18px,5vw,72px)!important;
+  padding:clamp(22px,3vh,52px) clamp(18px,5vw,72px) clamp(88px,6.5vh,124px)!important;
 }
 body[data-step="home"] .heroTop,
 body[data-step="home"] .heroHeadline,
@@ -5510,19 +5517,19 @@ body[data-step="home"] .heroHeadline{
 }
 body[data-step="home"] .heroTagline{
   margin-bottom:0!important;
-  font-size:clamp(22px,2.5vw,34px)!important;
+  font-size:clamp(26.4px,3vw,40.8px)!important;
 }
 body[data-step="home"] .heroChoiceGrid{
-  flex:1 1 auto!important;
+  flex:0 0 auto!important;
   margin:0 auto!important;
-  gap:clamp(18px,2.2vh,34px)!important;
+  gap:clamp(14px,1.7vh,26px)!important;
 }
 body[data-step="home"] .heroChoice,
 body[data-step="home"] .heroChoice.dinein,
 body[data-step="home"] .heroChoice.takeout{
-  min-height:clamp(300px,31vh,520px)!important;
+  min-height:clamp(250px,19vh,368px)!important;
   aspect-ratio:auto!important;
-  padding:clamp(34px,5vw,66px)!important;
+  padding:clamp(26px,3.7vw,48px)!important;
   justify-content:center!important;
   border:4px solid!important;
   border-radius:clamp(22px,3vw,36px)!important;
@@ -5544,20 +5551,22 @@ body[data-step="home"] .heroChoice>*{
   z-index:auto!important;
 }
 body[data-step="home"] .heroChoice .eyebrow{
-  font-size:clamp(17px,2vw,25px)!important;
-  color:#5b635d!important;
+  font-size:clamp(26px,3vw,38px)!important;
+  line-height:1.15!important;
+  color:#111111!important;
+  font-weight:900!important;
 }
 body[data-step="home"] .heroChoice h2{
-  margin:12px 0 18px!important;
-  font-size:clamp(46px,6vw,76px)!important;
-  line-height:1.05!important;
+  margin:8px 0 12px!important;
+  font-size:clamp(69px,9vw,114px)!important;
+  line-height:1!important;
 }
 body[data-step="home"] .heroChoice.dinein h2{color:#075f3d!important}
 body[data-step="home"] .heroChoice.takeout h2{color:#b5122b!important}
 body[data-step="home"] .heroChoiceDescription{
   margin:0!important;
-  font-size:clamp(20px,2.4vw,31px)!important;
-  line-height:1.4!important;
+  font-size:clamp(30px,3.6vw,47px)!important;
+  line-height:1.25!important;
   color:#3e4741!important;
   font-weight:800!important;
 }
@@ -5567,19 +5576,62 @@ body[data-step="home"] .heroChoiceSelected{
   margin-top:0;
   overflow:hidden;
   opacity:0;
-  font-size:clamp(17px,2vw,24px)!important;
+  font-size:clamp(26px,3vw,36px)!important;
+  line-height:1.15!important;
   font-weight:1000!important;
   transition:opacity 80ms linear,max-height 80ms linear,margin 80ms linear;
 }
 body[data-step="home"] .heroChoice:active .heroChoiceSelected,
 body[data-step="home"] .heroChoice:focus-visible .heroChoiceSelected{
-  max-height:40px;
-  margin-top:18px;
+  max-height:52px;
+  margin-top:12px;
   opacity:1;
 }
 body[data-step="home"] .heroChoice.dinein .heroChoiceSelected{color:#075f3d!important}
 body[data-step="home"] .heroChoice.takeout .heroChoiceSelected{color:#b5122b!important}
-body[data-step="home"] .heroPromoStrip{flex:0 0 auto!important}
+body[data-step="home"] .heroPromoStrip{
+  flex:0 0 auto!important;
+  gap:16px!important;
+}
+body[data-step="home"] .heroPromo{
+  min-height:230px!important;
+  padding:28px 22px!important;
+  gap:10px!important;
+  border:1px solid #dc6f00!important;
+  border-radius:20px!important;
+  background:#f57c00!important;
+  color:#fff!important;
+  box-shadow:0 3px 8px rgba(71,38,5,.12)!important;
+}
+body[data-step="home"] .heroPromo h3{
+  color:#fff!important;
+  font-size:clamp(25px,2.8vw,36px)!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+}
+body[data-step="home"] .heroPromo strong,
+body[data-step="home"] .heroPromo p,
+body[data-step="home"] .takeoutSizeNote,
+body[data-step="home"] .takeoutPromo .takeoutDiscount,
+body[data-step="home"] .happyPromo .happyHours,
+body[data-step="home"] .happyPromo .happyPrice,
+body[data-step="home"] .beerAd strong{
+  color:#fff!important;
+}
+body[data-step="home"] .heroPromo strong{
+  font-size:clamp(23px,2.5vw,33px)!important;
+  line-height:1.15!important;
+  font-weight:1000!important;
+}
+body[data-step="home"] .heroPromo p,
+body[data-step="home"] .takeoutSizeNote{
+  font-size:clamp(18px,2vw,25px)!important;
+  line-height:1.25!important;
+  font-weight:850!important;
+}
+body[data-step="home"] .takeoutPromo .takeoutDiscount{
+  font-size:clamp(36px,4vw,52px)!important;
+}
 
 @media (min-width:701px) and (orientation:portrait){
   body[data-step="home"] .heroChoiceGrid{
@@ -5587,15 +5639,15 @@ body[data-step="home"] .heroPromoStrip{flex:0 0 auto!important}
     grid-template-rows:repeat(2,minmax(0,1fr))!important;
   }
   body[data-step="home"] .heroChoice{
-    min-height:clamp(270px,25vh,460px)!important;
+    min-height:clamp(250px,19vh,368px)!important;
   }
 }
 @media(max-width:700px){
   body[data-step="home"] .darkHero{
     min-height:100vh!important;
     height:auto!important;
-    gap:10px!important;
-    padding:14px 14px 22px!important;
+    gap:7px!important;
+    padding:10px 12px 132px!important;
   }
   body[data-step="home"] .heroTop,
   body[data-step="home"] .heroHeadline,
@@ -5603,27 +5655,38 @@ body[data-step="home"] .heroPromoStrip{flex:0 0 auto!important}
   body[data-step="home"] .heroChoiceGrid,
   body[data-step="home"] .heroPromoStrip{width:100%!important}
   body[data-step="home"] .heroLogoDark{width:88px!important;height:52px!important}
-  body[data-step="home"] .heroHeadline{font-size:clamp(24px,7.3vw,32px)!important}
-  body[data-step="home"] .heroTagline{font-size:14px!important}
+  body[data-step="home"] .heroHeadline{font-size:clamp(22px,6.5vw,28px)!important}
+  body[data-step="home"] .heroTagline{font-size:15.6px!important}
   body[data-step="home"] .heroChoiceGrid{
     grid-template-columns:1fr!important;
-    gap:12px!important;
+    gap:8px!important;
   }
   body[data-step="home"] .heroChoice,
   body[data-step="home"] .heroChoice.dinein,
   body[data-step="home"] .heroChoice.takeout{
-    min-height:160px!important;
-    padding:22px 24px!important;
+    min-height:126px!important;
+    padding:12px 18px!important;
     border-width:3px!important;
     border-radius:20px!important;
     align-items:flex-start!important;
     text-align:left!important;
   }
-  body[data-step="home"] .heroChoice h2{font-size:34px!important;margin:5px 0 8px!important}
-  body[data-step="home"] .heroChoice .eyebrow{font-size:12px!important}
-  body[data-step="home"] .heroChoiceDescription{font-size:16px!important}
-  body[data-step="home"] .heroChoiceSelected{font-size:14px!important}
+  body[data-step="home"] .heroChoice h2{font-size:40px!important;margin:3px 0 5px!important}
+  body[data-step="home"] .heroChoice .eyebrow{font-size:18px!important}
+  body[data-step="home"] .heroChoiceDescription{font-size:20px!important;line-height:1.15!important}
+  body[data-step="home"] .heroChoiceSelected{font-size:18px!important}
   body[data-step="home"] .heroPromoStrip{margin-top:2px!important}
+  body[data-step="home"] .heroPromo{
+    min-height:128px!important;
+    padding:12px 7px!important;
+    gap:5px!important;
+    border-radius:14px!important;
+  }
+  body[data-step="home"] .heroPromo h3{font-size:14px!important}
+  body[data-step="home"] .heroPromo strong{font-size:14px!important}
+  body[data-step="home"] .heroPromo p,
+  body[data-step="home"] .takeoutSizeNote{font-size:11px!important}
+  body[data-step="home"] .takeoutPromo .takeoutDiscount{font-size:24px!important}
 }
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
