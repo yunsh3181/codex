@@ -17,6 +17,15 @@ assert.ok(html.includes('background:#fde7e7!important')&&html.includes('border-c
 assert.ok(html.includes('background:#fff4d6!important')&&html.includes('border-color:#c77b00!important'),'selected zone is distinct from enabled green');
 for(const protectedToken of ['function requiredTableCount()','function partyAreaRule(area)','function handleAreaClick(id)','const SEAT_IDLE_MS=30000'])assert.ok(html.includes(protectedToken),`${protectedToken} remains intact`);
 assert.ok(html.includes("if(!area.enabled){alert(areaPolicyMessage(area));return;}"),'disabled-zone reason alert remains intact');
+assert.match(html,/body\[data-step="party"\] \.partyStepBtn\{[\s\S]*?min-width:88px!important;[\s\S]*?font-size:72px!important/,'party stepper uses enlarged stable touch targets');
+assert.match(html,/body\[data-step="party"\] \.partyStepBtn:active:not\(:disabled\)\{[\s\S]*?transform:none!important/,'party stepper does not scale during rapid touch');
+assert.match(html,/body\[data-step="party"\] \.partyCountDisplay\{[\s\S]*?font-size:84px!important/,'party count is enlarged');
+assert.match(html,/body\[data-step="party"\] \.partyNext\{[\s\S]*?min-height:106px!important;[\s\S]*?margin-top:32px!important;[\s\S]*?font-size:36px!important/,'party next CTA is enlarged and separated');
+assert.match(html,/body\[data-step="area"\] \.areaCard\{[\s\S]*?min-height:360px!important;[\s\S]*?padding:34px 28px!important;[\s\S]*?gap:24px!important/,'area cards provide enlarged content and touch spacing');
+assert.match(html,/body\[data-step="area"\] \.areaCard h2\{font-size:clamp\(31px,3\.6vw,38px\)!important/,'area names are enlarged');
+assert.match(html,/body\[data-step="promo"\] \.darkBenefitCard\{[\s\S]*?min-height:330px!important;[\s\S]*?padding:38px 28px!important;[\s\S]*?gap:18px!important/,'dine-in order type cards are enlarged');
+assert.match(html,/body:is\(\[data-step="party"\],\[data-step="area"\],\[data-step="promo"\]\) \.cartbar\{[\s\S]*?height:94px!important/,'dine-in fixed summary uses a unified enlarged height');
+assert.match(html,/body:is\(\[data-step="party"\],\[data-step="area"\],\[data-step="promo"\]\) \.stage\{[\s\S]*?padding-bottom:calc\(94px \+ var\(--safe-bottom\) \+ 34px\)!important/,'content reserves the enlarged fixed summary');
 const guidanceByLocale={
  ko:'모든 구역을 표시합니다. 현재 이용할 수 없는 구역은 선택 불가로 표시되며, 누르면 이용 사유를 확인할 수 있습니다.',
  en:'All areas are shown. Areas that are currently unavailable are marked as unavailable; tap them to see why.',
