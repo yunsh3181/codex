@@ -882,7 +882,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroChoice.takeout h2 {
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice .eyebrow {
-  color: #5b635d !important;
+  color: #111111 !important;
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoiceDescription {
