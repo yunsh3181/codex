@@ -5688,6 +5688,116 @@ body[data-step="home"] .takeoutPromo .takeoutDiscount{
   body[data-step="home"] .takeoutSizeNote{font-size:11px!important}
   body[data-step="home"] .takeoutPromo .takeoutDiscount{font-size:24px!important}
 }
+
+/* PR 1: enlarged dine-in selection controls and fixed ordering summary. */
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .title,
+body[data-step="promo"] .darkBenefitTitle{
+  font-size:clamp(47px,5.6vw,58px)!important;
+  line-height:1.12!important;
+}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .sub,
+body[data-step="promo"] .darkBenefitSub{
+  font-size:clamp(21px,2.5vw,26px)!important;
+  line-height:1.45!important;
+  margin-bottom:30px!important;
+}
+body[data-step="party"] .partyStepperWrap{
+  padding:54px 42px!important;
+}
+body[data-step="party"] .partyCountLabel{
+  margin-bottom:24px!important;
+}
+body[data-step="party"] .partyStepper{
+  gap:27px!important;
+  margin-bottom:27px!important;
+}
+body[data-step="party"] .partyStepBtn{
+  min-width:88px!important;
+  min-height:132px!important;
+  font-size:72px!important;
+  transition:opacity .13s ease,background .13s ease!important;
+}
+body[data-step="party"] .partyStepBtn:hover:not(:disabled),
+body[data-step="party"] .partyStepBtn:active:not(:disabled){
+  transform:none!important;
+}
+body[data-step="party"] .partyCountDisplay{
+  height:170px!important;
+  font-size:84px!important;
+}
+body[data-step="party"] .partyLimit{font-size:21px!important;margin-bottom:28px!important}
+body[data-step="party"] .partyRule{font-size:24px!important;padding:18px 28px!important}
+body[data-step="party"] .partySubRule{font-size:19px!important;line-height:1.45!important;margin-bottom:34px!important}
+body[data-step="party"] .areaAvailabilityMini{gap:14px!important;margin-bottom:34px!important}
+body[data-step="party"] .areaMini{font-size:16px!important;padding:16px 10px!important}
+body[data-step="party"] .partyNext{
+  min-height:106px!important;
+  margin-top:32px!important;
+  font-size:36px!important;
+}
+body[data-step="area"] .areaGrid{gap:24px!important}
+body[data-step="area"] .areaCard{
+  min-height:360px!important;
+  padding:34px 28px!important;
+  gap:24px!important;
+  aspect-ratio:auto!important;
+}
+body[data-step="area"] .areaIcon{font-size:48px!important}
+body[data-step="area"] .areaCard h2{font-size:clamp(31px,3.6vw,38px)!important;line-height:1.16!important;margin:18px 0 15px!important}
+body[data-step="area"] .areaCard p{font-size:clamp(20px,2.4vw,24px)!important;line-height:1.45!important;margin:0 0 17px!important;white-space:normal!important;overflow-wrap:anywhere}
+body[data-step="area"] .areaCard .areaHours{font-size:17px!important;line-height:1.45!important;margin-top:10px!important}
+body[data-step="area"] .areaCard .areaPolicyReason{font-size:17px!important;line-height:1.45!important;margin-top:13px!important;padding:12px 14px!important}
+body[data-step="area"] .areaCard strong{font-size:20px!important;line-height:1.35!important}
+body[data-step="area"] .areaCard::after{font-size:16px!important;padding:9px 14px!important}
+body[data-step="promo"] .darkBenefitGrid{gap:24px!important}
+body[data-step="promo"] .darkBenefitCard{
+  min-height:330px!important;
+  padding:38px 28px!important;
+  gap:18px!important;
+}
+body[data-step="promo"] .darkBenefitCard h2{font-size:clamp(31px,3.5vw,38px)!important;line-height:1.18!important;margin:8px 0!important}
+body[data-step="promo"] .darkBenefitCard p{font-size:clamp(20px,2.4vw,24px)!important;line-height:1.45!important;margin:0!important}
+body[data-step="promo"] .darkBenefitPill{font-size:18px!important;padding:11px 16px!important}
+body[data-step="promo"] .darkBenefitCard small{font-size:17px!important;line-height:1.4!important}
+body[data-step="promo"] .darkBenefitNote{font-size:20px!important;line-height:1.45!important}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartbar{
+  min-height:94px!important;
+  height:94px!important;
+  gap:14px!important;
+  padding:12px 18px!important;
+}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .carttitle{font-size:19px!important}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartdetail{font-size:15px!important}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartprice{font-size:26px!important}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartbar button{
+  min-height:68px!important;
+  padding:12px 19px!important;
+  font-size:22px!important;
+}
+body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .stage{
+  padding-bottom:calc(94px + var(--safe-bottom) + 34px)!important;
+}
+@media(max-width:700px){
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .title,
+  body[data-step="promo"] .darkBenefitTitle{font-size:36px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .sub,
+  body[data-step="promo"] .darkBenefitSub{font-size:18px!important;margin-bottom:22px!important}
+  body[data-step="party"] .partyStepperWrap{padding:36px 18px!important}
+  body[data-step="party"] .partyStepper{grid-template-columns:88px minmax(0,1fr) 88px!important;gap:12px!important}
+  body[data-step="party"] .partyStepBtn{height:96px!important;min-height:88px!important;font-size:56px!important}
+  body[data-step="party"] .partyCountDisplay{height:112px!important;font-size:56px!important}
+  body[data-step="party"] .partyNext{min-height:88px!important;font-size:30px!important}
+  body[data-step="area"] .areaGrid,
+  body[data-step="promo"] .darkBenefitGrid{grid-template-columns:1fr!important;gap:18px!important}
+  body[data-step="area"] .areaCard{min-height:260px!important;padding:28px 22px!important}
+  body[data-step="promo"] .darkBenefitCard{min-height:250px!important;padding:30px 22px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartbar{height:88px!important;min-height:88px!important;padding:9px!important;gap:7px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .carttitle{font-size:15px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartdetail{display:none!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartprice{font-size:18px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .cartbar button{min-height:64px!important;padding:10px 11px!important;font-size:17px!important}
+  body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .stage{padding-bottom:calc(88px + var(--safe-bottom) + 28px)!important}
+}
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">
