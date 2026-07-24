@@ -15,12 +15,12 @@ function rule(selector) {
   return kiosk.slice(open + 1, close);
 }
 
-test('home dine-in and takeout cards have no pointer-state border', () => {
+test('home dine-in and takeout cards have explicit pointer selection feedback', () => {
   const states = rule(
     'html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active'
   );
-  assert.match(states, /border:\s*0\s*!important/);
-  assert.match(states, /outline:\s*0/);
+  assert.match(states, /outline:\s*6px solid currentColor\s*!important/);
+  assert.match(states, /outline-offset:\s*-6px/);
   assert.match(states, /transform:\s*none\s*!important/);
 });
 
@@ -28,7 +28,7 @@ test('home cards retain a branded keyboard focus indicator', () => {
   const focus = rule(
     'html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:focus-visible'
   );
-  assert.match(focus, /outline:\s*2px solid var\(--r\)\s*!important/);
+  assert.match(focus, /outline:\s*5px solid currentColor\s*!important/);
   assert.match(focus, /outline-offset:\s*3px/);
 });
 
