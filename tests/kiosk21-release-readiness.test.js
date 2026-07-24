@@ -11,7 +11,7 @@ const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
 test('release changes do not alter protected application sources', () => {
-  assert.equal(sha256(html), '5fd3606889ff58121dfd59aaa79bfbe059280b78cadfaadb01987bce27b15c22');
+  assert.equal(sha256(html), '3360d8c1e79734594ea64779a86cc0b207580bfe0ddb0ce4340e1284f169f5ae');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '8c5e9f7173716292cabf2d86e39f4f8ac51add3fbcbac605e8323dca59dd41ea');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
@@ -44,6 +44,11 @@ test('safe-area tokens cover every kiosk edge and fixed surface', () => {
   for (const surface of ['.head', '.stage', '.selectionFooter', '.cartbar', '.backdrop']) {
     assert.ok(kiosk.includes(surface), surface);
   }
+});
+
+test('takeout timing descriptions are doubled and use kiosk yellow', () => {
+  assert.match(html, /body\[data-step="timing"\] \.grid\.two\.timingChoiceGrid \.card p\{[\s\S]*?color:var\(--v10-yellow\)!important;[\s\S]*?font-size:34px!important/);
+  assert.match(html, /@media\(max-width:560px\)\{[\s\S]*?timingChoiceGrid \.card p\{font-size:32px!important\}/);
 });
 
 test('language and large-order rendering remain dynamic and non-destructive', () => {
