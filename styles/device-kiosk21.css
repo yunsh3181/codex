@@ -1325,6 +1325,11 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromo {
   padding-block: 18px !important;
 }
 
+html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip {
+  grid-auto-rows: auto !important;
+  align-items: start !important;
+}
+
 /* Reservation picker uses the kiosk content width and two equal touch cards. */
 html[data-layout="kiosk21"] body[data-step="reserve"] .reservePickerWheel {
   width: 100%;
@@ -1398,18 +1403,18 @@ html[data-layout="kiosk21"] body[data-step="reserve"] .reserveConfirm {
 }
 
 /* Cart detail view model reads existing catalog prices without changing cart. */
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartCategory {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartCategory {
   padding: 18px 0;
   border-bottom: 2px solid #e2e6e2;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartCategory h2 {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartCategory h2 {
   margin: 0 0 14px;
   color: #006b3c !important;
   font-size: 26px;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
   .cartBaseRow,
   .cartDetailRow,
   .cartOrderTotal
@@ -1418,15 +1423,15 @@ html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
   min-width: 0;
   justify-content: space-between;
   gap: 24px;
-  font-size: 22px;
+  font-size: 24px;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartDetailRow {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartDetailRow {
   padding: 7px 0 7px 28px;
   font-size: 20px;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
   .cartBaseRow,
   .cartDetailRow
 ) strong {
@@ -1435,13 +1440,13 @@ html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
   white-space: nowrap;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartOrderTotal {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartOrderTotal {
   padding-top: 20px;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 1000;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartBenefitRow {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartBenefitRow {
   display: flex;
   justify-content: space-between;
   gap: 24px;
@@ -1451,7 +1456,7 @@ html[data-layout="kiosk21"] body[data-step="cartReview"] .cartBenefitRow {
   font-weight: 900;
 }
 
-html[data-layout="kiosk21"] body[data-step="cartReview"] .cartIncludedLabel {
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartIncludedLabel {
   color: #006b3c !important;
 }
 
