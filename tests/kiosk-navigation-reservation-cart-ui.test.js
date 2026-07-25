@@ -2,6 +2,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 
 const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
@@ -47,11 +48,94 @@ test('reservation controls and selected value are kiosk-sized',()=>{
   assert.ok(compact.includes('.reserveSelectionb{color:#d71920;font-size:48px'));
 });
 
-test('cart renders categorized existing-price rows with plus formatter',()=>{
-  assert.match(html,/function cartMoney\(amount,added=false\)/);
-  assert.match(html,/cartDetailRows\(x\.toppings,TOPPINGS,x\.size,t\('review\.additionalToppings'\)\+' '\)/);
-  for(const category of ['ui.progress.pizza','ui.progress.side','ui.progress.drink','ui.drinkScreen.accompanimentTitle'])assert.ok(html.includes(category));
-  assert.match(html,/CRUSTS\.find\(c=>c\.name===/);
-  assert.match(html,/SETTINGS\.HALF_EXTRA/);
+const displaySource=html.slice(html.indexOf('function cartCatalogLines'),html.indexOf('function cartItemHtml'));
+const catalog={
+  PIZZAS:[{id:'P1',name:'존스',L:29500},{id:'P2',name:'식스',L:27500}],
+  CRUSTS:[{name:'오리지널',L:0},{name:'치즈롤',L:4000}],
+  TOPPINGS:[{id:'T1',name:'양파',price:{L:1500}}],
+  SIDES:[{id:'S1',name:'치킨',price:9900},{id:'S2',name:'코울슬로',price:2500}],
+  DRINKS:[{id:'D1',name:'제로콜라',price:2500},{id:'D2',name:'콜라',price:1800}],
+  SAUCES:[{id:'A1',name:'피클',price:600}],
+  SETTINGS:{HALF_EXTRA:1000}
+};
+function displayModel(order){
+  const input=structuredClone(order);
+  const context={
+    ...catalog,
+    order:input,
+    po:id=>catalog.PIZZAS.find(item=>item.id===id),
+    optionDisplayName:item=>item.name,
+    cartPizzaNames:x=>x.mode==='half'?'존스 / 식스':'존스',
+    customerCrustLabel:value=>value,
+    setOrderName:value=>`${value}인 세트`,
+    benefitName:value=>value,
+    t:key=>key
+  };
+  vm.runInNewContext(`${displaySource};result=buildCartDisplayModel(order)`,context);
+  return {model:structuredClone(context.result),input};
+}
+function baseOrder(overrides={}){
+  return {promo:'normal',set:null,size:'L',mode:'half',pizzaLeft:'P1',pizzaRight:'P2',crust:'치즈롤',toppings:{T1:1},sides:{S1:1},drinks:{D1:1,A1:1},includedSides:{},includedDrinks:{},discount:0,normalPrice:48000,price:48000,qty:1,...overrides};
+}
+
+test('standard cart breakdown is used only when every component equals stored price',()=>{
+  const order=baseOrder();
+  const before=structuredClone(order),{model,input}=displayModel(order);
+  assert.equal(model.mode,'standard');
+  assert.equal(model.componentTotal,48000);
+  assert.equal(model.total,48000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,28500);
+  assert.equal(model.categories.pizza.find(row=>row.id==='crust').amount,4000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='crust').added,true);
+  assert.equal(model.categories.pizza.find(row=>row.id==='half').amount,1000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='T1').amount,1500);
+  assert.deepEqual(input,before);
+});
+
+test('set cart consolidates included and paid side and drink categories',()=>{
+  const {model}=displayModel(baseOrder({promo:'set',set:2,price:35000,normalPrice:35000,includedSides:{S2:1},sides:{S1:1},includedDrinks:{D2:1},drinks:{D1:1,A1:1}}));
+  assert.equal(model.mode,'promotion-safe');
+  assert.equal(model.total,35000);
+  assert.deepEqual(model.categories.sides.map(row=>[row.id,row.included]),[['S2',true],['S1',false]]);
+  assert.deepEqual(model.categories.drinks.map(row=>[row.id,row.included]),[['D2',true],['D1',false]]);
+  assert.equal(model.categories.sides[0].amount,0);
+  assert.equal(model.categories.sides[1].added,false);
+  assert.deepEqual(model.categories.accompaniment.map(row=>row.id),['A1']);
+  assert.equal(model.categories.drinks.some(row=>row.id==='A1'),false);
+  assert.equal(model.categories.accompaniment.some(row=>row.id==='D1'),false);
+});
+
+test('promotions never expose contradictory catalog pizza prices',()=>{
+  for(const [promo,price,discount] of [['upup',29500,6000],['takeout',38400,9600],['happy',17100,14000]]){
+    const {model}=displayModel(baseOrder({promo,price,normalPrice:price+discount,discount}));
+    assert.equal(model.mode,'promotion-safe',promo);
+    assert.equal(model.total,price,promo);
+    assert.ok(model.categories.pizza.every(row=>row.amount===null),promo);
+    assert.ok(model.categories.pizza.every(row=>row.included===false),promo);
+    assert.ok(model.benefit,promo);
+  }
+});
+
+test('order quantity and option quantity are multiplied exactly once',()=>{
+  const unit=baseOrder({toppings:{T1:2},price:49500,normalPrice:49500,qty:2});
+  const {model}=displayModel(unit);
+  assert.equal(model.mode,'standard');
+  assert.equal(model.total,99000);
+  assert.equal(model.componentTotal,99000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,57000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='crust').amount,8000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='T1').qty,2);
+  assert.equal(model.categories.pizza.find(row=>row.id==='T1').amount,6000);
+  assert.equal(model.categories.sides[0].amount,19800);
+  assert.equal(model.categories.drinks[0].amount,5000);
+  assert.equal(model.categories.accompaniment[0].amount,1200);
+});
+
+test('cart renderer emits each consolidated category at most once',()=>{
+  assert.match(html,/function buildCartDisplayModel\(order\)/);
+  assert.equal((html.match(/cartCategoryHtml\(sideTitle/g)||[]).length,1);
+  assert.equal((html.match(/cartCategoryHtml\(drinkTitle/g)||[]).length,1);
+  assert.equal((html.match(/cartCategoryHtml\(t\('ui\.drinkScreen\.accompanimentTitle'\)/g)||[]).length,1);
+  assert.match(html,/money\(model\.total\)/);
   assert.doesNotMatch(html,/if\s*\(name\s*===\s*["']치즈롤["']\)/);
 });

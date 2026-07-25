@@ -1441,6 +1441,20 @@ html[data-layout="kiosk21"] body[data-step="cartReview"] .cartOrderTotal {
   font-weight: 1000;
 }
 
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartBenefitRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 0 0;
+  color: #006b3c;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartIncludedLabel {
+  color: #006b3c !important;
+}
+
 /* Rapid phone entry must never resize, move, flash, or cast a new shadow. */
 html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,
 html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {

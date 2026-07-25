@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko" data-layout="kiosk21">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PR #70 Cart Price Safety Visual Evidence</title>
+  <link rel="stylesheet" href="../styles/device-kiosk21.css">
+  <style>
+    :root{--r:#d71920;--g:#006b3c;--line:#e2e6e2;--safe-bottom:0px}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f6f2e9;color:#20241f;font-family:Arial,"Noto Sans KR",sans-serif}
+    main{width:min(960px,100%);margin:auto;padding:36px 28px}
+    h1{margin:0 0 8px;color:#0c4b34;font-size:42px}
+    .lead{margin:0 0 28px;color:#58635c;font-size:18px}
+    .case{margin:0 0 30px}
+    .case>h2{margin:0 0 10px;color:#fff;background:#0c4b34;border-radius:14px;padding:12px 18px;font-size:25px}
+    .cartOrderCard{background:#fff;border:1px solid #e3e7e3;border-radius:20px;padding:22px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+    .cartOrderActions{display:none}
+    .cartOrderTotal{display:flex;justify-content:space-between;gap:20px}
+    .cartOrderTotal strong{color:var(--r)}
+    .mode{display:inline-block;margin:0 0 10px;padding:5px 10px;border-radius:999px;background:#fff0c6;color:#604b00;font-weight:900}
+    iframe{display:none}
+    @media(max-width:560px){main{padding:18px 12px}h1{font-size:28px}.lead{font-size:14px}.case>h2{font-size:20px}.cartOrderCard{padding:15px}}
+  </style>
+</head>
+<body data-step="cartReview">
+  <iframe id="appFrame" src="../index.html"></iframe>
+  <main>
+    <h1>장바구니 가격 안전성 증빙</h1>
+    <p class="lead">일반 주문은 검증된 상세 금액, 프로모션은 저장된 주문금액 중심으로 표시합니다.</p>
+    <div id="gallery"></div>
+  </main>
+  <script>
+    const frame=document.getElementById('appFrame');
+    frame.addEventListener('load',()=>{
+      const app=frame.contentWindow;
+      app.chooseLanguage('ko');
+      const base={promo:'normal',set:null,size:'L',mode:'single',pizza:'P002',pizzaLeft:'P002',pizzaRight:null,pizzaName:'존스 페이버릿',crust:'치즈롤',dough:'오리지널',toppings:{T011:1},sides:{S007:1},drinks:{D004:1,D009:1},includedSides:{},includedDrinks:{},discount:0,normalPrice:0,price:0,qty:1};
+      const standard={...base};
+      standard.price=app.buildCartDisplayModel(standard).componentTotal;
+      standard.normalPrice=standard.price;
+      const quantity={...standard,qty:2,toppings:{T011:2}};
+      quantity.price=app.buildCartDisplayModel({...quantity,qty:1}).componentTotal;
+      quantity.normalPrice=quantity.price;
+      const cases=[
+        ['일반 주문 · 상세합과 최종금액 일치',standard],
+        ['세트 · 포함/유료 사이드와 음료 통합',{...base,promo:'set',set:2,price:36500,normalPrice:36500,includedSides:{S007:1},sides:{S011:1},includedDrinks:{D002:1},drinks:{D004:1,D009:1}}],
+        ['UP & UP · 무료 업그레이드 정가 숨김',{...base,promo:'upup',price:31000,normalPrice:37000,discount:6000}],
+        ['포장 할인 · 할인 전 정가 추정 금지',{...base,promo:'takeout',price:38400,normalPrice:48000,discount:9600}],
+        ['해피아워 · 적용 주문금액 사용',{...base,promo:'happy',size:'R',crust:'오리지널',price:17100,normalPrice:31100,discount:14000}],
+        ['주문 수량 2 · 옵션 수량 2',quantity]
+      ];
+      document.getElementById('gallery').innerHTML=cases.map(([title,order],index)=>{
+        const model=app.buildCartDisplayModel(order);
+        return `<section class="case"><h2>${title}</h2><span class="mode">${model.mode}</span>${app.cartItemHtml(order,index)}</section>`;
+      }).join('');
+      frame.remove();
+    });
+  </script>
+</body>
+</html>

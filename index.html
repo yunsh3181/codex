@@ -2817,13 +2817,52 @@ function currentOrderTotal(){return currentHasItems()?price().total:0}
 function cartTotal(){return state.cartItems.reduce((s,x)=>s+(Number(x.price)||0)*(Number(x.qty)||1),0)}
 function optionLinesHtml(title,map,master,included=false){const lines=mapLines(map,master,()=>0);return lines.length?`<div class="cartOptionLine"><b>${title}</b><span>${lines.map(x=>`${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}`).join(', ')}</span></div>`:''}
 function cartMoney(amount,added=false){return `${added?'+':''}${money(Number(amount)||0)}`}
-function cartDetailRows(map,master,size,prefix=''){return mapLines(map,master,item=>Number(item.price?.[size]??item.price??0)).filter(x=>x.amount>0).map(x=>`<div class="cartDetailRow"><span>${prefix}${x.name} ${t('unit.quantity',{count:x.qty})}</span><strong>${cartMoney(x.amount,true)}</strong></div>`).join('')}
+function cartCatalogLines(map,master,unitPrice,orderQty,included=false){
+ return Object.entries(map||{}).flatMap(([id,value])=>{
+  const item=master.find(candidate=>candidate.id===id),qty=Number(value)||0;
+  if(!item||qty<=0)return [];
+  const unit=included?0:Number(unitPrice(item)||0);
+  return [{id,name:optionDisplayName(item),qty,amount:unit*qty*orderQty,included,added:false}];
+ })
+}
+function buildCartDisplayModel(order){
+ const qty=Math.max(1,Number(order.qty)||1),size=order.size,left=po(order.pizzaLeft||order.pizza),right=po(order.pizzaRight);
+ const pizzaUnit=left?(order.mode==='half'&&right?((Number(left[size])||0)+(Number(right[size])||0))/2:Number(left[size])||0):0;
+ const crustUnit=left?Number(CRUSTS.find(item=>item.name===(order.crust||'오리지널'))?.[size]||0):0;
+ const halfUnit=left&&order.mode==='half'?Number(SETTINGS.HALF_EXTRA||0):0;
+ const toppings=cartCatalogLines(order.toppings,TOPPINGS,item=>Number(item.price?.[size]||0),qty);
+ const includedSides=cartCatalogLines(order.includedSides,SIDES,()=>0,qty,true);
+ const paidSides=cartCatalogLines(order.sides,SIDES,item=>Number(item.price||0),qty);
+ const includedDrinks=cartCatalogLines(order.includedDrinks,DRINKS,()=>0,qty,true);
+ const paidDrinks=cartCatalogLines(order.drinks,DRINKS,item=>Number(item.price||0),qty);
+ const accompaniment=cartCatalogLines(order.drinks,SAUCES,item=>Number(item.price||0),qty);
+ const perOrderExtras=[...toppings,...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
+ const componentUnit=pizzaUnit+crustUnit+halfUnit+perOrderExtras;
+ const storedUnit=Number(order.price)||0,discount=Number(order.discount)||0,normal=Number(order.normalPrice)||storedUnit+discount;
+ const hasIncluded=includedSides.length>0||includedDrinks.length>0;
+ const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&componentUnit===storedUnit;
+ const pizza=[];
+ if(left)pizza.push({id:'pizza',name:cartPizzaNames(order),qty,amount:standard?pizzaUnit*qty:null,included:false,added:false});
+ if(left&&crustUnit)pizza.push({id:'crust',name:customerCrustLabel(order.crust),qty:1,amount:standard?crustUnit*qty:null,included:false,added:standard});
+ if(left&&halfUnit)pizza.push({id:'half',name:t('review.halfPizza'),qty:1,amount:standard?halfUnit*qty:null,included:false,added:standard});
+ toppings.forEach(line=>pizza.push({...line,amount:standard?line.amount:null,included:false,added:standard}));
+ return {
+  mode:standard?'standard':'promotion-safe',
+  categories:{pizza,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
+  benefit:standard?'':(order.set?setOrderName(order.set):benefitName(order.promo||'normal')),
+  componentTotal:componentUnit*qty,
+  total:storedUnit*qty
+ }
+}
+function cartCategoryHtml(title,rows){
+ if(!rows.length)return '';
+ return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'}"><span>${row.name} ${row.qty>1?t('unit.quantity',{count:row.qty}):''}</span>${row.included?`<strong class="cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'':`<strong>${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
+}
 function cartItemHtml(x,i){
- const d=orderDetailData(x),qty=x.qty||1,left=po(x.pizzaLeft||x.pizza),right=po(x.pizzaRight),pizzaBase=left?(x.mode==='half'&&right?((Number(left[x.size])||0)+(Number(right[x.size])||0))/2:Number(left[x.size])||0):0;
- const crustAmount=x.promo==='upup'?0:Number(CRUSTS.find(c=>c.name===(x.crust||'오리지널'))?.[x.size]||0),halfAmount=x.mode==='half'?Number(SETTINGS.HALF_EXTRA||0):0;
- const pizzaRows=left?`<section class="cartCategory"><h2>${t('ui.progress.pizza')}</h2><div class="cartBaseRow"><span>${d.pizzaNames} ${t('unit.quantity',{count:qty})}</span><strong>${cartMoney(pizzaBase*qty)}</strong></div>${crustAmount?`<div class="cartDetailRow"><span>${d.crustLabel}</span><strong>${cartMoney(crustAmount*qty,true)}</strong></div>`:''}${halfAmount?`<div class="cartDetailRow"><span>${t('review.halfPizza')}</span><strong>${cartMoney(halfAmount*qty,true)}</strong></div>`:''}${cartDetailRows(x.toppings,TOPPINGS,x.size,t('review.additionalToppings')+' ')}</section>`:'';
- const section=(title,map,master,included=false)=>{const rows=mapLines(map,master,item=>included?0:Number(item.price||0));if(!rows.length)return '';return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="cartBaseRow"><span>${row.name} ${t('unit.quantity',{count:row.qty})}${included?' · '+t('review.includedInSet'):''}</span>${included?'':`<strong>${cartMoney(row.amount*qty)}</strong>`}</div>`).join('')}</section>`};
- return `<article class="cartOrderCard">${pizzaRows}${section(t('ui.progress.side'),x.includedSides,SIDES,true)}${section(t('ui.progress.side'),x.sides,SIDES)}${section(t('ui.progress.drink'),x.includedDrinks,DRINKS,true)}${section(t('ui.progress.drink'),x.drinks,DRINKS)}${section(t('ui.drinkScreen.accompanimentTitle'),x.drinks,SAUCES)}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money((x.price||0)*qty)}</strong></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></article>`
+ const model=buildCartDisplayModel(x);
+      const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),
+        drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
+ return `<article class="cartOrderCard" data-price-mode="${model.mode}">${cartCategoryHtml(t('ui.progress.pizza'),model.categories.pizza)}${cartCategoryHtml(sideTitle,model.categories.sides)}${cartCategoryHtml(drinkTitle,model.categories.drinks)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></article>`
 }
 function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
