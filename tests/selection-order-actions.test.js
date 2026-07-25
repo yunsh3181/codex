@@ -5,6 +5,7 @@ const vm=require('vm');
 
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const touchLayoutCss=fs.readFileSync(path.join(root,'styles','device.css'),'utf8');
 const languages=['ko','en','ja','zh','vi','es'];
 const elements=new Map();
 const classList={add(){},remove(){},toggle(){}};
@@ -99,6 +100,7 @@ for(const [name,markup] of [['topping',toppingSelection],['accompaniment',accomp
 const lastToppingId=vm.runInContext('TOPPINGS[TOPPINGS.length-1].id',context);
 assert.ok(toppingSelection.includes(`toppingQty('${lastToppingId}',1)`),'last topping plus control remains clickable before the spacer');
 assert.ok(toppingSelection.includes(`toppingQty('${lastToppingId}',-1)`),'last topping minus control remains clickable before the spacer');
+assert.match(touchLayoutCss,/body\[data-step="topping"\] \.selectionFooterSpacer\s*\{[\s\S]*?\+ 40px/,'topping spacer reserves at least 40px after the last card');
 const normalSideSelection=render(variants.sideNormal);
 const lastSideId=vm.runInContext('SIDES[SIDES.length-1].id',context);
 assert.ok(normalSideSelection.includes(`qty('extraSides','${lastSideId}',1,9,99)`),'last side card remains clickable before the spacer');
@@ -107,6 +109,10 @@ const normalDrinkSelection=render(variants.drinkNormal);
 const lastGroupedDrinkId=vm.runInContext('drinkGroups()[drinkGroups().length-1].large',context);
 assert.ok(normalDrinkSelection.includes(`qty('extraDrinks','${lastGroupedDrinkId}',1,9,99)`),'last drink plus control remains clickable before the spacer');
 assert.ok(normalDrinkSelection.includes(`qty('extraDrinks','${lastGroupedDrinkId}',-1,9,99)`),'last drink minus control remains clickable before the spacer');
+assert.match(touchLayoutCss,/body\[data-step="drink"\] \.grid\.drinkTextGrid,[\s\S]*?grid-template-columns: minmax\(0, 1fr\) !important/,'drink grids use one full-width column');
+assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkCard\s*\{[\s\S]*?min-height: 280px !important;[\s\S]*?padding: 30px 36px !important/,'kiosk drink cards retain enlarged height and padding');
+assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkRow button,[\s\S]*?width: 84px !important;[\s\S]*?height: 84px !important/,'kiosk drink quantity controls retain 84px touch targets');
+assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkRow button:active,[\s\S]*?transform: none !important/,'drink controls do not move during repeated taps');
 const lastSauceId=vm.runInContext('SAUCES[SAUCES.length-1].id',context);
 assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',1,9,99)`),'last accompaniment card remains clickable before the spacer');
 assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',-1,9,99)`),'last accompaniment minus control remains clickable before the spacer');
