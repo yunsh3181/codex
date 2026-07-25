@@ -2,12 +2,15 @@
 
 const path = require('node:path');
 const { fileURLToPath } = require('node:url');
-const { app, BrowserWindow, Menu, powerSaveBlocker, screen } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, screen } = require('electron');
+const { autoUpdater } = require('electron-updater');
+const { createKioskUpdater } = require('./updater');
 
 const entryFile = path.resolve(__dirname, '..', 'index.html');
 let mainWindow = null;
 let powerSaveBlockerId = null;
 let quitting = false;
+let updaterManager = null;
 
 function isDevelopmentMode() {
   return !app.isPackaged && process.argv.includes('--dev');
@@ -94,7 +97,14 @@ function createWindow() {
       !isDevelopment && input.control && input.alt && input.shift && key === 'q';
     const developmentQuitShortcut =
       isDevelopment && ((input.control || input.meta) && key === 'q');
+    const updaterAdminShortcut =
+      input.control && input.alt && input.shift && key === 'u';
 
+    if (updaterAdminShortcut) {
+      event.preventDefault();
+      updaterManager?.openAdminPanel();
+      return;
+    }
     if (productionQuitShortcut || developmentQuitShortcut) {
       event.preventDefault();
       requestQuit();
@@ -134,6 +144,13 @@ if (!hasSingleInstanceLock) {
     Menu.setApplicationMenu(null);
     powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
     createWindow();
+    updaterManager = createKioskUpdater({
+      app,
+      autoUpdater,
+      ipcMain,
+      getWindow: () => mainWindow
+    });
+    updaterManager.initialize();
   });
 
   app.on('before-quit', () => {
@@ -142,6 +159,7 @@ if (!hasSingleInstanceLock) {
       powerSaveBlocker.stop(powerSaveBlockerId);
     }
     powerSaveBlockerId = null;
+    updaterManager?.dispose();
   });
 
   app.on('window-all-closed', requestQuit);

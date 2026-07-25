@@ -1,0 +1,95 @@
+name: Windows release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing v-prefixed tag to publish"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - id: version
+        shell: bash
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          RELEASE_TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          test "$RELEASE_TAG" = "v$PACKAGE_VERSION"
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: ia32
+            unpacked: win-ia32-unpacked
+          - arch: x64
+            unpacked: win-unpacked
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build architecture-specific release
+        shell: bash
+        run: npx electron-builder --win --${{ matrix.arch }} --publish never -c.publish.channel=latest-${{ matrix.arch }}
+      - run: npm run verify:win:${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-${{ matrix.arch }}
+          if-no-files-found: error
+          path: |
+            dist/PapaJohns-Kiosk-Setup-*-${{ matrix.arch }}.exe
+            dist/PapaJohns-Kiosk-Setup-*-${{ matrix.arch }}.exe.blockmap
+            dist/latest-${{ matrix.arch }}.yml
+
+  release:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: windows-release-*
+          path: release
+          merge-multiple: true
+      - name: Publish GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate.outputs.tag }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            release/PapaJohns-Kiosk-Setup-*-ia32.exe
+            release/PapaJohns-Kiosk-Setup-*-ia32.exe.blockmap
+            release/latest-ia32.yml
+            release/PapaJohns-Kiosk-Setup-*-x64.exe
+            release/PapaJohns-Kiosk-Setup-*-x64.exe.blockmap
+            release/latest-x64.yml
