@@ -1,0 +1,65 @@
+.businessHoursScreen {
+  min-height: 100vh;
+  width: 100%;
+  padding: clamp(40px, 8vh, 150px) clamp(28px, 7vw, 120px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255,255,255,.15), transparent 30%),
+    linear-gradient(155deg, #00452f 0%, #006b3c 54%, #003626 100%);
+}
+.businessHoursPanel {
+  width: min(880px, 100%);
+  padding: clamp(36px, 6vh, 92px) clamp(24px, 6vw, 80px);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 42px;
+  background: rgba(0,35,24,.42);
+  box-shadow: 0 30px 90px rgba(0,0,0,.3);
+}
+.businessHoursLogo {
+  width: min(330px, 58vw);
+  height: min(210px, 18vh);
+  object-fit: contain;
+  filter: drop-shadow(0 12px 20px rgba(0,0,0,.22));
+}
+.businessHoursStore {
+  margin: 8px 0 clamp(40px, 6vh, 76px);
+  font-size: clamp(22px, 3vw, 38px);
+  font-weight: 900;
+}
+.businessHoursTitle {
+  margin: 0;
+  font-size: clamp(44px, 7vw, 82px);
+  line-height: 1.16;
+  letter-spacing: -.04em;
+}
+.businessHoursLabel {
+  margin: clamp(42px, 6vh, 68px) 0 10px;
+  color: #f8d98b;
+  font-size: clamp(20px, 2.5vw, 30px);
+  font-weight: 900;
+}
+.businessHoursTime {
+  margin: 0;
+  font-size: clamp(31px, 4.3vw, 52px);
+  font-weight: 900;
+}
+.businessHoursMessage {
+  margin: clamp(42px, 6vh, 68px) 0 0;
+  font-size: clamp(25px, 3.2vw, 40px);
+  font-weight: 800;
+}
+.businessHoursClock {
+  display: block;
+  margin-top: clamp(44px, 7vh, 86px);
+  color: rgba(255,255,255,.8);
+  font-size: clamp(18px, 2.2vw, 27px);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 700px) {
+  .businessHoursScreen { padding: 24px 18px; }
+  .businessHoursPanel { border-radius: 26px; }
+}
