@@ -104,9 +104,11 @@ firebase.auth().onAuthStateChanged(async user=>{
   document.body.classList.toggle('admin-authenticated',ok);
   if(ok){
    setAuthenticatedTestModeUI(true);
+   startAdminTestModeRemote(user);
    startRealtimeSubscriptions();
   }else{
    setAuthenticatedTestModeUI(false);
+   stopAdminTestModeRemote();
    stopRealtimeSubscriptions();
    if(user){
     adminLoginError.textContent='관리자 권한이 없는 계정입니다.';
@@ -124,6 +126,7 @@ const soundSettingsButton=document.getElementById('soundSettingsButton');
 const connectionBadge=document.getElementById('connectionBadge');
 const testModeButton=document.getElementById('testModeButton');
 const testModeConnection=document.getElementById('testModeConnection');
+const retryTestMode=document.getElementById('retryTestMode');
 const testModeModal=document.getElementById('testModeModal');
 const testModeModalTitle=document.getElementById('testModeModalTitle');
 const testModeModalDescription=document.getElementById('testModeModalDescription');
@@ -140,6 +143,8 @@ const soundPreset=document.getElementById('soundPreset');
 
 let adminTestModeAuthenticated=false;
 let adminTestModeConnected=false;
+let adminTestModePhase='waiting';
+let adminTestModeRemote=null;
 function testModeMinutes(state){
  return Math.max(1,Math.ceil((state.expiresAt-Date.now())/60000))
 }
@@ -150,13 +155,36 @@ function renderAdminTestMode(state=adminTestModeController.getState()){
  testModeButton.classList.toggle('enabled',state.enabled);
  testModeButton.textContent=state.enabled?`⚠️ 테스트 모드 켜짐 · ${testModeMinutes(state)}분 남음`:'테스트 모드 꺼짐';
  testModeButton.setAttribute('aria-pressed',String(state.enabled));
- testModeConnection.textContent=adminTestModeConnected?(state.enabled?'테스트 모드 적용됨':'키오스크 연결됨'):'키오스크 연결 대기';
- testModeConnection.className=`test-mode-connection ${adminTestModeConnected?'connected':'waiting'}`;
+ const phaseLabels={connected:'키오스크 연결됨 · mobile-01',requesting:'활성화 요청 중 · mobile-01',applied:'테스트 모드 적용됨 · mobile-01',off:'테스트 모드 종료 확인 · mobile-01',waiting:'키오스크 연결 대기 · mobile-01','no-response':'키오스크 응답 없음 · mobile-01',rejected:'키오스크 적용 거부 · mobile-01',error:'적용 확인 불가 · mobile-01'};
+ testModeConnection.textContent=phaseLabels[adminTestModePhase]||phaseLabels.waiting;
+ const confirmed=['connected','applied','off'].includes(adminTestModePhase);
+ testModeConnection.className=`test-mode-connection ${confirmed?'connected':'waiting'}`;
+ retryTestMode.hidden=!adminTestModeAuthenticated||adminTestModePhase!=='no-response';
 }
 function setAuthenticatedTestModeUI(authenticated){
  adminTestModeAuthenticated=authenticated;
  if(!authenticated&&adminTestModeController?.isEnabled())adminTestModeController.disable('admin-sign-out');
  renderAdminTestMode();
+}
+function handleAdminRemoteStatus(status){
+ adminTestModePhase=status.phase;
+ adminTestModeConnected=['connected','requesting','applied','off'].includes(status.phase);
+ renderAdminTestMode();
+}
+function startAdminTestModeRemote(user){
+ stopAdminTestModeRemote();
+ adminTestModeRemote=window.PJ_TEST_MODE_REMOTE.createAdminChannel({
+  db,firebase,user,controller:adminTestModeController,
+  storeId:'pangyo2-techno-valley',kioskId:'mobile-01',
+  onStatus:handleAdminRemoteStatus
+ });
+ adminTestModeRemote.start();
+}
+function stopAdminTestModeRemote(){
+ adminTestModeRemote?.stop();
+ adminTestModeRemote=null;
+ adminTestModeConnected=false;
+ adminTestModePhase='waiting';
 }
 function openTestModeConfirmation(){
  const enabled=adminTestModeController.isEnabled();
@@ -170,18 +198,23 @@ function openTestModeConfirmation(){
 }
 const adminTestModeController=window.PJ_AFTER_HOURS_TEST_MODE.createController({
  role:'admin',
- onChange:state=>renderAdminTestMode(state),
+ onChange:state=>{if(!state.enabled&&adminTestModePhase==='applied')adminTestModePhase='off';renderAdminTestMode(state)},
  onConnection:status=>{adminTestModeConnected=status.connected;renderAdminTestMode()}
 });
 adminTestModeController.start();
 testModeButton?.addEventListener('click',()=>{if(adminTestModeAuthenticated)openTestModeConfirmation()});
 cancelTestMode?.addEventListener('click',()=>{testModeModal.hidden=true});
-confirmTestMode?.addEventListener('click',()=>{
+confirmTestMode?.addEventListener('click',async()=>{
  if(!adminTestModeAuthenticated)return;
- if(confirmTestMode.dataset.action==='enable')adminTestModeController.enable();
- else adminTestModeController.disable('admin-disabled');
- testModeModal.hidden=true;
+ confirmTestMode.disabled=true;
+ try{
+  if(confirmTestMode.dataset.action==='enable')await adminTestModeRemote.requestEnable();
+  else await adminTestModeRemote.requestDisable();
+  testModeModal.hidden=true;
+ }catch(error){showAdminMessage(error.message||'테스트 모드 요청에 실패했습니다.',true)}
+ finally{confirmTestMode.disabled=false}
 });
+retryTestMode?.addEventListener('click',async()=>{retryTestMode.disabled=true;try{await adminTestModeRemote?.retry()}catch(error){showAdminMessage(error.message,true)}finally{retryTestMode.disabled=false}});
 testModeModal?.addEventListener('click',event=>{if(event.target===testModeModal)testModeModal.hidden=true});
 const soundVolume=document.getElementById('soundVolume');
 const volumeValue=document.getElementById('volumeValue');

@@ -133,6 +133,54 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /runtimeControls/{storeId}/kiosks/{kioskId} {
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().hasOnly([
+          'storeId','kioskId','sessionId','role','heartbeatAt'
+        ])
+        && request.resource.data.storeId == storeId
+        && request.resource.data.kioskId == kioskId
+        && validString(request.resource.data.sessionId, 128)
+        && request.resource.data.role == 'kiosk'
+        && request.resource.data.heartbeatAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    match /runtimeControls/{storeId}/commands/{kioskId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'storeId','kioskId','targetSessionId','action','requestId','requestedBy',
+          'requestedAt','expiresAt','ack','acknowledgedAt'
+        ])
+        && request.resource.data.storeId == storeId
+        && request.resource.data.kioskId == kioskId
+        && validString(request.resource.data.targetSessionId, 128)
+        && request.resource.data.action in ['enable','disable']
+        && validString(request.resource.data.requestId, 128)
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt <= request.time + duration.value(30, 'm')
+        && request.resource.data.ack == null
+        && request.resource.data.acknowledgedAt == null;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'ack','acknowledgedAt'
+        ])
+        && request.resource.data.acknowledgedAt == request.time
+        && request.resource.data.ack.keys().hasOnly([
+          'requestId','kioskId','sessionId','action','applied','enabled'
+        ])
+        && request.resource.data.ack.requestId == resource.data.requestId
+        && request.resource.data.ack.kioskId == kioskId
+        && request.resource.data.ack.sessionId == resource.data.targetSessionId
+        && request.resource.data.ack.action == resource.data.action
+        && request.resource.data.ack.applied is bool
+        && request.resource.data.ack.enabled is bool;
+      allow delete: if isAdmin();
+    }
+
     match /customers/{customerId} { allow read, write: if isAdmin(); }
     match /salesStats/{document=**} { allow read, write: if isAdmin(); }
     match /dailyStats/{document=**} { allow read, write: if isAdmin(); }

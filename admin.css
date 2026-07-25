@@ -282,3 +282,4 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .test-mode-connection.waiting{background:#fff0c9;color:#795000}
 .test-mode-description{white-space:pre-line;line-height:1.7;color:#38312b}
 .test-mode-confirm{border:0;border-radius:12px;padding:13px 16px;background:#e87500;color:#fff;font-weight:900}
+.test-mode-retry{border:1px solid #bd6500;background:#fff3dd;color:#7a3b00;border-radius:10px;padding:8px 10px;font-weight:900}

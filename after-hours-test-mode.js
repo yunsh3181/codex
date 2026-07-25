@@ -35,6 +35,9 @@
     let heartbeatTimer = null;
     let lastPeerAt = 0;
     let disposed = false;
+    let activeRequestId = null;
+    const seenRequestIds = new Set();
+    const changeListeners = new Set();
 
     const snapshot = () => ({ ...state });
     const peerConnected = () => now() - lastPeerAt < 15000;
@@ -47,11 +50,13 @@
     }
 
     function notify(reason) {
-      onChange(snapshot(), { reason, connected: peerConnected() });
+      const meta = { reason, connected: peerConnected() };
+      onChange(snapshot(), meta);
+      for (const listener of changeListeners) listener(snapshot(), meta);
     }
 
     function broadcast(type, extra = {}) {
-      channel?.postMessage({ type, sourceRole: role, sentAt: now(), state: snapshot(), ...extra });
+      channel?.postMessage({ type, sourceRole: role, sentAt: now(), state: snapshot(), requestId: activeRequestId, ...extra });
     }
 
     function apply(next, reason, { relay = false } = {}) {
@@ -75,23 +80,43 @@
       try { await runtime.setState(next); } catch (error) { console.warn('테스트 모드 런타임 동기화 실패', error); }
     }
 
-    function enable() {
-      const enabledAt = now();
-      const next = { enabled: true, enabledAt, expiresAt: enabledAt + DURATION_MS };
+    function enable(command = {}) {
+      const enabledAt = Number(command.enabledAt) || now();
+      const next = { enabled: true, enabledAt, expiresAt: Number(command.expiresAt) || enabledAt + DURATION_MS };
+      activeRequestId = command.requestId || activeRequestId;
       apply(next, 'enabled');
       broadcast('enable');
       syncRuntime(next);
       return snapshot();
     }
 
-    function disable(reason = 'disabled') {
+    function disable(reason = 'disabled', requestId = null) {
       const wasEnabled = state.enabled;
+      activeRequestId = null;
       apply(OFF_STATE, reason);
-      broadcast('disable', { reason });
+      broadcast('disable', { reason, requestId });
       syncRuntime(OFF_STATE);
       if (wasEnabled && reason === 'expired') onExpire();
       if (wasEnabled && reason === 'opening') onOpening();
       return snapshot();
+    }
+
+    function applyCommand(command, source = 'remote') {
+      const requestId = String(command?.requestId || '');
+      if (!requestId || seenRequestIds.has(requestId)) return false;
+      seenRequestIds.add(requestId);
+      if (seenRequestIds.size > 100) seenRequestIds.delete(seenRequestIds.values().next().value);
+      if (command.action === 'enable') {
+        const expiresAt = Number(command.expiresAt);
+        if (!Number.isFinite(expiresAt) || expiresAt <= now()) return false;
+        enable({ requestId, enabledAt: command.enabledAt, expiresAt });
+        return true;
+      }
+      if (command.action === 'disable') {
+        disable(`${source}-disabled`, requestId);
+        return true;
+      }
+      return false;
     }
 
     function checkOpening(isBusinessOpen) {
@@ -108,8 +133,14 @@
         return;
       }
       if (message.type === 'state' && (message.state?.enabled || !state.enabled)) apply(message.state, 'remote');
-      if (message.type === 'enable') apply(message.state, 'remote-enabled');
-      if (message.type === 'disable') apply(OFF_STATE, message.reason || 'remote-disabled');
+      if (message.type === 'enable') {
+        if (message.requestId) applyCommand({ action: 'enable', requestId: message.requestId, enabledAt: message.state?.enabledAt, expiresAt: message.state?.expiresAt }, 'broadcast');
+        else apply(message.state, 'remote-enabled');
+      }
+      if (message.type === 'disable') {
+        if (message.requestId) applyCommand({ action: 'disable', requestId: message.requestId }, 'broadcast');
+        else apply(OFF_STATE, message.reason || 'remote-disabled');
+      }
       if (message.type === 'ping') broadcast('pong');
     }
 
@@ -138,7 +169,23 @@
       state = { ...OFF_STATE };
     }
 
-    return { start, dispose, enable, disable, checkOpening, getState: snapshot, isEnabled: () => state.enabled, isPeerConnected: peerConnected };
+    return {
+      start,
+      dispose,
+      enable,
+      disable,
+      applyCommand,
+      checkOpening,
+      getState: snapshot,
+      getActiveRequestId: () => activeRequestId,
+      isEnabled: () => state.enabled,
+      isPeerConnected: peerConnected,
+      subscribe(listener) {
+        if (typeof listener !== 'function') return () => {};
+        changeListeners.add(listener);
+        return () => changeListeners.delete(listener);
+      }
+    };
   }
 
   return { DURATION_MS, CHANNEL_NAME, OFF_STATE, normalizeState, createController };

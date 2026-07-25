@@ -71,8 +71,9 @@ test('authenticated admin UI requires confirmation and reports remaining time an
   assert.match(adminSource, /setAuthenticatedTestModeUI\(true\)/);
   assert.match(adminSource, /Math\.ceil\(\(state\.expiresAt-Date\.now\(\)\)\/60000\)/);
   assert.match(adminSource, /키오스크 연결 대기/);
-  assert.match(adminSource, /adminTestModeController\.enable\(\)/);
-  assert.match(adminSource, /adminTestModeController\.disable\('admin-disabled'\)/);
+  assert.match(adminSource, /adminTestModeRemote\.requestEnable\(\)/);
+  assert.match(adminSource, /adminTestModeRemote\.requestDisable\(\)/);
+  assert.match(adminSource, /applied:'테스트 모드 적용됨/);
 });
 
 test('kiosk bypasses only the closed UI and displays a non-dismissible banner', () => {

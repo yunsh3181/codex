@@ -2163,6 +2163,7 @@ const db = firebase.firestore();
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
+<script src="test-mode-remote-channel.js?v=1"></script>
 <script>
 const localeTags={ko:'ko-KR',en:'en-US',ja:'ja-JP',zh:'zh-CN',vi:'vi-VN',es:'es-ES'};
 const money=n=>{const lang=window.PJ_I18N?.currentLanguage?.()||'ko',amount=new Intl.NumberFormat(localeTags[lang]||'ko-KR').format(Math.round(n));return t('ui.currency.krw',{amount})};
@@ -2251,6 +2252,17 @@ const kioskTestModeController=testModeApi.createController({
  }
 });
 kioskTestModeController.start();
+const remoteTestModeApi=window.PJ_TEST_MODE_REMOTE||{createKioskChannel:()=>({start(){return Promise.resolve()},stop(){}})};
+const kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
+ db,
+ firebase,
+ controller:kioskTestModeController,
+ storeId:'pangyo2-techno-valley',
+ kioskId:localStorage.getItem('pjDeviceId')||'mobile-01',
+ onStatus:status=>{if(status.phase==='error')console.warn('원격 테스트 모드 연결 실패',status.error)}
+});
+kioskRemoteTestMode.start().catch(error=>console.warn('원격 테스트 모드 시작 실패',error));
+window.addEventListener('pagehide',()=>kioskRemoteTestMode.stop());
 function testModeBanner(){
  return isTestModeEnabled()?`<div class="testModeBanner" role="status">${t('ui.testMode.banner')}</div>`:''
 }
