@@ -6,6 +6,8 @@ const vm=require('vm');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const touchLayoutCss=fs.readFileSync(path.join(root,'styles','device.css'),'utf8');
+const kioskOptionCss=fs.readFileSync(path.join(root,'styles','device-kiosk21.css'),'utf8');
+const selectedOptionCss=kioskOptionCss.split('/* Selected option screens: full-width, single-column cards on kiosk21 only. */')[1]?.split('html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,')[0]||'';
 const languages=['ko','en','ja','zh','vi','es'];
 const elements=new Map();
 const classList={add(){},remove(){},toggle(){}};
@@ -164,6 +166,34 @@ assert.match(incompleteDrink,/selectionFooterCard setDrinkContinue isDisabled" r
 const accompaniment=render("Object.assign(state,{step:'accompaniment',extraDrinks:{}})");
 assert.ok(accompaniment.includes('selectionFooterCard'),'accompaniment uses the shared fixed CTA');
 assert.ok(!accompaniment.includes('card skipCard" onclick="finishAccompaniment()'), 'accompaniment CTA is outside the menu grid');
+
+for(const step of ['promo','setChoice','size','mode','pizzaOptions','accompaniment','language']){
+  assert.ok(kioskOptionCss.includes(`html[data-layout="kiosk21"] body[data-step="${step}"]`),`${step} single-column styling is kiosk21 and step scoped`);
+}
+for(const selector of ['darkBenefitGrid','darkSetGrid','sizeGuideGrid','modeChoiceGrid','doughOptionSection','accompanimentGrid','languageGrid']){
+  assert.match(kioskOptionCss,new RegExp(`\\.${selector}[^{]*\\{[\\s\\S]*?grid-template-columns: minmax\\(0, 1fr\\) !important`),`${selector} renders one full-width column`);
+}
+for(const protectedStep of ['crust','drink','side','topping','cartReview','review','payment']){
+  assert.ok(!selectedOptionCss.includes(`body[data-step="${protectedStep}"]`),`${protectedStep} receives no selected-option override`);
+}
+assert.match(kioskOptionCss,/body\[data-step="accompaniment"\] \.textQtyCard \.qty button\s*\{[\s\S]*?width: 84px !important;[\s\S]*?height: 84px !important/,'accompaniment quantity controls are 84px touch targets');
+assert.match(kioskOptionCss,/body\[data-step="accompaniment"\] \.textQtyCard:active\s*\{[\s\S]*?transform: none !important/,'accompaniment cards do not move during repeated taps');
+assert.match(kioskOptionCss,/body\[data-step="language"\] \.languageGrid button:active\s*\{[\s\S]*?transform: none !important/,'language cards do not move during taps');
+
+const regularMode=render("Object.assign(state,{step:'mode',promo:'normal',set:null,size:'R',mode:'single'})");
+assert.match(regularMode,/<button class="card modeChoiceCard" disabled onclick="selectPizzaMode\('half'\)">/,'Regular half-and-half remains disabled');
+assert.ok(regularMode.includes("onclick=\"selectPizzaMode('single')\""),'whole-pizza selection handler remains attached');
+const doughOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'takeout',promo:'takeout',bannerTakeout:true,size:'L',mode:'single',dough:'오리지널',crust:'오리지널'})");
+assert.ok(doughOptions.includes('class="optionSection doughOptionSection"'),'only the integrated dough section receives its dedicated scope');
+assert.ok(doughOptions.includes("onclick=\"setBannerOption('dough','오리지널')\""),'dough selection handler remains attached');
+assert.ok(doughOptions.includes("onclick=\"setBannerOption('crust','오리지널')\""),'protected crust selection handler remains attached');
+for(const language of languages){
+  context.window.PJ_I18N.setLanguage(language);
+  const languageMarkup=render("Object.assign(state,{step:'language'})");
+  assert.ok(languageMarkup.includes(`class="selected" aria-current="true" onclick="chooseLanguage('${language}')"`),`${language} is visibly marked as current`);
+  assert.ok(languageMarkup.includes(`onclick="chooseLanguage('${language}')"`),`${language} switch handler remains attached`);
+}
+context.window.PJ_I18N.setLanguage('ko');
 
 vm.runInContext("Object.assign(state,{orderType:'takeout',orderTiming:'now',phone:'12345678',paymentMethod:'card',set:3,promo:'set',size:'L',mode:'half',left:'P001',right:'P002',dough:'오리지널',crust:'치즈롤',toppings:{T001:1},setSides:{S004:1},extraSides:{S004:1},setDrink:'D002',extraDrinks:{D002:1,D009:2},cartItems:[]})",context);
 const payload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',context));

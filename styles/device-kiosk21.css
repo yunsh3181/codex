@@ -856,6 +856,339 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:hover {
   box-shadow: 0 6px 16px rgba(61, 47, 29, 0.1) !important;
 }
 
+/* Selected option screens: full-width, single-column cards on kiosk21 only. */
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitGrid {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 20px !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitCard {
+  aspect-ratio: auto !important;
+  width: 100%;
+  min-height: 210px !important;
+  padding: 32px !important;
+  overflow: visible;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitCard:hover,
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitCard:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitIcon {
+  width: 82px;
+  height: 82px;
+  margin: 8px auto 14px;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitCard h2 {
+  margin-bottom: 10px;
+  font-size: 38px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitCard p {
+  min-height: 0;
+  font-size: 24px !important;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="promo"] .darkBenefitPill,
+html[data-layout="kiosk21"] body[data-step="promo"] .normalOrderGuide {
+  font-size: 27px !important;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 20px !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard {
+  display: grid !important;
+  grid-template-columns: 210px minmax(0, 1fr) auto;
+  grid-template-areas:
+    "image badge price"
+    "image title price"
+    "image size action"
+    "image desc action";
+  gap: 8px 28px;
+  align-items: center;
+  aspect-ratio: auto !important;
+  width: 100%;
+  min-height: 220px !important;
+  padding: 32px !important;
+  text-align: left;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard:hover,
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetComposition {
+  grid-area: image;
+  min-width: 0;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetComposition img {
+  width: 100%;
+  max-height: 170px;
+  object-fit: contain;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetBadge {
+  grid-area: badge;
+  justify-self: start;
+  font-size: 22px;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard h2 {
+  grid-area: title;
+  margin: 0;
+  font-size: 38px;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetSize {
+  grid-area: size;
+  margin: 0;
+  font-size: 25px;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetDesc {
+  grid-area: desc;
+  font-size: 23px;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetPrice {
+  grid-area: price;
+  margin: 0;
+  font-size: 32px;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetSelect {
+  grid-area: action;
+  align-self: end;
+  font-size: 22px;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .grid.sizeGuideGrid.adaptiveCards {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 18px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 10px 28px;
+  justify-items: start;
+  width: 100%;
+  min-height: 190px !important;
+  padding: 30px !important;
+  text-align: left;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard:hover,
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard .sizeCode {
+  grid-row: 1 / span 3;
+  width: 78px;
+  height: 78px;
+  font-size: 44px;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard h2 {
+  margin: 0;
+  font-size: 38px;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard p {
+  font-size: 24px;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="kiosk21"] body[data-step="size"] .sizeGuideCard strong,
+html[data-layout="kiosk21"] body[data-step="size"] .sizePromo {
+  font-size: 28px;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] .grid.two.modeChoiceGrid,
+html[data-layout="kiosk21"] body[data-step="mode"] .optionButtons.two.modeOptionButtons {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 20px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] :where(.modeChoiceCard, .modeOptionButtons .optionBtn) {
+  width: 100%;
+  min-height: 230px !important;
+  padding: 34px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] :where(.modeChoiceCard, .modeOptionButtons .optionBtn):active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] :where(.modeChoiceCard h2, .modeMainLabel) {
+  font-size: 40px;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] :where(.modeChoiceCard p, .halfPrice) {
+  font-size: 25px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="mode"] .disabledReason {
+  font-size: 23px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection {
+  padding: 32px;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .optionButtons {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 18px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .optionBtn {
+  width: 100%;
+  min-height: 200px !important;
+  padding: 32px !important;
+  font-size: 36px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .optionBtn:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .grid.four.accompanimentGrid.adaptiveCards {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 18px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 24px;
+  align-items: center;
+  width: 100%;
+  min-height: 195px !important;
+  padding: 30px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard h3 {
+  margin: 0;
+  font-size: 36px;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard .price {
+  font-size: 29px;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard .v5TapAddHint {
+  font-size: 23px;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard .qty {
+  grid-row: 1 / span 3;
+  grid-column: 2;
+  grid-template-columns: 84px minmax(84px, 1fr) !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard .qty button {
+  width: 84px !important;
+  min-width: 84px;
+  height: 84px !important;
+  min-height: 84px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard .qty b {
+  min-width: 84px;
+  min-height: 84px;
+  font-size: 32px;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageScreen {
+  justify-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  padding: 40px 60px 72px;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageScreen h1 {
+  font-size: 46px;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageScreen p {
+  font-size: 24px;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageGrid {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 16px !important;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageGrid button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  min-height: 145px;
+  padding: 28px 32px;
+  font-size: 37px;
+  overflow-wrap: anywhere;
+  text-align: left;
+  white-space: normal;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageGrid button:active {
+  transform: none !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageGrid button[aria-current="true"] {
+  border: 4px solid #ffd44e;
+  background: rgba(255, 212, 78, 0.2);
+  box-shadow: 0 0 0 6px rgba(255, 212, 78, 0.13);
+}
+
+html[data-layout="kiosk21"] body[data-step="language"] .languageSelectedMark {
+  display: grid;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  margin-left: 20px;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffd44e;
+  color: #17342a;
+  font-size: 30px;
+}
+
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active {
   outline: 6px solid currentColor !important;
   outline-offset: -6px;
