@@ -9,7 +9,13 @@
     "test": "node --test tests/*.test.js",
     "desktop:dev": "electron . --dev",
     "desktop:build": "electron-builder",
-    "desktop:build:win": "node -e \"if (process.platform !== 'win32') { console.error('Windows NSIS artifacts must be built on Windows to preserve uninstaller integrity.'); process.exit(1); }\" && electron-builder --win --x64"
+    "desktop:build:win": "node -e \"if (process.platform !== 'win32') { console.error('Windows NSIS artifacts must be built on Windows to preserve uninstaller integrity.'); process.exit(1); }\" && npm run dist:win:x64",
+    "dist:win:x64": "electron-builder --win --x64",
+    "dist:win:ia32": "electron-builder --win --ia32",
+    "dist:win:ia32:dir": "electron-builder --win --ia32 --dir",
+    "dist:win:all": "electron-builder --win --x64 --ia32",
+    "verify:win:ia32": "node scripts/verify-windows-pe.js ia32",
+    "verify:win:x64": "node scripts/verify-windows-pe.js x64"
   },
   "devDependencies": {
     "electron": "43.2.0",
@@ -36,28 +42,18 @@
     ],
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
+        "nsis",
+        "portable"
       ]
     },
     "nsis": {
-      "artifactName": "PapaJohns-Kiosk-Setup-${version}.${ext}",
+      "artifactName": "PapaJohns-Kiosk-Setup-${version}-${arch}.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "runAfterFinish": false
     },
     "portable": {
-      "artifactName": "PapaJohns-Kiosk-Portable-${version}.${ext}"
+      "artifactName": "PapaJohns-Kiosk-Portable-${version}-${arch}.${ext}"
     }
   }
 }
