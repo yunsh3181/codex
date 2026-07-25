@@ -160,6 +160,7 @@ const ADMIN_SEATS=[
  {id:'annex-1',name:'별관1'},{id:'annex-2',name:'별관2'},{id:'annex-3',name:'별관3'},{id:'annex-4',name:'별관4'},
  {id:'room-1',name:'룸1'},{id:'room-2',name:'룸2'},{id:'room-3',name:'룸3'}
 ];
+const ADMIN_SEAT_SLOTS=Array.from({length:15},(_,index)=>({number:index+1,seat:ADMIN_SEATS[index]||null}));
 const seatStatusNames={empty:'빈자리',occupied:'사용중',held:'주문중'};
 let seatDocuments={};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
@@ -430,15 +431,33 @@ function manualCustomerCallCard(call){
  return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
+function seatOverviewOrder(seatId){
+ return orders.filter(order=>order.orderType!=='takeout'&&orderSeatIds(order).includes(seatId)&&ACTIVE_ORDER_STATUSES.has(order.status))
+  .map((order,index)=>({order,index}))
+  .sort((a,b)=>(orderTimeMillis(b.order.createdAt)??orderTimeMillis(b.order.createdAtClient)??0)-(orderTimeMillis(a.order.createdAt)??orderTimeMillis(a.order.createdAtClient)??0)||b.index-a.index)
+  .map(entry=>entry.order)[0]||null;
+}
+function seatOverviewVisual(data,order){
+ const status=normalizedSeatStatus(data.status);
+ if(status==='empty')return {className:'empty',label:'빈자리'};
+ const minutes=elapsedMinutes(order||{createdAt:data.occupiedAt||data.heldAt});
+ if(minutes>=90)return {className:'attention',label:'확인 필요'};
+ if(order?.status==='cooking')return {className:'cooking',label:'조리중'};
+ return {className:'occupied',label:'사용중'};
+}
 function renderSeatOverview(){
  if(!seatOverviewGrid)return;
- seatOverviewGrid.innerHTML=ADMIN_SEATS.map(seat=>{
-  const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
-  const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
-  const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}`;
+ seatOverviewGrid.innerHTML=ADMIN_SEAT_SLOTS.map(slot=>{
+  const seat=slot.seat;
+  if(!seat)return `<article class="seat-overview-card empty placeholder"><strong>테이블 ${slot.number}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>빈자리</span></article>`;
+  const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status),order=seatOverviewOrder(seat.id),visual=seatOverviewVisual(data,order);
+  const orderNumber=adminOrderNumberLabel(order)||orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
+  const started=order?.createdAt||order?.createdAtClient||data.occupiedAt||data.heldAt;
+  const {paid}=safeAmounts(order||{});
+  const content=`<strong>테이블 ${slot.number}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${visual.label}</span>${status!=='empty'?`<span class="seat-order-number">주문 ${esc(orderNumber||'-')}</span><span>시작 ${formatTime(started)}</span><span>경과 ${elapsedMinutes(order||{createdAt:started})}분</span><b>${money(paid)}</b>`:''}`;
   return status==='empty'
-   ?`<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}">${content}</article>`
-   :`<button type="button" class="seat-overview-card ${status}" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} ${seatStatusNames[status]}. 주문 상세보기">${content}</button>`;
+   ?`<article class="seat-overview-card ${visual.className}" data-seat-id="${esc(seat.id)}">${content}</article>`
+   :`<button type="button" class="seat-overview-card ${visual.className}" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="테이블 ${slot.number} ${visual.label}. 주문 상세보기">${content}</button>`;
  }).join('');
 }
 function render(){

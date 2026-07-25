@@ -237,10 +237,10 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .takeout-small{gap:4px;padding:10px;border-radius:9px;box-shadow:none}.takeout-small-number{font-size:25px}.takeout-small>span{font-size:11px}.takeout-small>button{margin-top:4px;padding:9px 6px;border-radius:7px;font-size:13px}
 .takeout-large .order-card-body{grid-template-columns:minmax(0,43fr) minmax(0,57fr)}.takeout-accept-action button{min-height:40px;font-size:15px}
 .other-orders-title{margin:10px 0 7px;font-size:17px}.order-list{gap:8px}.order-card{border-radius:10px;box-shadow:none}
-.seat-overview-grid{display:grid;grid-template-columns:repeat(3,70px)!important;grid-auto-rows:70px;grid-auto-flow:row;justify-content:start;align-content:start;gap:6px;width:222px;min-width:222px;max-width:222px;max-height:none;overflow:visible}
-.seat-overview-card{display:flex;width:70px;height:70px;min-width:70px;min-height:70px;max-width:70px;max-height:70px;aspect-ratio:1/1;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:2px;overflow:visible;margin:0;padding:5px;border:1px solid;border-radius:8px;font:inherit;text-align:center}
-.seat-overview-card>strong{display:block;overflow:visible;font-size:11px;line-height:1.1;overflow-wrap:anywhere}.seat-overview-card small{font-size:9px;line-height:1.1;overflow-wrap:anywhere}.seat-overview-status{display:flex;align-items:center;justify-content:center;gap:2px;font-size:9px;font-weight:900;line-height:1.1}.seat-overview-status i{width:5px;height:5px;flex:0 0 auto;border-radius:50%;background:currentColor}
-.seat-overview-card.empty{color:#176b35;border-color:#78b88b;background:#f0faf3}.seat-overview-card.occupied{color:#ac2027;border-color:#dc8589;background:#fff4f4}.seat-overview-card.held{color:#a35e00;border-color:#dfaa55;background:#fff8ec}
+.seat-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row;gap:8px;width:100%;min-width:0;max-width:none;max-height:none;overflow:visible}
+.seat-overview-card{display:flex;min-width:0;min-height:126px;box-sizing:border-box;flex-direction:column;align-items:stretch;justify-content:center;gap:4px;overflow:hidden;margin:0;padding:10px;border:1px solid;border-radius:10px;font:inherit;text-align:left}
+.seat-overview-card>strong{display:block;overflow:hidden;font-size:13px;line-height:1.15;white-space:nowrap;text-overflow:ellipsis}.seat-overview-card>span:not(.seat-overview-status){font-size:9px;line-height:1.2;white-space:nowrap}.seat-overview-card>b{margin-top:2px;font-size:12px}.seat-overview-status{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:900;line-height:1.1}.seat-overview-status i{width:6px;height:6px;flex:0 0 auto;border-radius:50%;background:currentColor}
+.seat-overview-card.empty{grid-column:auto;color:#68717c;border-color:#d9dde2;background:#fff}.seat-overview-card.occupied{color:#087747;border-color:#9bd0b5;background:#eaf7f0}.seat-overview-card.cooking{color:#b75c00;border-color:#f4bb76;background:#fff3e4}.seat-overview-card.attention{color:#b3152c;border-color:#ef9ca8;background:#fff0f2}.seat-overview-card.placeholder{border-style:dashed;color:#9299a2;background:#f8f9fa}
 .seat-overview-card:is(button){appearance:none;cursor:pointer;transform:none;box-shadow:none}.seat-overview-card:is(button):hover{opacity:.88}.seat-overview-card:is(button):active{transform:none;opacity:.72;box-shadow:none}.seat-overview-card:is(button):focus-visible{outline:2px solid #125fc2;outline-offset:2px}.seat-overview-card:is(button):disabled{opacity:.55;cursor:wait}
 .order-detail-trigger{cursor:pointer}.order-detail-trigger:focus-visible{outline:3px solid #125fc2;outline-offset:2px}.order-detail-trigger .actions button,.order-detail-trigger>button{cursor:pointer}
 .admin-option-summary{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.admin-option-summary span{display:inline-block!important;margin:0!important;padding:3px 6px;border-radius:999px;background:#f0f3f1;color:#4d5b53!important;font-size:11px;font-weight:800}
@@ -254,7 +254,7 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 @media(max-width:1300px){
  .stats-toolbar{grid-template-columns:1fr}
  .operations-layout{grid-template-columns:minmax(210px,240px) minmax(0,1fr);grid-template-areas:"rail workspace" "seats seats"}
- .seat-overview{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(3,70px)!important}
+ .seat-overview{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:768px){
  .stats-toolbar{grid-template-columns:minmax(0,1fr);gap:6px}
@@ -266,7 +266,7 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
  .stats-toolbar .manual-call-form input{width:82px;height:36px}
  .admin-header{position:relative;min-height:0}.admin-section-tabs{top:0;display:block!important;margin:0 -9px 7px!important;padding:6px 9px!important}.primary-admin-tabs,.secondary-admin-tabs{overflow-x:auto}.secondary-admin-tabs{margin-top:5px}
  .operations-layout{display:flex;flex-direction:column}.order-workspace{display:contents}.takeout-workflow{order:1;width:100%}.takeout-rail{order:2;width:100%}.seat-overview{order:3;width:100%}.other-orders-title{order:4;width:100%}.order-list{order:5;width:100%}
- .takeout-rail{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(2,70px)!important;width:146px;min-width:146px;max-width:146px}
+ .takeout-rail{position:static;max-height:none}.seat-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;min-width:0;max-width:none}.seat-overview-card{min-height:104px;padding:7px}.seat-overview-card>strong{font-size:11px}.seat-overview-card>span:not(.seat-overview-status){font-size:8px}
  .takeout-large .order-card-body{grid-template-columns:1fr}
 }
 @media(max-width:560px){
