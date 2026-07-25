@@ -5799,9 +5799,14 @@ body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .stage{
   body:is([data-step="party"],[data-step="area"],[data-step="promo"]) .stage{padding-bottom:calc(88px + var(--safe-bottom) + 28px)!important}
 }
 
-/* PR 2: full-width pizza composition and crust selection cards. */
+/* Pizza composition and crust touch layout. */
 body[data-step="mode"] .grid.modeChoiceGrid,
-body[data-step="mode"] .optionButtons.two.modeOptionButtons,
+body[data-step="mode"] .optionButtons.two.modeOptionButtons{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:20px!important;
+  width:100%!important;
+  max-width:100%!important;
+}
 body[data-step="mode"] .setCrustGrid,
 body[data-step="crust"] .crustTextGrid{
   grid-template-columns:minmax(0,1fr)!important;
@@ -5809,12 +5814,23 @@ body[data-step="crust"] .crustTextGrid{
   width:100%!important;
   max-width:100%!important;
 }
-body[data-step="mode"] :where(.modeChoiceCard,.modeOptionButtons .optionBtn,.setCrustCard),
+body[data-step="mode"] :where(.modeChoiceCard,.modeOptionButtons .optionBtn){
+  width:100%!important;
+  min-width:0!important;
+  min-height:260px!important;
+  padding:32px 36px!important;
+  gap:14px!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  text-align:left!important;
+  overflow:visible!important;
+}
+body[data-step="mode"] .setCrustCard,
 body[data-step="crust"] .crustTextCard{
   width:100%!important;
   min-width:0!important;
-  min-height:150px!important;
-  padding:25px 36px!important;
+  min-height:250px!important;
+  padding:32px 36px!important;
   gap:12px!important;
   align-items:flex-start!important;
   justify-content:center!important;
@@ -5826,7 +5842,7 @@ body[data-step="mode"] .modeOptionButtons .modeMainLabel,
 body[data-step="mode"] .setCrustCard b,
 body[data-step="crust"] .crustTextCard h2{
   margin:0!important;
-  font-size:clamp(34px,4vw,40px)!important;
+  font-size:clamp(36px,4vw,40px)!important;
   line-height:1.18!important;
   letter-spacing:-1px!important;
   white-space:normal!important;
@@ -5846,13 +5862,21 @@ body[data-step="crust"] .crustTextCard p{
 body[data-step="mode"] :where(.halfPrice,.setCrustCard .crustPrice),
 body[data-step="crust"] .crustTextCard .price{
   margin:0!important;
-  font-size:clamp(26px,3vw,30px)!important;
+  font-size:clamp(28px,3vw,30px)!important;
   line-height:1.25!important;
 }
 body[data-step="mode"] :where(.modeChoiceCard,.optionBtn,.setCrustCard):is(.active,[aria-pressed="true"]),
 body[data-step="crust"] .crustTextCard:is(.active,[aria-pressed="true"]){
+  border-color:#ffd21c!important;
   border-width:4px!important;
+  outline:4px solid #ffd21c!important;
+  outline-offset:2px!important;
   box-shadow:0 0 0 5px rgba(247,207,43,.28),0 10px 24px rgba(0,0,0,.18)!important;
+  transform:none!important;
+}
+body[data-step="mode"] :where(.modeChoiceCard,.optionBtn,.setCrustCard):active,
+body[data-step="crust"] .crustTextCard:active{
+  transform:none!important;
 }
 body:is([data-step="mode"],[data-step="crust"]) .crustCheck{
   top:14px!important;
@@ -5879,24 +5903,37 @@ body:is([data-step="mode"],[data-step="crust"]) .stage{
 }
 @media(max-width:700px){
   body[data-step="mode"] .grid.modeChoiceGrid,
-  body[data-step="mode"] .optionButtons.two.modeOptionButtons,
+  body[data-step="mode"] .optionButtons.two.modeOptionButtons{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:16px!important;
+    margin-bottom:28px!important;
+  }
   body[data-step="mode"] .setCrustGrid,
   body[data-step="crust"] .crustTextGrid{gap:14px!important;margin-bottom:28px!important}
-  body[data-step="mode"] :where(.modeChoiceCard,.modeOptionButtons .optionBtn,.setCrustCard),
+  body[data-step="mode"] :where(.modeChoiceCard,.modeOptionButtons .optionBtn){
+    min-height:220px!important;
+    padding:24px 18px!important;
+    gap:9px!important;
+  }
+  body[data-step="mode"] .setCrustCard,
   body[data-step="crust"] .crustTextCard{
-    min-height:132px!important;
-    padding:22px 30px!important;
+    min-height:220px!important;
+    padding:24px 22px!important;
     gap:9px!important;
   }
   body[data-step="mode"] .modeChoiceCard h2,
   body[data-step="mode"] .modeOptionButtons .modeMainLabel,
   body[data-step="mode"] .setCrustCard b,
-  body[data-step="crust"] .crustTextCard h2{font-size:34px!important}
+  body[data-step="crust"] .crustTextCard h2{font-size:28px!important}
+  body[data-step="mode"] .modeChoiceCard h2,
+  body[data-step="mode"] .modeOptionButtons .modeMainLabel{font-size:28px!important}
   body[data-step="mode"] .modeChoiceCard p,
   body[data-step="mode"] .setCrustCard .crustDesc,
-  body[data-step="crust"] .crustTextCard p{font-size:22px!important}
+  body[data-step="crust"] .crustTextCard p{font-size:18px!important}
+  body[data-step="mode"] .modeChoiceCard p{font-size:18px!important}
   body[data-step="mode"] :where(.halfPrice,.setCrustCard .crustPrice),
-  body[data-step="crust"] .crustTextCard .price{font-size:26px!important}
+  body[data-step="crust"] .crustTextCard .price{font-size:22px!important}
+  body[data-step="mode"] .halfPrice{font-size:22px!important}
   body:is([data-step="mode"],[data-step="crust"]) .disabledReason{font-size:20px!important}
   body:is([data-step="mode"],[data-step="crust"]) .stage{
     padding-bottom:calc(var(--order-summary-height) + var(--safe-bottom) + 62px)!important;

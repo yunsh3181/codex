@@ -496,3 +496,22 @@ html[data-layout="phone"] body[data-step="done"] .doneHomeBtn {
   margin-bottom: var(--safe-bottom);
   touch-action: manipulation;
 }
+
+/* Pizza composition and crust touch layout exceptions. */
+html[data-layout="phone"] body[data-step="mode"] .grid.two.modeChoiceGrid,
+html[data-layout="phone"] body[data-step="mode"] .optionButtons.two.modeOptionButtons {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+html[data-layout="phone"] body[data-step="mode"] .grid.two.modeChoiceGrid .modeChoiceCard,
+html[data-layout="phone"] body[data-step="mode"] .modeOptionButtons .optionBtn {
+  min-height: 220px !important;
+  padding: 24px 18px !important;
+}
+
+html[data-layout="phone"] body[data-step="mode"] .setCrustCard,
+html[data-layout="phone"] body[data-step="crust"] .crustTextCard {
+  min-height: 220px !important;
+  padding: 24px 22px !important;
+}
