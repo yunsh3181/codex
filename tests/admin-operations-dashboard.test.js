@@ -15,7 +15,9 @@ assert.ok(css.includes('grid-template-columns:minmax(220px,15%) minmax(520px,1fr
 assert.ok(css.includes('.seat-overview{grid-area:seats;min-width:300px}'),'seat panel remains wide enough for readable Korean names');
 assert.ok(css.includes('.seat-overview{max-height:none;overflow:visible}'),'seat panel displays every row without vertical scrolling');
 assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row'),'seat overview uses a fluid three-column grid');
-assert.ok(css.includes('.seat-overview-card{display:flex;min-width:0;height:88px;box-sizing:border-box'),'all seat cards use an equal operational height');
+assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto;width:auto;height:auto;aspect-ratio:1/1;min-width:0;min-height:0;box-sizing:border-box'),'all seat cards derive their width from the fluid grid cell while preserving a square aspect ratio');
+assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto'),'empty seat status never inherits the generic full-row empty-state placement');
+assert.ok(!css.includes('.seat-overview-card{display:flex;min-width:0;height:88px'),'seat cards no longer use the fixed 88px height');
 assert.ok(css.includes('word-break:keep-all')&&css.includes('-webkit-line-clamp:2'),'long Korean seat names remain readable on at most two lines');
 assert.ok(css.includes('@media(max-width:1300px)')&&css.includes('.seat-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}'),'1300px breakpoint preserves three columns');
 assert.ok(css.includes('@media(max-width:768px)'),'narrow layout rules remain scoped');
