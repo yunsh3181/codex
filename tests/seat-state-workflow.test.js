@@ -23,12 +23,11 @@ assert.ok(kiosk.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'
 assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'payment no longer marks a seat in use');
 
 assert.strictEqual([...seats.matchAll(/const statusNames=\{([^}]+)\}/g)].length,1,'seat manager has one canonical status map');
-for(const label of ['사용가능','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
+for(const label of ['빈자리','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
 assert.ok(seats.includes("function normalizedSeatStatus(status){return status==='held'?'held':status==='occupied'?'occupied':'empty'}"),'legacy statuses normalize to the three-state model');
-assert.ok(seatCss.includes('.simple-seat.empty{background:#16613a'),'available seats are green');
-assert.ok(seatCss.includes('.simple-seat.held{background:linear-gradient'),'ordering seats are yellow');
-assert.ok(seatCss.includes('.simple-seat.occupied{background:linear-gradient'),'in-use seats are red');
-for(const [state,background,color] of [['empty','#E8F7EC','#1F7A3A'],['held','#FFF4D6','#C77B00'],['occupied','#FDE7E7','#C62828']])assert.ok(seatCss.includes(`.simple-seat.${state}{background:${background};border-color:${color};color:${color}}`),`${state} uses the unified seat palette`);
+for(const [zone,background,border,color] of [['papa','#eef6ff','#3b82f6','#1d4f91'],['outdoor','#edf9f0','#3b9b5f','#176b35'],['annex','#fff1f1','#dc4c52','#9f2028'],['room','#fff6e8','#ee9b2e','#9a5700']])assert.ok(seatCss.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`),`${zone} keeps its zone palette`);
+assert.ok(seatCss.includes('.simple-seat.held em i{background:#d97706}'),'ordering seats use an orange status dot');
+assert.ok(seatCss.includes('.simple-seat.occupied em i{background:#c62828}'),'in-use seats use a red status dot');
 for(const icon of ['🟢','🟡','🔴'])assert.ok(seats.includes(icon),`${icon} is shown in the seat manager`);
 assert.ok(seatCss.includes('transition:background-color 180ms ease'),'seat cards use a restrained 180ms transition');
 assert.ok(kiosk.includes("const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴'}"),'kiosk uses the same status icons');
