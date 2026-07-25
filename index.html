@@ -2167,6 +2167,7 @@ function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.
 function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 
 let businessHoursStatus=window.PJ_BUSINESS_HOURS?null:'open';
+let businessHoursClosing=false;
 function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
 function businessHoursClosedView(){
  const beforeOpen=businessHoursStatus==='before-open';
@@ -2185,24 +2186,33 @@ function updateBusinessHoursClock(date=new Date()){
  const clock=document.getElementById('businessHoursClock');
  if(clock)clock.textContent=window.PJ_BUSINESS_HOURS.UI_COPY.currentTime+' · '+window.PJ_BUSINESS_HOURS.formatKoreanTime(date)
 }
-function assertBusinessOpen(){
- if(isBusinessOpen())return true;
- businessHoursStatus=window.PJ_BUSINESS_HOURS.getStatus();
- forceBusinessHoursClosure();
- return false
+function requireBusinessOpenPure(date=new Date()){
+ if(window.PJ_BUSINESS_HOURS)window.PJ_BUSINESS_HOURS.requireOpen(date)
 }
-function forceBusinessHoursClosure(){
+function closeForBusinessHours(){
+ if(businessHoursClosing)return;
+ businessHoursClosing=true;
+ businessHoursStatus=window.PJ_BUSINESS_HOURS.getStatus();
  reset();
  mobileOrderSubmitting=false;
  render()
 }
+function assertBusinessOpen(){
+ try{requireBusinessOpenPure();return true}
+ catch(error){
+  if(error?.code!=='BUSINESS_HOURS_CLOSED')throw error;
+  closeForBusinessHours();
+  return false
+ }
+}
 function handleBusinessHoursChange(nextStatus,previousStatus,date){
  businessHoursStatus=nextStatus;
  if(nextStatus==='open'){
+  businessHoursClosing=false;
   if(previousStatus&&previousStatus!=='open')reset();
   render()
  }else{
-  forceBusinessHoursClosure()
+  closeForBusinessHours()
  }
  updateBusinessHoursClock(date)
 }
@@ -3104,7 +3114,7 @@ function buildMobileOrderPayload(){
  }
 }
 async function submitMobileOrder(){
- if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
+ requireBusinessOpenPure();
  if(!window.PJ_NETWORK.isOnline())throw new Error(t('ui.payment.saveFailedConnection'));
  const payload=buildMobileOrderPayload();
  if(!['dinein','takeout'].includes(payload.orderType))throw new Error(t('ui.payment.invalidOrderType'));
@@ -3112,13 +3122,13 @@ async function submitMobileOrder(){
  if(!Number.isInteger(payload.itemCount)||payload.itemCount<1||payload.itemCount>100)throw new Error(t('ui.payment.invalidQuantity'));
  if(!Number.isFinite(payload.total)||payload.total<0||payload.total>3000000)throw new Error(t('ui.payment.invalidAmount'));
  if(!/^010\d{8}$/.test(payload.phone||''))throw new Error(t('ui.payment.phoneCheck'));
- if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
+ requireBusinessOpenPure();
  const orderRef=db.collection('orders').doc();
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
  await db.runTransaction(async transaction=>{
   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
+  requireBusinessOpenPure();
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
-  if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
   transaction.set(orderRef,payload);
   seatRefs.forEach(ref=>transaction.set(ref,{status:'held',heldBy:null,heldUntil:null,partySize:state.partySize||null,orderNo:state.orderNo,orderId:orderRef.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
  });
@@ -3142,6 +3152,7 @@ async function complete(event){
   state.step='done';render();
   setTimeout(()=>{reset();render()},5000)
  }catch(error){
+  if(error?.code==='BUSINESS_HOURS_CLOSED'){closeForBusinessHours();return}
   console.error(error);
   alert(t('ui.payment.saveFailedConnection')+'\n'+error.message);
   if(errorBox)errorBox.textContent=error.message||t('ui.payment.saveFailed');if(button){button.disabled=false;button.textContent=t('ui.payment.submit')}

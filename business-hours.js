@@ -58,6 +58,19 @@
     return getStatus(date) === 'open';
   }
 
+  class BusinessHoursClosedError extends Error {
+    constructor(message = UI_COPY.closedError) {
+      super(message);
+      this.name = 'BusinessHoursClosedError';
+      this.code = 'BUSINESS_HOURS_CLOSED';
+    }
+  }
+
+  function requireOpen(date = new Date()) {
+    if (!isOpen(date)) throw new BusinessHoursClosedError();
+    return true;
+  }
+
   function millisecondsUntilNextBoundary(date = new Date()) {
     const parts = timeParts(date);
     const nowSeconds = parts.hour * 3600 + parts.minute * 60 + parts.second;
@@ -129,6 +142,8 @@
     secondsSinceMidnight,
     getStatus,
     isOpen,
+    BusinessHoursClosedError,
+    requireOpen,
     millisecondsUntilNextBoundary,
     formatKoreanTime,
     createMonitor
