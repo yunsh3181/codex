@@ -26,6 +26,8 @@
       <span>판교2테크노밸리점 · 실시간 주문관리 · v44.0.0</span>
     </div>
     <div class="header-actions">
+      <button id="testModeButton" class="test-mode-button" type="button" hidden>테스트 모드 꺼짐</button>
+      <span id="testModeConnection" class="test-mode-connection" hidden>키오스크 연결 대기</span>
       <button id="soundSettingsButton" class="sound-button">⚙️ 알림 설정</button><button id="soundButton" class="sound-button">🔔 알림음 켜기</button>
       <span id="connectionBadge" class="connection">연결 중</span>
     </div>
@@ -119,6 +121,19 @@
     </section>
   </div>
 
+  <div id="testModeModal" class="settings-modal" hidden>
+    <section class="settings-panel test-mode-panel" role="dialog" aria-modal="true" aria-labelledby="testModeModalTitle">
+      <div class="settings-head"><div><strong id="testModeModalTitle"></strong></div></div>
+      <div class="settings-body">
+        <p id="testModeModalDescription" class="test-mode-description"></p>
+        <div class="settings-actions">
+          <button id="cancelTestMode" type="button" class="secondary-button">취소</button>
+          <button id="confirmTestMode" type="button" class="test-mode-confirm"></button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div id="toast" class="toast" hidden>
     <strong>새 주문이 들어왔습니다!</strong>
     <span id="toastText"></span>
@@ -132,6 +147,7 @@
   <script src="../order-catalog.js?v=44.0.0"></script>
   <script src="../data.js?v=44.0.0"></script>
   <script src="../speech.js?v=1"></script>
+  <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../admin.js?v=44.0.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>

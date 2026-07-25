@@ -2126,6 +2126,14 @@ window.addEventListener('error',function(e){
   },0);
 });
 </script>
+<style id="after-hours-test-mode-styles">
+.testModeBanner{position:sticky;top:0;z-index:100;min-height:48px;display:grid;place-items:center;padding:8px 16px;box-sizing:border-box;background:#f6a623;color:#211407;border-bottom:3px solid #a94d00;font-size:18px;font-weight:1000;text-align:center}
+body:has(.testModeBanner) .head{top:48px}
+body:has(.testModeBanner) .progress{top:134px}
+.testDoneSummary{max-width:620px;margin:24px auto;text-align:left;border:2px solid #e89318}
+.testDoneSummary strong{color:#9a4100}
+@media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
+</style>
 <div id="main" class="app"></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
@@ -2154,6 +2162,7 @@ const db = firebase.firestore();
 <script src="i18n/ui.js?v=48.0"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
+<script src="after-hours-test-mode.js?v=1"></script>
 <script>
 const localeTags={ko:'ko-KR',en:'en-US',ja:'ja-JP',zh:'zh-CN',vi:'vi-VN',es:'es-ES'};
 const money=n=>{const lang=window.PJ_I18N?.currentLanguage?.()||'ko',amount=new Intl.NumberFormat(localeTags[lang]||'ko-KR').format(Math.round(n));return t('ui.currency.krw',{amount})};
@@ -2170,6 +2179,8 @@ function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseS
 let businessHoursStatus=window.PJ_BUSINESS_HOURS?null:'open';
 let businessHoursClosing=false;
 function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
+function isTestModeEnabled(){return kioskTestModeController?.isEnabled()===true}
+function isOrderingAllowed(){return isBusinessOpen()||isTestModeEnabled()}
 function businessHoursClosedView(){
  const beforeOpen=businessHoursStatus==='before-open';
  const copy=window.PJ_BUSINESS_HOURS.UI_COPY;
@@ -2188,6 +2199,7 @@ function updateBusinessHoursClock(date=new Date()){
  if(clock)clock.textContent=window.PJ_BUSINESS_HOURS.UI_COPY.currentTime+' · '+window.PJ_BUSINESS_HOURS.formatKoreanTime(date)
 }
 function requireBusinessOpenPure(date=new Date()){
+ if(isTestModeEnabled())return true;
  if(window.PJ_BUSINESS_HOURS)window.PJ_BUSINESS_HOURS.requireOpen(date)
 }
 function closeForBusinessHours(){
@@ -2199,6 +2211,7 @@ function closeForBusinessHours(){
  render()
 }
 function assertBusinessOpen(){
+ if(isTestModeEnabled())return true;
  try{requireBusinessOpenPure();return true}
  catch(error){
   if(error?.code!=='BUSINESS_HOURS_CLOSED')throw error;
@@ -2209,6 +2222,7 @@ function assertBusinessOpen(){
 function handleBusinessHoursChange(nextStatus,previousStatus,date){
  businessHoursStatus=nextStatus;
  if(nextStatus==='open'){
+  if(isTestModeEnabled()){kioskTestModeController.disable('opening');return}
   businessHoursClosing=false;
   if(previousStatus&&previousStatus!=='open')reset();
   render()
@@ -2216,6 +2230,29 @@ function handleBusinessHoursChange(nextStatus,previousStatus,date){
   closeForBusinessHours()
  }
  updateBusinessHoursClock(date)
+}
+
+let testCompletion=null;
+function endTestModeFlow(){
+ reset();
+ testCompletion=null;
+ mobileOrderSubmitting=false;
+ businessHoursClosing=false;
+ render()
+}
+const testModeApi=window.PJ_AFTER_HOURS_TEST_MODE||{createController:options=>({start(){},isEnabled(){return false},disable(){},getState(){return {enabled:false,enabledAt:null,expiresAt:null}}})};
+const kioskTestModeController=testModeApi.createController({
+ role:'kiosk',
+ onChange:(next,meta)=>{
+  if(meta.reason==='tick')return;
+  if(!next.enabled)endTestModeFlow();
+  else if(isBusinessOpen())kioskTestModeController.disable('opening');
+  else{businessHoursClosing=false;reset();render()}
+ }
+});
+kioskTestModeController.start();
+function testModeBanner(){
+ return isTestModeEnabled()?`<div class="testModeBanner" role="status">${t('ui.testMode.banner')}</div>`:''
 }
 
 function uiIcon(name,cls=''){
@@ -2284,7 +2321,7 @@ function navigateProgress(group){
  state.step=progressTarget(group);
  render();
 }
-function shell(c){return `<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
+function shell(c){return `${testModeBanner()}<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
 function toppingVisual(name){
  const n=String(name||'');
  const icon=n.includes('치즈')?'🧀':n.includes('페퍼로니')?'🍕':n.includes('베이컨')||n.includes('햄')?'🥓':n.includes('버섯')?'🍄':n.includes('올리브')?'🫒':n.includes('양파')?'🧅':n.includes('피망')||n.includes('할라페뇨')?'🫑':n.includes('토마토')?'🍅':n.includes('옥수수')?'🌽':n.includes('파인애플')?'🍍':n.includes('감자')?'🥔':n.includes('닭')||n.includes('치킨')?'🍗':'🥩';
@@ -2301,7 +2338,7 @@ function applyAdaptiveCardSizing(){
  });
 }
 function render(){
- if(businessHoursStatus!=='open'){
+ if(businessHoursStatus!=='open'&&!isTestModeEnabled()){
   document.body.dataset.step='business-hours';
   document.getElementById('main').innerHTML=businessHoursClosedView();
   document.getElementById('cart').innerHTML='';
@@ -2331,7 +2368,7 @@ function render(){
 }
 function view(){
  if(state.step==='language')return languageView();
- if(state.step==='home')return `<section class="darkHero">
+ if(state.step==='home')return `${testModeBanner()}<section class="darkHero">
   <div class="heroTop">
     <div class="heroBrandBlock">
       <div class="heroBrandLockup">
@@ -2438,6 +2475,7 @@ function view(){
  if(state.step==='phone')return shell(`<div class="phoneStep"><h1 class="title stepTitleIcon">${uiIcon("phone")} ${t('phone.title')}</h1><p class="sub">${t('phone.subtitle')}</p><div class="summary"><div id="phoneDisplay" class="phoneDisplay ${validPhone()?'isComplete':'isIncomplete'}">${formatPhone(state.phone)}</div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pressPhone('${n}')">${n}</button>`).join('')}<button onclick="clearPhone()">${t('phone.clear')}</button><button onclick="pressPhone('0')">0</button><button onclick="backPhone()">⌫</button></div><div id="phoneNotice" class="notice ${validPhone()?'isComplete':'isIncomplete'}">${phoneNoticeHTML()}</div><button id="phoneNext" class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPhone()?'':'disabled'} onclick="goPayment()">${t('phone.next')}</button></div></div>`);
  if(state.step==='payment'){const total=currentOrderTotal()+cartTotal();return shell(`<h1 class="title">${t('ui.payment.title')}</h1><p class="sub">${t('ui.payment.subtitle')}</p><div class="summary"><div class="row grand"><span>${t('ui.payment.amount')}</span><strong>${money(total)}</strong></div><div class="paymentGrid">${['cash','card','meal_ticket','bizle'].map(method=>`<button class="paymentCard ${state.paymentMethod===method?'active':''}" onclick="selectPayment('${method}')">${paymentName(method)}</button>`).join('')}</div>${isSplitPayment()?splitPaymentHTML(total):''}<button type="button" id="paymentSubmitBtn" data-action="submit-order" class="next paymentSubmitBtn" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPayment()?'':'disabled'}>${t('ui.payment.submit')}</button><div id="submitError" class="submitError"></div></div>`)};
  if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${orderNumberLabel(state.orderNo)}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="reset();render()">${t('done.home')}</button></div>`)
+ if(state.step==='testDone')return shell(`<div class="done testDone"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('ui.testMode.doneTitle')}</h1><p>${t('ui.testMode.doneDescription')}</p><div class="summary testDoneSummary"><div class="row"><b>${t('ui.testMode.orderType')}</b><span>${testCompletion?.orderType==='dinein'?t('ui.hero.dineIn'):t('ui.hero.takeout')}</span></div><div class="row"><b>${t('ui.testMode.itemCount')}</b><span>${t('ui.common.count',{count:testCompletion?.itemCount||0})}</span></div><div class="row"><b>${t('ui.testMode.total')}</b><strong>${money(testCompletion?.total||0)}</strong></div><div class="row"><b>${t('ui.testMode.kind')}</b><strong>${t('ui.testMode.testOrder')}</strong></div></div><button class="doneHomeBtn" onclick="testCompletion=null;reset();render()">${t('ui.testMode.home')}</button><p class="doneGuide">${t('ui.testMode.continueGuide')}</p></div>`)
 }
 
 const DINING_TABLES={
@@ -2513,6 +2551,7 @@ function areaHoursText(area){
  return t('seat.hours.limited');
 }
 function areaSchedulePolicy(area){
+ if(isTestModeEnabled())return {allowed:true,reason:t('seat.reason.availableNow'),alcoholOnly:false};
  const {day,minutes}=seoulClock();
  const weekday=!['Sat','Sun'].includes(day);
  if(area==='papa'||area==='outdoor'){
@@ -2634,6 +2673,7 @@ function selectArea(id){
  state.diningArea=id;state.selectedTables=[];state.step='table';render()
 }
 async function claimSeat(id){
+ if(isTestModeEnabled())return;
  const ref=db.collection('seats').doc(id),now=Date.now();
  await db.runTransaction(async transaction=>{
   const snapshot=await transaction.get(ref),saved=snapshot.exists?snapshot.data():{};
@@ -2642,10 +2682,12 @@ async function claimSeat(id){
  });
 }
 async function releaseSeats(ids=[...state.selectedTables]){
+ if(isTestModeEnabled())return;
  if(state.firebaseOrderId||!ids.length)return;
  await Promise.all(ids.map(async id=>{const ref=db.collection('seats').doc(id);await db.runTransaction(async transaction=>{const snapshot=await transaction.get(ref);if(!snapshot.exists)return;const saved=snapshot.data();if(saved.status==='held'&&saved.heldBy===seatClientId&&!saved.orderId)transaction.set(ref,{status:'empty',heldBy:null,heldAt:null,heldUntil:null,partySize:null,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})})}));
 }
 async function refreshSeatLeases(){
+ if(isTestModeEnabled())return;
  if(state.firebaseOrderId||!state.selectedTables.length)return;
  const now=Date.now();if(now-lastSeatLeaseRefresh<5000)return;lastSeatLeaseRefresh=now;
  await Promise.all(state.selectedTables.map(id=>db.collection('seats').doc(id).set({heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
@@ -3115,6 +3157,7 @@ function buildMobileOrderPayload(){
  }
 }
 async function submitMobileOrder(){
+ if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
  requireBusinessOpenPure();
  if(!window.PJ_NETWORK.isOnline())throw new Error(t('ui.payment.saveFailedConnection'));
  const payload=buildMobileOrderPayload();
@@ -3124,11 +3167,13 @@ async function submitMobileOrder(){
  if(!Number.isFinite(payload.total)||payload.total<0||payload.total>3000000)throw new Error(t('ui.payment.invalidAmount'));
  if(!/^010\d{8}$/.test(payload.phone||''))throw new Error(t('ui.payment.phoneCheck'));
  requireBusinessOpenPure();
+ if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
  const orderRef=db.collection('orders').doc();
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
  await db.runTransaction(async transaction=>{
   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
   requireBusinessOpenPure();
+  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
   transaction.set(orderRef,payload);
   seatRefs.forEach(ref=>transaction.set(ref,{status:'held',heldBy:null,heldUntil:null,partySize:state.partySize||null,orderNo:state.orderNo,orderId:orderRef.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
@@ -3148,6 +3193,14 @@ async function complete(event){
  if(button){button.disabled=true;button.textContent=t('ui.payment.submitting')}
  try{
   if(!assertBusinessOpen())return
+  if(isTestModeEnabled()){
+   const payload=buildMobileOrderPayload();
+   testCompletion={orderType:state.orderType,itemCount:payload.itemCount,total:payload.total};
+   reset();
+   state.step='testDone';
+   render();
+   return
+  }
   state.orderNo=displayOrderNo();
   await submitMobileOrder();
   state.step='done';render();
@@ -3197,7 +3250,7 @@ db.collection('waitlist').onSnapshot(
  snap=>{mobileWaitlist=snap.docs.map(d=>({id:d.id,...d.data()}));if(state.step==='table')render()},
  error=>console.error('Firestore waitlist subscription failed',error)
 );
-mobileSeatTimer=setInterval(()=>{if(businessHoursStatus==='open'&&state.step==='table')render()},30000);
+mobileSeatTimer=setInterval(()=>{if(isOrderingAllowed()&&state.step==='table')render()},30000);
 ['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
 window.addEventListener('pagehide',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
