@@ -1,6 +1,6 @@
 {
   "name": "papajohns-kiosk",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "private": true,
   "description": "PapaJohn's customer web kiosk and Windows Electron shell",
   "author": "PapaJohn's Pangyo 2nd Techno Valley",
@@ -30,6 +30,12 @@
     "directories": {
       "output": "dist"
     },
+    "publish": {
+      "provider": "github",
+      "owner": "yunsh3181",
+      "repo": "codex",
+      "channel": "latest"
+    },
     "files": [
       "**/*",
       "!dist{,/**/*}",
@@ -55,5 +61,8 @@
     "portable": {
       "artifactName": "PapaJohns-Kiosk-Portable-${version}-${arch}.${ext}"
     }
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9"
   }
 }

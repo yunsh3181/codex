@@ -1,0 +1,12 @@
+.kioskUpdaterBackdrop{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:32px;background:rgba(0,25,18,.82);font-family:Arial,"Noto Sans KR",sans-serif}
+.kioskUpdaterPanel{width:min(720px,100%);max-height:calc(100vh - 64px);overflow:auto;padding:30px;border-radius:24px;background:#fff;color:#17231d;box-shadow:0 24px 80px #0008}
+.kioskUpdaterPanel header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:2px solid #006b3c;padding-bottom:18px}
+.kioskUpdaterPanel header small{color:#006b3c;font-weight:900;letter-spacing:.08em}.kioskUpdaterPanel h2{margin:5px 0 0;font-size:32px}
+.kioskUpdaterPanel header button{width:52px;height:52px;border:0;border-radius:12px;background:#ecefed;font-size:34px}
+.kioskUpdaterPanel dl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
+.kioskUpdaterPanel dl div{padding:15px;border-radius:14px;background:#f2f5f3}.kioskUpdaterPanel dt{color:#667068;font-size:13px;font-weight:800}.kioskUpdaterPanel dd{margin:6px 0 0;font-size:18px;font-weight:900}
+.kioskUpdaterProgress{height:16px;overflow:hidden;border-radius:999px;background:#dce3df}.kioskUpdaterProgress span{display:block;height:100%;background:#006b3c}
+.kioskUpdaterPanel ul,.kioskUpdaterError{padding:15px 18px;border-radius:14px;background:#fff0e8;color:#9f2b13;font-weight:800}.kioskUpdaterPanel ul{padding-left:38px}
+.kioskUpdaterActions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.kioskUpdaterActions button{min-height:58px;border:0;border-radius:14px;background:#006b3c;color:#fff;font-size:17px;font-weight:900}.kioskUpdaterActions .install{background:#d71920}.kioskUpdaterActions button:disabled{background:#adb5b0;color:#eef0ee}
+.kioskUpdaterGuide{margin:18px 0 0;color:#5f6862;font-size:13px;line-height:1.6}
+@media(max-width:600px){.kioskUpdaterBackdrop{padding:14px}.kioskUpdaterPanel{padding:20px}.kioskUpdaterPanel dl,.kioskUpdaterActions{grid-template-columns:1fr}}
