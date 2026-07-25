@@ -51,10 +51,6 @@ html[data-layout="kiosk21"] :where(#main, .app) {
 }
 
 html[data-layout="kiosk21"] :where(
-  .head,
-  .c-header,
-  .progress,
-  .c-progress,
   .stage,
   .mainContent,
   .sectionWrapper,
@@ -69,6 +65,9 @@ html[data-layout="kiosk21"] :where(
 }
 
 html[data-layout="kiosk21"] :where(.head, .c-header) {
+  width: 100%;
+  max-width: none !important;
+  margin-inline: 0;
   box-sizing: border-box;
   height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
   min-height: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
@@ -138,6 +137,9 @@ html[data-layout="kiosk21"] :where(.head, .c-header) :where(
 }
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress) {
+  width: 100%;
+  max-width: none !important;
+  margin-inline: 0;
   box-sizing: border-box;
   top: calc(var(--kiosk21-header-height) + var(--safe-top)) !important;
   height: var(--kiosk21-progress-height);
@@ -155,6 +157,44 @@ html[data-layout="kiosk21"] :where(.progress, .c-progress) {
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress)::-webkit-scrollbar {
   display: none;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) .progressStep {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-height: 56px;
+  padding: 12px 22px;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  font-size: 20px;
+  font-weight: 900;
+  max-width: none;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) .progressStep.current {
+  border-color: #d71920;
+  background: #d71920;
+  color: #fff;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) .progressStep.completed {
+  border-color: #006b3c;
+  background: #eef6f0;
+  color: #006b3c;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) .progressStep.locked {
+  opacity: .46;
+  cursor: not-allowed;
+}
+
+html[data-layout="kiosk21"] :where(.progress, .c-progress) .progressStep span {
+  flex: 0 0 auto;
+  max-width: none;
+  white-space: nowrap;
 }
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress) :where(
@@ -1265,6 +1305,140 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroChoice .eyebrow {
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoiceDescription {
   color: #3e4741 !important;
+}
+
+/* Kiosk home proportions: the merged main card height (220px/16.5vh/318px)
+ * is enlarged by exactly 15%, while the existing three-column widths remain. */
+html[data-layout="kiosk21"] body[data-step="home"] :where(
+  .heroChoice,
+  .heroChoice.dinein,
+  .heroChoice.takeout
+) {
+  height: clamp(253px, 18.975vh, 365.7px) !important;
+  min-height: clamp(253px, 18.975vh, 365.7px) !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .heroPromo {
+  min-height: 0 !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+  padding-block: 18px !important;
+}
+
+/* Reservation picker uses the kiosk content width and two equal touch cards. */
+html[data-layout="kiosk21"] body[data-step="reserve"] .reservePickerWheel {
+  width: 100%;
+  max-width: none;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveCard {
+  min-width: 0;
+  padding: 24px;
+  border: 3px solid #e1e5e1;
+  border-radius: 24px;
+  background: #fff;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveCard > b {
+  display: block;
+  margin-bottom: 18px;
+  color: #d71920;
+  font-size: 30px;
+  font-weight: 1000;
+  text-align: center;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveWheel {
+  display: grid;
+  max-height: 520px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveWheel .optionBtn {
+  min-height: 68px;
+  font-size: 36px;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveSelection {
+  display: grid;
+  width: 100%;
+  margin: 24px 0;
+  padding: 22px;
+  place-items: center;
+  border-radius: 20px;
+  background: #fff4f4;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveSelection span {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveSelection b {
+  color: #d71920;
+  font-size: 48px;
+  font-weight: 1000;
+}
+
+html[data-layout="kiosk21"] body[data-step="reserve"] .reserveConfirm {
+  width: 100%;
+  min-height: 72px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* Cart detail view model reads existing catalog prices without changing cart. */
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartCategory {
+  padding: 18px 0;
+  border-bottom: 2px solid #e2e6e2;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartCategory h2 {
+  margin: 0 0 14px;
+  color: #006b3c !important;
+  font-size: 26px;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
+  .cartBaseRow,
+  .cartDetailRow,
+  .cartOrderTotal
+) {
+  display: flex;
+  min-width: 0;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 22px;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartDetailRow {
+  padding: 7px 0 7px 28px;
+  font-size: 20px;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] :where(
+  .cartBaseRow,
+  .cartDetailRow
+) strong {
+  flex: 0 0 auto;
+  color: #d71920;
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] body[data-step="cartReview"] .cartOrderTotal {
+  padding-top: 20px;
+  font-size: 24px;
+  font-weight: 1000;
 }
 
 /* Rapid phone entry must never resize, move, flash, or cast a new shadow. */
