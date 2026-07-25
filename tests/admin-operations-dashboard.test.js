@@ -37,12 +37,12 @@ assert.strictEqual(Math.ceil(expected.length/3),5,'13 desktop seats fit within f
 expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}'`),`${id} maps to ${name}`));
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
 assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article class="seat-overview-card ${status}"'),'empty seats render as non-interactive articles');
-assert.ok(admin.includes('`<button type="button" class="seat-overview-card ${status}" data-action="clear-seat"'),'occupied and held seats render as whole-card native buttons');
-assert.ok(!admin.includes('>빈자리로</button>'),'seat cards have no nested clear-seat button or visible clear label');
+assert.ok(admin.includes('`<button type="button" class="seat-overview-card ${status}" data-action="open-seat-order"'),'occupied and held seats open their linked order');
+assert.ok(admin.includes('data-action="clear-seat" data-seat-id="${esc(seatId)}"'),'seat clearing remains available from the linked order detail');
 assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
 assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');
 assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
-assert.ok(admin.includes("if(button){button.disabled=true;button.setAttribute('aria-busy','true')}"),'seat clearing disables and marks the whole card busy to prevent duplicate activation');
+assert.ok(admin.includes("if(button){button.disabled=true;button.setAttribute('aria-busy','true')}"),'seat clearing disables and marks its action busy to prevent duplicate activation');
 assert.ok(admin.includes("button.disabled=false;button.removeAttribute('aria-busy')"),'seat clearing restores the card after processing');
 assert.ok(admin.includes("event.target.closest('button[data-action]')"),'native button click and Enter/Space activation reuse the delegated clear-seat action');
 const releaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0]||'';
