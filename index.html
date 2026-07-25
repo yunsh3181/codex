@@ -2204,15 +2204,31 @@ function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;s
 function progress(){
  if(state.step==='home'||state.step==='done')return '';
  const groups=[
-  {label:t('ui.progress.order'),steps:['type','party','area','table','timing','reserve']},
-  {label:t('ui.progress.benefit'),steps:['promo','setChoice']},
-  {label:t('ui.progress.pizza'),steps:['size','mode','pizzaOptions','pizza','crust','topping']},
-  {label:t('ui.progress.side'),steps:['side']},
-  {label:t('ui.progress.drink'),steps:['drink','accompaniment']},
-  {label:t('ui.progress.checkout'),steps:['cartReview','review','phone','payment']}
+  {id:'order',label:t('ui.progress.order'),steps:['type','party','area','table','timing','reserve']},
+  {id:'benefit',label:t('ui.progress.benefit'),steps:['promo','setChoice']},
+  {id:'pizza',label:t('ui.progress.pizza'),steps:['size','mode','pizzaOptions','pizza','crust','topping']},
+  {id:'side',label:t('ui.progress.side'),steps:['side']},
+  {id:'drink',label:t('ui.progress.drink'),steps:['drink','accompaniment']},
+  {id:'checkout',label:t('ui.progress.checkout'),steps:['cartReview','review','phone','payment']}
  ];
  let i=Math.max(0,groups.findIndex(g=>g.steps.includes(state.step)));
- return `<div class="progress">${groups.map((g,n)=>`<span class="${n<i?'done':n===i?'on':''}">${n<i?uiIcon('check','iconTiny'):''}${g.label}</span>`).join('')}</div>`
+ return `<nav class="progress" aria-label="${escAttr(t('ui.progress.order'))}">${groups.map((g,n)=>{const status=n<i?'completed':n===i?'current':'locked';const enabled=n<=i;return `<button type="button" class="progressStep ${status} ${n<i?'done':n===i?'on':''}" data-progress-group="${g.id}" ${enabled?`onclick="navigateProgress('${g.id}')" aria-disabled="false"`:'disabled aria-disabled="true"'} ${n===i?'aria-current="step"':''}>${n<i?uiIcon('check','iconTiny'):''}<span>${g.label}</span></button>`}).join('')}</nav>`
+}
+function progressTarget(group){
+ if(group==='order')return state.orderType==='dinein'?(state.selectedTables.length?'table':state.diningArea?'table':state.partySize?'area':'party'):(state.orderTiming==='reserve'?'reserve':'timing');
+ if(group==='benefit')return state.promo==='set'?'setChoice':'promo';
+ if(group==='pizza')return state.left?(state.toppingChoice?'topping':state.crust&&state.crust!=='오리지널'?'crust':'pizza'):(state.size?'pizza':'size');
+ if(group==='side')return 'side';
+ if(group==='drink')return state.orderType==='takeout'&&state.step==='accompaniment'?'accompaniment':'drink';
+ return state.cartItems.length?'cartReview':'review';
+}
+function navigateProgress(group){
+ if(['done','language','home'].includes(state.step))return;
+ const order=['order','benefit','pizza','side','drink','checkout'];
+ const current={type:'order',party:'order',area:'order',table:'order',timing:'order',reserve:'order',promo:'benefit',setChoice:'benefit',size:'pizza',mode:'pizza',pizzaOptions:'pizza',pizza:'pizza',crust:'pizza',topping:'pizza',side:'side',drink:'drink',accompaniment:'drink',cartReview:'checkout',review:'checkout',phone:'checkout',payment:'checkout'}[state.step];
+ if(order.indexOf(group)>order.indexOf(current))return;
+ state.step=progressTarget(group);
+ render();
 }
 function shell(c){return `<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
 function toppingVisual(name){
@@ -2242,6 +2258,8 @@ function render(){
  if(state.step!=='phone')main.classList.add('pageSwap');
  document.getElementById('cart').innerHTML=bar();
  document.getElementById('modal').innerHTML=modalView();
+ const activeProgress=document.querySelector('.progressStep.current');
+ if(activeProgress)requestAnimationFrame(()=>activeProgress.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}));
  if(stepChanged){
   window.scrollTo({top:0,left:0,behavior:'auto'});
   document.documentElement.scrollTop=0;
@@ -2292,7 +2310,7 @@ function view(){
  if(state.step==='type')return shell(`<h1 class="title">${t('orderType.title')}</h1><div class="grid two"><button class="card" onclick="startTakeout()"><h2>${uiIcon("bag")} ${label('orderType','takeout')}</h2></button><button class="card" onclick="startDineIn()"><h2>${uiIcon("dine")} ${label('orderType','dinein')}</h2></button></div>`);
 
  if(state.step==='timing')return shell(`<h1 class="title">${t('pickup.title')}</h1><p class="sub">${t('pickup.subtitle')}</p><div class="grid two timingChoiceGrid"><button class="card" onclick="chooseTakeoutTiming('now')"><h2>${uiIcon("clock")} ${t('pickup.now')}</h2><p>${t('pickup.nowDesc')}</p></button><button class="card" ${hasReserveSlots()?'':'disabled'} onclick="chooseTakeoutTiming('reserve')"><h2>${uiIcon("calendar")} ${t('pickup.reserve')}</h2><p>${hasReserveSlots()?t('pickup.reserveDesc'):t('pickup.closed')}</p></button></div>`);
- if(state.step==='reserve'){const wheel=reserveWheelData();return shell(`<h1 class="title">${t('pickup.reserveTitle')}</h1><p class="sub">${t('pickup.reserveGuide')}</p>${wheel.hours.length?`<div class="summary reservePickerWheel"><div class="row"><b>${t('pickup.hour')}</b><div class="optionButtons reserveWheel">${wheel.hours.map(h=>`<button class="optionBtn ${state.reserveHour===h?'active':''}" onclick="setReserveHour('${h}')">${h}${t('pickup.hourUnit')}</button>`).join('')}</div></div><div class="row"><b>${t('pickup.minute')}</b><div class="optionButtons reserveWheel">${wheel.minutes.map(m=>`<button class="optionBtn ${state.reserveMinute===m?'active':''}" onclick="setReserveMinute('${m}')">${m}${t('pickup.minuteUnit')}</button>`).join('')}</div></div><div class="notice">${t('pickup.selectedTime')}: <b>${state.reserveHour||'--'}:${state.reserveMinute||'--'}</b></div><button class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validReserveSelection()?'':'disabled'} onclick="confirmReserve()">${t('pickup.confirm')}</button></div>`:`<div class="summary"><h2>${t('pickup.noAvailableTime')}</h2><p>${t('pickup.chooseNow')}</p><button class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" onclick="state.step='timing';render()">${t('pickup.changeTime')}</button></div>`}`)};
+ if(state.step==='reserve'){const wheel=reserveWheelData();return shell(`<h1 class="title">${t('pickup.reserveTitle')}</h1><p class="sub">${t('pickup.reserveGuide')}</p>${wheel.hours.length?`<div class="summary reservePickerWheel"><div class="reserveCards"><section class="reserveCard"><b>${t('pickup.hour')}</b><div class="optionButtons reserveWheel">${wheel.hours.map(h=>`<button class="optionBtn ${state.reserveHour===h?'active':''}" onclick="setReserveHour('${h}')">${h}${t('pickup.hourUnit')}</button>`).join('')}</div></section><section class="reserveCard"><b>${t('pickup.minute')}</b><div class="optionButtons reserveWheel">${wheel.minutes.map(m=>`<button class="optionBtn ${state.reserveMinute===m?'active':''}" onclick="setReserveMinute('${m}')">${m}${t('pickup.minuteUnit')}</button>`).join('')}</div></section></div><div class="reserveSelection"><span>${t('pickup.selectedTime')}</span><b>${state.reserveHour||'--'}:${state.reserveMinute||'--'}</b></div><button class="next reserveConfirm" ${validReserveSelection()?'':'disabled'} onclick="confirmReserve()">${t('pickup.confirm')}</button></div>`:`<div class="summary"><h2>${t('pickup.noAvailableTime')}</h2><p>${t('pickup.chooseNow')}</p><button class="next reserveConfirm" onclick="state.step='timing';render()">${t('pickup.changeTime')}</button></div>`}`)};
 
  if(state.step==='party'){const areas=getDiningAreas();const roomOk=state.partySize>=6;const outdoorOnly=state.partySize>=13;return shell(`<h1 class="title">${t('party.title')}</h1><p class="sub">${t('party.guide')}</p>
  <div class="partyStepperWrap">
@@ -2798,7 +2816,54 @@ function currentHasItems(){return !!state.left||sum(state.extraSides)>0||sum(sta
 function currentOrderTotal(){return currentHasItems()?price().total:0}
 function cartTotal(){return state.cartItems.reduce((s,x)=>s+(Number(x.price)||0)*(Number(x.qty)||1),0)}
 function optionLinesHtml(title,map,master,included=false){const lines=mapLines(map,master,()=>0);return lines.length?`<div class="cartOptionLine"><b>${title}</b><span>${lines.map(x=>`${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}`).join(', ')}</span></div>`:''}
-function cartItemHtml(x,i){const pizzaNames=cartPizzaNames(x);const name=x.set?setOrderName(x.set):(x.promo==='upup'?`${benefitName('upup')} · ${pizzaNames}`:(pizzaNames||t('cart.additionalOrder')));const desc=[x.size?cartSizeLabel(x.size):'',x.pizzaLeft?customerCrustLabel(x.crust):'',x.pizzaLeft?customerDoughLabel(x.dough):'',x.pizzaLeft&&x.mode==='half'?t('cart.halfPizza'):'',pizzaNames].filter(Boolean).join(' - ');const details=[desc?`<div class="cartOrderDesc">${desc}</div>`:'',optionLinesHtml(t('review.additionalToppings'),x.toppings,TOPPINGS),optionLinesHtml(t('review.includedSides'),x.includedSides,SIDES,true),optionLinesHtml(t('review.includedDrinks'),x.includedDrinks,DRINKS,true),optionLinesHtml(t('review.additionalSides'),x.sides,SIDES),optionLinesHtml(t('review.additionalDrinks'),x.drinks,[...DRINKS,...SAUCES])].join('');return `<div class="cartOrderCard"><div class="cartOrderTop"><div><div class="cartOrderName">${name} ${t('unit.quantity',{count:x.qty||1})}</div>${details}</div><div class="cartOrderPrice">${money((x.price||0)*(x.qty||1))}</div></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></div>`}
+function cartMoney(amount,added=false){return `${added?'+':''}${money(Number(amount)||0)}`}
+function cartCatalogLines(map,master,unitPrice,orderQty,included=false){
+ return Object.entries(map||{}).flatMap(([id,value])=>{
+  const item=master.find(candidate=>candidate.id===id),qty=Number(value)||0;
+  if(!item||qty<=0)return [];
+  const unit=included?0:Number(unitPrice(item)||0);
+  return [{id,name:optionDisplayName(item),qty,amount:unit*qty*orderQty,included,added:false}];
+ })
+}
+function buildCartDisplayModel(order){
+ const qty=Math.max(1,Number(order.qty)||1),size=order.size,left=po(order.pizzaLeft||order.pizza),right=po(order.pizzaRight);
+ const pizzaUnit=left?(order.mode==='half'&&right?((Number(left[size])||0)+(Number(right[size])||0))/2:Number(left[size])||0):0;
+ const crustUnit=left?Number(CRUSTS.find(item=>item.name===(order.crust||'오리지널'))?.[size]||0):0;
+ const halfUnit=left&&order.mode==='half'?Number(SETTINGS.HALF_EXTRA||0):0;
+ const toppings=cartCatalogLines(order.toppings,TOPPINGS,item=>Number(item.price?.[size]||0),qty);
+ const includedSides=cartCatalogLines(order.includedSides,SIDES,()=>0,qty,true);
+ const paidSides=cartCatalogLines(order.sides,SIDES,item=>Number(item.price||0),qty);
+ const includedDrinks=cartCatalogLines(order.includedDrinks,DRINKS,()=>0,qty,true);
+ const paidDrinks=cartCatalogLines(order.drinks,DRINKS,item=>Number(item.price||0),qty);
+ const accompaniment=cartCatalogLines(order.drinks,SAUCES,item=>Number(item.price||0),qty);
+ const perOrderExtras=[...toppings,...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
+ const componentUnit=pizzaUnit+crustUnit+halfUnit+perOrderExtras;
+ const storedUnit=Number(order.price)||0,discount=Number(order.discount)||0,normal=Number(order.normalPrice)||storedUnit+discount;
+ const hasIncluded=includedSides.length>0||includedDrinks.length>0;
+ const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&componentUnit===storedUnit;
+ const pizza=[];
+ if(left)pizza.push({id:'pizza',name:cartPizzaNames(order),qty,amount:standard?pizzaUnit*qty:null,included:false,added:false});
+ if(left&&crustUnit)pizza.push({id:'crust',name:customerCrustLabel(order.crust),qty:1,amount:standard?crustUnit*qty:null,included:false,added:standard});
+ if(left&&halfUnit)pizza.push({id:'half',name:t('review.halfPizza'),qty:1,amount:standard?halfUnit*qty:null,included:false,added:standard});
+ toppings.forEach(line=>pizza.push({...line,amount:standard?line.amount:null,included:false,added:standard}));
+ return {
+  mode:standard?'standard':'promotion-safe',
+  categories:{pizza,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
+  benefit:standard?'':(order.set?setOrderName(order.set):benefitName(order.promo||'normal')),
+  componentTotal:componentUnit*qty,
+  total:storedUnit*qty
+ }
+}
+function cartCategoryHtml(title,rows){
+ if(!rows.length)return '';
+ return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'}"><span>${row.name} ${row.qty>1?t('unit.quantity',{count:row.qty}):''}</span>${row.included?`<strong class="cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'':`<strong>${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
+}
+function cartItemHtml(x,i){
+ const model=buildCartDisplayModel(x);
+      const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),
+        drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
+ return `<article class="cartOrderCard" data-price-mode="${model.mode}">${cartCategoryHtml(t('ui.progress.pizza'),model.categories.pizza)}${cartCategoryHtml(sideTitle,model.categories.sides)}${cartCategoryHtml(drinkTitle,model.categories.drinks)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></article>`
+}
 function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
 function clearCurrentProduct(){Object.assign(state,{setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null})}

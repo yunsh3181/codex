@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const touchLayoutCss=fs.readFileSync(path.join(root,'styles','device.css'),'utf8');
 const kioskOptionCss=fs.readFileSync(path.join(root,'styles','device-kiosk21.css'),'utf8');
-const selectedOptionCss=kioskOptionCss.split('/* Selected option screens: full-width, single-column cards on kiosk21 only. */')[1]?.split('html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,')[0]||'';
+const selectedOptionCss=kioskOptionCss.split('/* Selected option screens: full-width, single-column cards on kiosk21 only. */')[1]?.split('/* Cart detail view model reads existing catalog prices without changing cart. */')[0]?.split('html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,')[0]||'';
 const languages=['ko','en','ja','zh','vi','es'];
 const elements=new Map();
 const classList={add(){},remove(){},toggle(){}};
