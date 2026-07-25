@@ -14,7 +14,8 @@ assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar 
 assert.ok(css.includes('grid-template-columns:minmax(220px,15%) minmax(520px,1fr) minmax(300px,19%)'),'wide view preserves the operating screen proportions');
 assert.ok(css.includes('.seat-overview{grid-area:seats;min-width:300px}'),'seat panel remains wide enough for readable Korean names');
 assert.ok(css.includes('.seat-overview{max-height:none;overflow:visible}'),'seat panel displays every row without vertical scrolling');
-assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row'),'seat overview uses a fluid three-column grid');
+assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))')&&css.includes('grid-auto-flow:row'),'seat overview uses a fluid three-column grid');
+assert.ok(css.includes('grid-template-rows:repeat(6,minmax(0,auto))'),'seat overview reserves the official six-row layout');
 assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto;width:auto;height:auto;aspect-ratio:1/1;min-width:0;min-height:0;box-sizing:border-box'),'all seat cards derive their width from the fluid grid cell while preserving a square aspect ratio');
 assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto'),'empty seat status never inherits the generic full-row empty-state placement');
 assert.ok(!css.includes('.seat-overview-card{display:flex;min-width:0;height:88px'),'seat cards no longer use the fixed 88px height');
@@ -29,17 +30,27 @@ assert.ok(css.includes('position:sticky;top:58px'),'operations tabs remain visib
 
 const seatBlock=admin.match(/const ADMIN_SEATS=\[[\s\S]*?\n\];/)?.[0]||'';
 const expected=[
- ['papa-2','파파존 2인석'],['papa-bar4','파파존 바테이블'],
- ['outdoor-1','야외존1번'],['outdoor-2','야외존2번'],['outdoor-3','야외존3번'],['outdoor-4','야외존4번'],
- ['annex-1','별관1'],['annex-2','별관2'],['annex-3','별관3'],['annex-4','별관4'],
- ['room-1','룸1'],['room-2','룸2'],['room-3','룸3']
+ ['papa-2','커플석','papa',1,1],['papa-bar4','바테이블','papa',1,2],
+ ['outdoor-1','야외석1','outdoor',2,1],['outdoor-2','야외석2','outdoor',2,2],['outdoor-3','야외석3','outdoor',2,3],['outdoor-4','야외석4','outdoor',3,1],
+ ['annex-1','별관1','annex',4,1],['annex-2','별관2','annex',4,2],['annex-3','별관3','annex',4,3],['annex-4','별관4','annex',5,1],
+ ['room-1','룸1','room',6,1],['room-2','룸2','room',6,2],['room-3','룸3','room',6,3]
 ];
 assert.strictEqual((seatBlock.match(/\{id:/g)||[]).length,13,'exactly 13 real seats are configured');
-assert.strictEqual(Math.ceil(expected.length/3),5,'13 desktop seats fit within five rows');
-expected.forEach(([id,name])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}'`),`${id} maps to ${name}`));
+assert.strictEqual(new Set(expected.map(([id])=>id)).size,13,'real seat IDs are unique');
+assert.strictEqual(new Set(expected.map(([,name])=>name)).size,13,'admin seat display names are unique');
+assert.strictEqual(Math.max(...expected.map(([, , ,row])=>row)),6,'the explicit desktop layout spans six rows');
+expected.forEach(([id,name,zone,row,column])=>assert.ok(seatBlock.includes(`id:'${id}',name:'${name}',zone:'${zone}',row:${row},column:${column}`),`${id} maps to ${name} at row ${row}, column ${column}`));
+const occupiedCells=new Set(expected.map(([, , ,row,column])=>`${row}:${column}`));
+assert.deepStrictEqual(['1:3','3:2','3:3','5:2','5:3'].filter(cell=>!occupiedCells.has(cell)),['1:3','3:2','3:3','5:2','5:3'],'the five requested grid cells remain empty without placeholders');
+for(const [zone,colors] of Object.entries({papa:['#eef6ff','#3b82f6','#1d4f91'],outdoor:['#edf9f0','#3b9b5f','#176b35'],annex:['#fff1f1','#dc4c52','#9f2028'],room:['#fff6e8','#ee9b2e','#9a5700']})){
+ assert.ok(css.includes(`.seat-overview-card.seat-zone-${zone}{background:${colors[0]};border-color:${colors[1]};color:${colors[2]}}`),`${zone} retains its zone palette`);
+}
+assert.ok(admin.includes('class="seat-overview-card seat-zone-${seat.zone} ${status}"'),'zone and state classes are independently rendered');
+assert.ok(admin.includes('style="grid-row-start:${seat.row};grid-column-start:${seat.column}"'),'real seat cards receive explicit grid positions');
+assert.ok(!css.includes('.seat-overview-card.empty{')&&!css.includes('.seat-overview-card.occupied{')&&!css.includes('.seat-overview-card.held{'),'state classes do not override the whole card palette');
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article class="seat-overview-card ${status}"'),'empty seats render as non-interactive articles');
-assert.ok(admin.includes('`<button type="button" class="seat-overview-card ${status}" data-action="open-seat-order"'),'occupied and held seats open their linked order');
+assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article ${attributes}>'),'empty seats render as non-interactive articles');
+assert.ok(admin.includes('`<button type="button" ${attributes} data-action="open-seat-order"'),'occupied and held seats open their linked order');
 assert.ok(admin.includes('data-action="clear-seat" data-seat-id="${esc(seatId)}"'),'seat clearing remains available from the linked order detail');
 assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
 assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');
