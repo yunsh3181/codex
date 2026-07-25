@@ -1,7 +1,7 @@
 .networkStatus {
   position: fixed;
   right: 14px;
-  bottom: 86px;
+  bottom: max(0px,env(safe-area-inset-bottom));
   z-index: 55;
   max-width: calc(100vw - 28px);
   padding: 7px 11px;
@@ -13,6 +13,20 @@
   font-size: 12px;
   font-weight: 900;
   pointer-events: none;
+}
+
+body:not([data-step="home"]):not([data-step="done"]):not([data-step="cartReview"]) .networkStatus {
+  bottom: calc(var(--order-summary-height, 92px) + env(safe-area-inset-bottom) + 12px);
+}
+
+html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not([data-step="cartReview"]) .networkStatus {
+  bottom: calc(var(--kiosk21-summary-height) + var(--safe-bottom) + 12px);
+}
+
+body[data-step="home"] .networkStatus,
+body[data-step="done"] .networkStatus,
+body[data-step="cartReview"] .networkStatus {
+  bottom: max(0px,env(safe-area-inset-bottom));
 }
 
 .networkStatus[data-online="false"] {
