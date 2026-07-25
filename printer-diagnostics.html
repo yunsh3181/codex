@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'">
+  <title>영수증 프린터 진단</title>
+  <link rel="stylesheet" href="printer-diagnostics.css">
+</head>
+<body>
+  <main>
+    <header><p>키오스크 장치 진단</p><h1>영수증 프린터</h1><span>Windows 설치 상태와 80mm 출력을 확인합니다.</span></header>
+    <section class="card">
+      <div id="bridgeNotice" class="notice" hidden></div>
+      <label for="printerSelect">설치된 프린터</label>
+      <select id="printerSelect" disabled><option>목록을 불러오는 중...</option></select>
+      <label class="toggle"><span>Windows 기본 프린터 자동 선택</span><input id="useDefaultPrinter" type="checkbox"></label>
+      <dl>
+        <div><dt>현재 선택</dt><dd id="selectedName">-</dd></div>
+        <div><dt>상태</dt><dd id="printerStatus">-</dd></div>
+        <div><dt>연결</dt><dd id="printerConnection">-</dd></div>
+        <div><dt>포트</dt><dd id="printerPort">-</dd></div>
+        <div><dt>드라이버</dt><dd id="printerDriver">-</dd></div>
+        <div><dt>용지 폭</dt><dd>80mm</dd></div>
+      </dl>
+      <div class="actions">
+        <button id="refreshPrinters" class="secondary">목록 새로고침</button>
+        <button id="savePrinter" class="secondary">선택 저장</button>
+        <button id="testPrint" class="primary" disabled>테스트 영수증 출력</button>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <strong>마지막 출력 결과</strong>
+      <p id="lastResult">아직 출력하지 않았습니다.</p>
+      <small id="lastResultTime"></small>
+    </section>
+    <p class="help">이 화면은 키오스크에서 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>로 열 수 있습니다. 실패 상세는 이 화면과 Electron 로그에 함께 기록됩니다.</p>
+  </main>
+  <script src="printer-diagnostics.js"></script>
+</body>
+</html>
