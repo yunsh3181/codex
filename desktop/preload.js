@@ -1,3 +1,8 @@
 'use strict';
 
-// Intentionally empty: the customer web app needs no Node.js or Electron APIs.
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('kioskPrinter', Object.freeze({
+  list: () => ipcRenderer.invoke('printer:list'),
+  testPrint: printerName => ipcRenderer.invoke('printer:test', printerName)
+}));

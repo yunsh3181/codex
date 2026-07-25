@@ -2,10 +2,13 @@
 
 const path = require('node:path');
 const { fileURLToPath } = require('node:url');
-const { app, BrowserWindow, Menu, powerSaveBlocker, screen } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, screen } = require('electron');
+const { normalizePrinter, testReceiptHtml } = require('./printer-service');
 
 const entryFile = path.resolve(__dirname, '..', 'index.html');
+const diagnosticsFile = path.resolve(__dirname, '..', 'printer-diagnostics.html');
 let mainWindow = null;
+let diagnosticsWindow = null;
 let powerSaveBlockerId = null;
 let quitting = false;
 
@@ -26,6 +29,97 @@ function isLocalEntryNavigation(targetUrl) {
 function requestQuit() {
   quitting = true;
   app.quit();
+}
+
+function isTrustedRenderer(senderFrame) {
+  if (!senderFrame?.url) return false;
+  try {
+    const filePath = path.normalize(fileURLToPath(senderFrame.url));
+    const appRoot = path.normalize(path.resolve(__dirname, '..') + path.sep);
+    return filePath.startsWith(appRoot);
+  } catch {
+    return false;
+  }
+}
+
+function registerPrinterHandlers() {
+  ipcMain.handle('printer:list', async event => {
+    if (!isTrustedRenderer(event.senderFrame)) throw new Error('허용되지 않은 프린터 조회 요청입니다.');
+    const printers = await event.sender.getPrintersAsync();
+    return printers.map(normalizePrinter);
+  });
+
+  ipcMain.handle('printer:test', async (event, printerName) => {
+    if (!isTrustedRenderer(event.senderFrame)) throw new Error('허용되지 않은 출력 요청입니다.');
+    const name = String(printerName || '').trim();
+    if (!name) throw new Error('출력할 프린터를 선택해 주세요.');
+    const printers = (await event.sender.getPrintersAsync()).map(normalizePrinter);
+    const printer = printers.find(candidate => candidate.name === name);
+    if (!printer) throw new Error(`설치된 프린터에서 "${name}"을(를) 찾을 수 없습니다.`);
+    if (!printer.available) throw new Error(`"${name}" 프린터를 사용할 수 없습니다. 상태: ${printer.status}`);
+
+    const printWindow = new BrowserWindow({
+      show: false,
+      webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+    });
+    try {
+      const html = testReceiptHtml(name);
+      await printWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(html)}`);
+      await new Promise((resolve, reject) => {
+        printWindow.webContents.print({
+          silent: true,
+          printBackground: true,
+          deviceName: name,
+          margins: { marginType: 'none' },
+          pageSize: { width: 80000, height: 200000 }
+        }, (success, failureReason) => {
+          if (success) resolve();
+          else reject(new Error(failureReason || 'Windows 인쇄 작업이 실패했습니다.'));
+        });
+      });
+      console.info('[printer] test print succeeded', { printer: name });
+      return { success: true, printerName: name, printedAt: new Date().toISOString() };
+    } catch (error) {
+      console.error('[printer] test print failed', { printer: name, message: error.message });
+      throw error;
+    } finally {
+      if (!printWindow.isDestroyed()) printWindow.destroy();
+    }
+  });
+}
+
+function openPrinterDiagnostics() {
+  if (diagnosticsWindow && !diagnosticsWindow.isDestroyed()) {
+    diagnosticsWindow.show();
+    diagnosticsWindow.focus();
+    return;
+  }
+  diagnosticsWindow = new BrowserWindow({
+    title: '영수증 프린터 진단',
+    width: 720,
+    height: 820,
+    minWidth: 620,
+    minHeight: 680,
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      webSecurity: true
+    }
+  });
+  diagnosticsWindow.removeMenu();
+  diagnosticsWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  diagnosticsWindow.webContents.on('will-navigate', (event, targetUrl) => {
+    try {
+      if (path.normalize(fileURLToPath(targetUrl)) !== path.normalize(diagnosticsFile)) event.preventDefault();
+    } catch {
+      event.preventDefault();
+    }
+  });
+  diagnosticsWindow.on('closed', () => { diagnosticsWindow = null; });
+  diagnosticsWindow.loadFile(diagnosticsFile);
 }
 
 function createWindow() {
@@ -94,7 +188,14 @@ function createWindow() {
       !isDevelopment && input.control && input.alt && input.shift && key === 'q';
     const developmentQuitShortcut =
       isDevelopment && ((input.control || input.meta) && key === 'q');
+    const printerDiagnosticsShortcut =
+      input.control && input.alt && input.shift && key === 'p';
 
+    if (printerDiagnosticsShortcut) {
+      event.preventDefault();
+      openPrinterDiagnostics();
+      return;
+    }
     if (productionQuitShortcut || developmentQuitShortcut) {
       event.preventDefault();
       requestQuit();
@@ -132,6 +233,7 @@ if (!hasSingleInstanceLock) {
 
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
+    registerPrinterHandlers();
     powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
     createWindow();
   });
