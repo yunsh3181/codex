@@ -29,6 +29,8 @@ test('home uses exact 1.15 card multiplier and rectangular promos',()=>{
   assert.ok(compact.includes('min-height:clamp(253px,18.975vh,365.7px)!important'));
   assert.ok(compact.includes('height:clamp(253px,18.975vh,365.7px)!important'));
   assert.ok(compact.includes('aspect-ratio:16/9!important'));
+  assert.ok(compact.includes('.heroPromoStrip{grid-auto-rows:auto!important;align-items:start!important'));
+  assert.match(html,/device-kiosk21\.css\?v=live-cart-banner-20260725/);
   assert.doesNotMatch(css,/html\[data-layout="kiosk21"\][^{]*\.heroPromo[^{]*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/);
 });
 
@@ -133,9 +135,23 @@ test('order quantity and option quantity are multiplied exactly once',()=>{
 
 test('cart renderer emits each consolidated category at most once',()=>{
   assert.match(html,/function buildCartDisplayModel\(order\)/);
+  assert.match(html,/function cartOrderDetailHtml\(model\)/);
   assert.equal((html.match(/cartCategoryHtml\(sideTitle/g)||[]).length,1);
   assert.equal((html.match(/cartCategoryHtml\(drinkTitle/g)||[]).length,1);
   assert.equal((html.match(/cartCategoryHtml\(t\('ui\.drinkScreen\.accompanimentTitle'\)/g)||[]).length,1);
+  assert.match(html,/cartCategoryHtml\(sideTitle,model\.categories\.sides,true\)/);
+  assert.match(html,/cartCategoryHtml\(drinkTitle,model\.categories\.drinks,true\)/);
+  assert.match(html,/cartCategoryHtml\(t\('ui\.drinkScreen\.accompanimentTitle'\),model\.categories\.accompaniment,true\)/);
+  assert.match(html,/function reviewOrderCard\(order,index\)\{const model=buildCartDisplayModel\(order\)/);
+  assert.match(html,/function cartItemHtml\(x,i\)\{[\s\S]*?cartOrderDetailHtml\(model\)/);
+  assert.match(html,/if\(currentHasItems\(\)\)arr\.push\(\{\.\.\.orderSnapshot\(\),__current:false\}\)/);
   assert.match(html,/money\(model\.total\)/);
   assert.doesNotMatch(html,/if\s*\(name\s*===\s*["']치즈롤["']\)/);
+});
+
+test('live kiosk cart detail typography applies to cart and final review',()=>{
+  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartCategory h2[\s\S]*?font-size: 26px/);
+  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) :where\([\s\S]*?\.cartBaseRow[\s\S]*?font-size: 24px/);
+  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartDetailRow[\s\S]*?font-size: 20px/);
+  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartOrderTotal[\s\S]*?font-size: 28px/);
 });

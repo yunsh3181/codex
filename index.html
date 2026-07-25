@@ -2737,8 +2737,8 @@ function orderDetailData(order){
  return {qty,promo,setNo,size,sizeLabel,dough,crust,crustLabel,mode,pizzaNames,pizzaTitle,topLines,sideLines,drinkLines,incSideLines,incDrinkLines,amount}
 }
 function detailList(title,lines,included=false){if(!lines.length)return '';return `<div class="reviewSection"><b>${title}</b><ul>${lines.map(x=>`<li><span>${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}</span><span>${included?t('review.included'):x.amount?'+ '+money(x.amount):'-'}</span></li>`).join('')}</ul></div>`}
-function reviewOrderCard(order,index){const d=orderDetailData(order);const benefit=d.setNo?setOrderName(d.setNo):benefitName(d.promo);const doughNote=d.dough&&d.dough!=='오리지널'?` · ${customerDoughLabel(d.dough)}`:'';return `<div class="reviewOrderCard"><div class="reviewOrderHead"><div><h3>${index+1}. ${d.pizzaTitle}${d.qty>1?' '+t('unit.quantity',{count:d.qty}):''}</h3><div class="reviewMeta">${d.mode==='half'?t('review.halfPizza')+' · ':''}${benefit}${doughNote}</div></div><strong>${money(d.amount.final*d.qty)}</strong></div>${detailList(t('review.additionalToppings'),d.topLines)}${detailList(t('review.includedSides'),d.incSideLines,true)}${detailList(t('review.includedDrinks'),d.incDrinkLines,true)}${detailList(t('review.additionalSides'),d.sideLines)}${detailList(t('review.additionalDrinks'),d.drinkLines)}${d.amount.discount?`<div class="reviewSection"><ul><li><span>${d.amount.label}</span><span class="discount">−${money(d.amount.discount*d.qty)}</span></li></ul></div>`:''}</div>`}
-function allReviewOrders(){const arr=(state.cartItems||[]).map(x=>({...x,__current:false}));if(currentHasItems())arr.push({__current:true,qty:1});return arr}
+function reviewOrderCard(order,index){const model=buildCartDisplayModel(order);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}</article>`}
+function allReviewOrders(){const arr=(state.cartItems||[]).map(x=>({...x,__current:false}));if(currentHasItems())arr.push({...orderSnapshot(),__current:false});return arr}
 function reviewOrdersHTML(){return `<div class="reviewOrderList">${allReviewOrders().map(reviewOrderCard).join('')}</div>`}
 function hasTakeoutDiscountOrder(){return state.orderType==='takeout'&&((state.promo==='takeout'&&currentHasItems())||(state.cartItems||[]).some(order=>order.promo==='takeout'))}
 function takeoutAddActionsHTML(){if(!hasTakeoutDiscountOrder())return '';return `<section class="reviewAddMore"><h2>${t('cart.addMoreTitle')}</h2><div class="reviewAddMoreGrid"><button type="button" onclick="addAnotherSet()">${t('cart.addSet')}</button><button type="button" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button type="button" onclick="addAnotherSingle()">${t('cart.addSingle')}</button></div><p>${t('cart.continueCheckout')}</p></section>`}
@@ -2854,15 +2854,18 @@ function buildCartDisplayModel(order){
   total:storedUnit*qty
  }
 }
-function cartCategoryHtml(title,rows){
+function cartCategoryHtml(title,rows,showUnitQty=false){
  if(!rows.length)return '';
- return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'}"><span>${row.name} ${row.qty>1?t('unit.quantity',{count:row.qty}):''}</span>${row.included?`<strong class="cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'':`<strong>${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
+ return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'}"><span>${row.name} ${showUnitQty||row.qty>1?t('unit.quantity',{count:row.qty}):''}</span>${row.included?`<strong class="cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'':`<strong>${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
+}
+function cartOrderDetailHtml(model){
+ const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),
+  drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
+ return `${cartCategoryHtml(t('ui.progress.pizza'),model.categories.pizza)}${cartCategoryHtml(sideTitle,model.categories.sides,true)}${cartCategoryHtml(drinkTitle,model.categories.drinks,true)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment,true)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div>`
 }
 function cartItemHtml(x,i){
  const model=buildCartDisplayModel(x);
-      const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),
-        drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
- return `<article class="cartOrderCard" data-price-mode="${model.mode}">${cartCategoryHtml(t('ui.progress.pizza'),model.categories.pizza)}${cartCategoryHtml(sideTitle,model.categories.sides)}${cartCategoryHtml(drinkTitle,model.categories.drinks)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div><div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></article>`
+ return `<article class="cartOrderCard" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}<div class="cartOrderActions"><button onclick="changeCartQty(${i},-1)">−</button><button onclick="changeCartQty(${i},1)">＋</button><button class="remove" onclick="removeCartItem(${i})">${t('cart.remove')}</button></div></article>`
 }
 function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
@@ -6261,4 +6264,4 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">
-<link rel="stylesheet" href="styles/device-kiosk21.css">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=live-cart-banner-20260725">
