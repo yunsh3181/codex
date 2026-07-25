@@ -2108,6 +2108,7 @@ body[data-step="drink"] .card:has(.row){display:grid!important;grid-template-col
 @media(max-width:560px){.areaCard .areaPolicyReason{font-size:11px!important;padding:7px 8px}.areaCard .areaHours{font-size:10px!important}.areaPolicyGuide{font-size:11px;padding:10px 12px}}
 </style>
 <link rel="stylesheet" href="styles/set-menu-card-images.css">
+<link rel="stylesheet" href="styles/business-hours.css">
 </head><body>
 <script src="device-manager.js"></script>
 <script src="device-runtime.js"></script>
@@ -2151,6 +2152,7 @@ const db = firebase.firestore();
 <script src="i18n/es.js?v=44.2"></script>
 <script src="i18n/ui.js?v=48.0"></script>
 <script src="i18n/index.js?v=44.2"></script>
+<script src="business-hours.js"></script>
 <script>
 const localeTags={ko:'ko-KR',en:'en-US',ja:'ja-JP',zh:'zh-CN',vi:'vi-VN',es:'es-ES'};
 const money=n=>{const lang=window.PJ_I18N?.currentLanguage?.()||'ko',amount=new Intl.NumberFormat(localeTags[lang]||'ko-KR').format(Math.round(n));return t('ui.currency.krw',{amount})};
@@ -2163,6 +2165,47 @@ const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust'
 const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
 function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+
+let businessHoursStatus=window.PJ_BUSINESS_HOURS?null:'open';
+function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
+function businessHoursClosedView(){
+ const beforeOpen=businessHoursStatus==='before-open';
+ const copy=window.PJ_BUSINESS_HOURS.UI_COPY;
+ return `<section class="businessHoursScreen" aria-live="polite"><div class="businessHoursPanel">
+  <img class="businessHoursLogo" src="assets/images/papajohns_red_logo.png" alt="Papa John’s">
+  <div class="businessHoursStore">${copy.store}</div>
+  <h1 class="businessHoursTitle">${beforeOpen?copy.beforeOpenTitle:copy.afterCloseTitle}</h1>
+  <p class="businessHoursLabel">${copy.hoursLabel}</p>
+  <p class="businessHoursTime">${copy.hours}</p>
+  <p class="businessHoursMessage">${beforeOpen?copy.beforeOpenMessage:copy.afterCloseMessage}</p>
+  <time id="businessHoursClock" class="businessHoursClock"></time>
+ </div></section>`
+}
+function updateBusinessHoursClock(date=new Date()){
+ const clock=document.getElementById('businessHoursClock');
+ if(clock)clock.textContent=window.PJ_BUSINESS_HOURS.UI_COPY.currentTime+' · '+window.PJ_BUSINESS_HOURS.formatKoreanTime(date)
+}
+function assertBusinessOpen(){
+ if(isBusinessOpen())return true;
+ businessHoursStatus=window.PJ_BUSINESS_HOURS.getStatus();
+ forceBusinessHoursClosure();
+ return false
+}
+function forceBusinessHoursClosure(){
+ reset();
+ mobileOrderSubmitting=false;
+ render()
+}
+function handleBusinessHoursChange(nextStatus,previousStatus,date){
+ businessHoursStatus=nextStatus;
+ if(nextStatus==='open'){
+  if(previousStatus&&previousStatus!=='open')reset();
+  render()
+ }else{
+  forceBusinessHoursClosure()
+ }
+ updateBusinessHoursClock(date)
+}
 
 function uiIcon(name,cls=''){
  const paths={
@@ -2247,6 +2290,14 @@ function applyAdaptiveCardSizing(){
  });
 }
 function render(){
+ if(businessHoursStatus!=='open'){
+  document.body.dataset.step='business-hours';
+  document.getElementById('main').innerHTML=businessHoursClosedView();
+  document.getElementById('cart').innerHTML='';
+  document.getElementById('modal').innerHTML='';
+  updateBusinessHoursClock();
+  return
+ }
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
  document.body.dataset.step=state.step||'';
@@ -3053,6 +3104,7 @@ function buildMobileOrderPayload(){
  }
 }
 async function submitMobileOrder(){
+ if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
  if(!window.PJ_NETWORK.isOnline())throw new Error(t('ui.payment.saveFailedConnection'));
  const payload=buildMobileOrderPayload();
  if(!['dinein','takeout'].includes(payload.orderType))throw new Error(t('ui.payment.invalidOrderType'));
@@ -3060,11 +3112,13 @@ async function submitMobileOrder(){
  if(!Number.isInteger(payload.itemCount)||payload.itemCount<1||payload.itemCount>100)throw new Error(t('ui.payment.invalidQuantity'));
  if(!Number.isFinite(payload.total)||payload.total<0||payload.total>3000000)throw new Error(t('ui.payment.invalidAmount'));
  if(!/^010\d{8}$/.test(payload.phone||''))throw new Error(t('ui.payment.phoneCheck'));
+ if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
  const orderRef=db.collection('orders').doc();
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
  await db.runTransaction(async transaction=>{
   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
+  if(!assertBusinessOpen())throw new Error(window.PJ_BUSINESS_HOURS.UI_COPY.closedError);
   transaction.set(orderRef,payload);
   seatRefs.forEach(ref=>transaction.set(ref,{status:'held',heldBy:null,heldUntil:null,partySize:state.partySize||null,orderNo:state.orderNo,orderId:orderRef.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
  });
@@ -3075,12 +3129,14 @@ async function submitMobileOrder(){
 
 async function complete(event){
  if(event){event.preventDefault();event.stopPropagation()}
+ if(!assertBusinessOpen())return
  const errorBox=document.getElementById('submitError');if(errorBox)errorBox.textContent='';
  if(!validPhone()){if(errorBox)errorBox.textContent=t('ui.payment.invalidPhone');return}
  if(!validPayment()){if(errorBox)errorBox.textContent=t('ui.payment.invalidMethod');return}
  const button=document.getElementById('paymentSubmitBtn')||document.querySelector('.paymentSubmitBtn');
  if(button){button.disabled=true;button.textContent=t('ui.payment.submitting')}
  try{
+  if(!assertBusinessOpen())return
   state.orderNo=displayOrderNo();
   await submitMobileOrder();
   state.step='done';render();
@@ -3129,11 +3185,15 @@ db.collection('waitlist').onSnapshot(
  snap=>{mobileWaitlist=snap.docs.map(d=>({id:d.id,...d.data()}));if(state.step==='table')render()},
  error=>console.error('Firestore waitlist subscription failed',error)
 );
-mobileSeatTimer=setInterval(()=>{if(state.step==='table')render()},30000);
+mobileSeatTimer=setInterval(()=>{if(businessHoursStatus==='open'&&state.step==='table')render()},30000);
 ['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
 window.addEventListener('pagehide',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
-render();
+const businessHoursMonitor=window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.createMonitor({
+ onStatusChange:handleBusinessHoursChange,
+ onClockTick:updateBusinessHoursClock
+}):null;
+if(businessHoursMonitor)businessHoursMonitor.start();else render();
 window.__PJ_BOOT_OK=true;
 
 document.addEventListener('pointerdown',e=>{
