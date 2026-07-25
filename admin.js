@@ -152,10 +152,19 @@ const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const ADMIN_SEATS=[
- {id:'papa-2',name:'파파존 2인석'},{id:'papa-bar4',name:'파파존 바테이블'},
- {id:'outdoor-1',name:'야외존1번'},{id:'outdoor-2',name:'야외존2번'},{id:'outdoor-3',name:'야외존3번'},{id:'outdoor-4',name:'야외존4번'},
- {id:'annex-1',name:'별관1'},{id:'annex-2',name:'별관2'},{id:'annex-3',name:'별관3'},{id:'annex-4',name:'별관4'},
- {id:'room-1',name:'룸1'},{id:'room-2',name:'룸2'},{id:'room-3',name:'룸3'}
+ {id:'papa-2',name:'커플석',zone:'papa',row:1,column:1},
+ {id:'papa-bar4',name:'바테이블',zone:'papa',row:1,column:2},
+ {id:'outdoor-1',name:'야외석1',zone:'outdoor',row:2,column:1},
+ {id:'outdoor-2',name:'야외석2',zone:'outdoor',row:2,column:2},
+ {id:'outdoor-3',name:'야외석3',zone:'outdoor',row:2,column:3},
+ {id:'outdoor-4',name:'야외석4',zone:'outdoor',row:3,column:1},
+ {id:'annex-1',name:'별관1',zone:'annex',row:4,column:1},
+ {id:'annex-2',name:'별관2',zone:'annex',row:4,column:2},
+ {id:'annex-3',name:'별관3',zone:'annex',row:4,column:3},
+ {id:'annex-4',name:'별관4',zone:'annex',row:5,column:1},
+ {id:'room-1',name:'룸1',zone:'room',row:6,column:1},
+ {id:'room-2',name:'룸2',zone:'room',row:6,column:2},
+ {id:'room-3',name:'룸3',zone:'room',row:6,column:3}
 ];
 const seatStatusNames={empty:'빈자리',occupied:'사용중',held:'주문중'};
 let seatDocuments={};
@@ -418,9 +427,10 @@ function renderSeatOverview(){
   const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
   const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
   const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}`;
+  const attributes=`class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}"`;
   return status==='empty'
-   ?`<article class="seat-overview-card ${status}" data-seat-id="${esc(seat.id)}">${content}</article>`
-   :`<button type="button" class="seat-overview-card ${status}" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} ${seatStatusNames[status]}. 주문 상세보기">${content}</button>`;
+   ?`<article ${attributes}>${content}</article>`
+   :`<button type="button" ${attributes} data-action="open-seat-order" aria-label="${esc(seat.name)} ${seatStatusNames[status]}. 주문 상세보기">${content}</button>`;
  }).join('');
 }
 function render(){
