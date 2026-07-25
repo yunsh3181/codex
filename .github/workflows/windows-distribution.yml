@@ -1,0 +1,56 @@
+name: Windows distribution
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/windows-distribution.yml"
+      - "desktop/**"
+      - "scripts/verify-windows-pe.js"
+      - "package.json"
+      - "package-lock.json"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preserve repository LF line endings
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          git checkout-index --force --all
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist:win:ia32:dir
+      - run: npm run dist:win:ia32
+      - run: npm run verify:win:ia32
+      - run: npm run dist:win:x64
+      - run: npm run verify:win:x64
+
+      - name: Upload Windows ia32 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: papa-johns-kiosk-windows-ia32
+          if-no-files-found: error
+          path: |
+            dist/*-ia32.exe
+            dist/win-ia32-unpacked/
+
+      - name: Upload Windows x64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: papa-johns-kiosk-windows-x64
+          if-no-files-found: error
+          path: |
+            dist/*-x64.exe
+            dist/win-unpacked/

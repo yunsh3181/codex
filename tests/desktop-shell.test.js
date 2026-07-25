@@ -32,20 +32,21 @@ test('desktop shell prevents duplicate instances and display sleep', () => {
   assert.match(mainSource, /powerSaveBlocker\.stop\(powerSaveBlockerId\)/);
 });
 
-test('Windows build emits both NSIS and portable x64 artifacts', () => {
+test('Windows build emits architecture-labelled NSIS and portable artifacts', () => {
   assert.match(
     packageJson.scripts['desktop:build:win'],
     /process\.platform !== 'win32'/
   );
   const targets = packageJson.build.win.target;
-  assert.deepEqual(targets.map(({ target }) => target), ['nsis', 'portable']);
-  assert.ok(targets.every(({ arch }) => arch.includes('x64')));
-  assert.equal(packageJson.build.nsis.artifactName, 'PapaJohns-Kiosk-Setup-${version}.${ext}');
+  assert.deepEqual(targets, ['nsis', 'portable']);
+  assert.match(packageJson.scripts['dist:win:x64'], /--x64/);
+  assert.match(packageJson.scripts['dist:win:ia32'], /--ia32/);
+  assert.equal(packageJson.build.nsis.artifactName, 'PapaJohns-Kiosk-Setup-${version}-${arch}.${ext}');
   assert.equal(packageJson.build.nsis.oneClick, false);
   assert.equal(packageJson.build.nsis.allowToChangeInstallationDirectory, true);
   assert.equal(packageJson.build.nsis.runAfterFinish, false);
   assert.equal(
     packageJson.build.portable.artifactName,
-    'PapaJohns-Kiosk-Portable-${version}.${ext}'
+    'PapaJohns-Kiosk-Portable-${version}-${arch}.${ext}'
   );
 });
