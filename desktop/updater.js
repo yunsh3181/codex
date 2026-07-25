@@ -130,6 +130,16 @@ function createKioskUpdater({
     window.webContents.send('kiosk-updater:open-admin', snapshot());
   }
 
+  function handleOperationalState(event, requestId, value) {
+    const window = getWindow();
+    if (!window || window.isDestroyed() || event.sender !== window.webContents) return;
+    if (typeof requestId !== 'string' || requestId.length > 100) return;
+    const resolve = pendingOperationalRequests.get(requestId);
+    if (!resolve) return;
+    pendingOperationalRequests.delete(requestId);
+    resolve(sanitizeOperationalState(value));
+  }
+
   function registerIpc() {
     ipcMain.removeHandler('kiosk-updater:get-state');
     ipcMain.removeHandler('kiosk-updater:check');
@@ -137,13 +147,8 @@ function createKioskUpdater({
     ipcMain.handle('kiosk-updater:get-state', () => snapshot());
     ipcMain.handle('kiosk-updater:check', () => checkForUpdates());
     ipcMain.handle('kiosk-updater:install', () => installDownloadedUpdate());
-    ipcMain.on('kiosk-updater:operational-state', (_event, requestId, value) => {
-      if (typeof requestId !== 'string' || requestId.length > 100) return;
-      const resolve = pendingOperationalRequests.get(requestId);
-      if (!resolve) return;
-      pendingOperationalRequests.delete(requestId);
-      resolve(sanitizeOperationalState(value));
-    });
+    ipcMain.removeListener('kiosk-updater:operational-state', handleOperationalState);
+    ipcMain.on('kiosk-updater:operational-state', handleOperationalState);
   }
 
   function registerUpdaterEvents() {
@@ -192,6 +197,10 @@ function createKioskUpdater({
     initialTimer = intervalTimer = null;
     for (const resolve of pendingOperationalRequests.values()) resolve(null);
     pendingOperationalRequests.clear();
+    ipcMain.removeListener('kiosk-updater:operational-state', handleOperationalState);
+    ipcMain.removeHandler('kiosk-updater:get-state');
+    ipcMain.removeHandler('kiosk-updater:check');
+    ipcMain.removeHandler('kiosk-updater:install');
   }
 
   return {
