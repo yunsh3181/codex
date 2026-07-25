@@ -37,7 +37,7 @@ html body[data-step="drink"] .v3DrinkCard.zero {
   background-image: linear-gradient(135deg, #202020, #090909) !important;
 }
 
-html body[data-step="drink"] .v3DrinkCard::before {
+html body[data-step="drink"] .v3DrinkName {
   position: absolute;
   top: 50%;
   left: 36px;
@@ -50,22 +50,6 @@ html body[data-step="drink"] .v3DrinkCard::before {
   text-align: left;
   text-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
   transform: translateY(-50%);
-}
-
-html body[data-step="drink"] .v3DrinkCard.cola.regular::before {
-  content: "Coca-Cola";
-}
-
-html body[data-step="drink"] .v3DrinkCard.cola.zero::before {
-  content: "Coca-Cola Zero";
-}
-
-html body[data-step="drink"] .v3DrinkCard.sprite.regular::before {
-  content: "Sprite";
-}
-
-html body[data-step="drink"] .v3DrinkCard.sprite.zero::before {
-  content: "Sprite Zero";
 }
 
 html body[data-step="drink"] .v3DrinkCard.active {
@@ -199,9 +183,9 @@ html body:is([data-step="drink"], [data-step="topping"]) .selectionFooterCard :w
     padding: 22px 16px !important;
   }
 
-  html body[data-step="drink"] .v3DrinkCard::before {
+  html body[data-step="drink"] .v3DrinkName {
     left: 18px;
-    width: 35%;
+    width: 32%;
     font-size: 26px;
   }
 

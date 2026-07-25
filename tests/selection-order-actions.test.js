@@ -113,6 +113,24 @@ assert.match(touchLayoutCss,/body\[data-step="drink"\] \.grid\.drinkTextGrid,[\s
 assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkCard\s*\{[\s\S]*?min-height: 280px !important;[\s\S]*?padding: 30px 36px !important/,'kiosk drink cards retain enlarged height and padding');
 assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkRow button,[\s\S]*?width: 84px !important;[\s\S]*?height: 84px !important/,'kiosk drink quantity controls retain 84px touch targets');
 assert.match(touchLayoutCss,/body\[data-step="drink"\] \.v3DrinkRow button:active,[\s\S]*?transform: none !important/,'drink controls do not move during repeated taps');
+assert.doesNotMatch(touchLayoutCss,/\.v3DrinkCard[^{]*::before/,'drink cards do not generate product names with pseudo-elements');
+for(const name of ['Coca-Cola','Coca-Cola Zero','Sprite','Sprite Zero']){
+  assert.ok(!touchLayoutCss.includes(`content: "${name}"`),`CSS does not hardcode ${name}`);
+}
+for(const language of languages){
+  context.window.PJ_I18N.setLanguage(language);
+  const localizedName=vm.runInContext("drinkName(DRINKS.find(x=>x.id==='D001'))",context);
+  const localizedCard=vm.runInContext("drinkGroupCard(drinkGroups()[0])",context);
+  assert.ok(localizedCard.includes(`<div class="v3DrinkName">${localizedName}</div>`),`${language} drink card renders the current data-backed name`);
+  assert.ok(localizedCard.includes("qty('extraDrinks','D001',1,9,99)"),`${language} drink card retains the quantity handler`);
+}
+context.window.PJ_I18N.setLanguage('ko');
+vm.runInContext("DRINKS.push({id:'DX01',name:'아주 긴 계절 한정 스파클링 음료 이름',small:true,price:3100},{id:'DX02',name:'아주 긴 계절 한정 스파클링 음료 이름',price:5200})",context);
+const fixtureCard=vm.runInContext("drinkGroupCard({key:'seasonalFixture',small:'DX01',large:'DX02'})",context);
+assert.ok(fixtureCard.includes('<div class="v3DrinkName">아주 긴 계절 한정 스파클링 음료 이름</div>'),'an unclassified long drink name uses the same data-backed name element');
+assert.ok(fixtureCard.includes("qty('extraDrinks','DX01',1,9,99)"),'an unclassified drink retains the existing quantity handler');
+assert.ok(!fixtureCard.includes('undefined'),'an unclassified drink renders complete markup');
+vm.runInContext("DRINKS.splice(-2)",context);
 const lastSauceId=vm.runInContext('SAUCES[SAUCES.length-1].id',context);
 assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',1,9,99)`),'last accompaniment card remains clickable before the spacer');
 assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',-1,9,99)`),'last accompaniment minus control remains clickable before the spacer');
