@@ -50,3 +50,7 @@ contextBridge.exposeInMainWorld('kioskTestMode', Object.freeze({
     return () => testModeListeners.delete(listener);
   }
 }));
+
+contextBridge.exposeInMainWorld('kioskIdentity', Object.freeze({
+  consumeCustomToken: () => ipcRenderer.invoke('kiosk-identity:consume-custom-token')
+}));

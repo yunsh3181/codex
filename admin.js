@@ -155,9 +155,9 @@ function renderAdminTestMode(state=adminTestModeController.getState()){
  testModeButton.classList.toggle('enabled',state.enabled);
  testModeButton.textContent=state.enabled?`⚠️ 테스트 모드 켜짐 · ${testModeMinutes(state)}분 남음`:'테스트 모드 꺼짐';
  testModeButton.setAttribute('aria-pressed',String(state.enabled));
- const phaseLabels={connected:'키오스크 연결됨 · mobile-01',requesting:'활성화 요청 중 · mobile-01',applied:'테스트 모드 적용됨 · mobile-01',off:'테스트 모드 종료 확인 · mobile-01',waiting:'키오스크 연결 대기 · mobile-01','no-response':'키오스크 응답 없음 · mobile-01',rejected:'키오스크 적용 거부 · mobile-01',error:'적용 확인 불가 · mobile-01'};
+ const phaseLabels={connected:'키오스크 연결됨 · mobile-01','requesting-enable':'테스트 모드 활성화 요청 중 · mobile-01','enabled-confirmed':'테스트 모드 적용됨 · mobile-01','requesting-disable':'테스트 모드 종료 요청 중 · mobile-01','disabled-confirmed':'테스트 모드 종료 확인 · mobile-01',waiting:'키오스크 연결 대기 · mobile-01','no-response':'키오스크 응답 없음 · mobile-01',rejected:'키오스크 적용 거부 · mobile-01',error:'적용 확인 불가 · mobile-01'};
  testModeConnection.textContent=phaseLabels[adminTestModePhase]||phaseLabels.waiting;
- const confirmed=['connected','applied','off'].includes(adminTestModePhase);
+ const confirmed=['connected','enabled-confirmed','disabled-confirmed'].includes(adminTestModePhase);
  testModeConnection.className=`test-mode-connection ${confirmed?'connected':'waiting'}`;
  retryTestMode.hidden=!adminTestModeAuthenticated||adminTestModePhase!=='no-response';
 }
@@ -168,7 +168,7 @@ function setAuthenticatedTestModeUI(authenticated){
 }
 function handleAdminRemoteStatus(status){
  adminTestModePhase=status.phase;
- adminTestModeConnected=['connected','requesting','applied','off'].includes(status.phase);
+ adminTestModeConnected=['connected','requesting-enable','enabled-confirmed','requesting-disable','disabled-confirmed'].includes(status.phase);
  renderAdminTestMode();
 }
 function startAdminTestModeRemote(user){
@@ -198,7 +198,8 @@ function openTestModeConfirmation(){
 }
 const adminTestModeController=window.PJ_AFTER_HOURS_TEST_MODE.createController({
  role:'admin',
- onChange:state=>{if(!state.enabled&&adminTestModePhase==='applied')adminTestModePhase='off';renderAdminTestMode(state)},
+ acceptRemoteMessages:false,
+ onChange:state=>{if(!state.enabled&&adminTestModePhase==='enabled-confirmed')adminTestModePhase='disabled-confirmed';renderAdminTestMode(state)},
  onConnection:status=>{adminTestModeConnected=status.connected;renderAdminTestMode()}
 });
 adminTestModeController.start();

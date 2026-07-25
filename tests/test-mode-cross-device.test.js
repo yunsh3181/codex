@@ -69,21 +69,30 @@ test('remote Firestore delivery works without BroadcastChannel or Electron IPC a
   await kiosk.start();
   await admin.start();
   await flush();
+  kiosk.stop();
   const enableRequestId = await admin.requestEnable();
-  assert.ok(adminStatuses.indexOf('requesting') >= 0, 'ACK 전 요청 중 상태를 거친다');
+  assert.equal(adminController.isEnabled(), false, 'enable ACK 전 관리자 상태를 켜짐으로 확정하지 않는다');
+  assert.equal(adminStatuses.at(-1), 'requesting-enable');
+  await kiosk.start();
   await flush();
   await flush();
   assert.equal(kioskController.isEnabled(), true);
   assert.equal(kioskController.getActiveRequestId(), enableRequestId);
   assert.ok(kioskStatuses.includes('applied'));
-  assert.ok(adminStatuses.indexOf('requesting') < adminStatuses.indexOf('applied'));
-  assert.equal(adminStatuses.at(-1), 'applied', '동일 requestId와 sessionId ACK 후에만 적용 완료');
+  assert.equal(adminController.isEnabled(), true);
+  assert.ok(adminStatuses.indexOf('requesting-enable') < adminStatuses.indexOf('enabled-confirmed'));
+  assert.equal(adminStatuses.at(-1), 'enabled-confirmed', '동일 requestId와 sessionId ACK 후에만 적용 완료');
+  kiosk.stop();
   const disableRequestId = await admin.requestDisable();
+  assert.equal(adminController.isEnabled(), true, 'disable ACK 전 기존 적용 상태를 유지한다');
+  assert.equal(adminStatuses.at(-1), 'requesting-disable');
+  await kiosk.start();
   await flush();
   await flush();
   assert.notEqual(disableRequestId, enableRequestId);
   assert.equal(kioskController.isEnabled(), false);
-  assert.equal(adminStatuses.at(-1), 'off');
+  assert.equal(adminController.isEnabled(), false);
+  assert.equal(adminStatuses.at(-1), 'disabled-confirmed');
   kiosk.stop();
   admin.stop();
   kioskController.dispose();
@@ -148,14 +157,48 @@ test('ACK timeout reports no response and never reports applied', async () => {
   await admin.requestEnable();
   await new Promise(resolve => setTimeout(resolve, 25));
   assert.equal(statuses.at(-1), 'no-response');
-  assert.equal(statuses.includes('applied'), false);
+  assert.equal(statuses.includes('enabled-confirmed'), false);
+  assert.equal(controller.isEnabled(), false, 'timeout은 관리자 실제 상태를 변경하지 않는다');
+  admin.stop();
+  controller.dispose();
+});
+
+test('a forged ACK cannot move the admin controller to confirmed state', async () => {
+  let now = 400000;
+  const transport = fakeFirestore(() => now);
+  const presenceRef = transport.db.collection('runtimeControls').doc('pangyo2-techno-valley').collection('kiosks').doc('mobile-01');
+  await presenceRef.set({
+    storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', sessionId: 'target-session', role: 'kiosk',
+    heartbeatAt: { toMillis: () => now }
+  });
+  const statuses = [];
+  const controller = createController({ role: 'admin', now: () => now, channelFactory: () => null, runtime: null });
+  const admin = createAdminChannel({ ...transport, controller, user: { uid: 'admin-1' }, now: () => now, ackTimeoutMs: 100, onStatus: value => statuses.push(value.phase) });
+  await admin.start();
+  await flush();
+  const requestId = await admin.requestEnable();
+  const commandRef = transport.db.collection('runtimeControls').doc('pangyo2-techno-valley').collection('commands').doc('mobile-01');
+  await commandRef.update({
+    ack: {
+      requestId, kioskId: 'mobile-01', sessionId: 'target-session',
+      action: 'disable', applied: true, enabled: true
+    },
+    acknowledgedAt: { toMillis: () => now }
+  });
+  await flush();
+  assert.equal(controller.isEnabled(), false);
+  assert.equal(statuses.includes('enabled-confirmed'), false);
+  assert.equal(admin.getStatus().phase, 'requesting-enable');
   admin.stop();
   controller.dispose();
 });
 
 test('security rules separate runtime control from orders and restrict request and ACK writes', () => {
   assert.match(rules, /match \/runtimeControls\/\{storeId\}\/commands\/\{kioskId\}/);
-  assert.match(rules, /allow create, update: if isAdmin\(\)/);
+  assert.match(rules, /function isKiosk\(storeId, kioskId\)/);
+  assert.match(rules, /allow read: if isAdmin\(\) \|\| isKiosk\(storeId, kioskId\)/);
+  assert.match(rules, /allow create, update: if isKiosk\(storeId, kioskId\)/);
+  assert.match(rules, /allow update: if isKiosk\(storeId, kioskId\)/);
   assert.match(rules, /request\.resource\.data\.requestedBy == request\.auth\.uid/);
   assert.match(rules, /expiresAt <= request\.time \+ duration\.value\(30, 'm'\)/);
   assert.match(rules, /affectedKeys\(\)\.hasOnly\(\[\s*'ack','acknowledgedAt'/);

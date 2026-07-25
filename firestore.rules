@@ -4,6 +4,13 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
+
+    function isKiosk(storeId, kioskId) {
+      return request.auth != null
+        && request.auth.token.role == 'kiosk'
+        && request.auth.token.storeId == storeId
+        && request.auth.token.kioskId == kioskId;
+    }
     function validString(v, max) { return v is string && v.size() <= max; }
     function validOrderCreate() {
       return request.resource.data.keys().hasOnly([
@@ -134,8 +141,9 @@ service cloud.firestore {
     }
 
     match /runtimeControls/{storeId}/kiosks/{kioskId} {
-      allow read: if true;
-      allow create, update: if request.resource.data.keys().hasOnly([
+      allow read: if isAdmin() || isKiosk(storeId, kioskId);
+      allow create, update: if isKiosk(storeId, kioskId)
+        && request.resource.data.keys().hasOnly([
           'storeId','kioskId','sessionId','role','heartbeatAt'
         ])
         && request.resource.data.storeId == storeId
@@ -143,11 +151,11 @@ service cloud.firestore {
         && validString(request.resource.data.sessionId, 128)
         && request.resource.data.role == 'kiosk'
         && request.resource.data.heartbeatAt == request.time;
-      allow delete: if isAdmin();
+      allow delete: if false;
     }
 
     match /runtimeControls/{storeId}/commands/{kioskId} {
-      allow read: if true;
+      allow read: if isAdmin() || isKiosk(storeId, kioskId);
       allow create, update: if isAdmin()
         && request.resource.data.keys().hasOnly([
           'storeId','kioskId','targetSessionId','action','requestId','requestedBy',
@@ -165,7 +173,8 @@ service cloud.firestore {
         && request.resource.data.expiresAt <= request.time + duration.value(30, 'm')
         && request.resource.data.ack == null
         && request.resource.data.acknowledgedAt == null;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+      allow update: if isKiosk(storeId, kioskId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'ack','acknowledgedAt'
         ])
         && request.resource.data.acknowledgedAt == request.time

@@ -23,6 +23,7 @@
     now = () => Date.now(),
     channelFactory = name => typeof BroadcastChannel === 'function' ? new BroadcastChannel(name) : null,
     runtime = typeof window !== 'undefined' ? window.kioskTestMode : null,
+    acceptRemoteMessages = true,
     onChange = () => {},
     onConnection = () => {},
     onExpire = () => {},
@@ -132,6 +133,7 @@
         broadcast('state');
         return;
       }
+      if (!acceptRemoteMessages) return;
       if (message.type === 'state' && (message.state?.enabled || !state.enabled)) apply(message.state, 'remote');
       if (message.type === 'enable') {
         if (message.requestId) applyCommand({ action: 'enable', requestId: message.requestId, enabledAt: message.state?.enabledAt, expiresAt: message.state?.expiresAt }, 'broadcast');

@@ -143,10 +143,12 @@
     let ackTimer = null;
     let targetSessionId = null;
     let pending = null;
+    let currentPhase = 'idle';
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
     function emit(phase, extra = {}) {
+      currentPhase = phase;
       onStatus({ phase, kioskId, targetSessionId, requestId: pending?.requestId || null, ...extra });
     }
 
@@ -158,12 +160,15 @@
         if (!pending && ack.requestId === command.requestId && ack.sessionId === targetSessionId &&
           ack.kioskId === kioskId && ack.enabled === false && controller.isEnabled()) {
           controller.applyCommand({ action: 'disable', requestId: `${ack.requestId}:terminated` }, 'kiosk-ack');
-          emit('off');
+          emit('disabled-confirmed');
           return;
         }
         if (!pending) return;
-        if (command.requestId !== pending.requestId || ack.requestId !== pending.requestId ||
-          ack.sessionId !== pending.targetSessionId || ack.kioskId !== kioskId) return;
+        if (command.storeId !== storeId || command.kioskId !== kioskId ||
+          command.targetSessionId !== pending.targetSessionId || command.action !== pending.action ||
+          command.requestId !== pending.requestId || ack.requestId !== pending.requestId ||
+          ack.sessionId !== pending.targetSessionId || ack.kioskId !== kioskId ||
+          ack.action !== pending.action) return;
         clearTimeout(ackTimer);
         ackTimer = null;
         if (ack.applied !== true) {
@@ -175,7 +180,13 @@
           emit('rejected');
           return;
         }
-        emit(pending.action === 'enable' ? 'applied' : 'off');
+        controller.applyCommand({
+          action: pending.action,
+          requestId: pending.requestId,
+          enabledAt: pending.requestedAtMillis,
+          expiresAt: pending.expiresAtMillis
+        }, 'kiosk-ack');
+        emit(pending.action === 'enable' ? 'enabled-confirmed' : 'disabled-confirmed');
         pending = null;
       }, error => emit('error', { error }));
     }
@@ -198,8 +209,8 @@
       const expiresAtMillis = action === 'enable'
         ? requestedAtMillis + Math.min(30 * 60 * 1000, globalThis.PJ_AFTER_HOURS_TEST_MODE?.DURATION_MS || 30 * 60 * 1000)
         : requestedAtMillis + ACK_TIMEOUT_MS;
-      pending = { requestId, action, targetSessionId };
-      emit('requesting');
+      pending = { requestId, action, targetSessionId, requestedAtMillis, expiresAtMillis };
+      emit(action === 'enable' ? 'requesting-enable' : 'requesting-disable');
       await commandRef.set({
         storeId,
         kioskId,
@@ -212,7 +223,6 @@
         ack: null,
         acknowledgedAt: null
       }, { merge: false });
-      controller.applyCommand({ action, requestId, enabledAt: requestedAtMillis, expiresAt: expiresAtMillis }, 'admin-remote');
       waitForAck(pending);
       return requestId;
     }
@@ -224,10 +234,10 @@
         if (presence.kioskId === kioskId && presence.storeId === storeId && presence.role === 'kiosk' &&
           typeof presence.sessionId === 'string' && heartbeatAt && now() - heartbeatAt <= presenceStaleMs) {
           targetSessionId = presence.sessionId;
-          emit('connected');
+          if (!pending) emit('connected');
         } else {
           targetSessionId = null;
-          emit('waiting');
+          if (!pending) emit('waiting');
         }
       }, error => emit('error', { error }));
       watchAck();
@@ -249,7 +259,7 @@
       requestEnable: () => request('enable'),
       requestDisable: () => request('disable'),
       retry: () => request(pending?.action || 'enable'),
-      getStatus: () => ({ kioskId, targetSessionId, pending: pending ? { ...pending } : null })
+      getStatus: () => ({ phase: currentPhase, kioskId, targetSessionId, pending: pending ? { ...pending } : null })
     };
   }
 
