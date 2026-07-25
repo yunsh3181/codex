@@ -136,6 +136,9 @@ const customSoundName=document.getElementById('customSoundName');
 let orders=[];
 let activeFilter='payment_pending';
 let activeChannel='all';
+let orderSearchTerm='';
+let activeOrderType='all';
+let activeOrderSort='latest';
 let initialLoad=true;
 let soundEnabled=localStorage.getItem('pjAdminSoundEnabled')!=='false';
 let audioContext=null;
@@ -190,6 +193,14 @@ function compareOrdersOldestFirst(a,b){
  const aValid=Number.isFinite(aSequence)&&aSequence>0,bValid=Number.isFinite(bSequence)&&bSequence>0;
  if(aValid!==bValid)return aValid?-1:1;
  return aValid&&aSequence!==bSequence?aSequence-bSequence:0;
+}
+function elapsedMinutes(order){
+ const started=orderTimeMillis(order?.createdAt)??orderTimeMillis(order?.createdAtClient);
+ return started==null?0:Math.max(0,Math.floor((Date.now()-started)/60000));
+}
+function elapsedHTML(order){
+ const minutes=elapsedMinutes(order),tone=minutes>=25?'critical':minutes>=15?'warning':'normal';
+ return `<div class="elapsed-time ${tone}" aria-label="주문 후 ${minutes}분 경과"><strong>${minutes}</strong><span>분</span></div>`;
 }
 function seoulBusinessDayKey(value=new Date()){
  const date=value?.toDate?value.toDate():new Date(value);
@@ -385,6 +396,13 @@ function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(acti
 function ordersForMainList(list){
  return (list||[]).filter(order=>order.orderType!=='takeout'||activeFilter==='completed').filter(filterOrders);
 }
+function matchesOperationSearch(order){
+ if(activeOrderType!=='all'&&order.orderType!==activeOrderType)return false;
+ if(!orderSearchTerm)return true;
+ const menuText=(order.items||[]).map(item=>[item.name,item.menuName,item.id,item.code].filter(Boolean).join(' ')).join(' ');
+ return [adminOrderNumberLabel(order),order.orderNo,order.customerNumber,order.phone,order.phoneMasked,menuText]
+  .some(value=>String(value||'').toLowerCase().includes(orderSearchTerm));
+}
 function adminStatusName(order){if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
 function adminStatusVisual(order){if(['payment_pending','new'].includes(order.status))return {className:'seat-ordering',icon:'🟡'};if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return {className:'seat-occupied',icon:'🔴'};if(order.orderType==='takeout'&&['accepted','paid','cooking','ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};if(['ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};return {className:'',icon:''}}
 function adminOrderActions(order){
@@ -397,7 +415,7 @@ function takeoutItemCount(order){
 }
 function takeoutPendingCard(order){
  const visual=adminStatusVisual(order);
- return `<article class="order-card order-detail-trigger takeout-large ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 결제대기 주문 상세보기"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button></div></div></div></article>`;
+ return `<article class="order-card order-detail-trigger takeout-large ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 결제대기 주문 상세보기">${elapsedHTML(order)}<header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button></div></div></div></article>`;
 }
 function takeoutProgressAction(order){
  if(['accepted','paid','cooking'].includes(order.status))return {label:'조리완료',status:'ready',className:'ready'};
@@ -433,12 +451,13 @@ function render(){
   ...manualCustomerCalls.map(call=>({time:call.createdAt,html:manualCustomerCallCard(call)}))
  ].sort((a,b)=>dateValue(a.time)-dateValue(b.time));
  if(takeoutProcessing)takeoutProcessing.innerHTML=processingCards.length?processingCards.map(card=>card.html).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
- const filtered=ordersForMainList(orders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${order.orderType==='takeout'?'포장 · ':''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ const filtered=ordersForMainList(orders).filter(matchesOperationSearch).map((order,index)=>({order,index})).sort((a,b)=>(activeOrderSort==='latest'?-1:1)*(compareOrdersOldestFirst(a.order,b.order)||a.index-b.index)).map(entry=>entry.order);
+ orderList.innerHTML=filtered.length?filtered.map(order=>{const visual=adminStatusVisual(order);return `<article class="order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기">${elapsedHTML(order)}<header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${order.orderType==='takeout'?'포장 · ':''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">검색 조건에 맞는 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
- document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
+ document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('readyCount').textContent=count(['ready']);document.getElementById('doneCount').textContent=count(['completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
- const today=new Date();today.setHours(0,0,0,0);const sales=orders.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAtClient||0);return d>=today&&o.status!=='cancelled'}).reduce((s,o)=>s+Number(o.total||0),0);document.getElementById('todaySales').textContent=money(sales);
+ const today=new Date();today.setHours(0,0,0,0);const todayOrders=orders.filter(o=>{const d=o.createdAt?.toDate?o.createdAt.toDate():new Date(o.createdAtClient||0);return d>=today&&o.status!=='cancelled'});const sales=todayOrders.reduce((s,o)=>s+Number(o.total||0),0);document.getElementById('todaySales').textContent=money(sales);
+ document.getElementById('headerOrderCount').textContent=`${todayOrders.length}건`;document.getElementById('headerTodaySales').textContent=money(sales);
 }
 function seatReleasePayload(){
  return {
@@ -909,4 +928,21 @@ document.getElementById('refreshWaiting')?.addEventListener('click',()=>renderWa
 // v40.17: 관리자 상태 흐름 결제대기 → 접수 → 조리중 → 완료
 
 document.getElementById('channelFilters')?.addEventListener('click',e=>{const b=e.target.closest('button[data-channel]');if(!b)return;activeChannel=b.dataset.channel;document.querySelectorAll('#channelFilters button').forEach(x=>x.classList.toggle('active',x===b));render()});
+let orderSearchTimer=null;
+document.getElementById('orderSearch')?.addEventListener('input',event=>{
+ clearTimeout(orderSearchTimer);
+ orderSearchTimer=setTimeout(()=>{orderSearchTerm=event.target.value.trim().toLowerCase();render()},120);
+});
+document.getElementById('statusSelect')?.addEventListener('change',event=>{
+ activeFilter=event.target.value;
+ document.querySelectorAll('.filters button').forEach(button=>button.classList.toggle('active',button.dataset.filter===activeFilter));
+ render();
+});
+document.getElementById('orderTypeSelect')?.addEventListener('change',event=>{activeOrderType=event.target.value;render()});
+document.getElementById('orderSort')?.addEventListener('change',event=>{activeOrderSort=event.target.value;render()});
+function updateAdminClock(){
+ const target=document.getElementById('adminCurrentTime');
+ if(target)target.textContent=new Intl.DateTimeFormat('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+}
+updateAdminClock();setInterval(updateAdminClock,1000);
 window.PJAdminOrders=()=>orders;

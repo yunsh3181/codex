@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#005b2b" />
+  <meta name="theme-color" content="#c41230" />
   <title>판교2테크노밸리점 주문 관리자 v44.0.0</title>
   <link rel="stylesheet" href="../admin.css?v=44.0.0" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
@@ -21,28 +21,42 @@
 </div>
 
   <header class="admin-header">
-    <div>
-      <strong>PAPA JOHNS</strong>
-      <span>판교2테크노밸리점 · 실시간 주문관리 · v44.0.0</span>
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">PJ</div>
+      <div><strong>PAPA JOHNS</strong><span>판교2테크노밸리점</span></div>
+      <span id="connectionBadge" class="connection">연결 중</span>
+    </div>
+    <div class="header-summary" aria-label="오늘 영업 요약">
+      <div><span>현재 시간</span><strong id="adminCurrentTime">--:--</strong></div>
+      <div><span>오늘 주문</span><strong id="headerOrderCount">0건</strong></div>
+      <div><span>오늘 매출</span><strong id="headerTodaySales">0원</strong></div>
     </div>
     <div class="header-actions">
-      <button id="soundSettingsButton" class="sound-button">⚙️ 알림 설정</button><button id="soundButton" class="sound-button">🔔 알림음 켜기</button>
-      <span id="connectionBadge" class="connection">연결 중</span>
+      <button id="syncButton" class="header-icon-button" title="데이터 동기화" aria-label="데이터 동기화">↻</button>
+      <button id="printerButton" class="header-icon-button" title="프린터" aria-label="프린터">▣</button>
+      <button id="soundButton" class="header-icon-button" title="알림" aria-label="알림">♩</button>
+      <button id="soundSettingsButton" class="header-icon-button" title="설정" aria-label="설정">⚙</button>
     </div>
   </header>
 
-  <main class="admin-main">
+  <div class="admin-shell">
     <nav class="admin-section-tabs" aria-label="관리자 메뉴">
-      <div class="primary-admin-tabs"><button id="showOrdersTab" class="active">📋 주문관리</button><button id="showSeatsTab">🪑 좌석관리</button><button id="showWaitingTab">⏳ 줄서기</button></div>
-      <div class="secondary-admin-tabs" aria-label="통계 메뉴"><button id="showSalesTab">판매통계</button><button id="showCustomersTab">고객통계</button><button id="showRecommendationsTab">추천성과</button></div>
+      <div class="nav-title">OPERATION</div>
+      <div class="primary-admin-tabs"><button id="showOrdersTab" class="active"><span>⌂</span> Dashboard</button><button id="showSeatsTab"><span>▦</span> 주문 · 좌석</button><button id="showWaitingTab"><span>≋</span> 줄서기</button></div>
+      <div class="secondary-admin-tabs" aria-label="통계 메뉴"><button id="showSalesTab"><span>▥</span> 메뉴 · 판매통계</button><button id="showCustomersTab"><span>⌁</span> 고객통계</button><button id="showRecommendationsTab"><span>⌁</span> 할인/프로모션</button></div>
+      <div class="nav-spacer"></div>
+      <button class="nav-static" id="navPrinterButton"><span>▣</span> 프린터</button>
+      <button class="nav-static" id="navSettingsButton"><span>⚙</span> 설정</button>
     </nav>
+  <main class="admin-main">
     <section id="ordersPanel">
     <section class="stats-toolbar" aria-label="주문 현황 및 대면 포장 접수">
       <div class="stats">
-        <article><span>결제대기</span><strong id="newCount">0</strong></article>
-        <article><span>접수/조리중</span><strong id="cookingCount">0</strong></article>
-        <article><span>완료</span><strong id="doneCount">0</strong></article>
-        <article><span>오늘 주문금액</span><strong id="todaySales">0원</strong></article>
+        <article class="kpi-new"><span>신규 주문</span><strong id="newCount">0</strong><small>처리가 필요합니다</small></article>
+        <article class="kpi-cooking"><span>조리중</span><strong id="cookingCount">0</strong><small>현재 조리 상태</small></article>
+        <article class="kpi-pickup"><span>픽업 대기</span><strong id="readyCount">0</strong><small>고객 전달 대기</small></article>
+        <article class="kpi-done"><span>완료</span><strong id="doneCount">0</strong><small>오늘 처리 완료</small></article>
+        <strong id="todaySales" hidden>0원</strong>
       </div>
       <form id="manualCustomerCallForm" class="manual-call-form" aria-describedby="manualCustomerCallHint">
         <div class="manual-call-heading">
@@ -53,6 +67,13 @@
         <input id="manualCustomerNumber" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="예: 3333" pattern="[0-9]{4}" aria-label="전화번호 뒤 4자리">
         <div class="manual-call-actions"><button type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button><button type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button></div>
       </form>
+    </section>
+
+    <section class="order-tools" aria-label="주문 검색 및 정렬">
+      <label class="order-search"><span aria-hidden="true">⌕</span><input id="orderSearch" type="search" placeholder="주문번호 · 전화번호 · 메뉴명 검색" autocomplete="off"></label>
+      <label><span>상태</span><select id="statusSelect"><option value="all">전체 상태</option><option value="payment_pending">신규 주문</option><option value="accepted">접수</option><option value="cooking">조리중</option><option value="completed">완료</option></select></label>
+      <label><span>주문유형</span><select id="orderTypeSelect"><option value="all">전체 유형</option><option value="takeout">포장</option><option value="dinein">매장식사</option></select></label>
+      <label><span>정렬</span><select id="orderSort"><option value="latest">최신순</option><option value="oldest">오래된순</option></select></label>
     </section>
 
     <nav class="channel-filters" id="channelFilters"><button class="active" data-channel="all">전체 채널</button><button data-channel="pc">PC</button><button data-channel="mobile">모바일</button></nav>
@@ -94,6 +115,7 @@
     <section id="customersPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>고객 통계</h2><input id="customerSearch" placeholder="전화번호 뒤 4자리 검색"></div><div id="customerSummary" class="analytics-summary"></div><div id="customerList" class="data-list"></div></section>
     <section id="recommendationsPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>추천 성과</h2></div><div id="recommendationSummary" class="analytics-summary"></div><div id="recommendationList" class="data-list"></div></section>
   </main>
+  </div>
 
   <div id="soundSettingsModal" class="settings-modal" hidden>
     <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="soundSettingsTitle">
@@ -134,5 +156,11 @@
   <script src="../speech.js?v=1"></script>
   <script src="../admin.js?v=44.0.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
+  <script>
+    document.getElementById('syncButton')?.addEventListener('click',()=>location.reload());
+    document.getElementById('printerButton')?.addEventListener('click',()=>window.print());
+    document.getElementById('navPrinterButton')?.addEventListener('click',()=>window.print());
+    document.getElementById('navSettingsButton')?.addEventListener('click',()=>document.getElementById('soundSettingsButton')?.click());
+  </script>
 </body>
 </html>
