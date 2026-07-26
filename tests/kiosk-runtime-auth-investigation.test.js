@@ -12,17 +12,18 @@ const preloadSource = fs.readFileSync(path.join(root, 'desktop', 'preload.js'), 
 const htmlSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const claims = { role: 'kiosk', storeId: 'store-a', kioskId: 'kiosk-a' };
 
-function user() {
+function user(customClaims = claims) {
   return {
     uid: 'principal-a',
-    getIdTokenResult: async () => ({ claims })
+    getIdTokenResult: async () => ({ claims: customClaims })
   };
 }
 
-function firebaseHarness(currentUser = null) {
+function firebaseHarness(currentUser = null, ready = async () => {}) {
   const calls = [];
   const auth = {
     currentUser,
+    authStateReady: ready,
     async signInWithCustomToken(value) {
       calls.push(['signInWithCustomToken', value]);
       auth.currentUser = user();
@@ -68,9 +69,12 @@ test('missing currentUser and credential throws app Error with safe decision dia
   assert.deepEqual(error.authDiagnostics, {
     authMode: 'custom-token',
     hasCurrentUser: false,
-    authReadyState: 'not-awaited',
+    authReadyState: 'awaited',
     credentialSource: 'preload-ipc',
     credentialPresent: false,
+    customTokenSignInSucceeded: false,
+    persistenceUserRestored: false,
+    authenticationComplete: false,
     persistenceType: 'firebase-default',
     packaged: null,
     protocol: null,
@@ -97,11 +101,47 @@ test('present credential calls only signInWithCustomToken and never logs its val
   assert.doesNotMatch(JSON.stringify(messages), new RegExp(secret));
 });
 
-test('auth restoration is not awaited and a later retry observes restored currentUser', async () => {
+test('auth restoration waits for a delayed currentUser and does not consume a credential', async () => {
   const harness = firebaseHarness();
-  await assert.rejects(authenticate({ firebase: harness.firebase, identityBridge: null }), /KIOSK_AUTH_REQUIRED/);
-  harness.auth.currentUser = user();
-  await assert.doesNotReject(authenticate({ firebase: harness.firebase, identityBridge: null }));
+  harness.auth.authStateReady = async () => {
+    await new Promise(resolve => setTimeout(resolve, 10));
+    harness.auth.currentUser = user();
+  };
+  let consumed = 0;
+  await assert.doesNotReject(authenticate({
+    firebase: harness.firebase,
+    identityBridge: { async consumeCustomToken() { consumed += 1; return 'unused'; } },
+    authReadyTimeoutMs: 100
+  }));
+  assert.equal(consumed, 0);
+  assert.deepEqual(harness.calls, []);
+});
+
+test('compat onAuthStateChanged fallback waits once for restored currentUser', async () => {
+  const harness = firebaseHarness();
+  delete harness.auth.authStateReady;
+  harness.auth.onAuthStateChanged = callback => {
+    const timer = setTimeout(() => {
+      harness.auth.currentUser = user();
+      callback(harness.auth.currentUser);
+    }, 10);
+    return () => clearTimeout(timer);
+  };
+  await assert.doesNotReject(authenticate({
+    firebase: harness.firebase,
+    identityBridge: null,
+    authReadyTimeoutMs: 100
+  }));
+});
+
+test('auth restoration timeout uses a present custom token', async () => {
+  const harness = firebaseHarness(null, () => new Promise(() => {}));
+  await assert.doesNotReject(authenticate({
+    firebase: harness.firebase,
+    identityBridge: { async consumeCustomToken() { return 'one-time-token'; } },
+    authReadyTimeoutMs: 5
+  }));
+  assert.deepEqual(harness.calls, [['signInWithCustomToken', 'one-time-token']]);
 });
 
 test('packaged and development flags do not add an authentication fallback', async () => {
@@ -124,7 +164,9 @@ test('credential supply is environment to one-shot main memory to IPC preload on
   assert.match(htmlSource, /error\?\.authDiagnostics\|\|\{\}/);
   const authSources = mainSource + preloadSource +
     fs.readFileSync(path.join(root, 'kiosk-runtime-auth.js'), 'utf8');
-  assert.doesNotMatch(authSources, /localStorage|sessionStorage|signInAnonymously|authStateReady|onAuthStateChanged/);
+  assert.doesNotMatch(authSources, /localStorage|sessionStorage|signInAnonymously/);
+  assert.match(authSources, /authStateReady/);
+  assert.match(authSources, /onAuthStateChanged/);
 });
 
 test('reconnect repeats the same missing-input failure without creating a channel', async () => {
@@ -135,4 +177,42 @@ test('reconnect repeats the same missing-input failure without creating a channe
   await assert.rejects(authenticate({ firebase: harness.firebase, identityBridge: bridge }), /KIOSK_AUTH_REQUIRED/);
   assert.equal(consumes, 2);
   assert.deepEqual(harness.calls, []);
+});
+
+test('role and kiosk identity claims are enforced without logging UID', async () => {
+  for (const invalidClaims of [
+    { role: 'admin', storeId: 'store-a', kioskId: 'kiosk-a' },
+    { role: 'kiosk', storeId: 'store-b', kioskId: 'kiosk-a' },
+    { role: 'kiosk', storeId: 'store-a', kioskId: 'kiosk-b' }
+  ]) {
+    const harness = firebaseHarness(user(invalidClaims));
+    await assert.rejects(authenticate({
+      firebase: harness.firebase,
+      storeId: 'store-a',
+      kioskId: 'kiosk-a'
+    }), /KIOSK_IDENTITY_MISMATCH/);
+    assert.deepEqual(harness.calls, [['signOut']]);
+  }
+
+  const messages = [];
+  const previousInfo = console.info;
+  console.info = (...items) => messages.push(items);
+  try {
+    const harness = firebaseHarness(user());
+    await authenticate({ firebase: harness.firebase, storeId: 'store-a', kioskId: 'kiosk-a' });
+  } finally {
+    console.info = previousInfo;
+  }
+  assert.doesNotMatch(JSON.stringify(messages), /principal-a/);
+});
+
+test('bootstrap tooling never persists credentials or includes service account material', () => {
+  const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
+  const generator = fs.readFileSync(path.join(root, 'scripts', 'create-kiosk-custom-token.js'), 'utf8');
+  assert.doesNotMatch(powershell, /SetEnvironmentVariable\([^)]*,\s*[^,]+,\s*['"](?:User|Machine)['"]/i);
+  assert.doesNotMatch(powershell, /Registry|Set-ItemProperty|New-ItemProperty/i);
+  assert.match(powershell, /SetEnvironmentVariable\(\$environmentName, \$plainToken, 'Process'\)/);
+  assert.match(generator, /firebase-admin\/auth/);
+  assert.match(generator, /EXPECTED_PROJECT_ID = 'papajohns-kiosk'/);
+  assert.doesNotMatch(generator, /private_key|BEGIN PRIVATE KEY/);
 });
