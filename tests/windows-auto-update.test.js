@@ -406,7 +406,7 @@ test('updater admin UI renders hostile HTML as inert plain text', () => {
 test('GitHub Release workflow publishes architecture-specific installers, blockmaps, and metadata', () => {
   const workflow = read('.github/workflows/windows-release.yml');
   const pkg = JSON.parse(read('package.json'));
-  assert.equal(pkg.version, '1.2.4');
+  assert.equal(pkg.version, '1.2.5');
   assert.deepEqual(pkg.build.publish, {
     provider: 'github',
     owner: 'yunsh3181',
