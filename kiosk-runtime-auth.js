@@ -24,9 +24,12 @@
     return {
       authMode: 'custom-token',
       hasCurrentUser: false,
-      authReadyState: 'not-awaited',
+      authReadyState: 'awaited',
       credentialSource: 'none',
       credentialPresent: false,
+      customTokenSignInSucceeded: false,
+      persistenceUserRestored: false,
+      authenticationComplete: false,
       persistenceType: 'firebase-default',
       ...runtimeContext(),
       authDecision: 'pending',
@@ -35,15 +38,60 @@
     };
   }
 
+  async function waitForAuthReady(auth, timeoutMs) {
+    const timeout = Math.max(1, Number(timeoutMs) || 5000);
+    let timer = null;
+    let unsubscribe = null;
+    let settled = false;
+    const ready = typeof auth.authStateReady === 'function'
+      ? Promise.resolve().then(() => auth.authStateReady())
+      : new Promise((resolve, reject) => {
+        if (typeof auth.onAuthStateChanged !== 'function') {
+          resolve();
+          return;
+        }
+        const finish = (callback, value) => {
+          if (settled) return;
+          settled = true;
+          unsubscribe?.();
+          callback(value);
+        };
+        unsubscribe = auth.onAuthStateChanged(
+          () => finish(resolve),
+          error => finish(reject, error)
+        );
+        if (settled) unsubscribe?.();
+      });
+    const timed = new Promise(resolve => {
+      timer = setTimeout(() => resolve('timeout'), timeout);
+    });
+    try {
+      return await Promise.race([
+        ready.then(() => 'awaited'),
+        timed
+      ]);
+    } finally {
+      clearTimeout(timer);
+      unsubscribe?.();
+    }
+  }
+
   async function authenticate({
     firebase,
     storeId,
     kioskId,
-    identityBridge = typeof window !== 'undefined' ? window.kioskIdentity : null
+    identityBridge = typeof window !== 'undefined' ? window.kioskIdentity : null,
+    authReadyTimeoutMs = 5000
   }) {
     const auth = firebase?.auth?.();
+    if (!firebase?.auth || !auth) throw new Error('KIOSK_AUTH_SDK_UNAVAILABLE');
+    const hadCurrentUserBeforeReady = Boolean(auth.currentUser);
+    const authReadyState = await waitForAuthReady(auth, authReadyTimeoutMs);
+    const persistenceUserRestored = !hadCurrentUserBeforeReady && Boolean(auth.currentUser);
     let diagnostics = authDiagnostics({
       hasCurrentUser: Boolean(auth?.currentUser),
+      authReadyState,
+      persistenceUserRestored,
       credentialSource: auth?.currentUser ? 'firebase-persistence' :
         identityBridge?.consumeCustomToken ? 'preload-ipc' : 'none'
     });
@@ -52,7 +100,6 @@
       kioskId,
       ...diagnostics
     });
-    if (!firebase?.auth) throw new Error('KIOSK_AUTH_SDK_UNAVAILABLE');
     let user = auth.currentUser;
     if (!user && identityBridge?.consumeCustomToken) {
       let customToken = await identityBridge.consumeCustomToken();
@@ -68,7 +115,17 @@
           log('custom-token-sign-in-complete', {
             storeId,
             kioskId,
-            ...authDiagnostics({ ...diagnostics, hasCurrentUser: Boolean(user), authDecision: 'accept' })
+            ...authDiagnostics({
+              ...diagnostics,
+              hasCurrentUser: Boolean(user),
+              customTokenSignInSucceeded: Boolean(user),
+              authDecision: 'accept'
+            })
+          });
+          diagnostics = authDiagnostics({
+            ...diagnostics,
+            hasCurrentUser: Boolean(user),
+            customTokenSignInSucceeded: Boolean(user)
           });
         }
       } finally {
@@ -110,9 +167,15 @@
       await auth.signOut();
       throw new Error('KIOSK_IDENTITY_MISMATCH');
     }
-    log('authentication-complete', { storeId, kioskId, role: claims.role });
+    diagnostics = authDiagnostics({
+      ...diagnostics,
+      hasCurrentUser: true,
+      authenticationComplete: true,
+      authDecision: 'accept'
+    });
+    log('authentication-complete', { storeId, kioskId, role: claims.role, ...diagnostics });
     return { uid: user.uid, role: claims.role, storeId: claimStoreId, kioskId: claimKioskId };
   }
 
-  return { authenticate };
+  return { authenticate, waitForAuthReady };
 });
