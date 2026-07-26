@@ -1426,6 +1426,32 @@ html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review
   font-size: 24px;
 }
 
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemSummary {
+  display: grid;
+  grid-template-columns: minmax(0, auto) auto minmax(12px, 1fr) auto;
+  align-items: baseline;
+  column-gap: 10px;
+  width: 100%;
+}
+
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
+  .cartItemQuantity,
+  .cartItemPrice
+) {
+  white-space: nowrap;
+}
+
+html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemPrice {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartDetailRow {
   padding: 7px 0 7px 28px;
   font-size: 20px;
