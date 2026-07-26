@@ -2288,12 +2288,29 @@ const kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
  onStatus:status=>{if(status.phase==='error')console.warn('원격 테스트 모드 연결 실패',status.error)}
 });
 const kioskRuntimeAuth=window.PJ_KIOSK_RUNTIME_AUTH;
-if(kioskRuntimeAuth?.authenticate)kioskRuntimeAuth.authenticate({
- firebase,
- storeId:kioskRuntimeStoreId,
- kioskId:kioskRuntimeKioskId
-}).then(()=>kioskRemoteTestMode.start()).catch(error=>console.warn('인증된 원격 테스트 모드 비활성',error.message));
-window.addEventListener('pagehide',()=>kioskRemoteTestMode.stop());
+let kioskRuntimeReconnectTimer=null;
+let kioskRuntimeConnected=false;
+async function connectKioskRuntime(){
+ if(kioskRuntimeConnected||!kioskRuntimeAuth?.authenticate)return;
+ clearTimeout(kioskRuntimeReconnectTimer);
+ kioskRuntimeReconnectTimer=null;
+ try{
+  await kioskRuntimeAuth.authenticate({firebase,storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
+  await kioskRemoteTestMode.start();
+  kioskRuntimeConnected=true;
+  console.info('kiosk session registered')
+ }catch(error){
+  console.warn('kiosk session authentication failed',error.message);
+  kioskRuntimeReconnectTimer=setTimeout(connectKioskRuntime,15000)
+ }
+}
+connectKioskRuntime();
+window.addEventListener('online',connectKioskRuntime);
+window.addEventListener('pagehide',()=>{
+ clearTimeout(kioskRuntimeReconnectTimer);
+ window.removeEventListener('online',connectKioskRuntime);
+ kioskRemoteTestMode.stop()
+});
 function testModeBanner(){
  return isTestModeEnabled()?`<div class="testModeBanner" role="status">${t('ui.testMode.banner')}</div>`:''
 }

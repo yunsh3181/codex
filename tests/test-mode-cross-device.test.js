@@ -142,6 +142,81 @@ test('expired requests and commands for an old kiosk session are rejected after 
   restartedController.dispose();
 });
 
+test('a failed initial presence write does not prevent heartbeat recovery or create duplicate timers', async () => {
+  const transport = fakeFirestore();
+  const controller = createController({ role: 'kiosk', channelFactory: () => null, runtime: null });
+  const originalCollection = transport.db.collection;
+  let presenceAttempts = 0;
+  let commandSubscriptions = 0;
+  transport.db.collection = name => {
+    const collection = originalCollection(name);
+    return {
+      doc(id) {
+        const document = collection.doc(id);
+        const originalSubcollection = document.collection;
+        document.collection = child => {
+          const nested = originalSubcollection(child);
+          return {
+            doc(nestedId) {
+              const ref = nested.doc(nestedId);
+              if (child === 'kiosks') {
+                const originalSet = ref.set;
+                ref.set = async value => {
+                  presenceAttempts += 1;
+                  if (presenceAttempts === 1) throw new Error('offline');
+                  return originalSet(value);
+                };
+              }
+              if (child === 'commands') {
+                const originalOnSnapshot = ref.onSnapshot;
+                ref.onSnapshot = next => {
+                  commandSubscriptions += 1;
+                  return originalOnSnapshot(next);
+                };
+              }
+              return ref;
+            }
+          };
+        };
+        return document;
+      }
+    };
+  };
+  const statuses = [];
+  const kiosk = createKioskChannel({ ...transport, controller, onStatus: value => statuses.push(value.phase) });
+  await kiosk.start();
+  await kiosk.start();
+  assert.equal(statuses.includes('error'), true);
+  assert.equal(commandSubscriptions, 1, 'start is idempotent');
+  await kiosk.publishPresence();
+  assert.equal(statuses.at(-1), 'connected');
+  kiosk.stop();
+  controller.dispose();
+});
+
+test('admin expires a stale presence without requiring another Firestore snapshot', async () => {
+  let now = 500000;
+  const heartbeatTime = now;
+  const transport = fakeFirestore(() => now);
+  await transport.db.collection('runtimeControls').doc('pangyo2-techno-valley').collection('kiosks').doc('mobile-01').set({
+    storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', sessionId: 'stale-session', role: 'kiosk',
+    heartbeatAt: { toMillis: () => heartbeatTime }
+  });
+  const controller = createController({ role: 'admin', now: () => now, channelFactory: () => null, runtime: null });
+  const admin = createAdminChannel({ ...transport, controller, now: () => now, presenceStaleMs: 10 });
+  try {
+    await admin.start();
+    await flush();
+    assert.equal(admin.getStatus().targetSessionId, 'stale-session');
+    now += 11;
+    await new Promise(resolve => setTimeout(resolve, 30));
+    assert.equal(admin.getStatus().targetSessionId, null);
+  } finally {
+    admin.stop();
+    controller.dispose();
+  }
+});
+
 test('ACK timeout reports no response and never reports applied', async () => {
   let now = 300000;
   const transport = fakeFirestore(() => now);
