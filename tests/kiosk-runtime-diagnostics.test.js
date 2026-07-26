@@ -77,7 +77,15 @@ test('diagnostic modal renders environment, flags, latest 30 logs and safe actio
   const entries = Array.from({ length: 35 }, (_, index) => ({ stage: `stage-${index}` }));
   const output = diagnosticsUi.render({
     entries,
-    environment: { appVersion: '1.2.6', electronVersion: '43.2.0', packaged: true },
+    environment: {
+      appVersion: '1.2.7',
+      electronVersion: '43.2.0',
+      packaged: true,
+      bootstrapCredentialPresentAtStartup: true,
+      bootstrapCredentialConsumeRequested: true,
+      bootstrapCredentialPresentAtConsume: true,
+      bootstrapCredentialConsumed: true
+    },
     context: { projectId: 'papajohns-kiosk', storeId: 'store', kioskId: 'kiosk' },
     flags: { remoteModuleLoaded: true },
     currentStage: 'connected',
@@ -86,6 +94,8 @@ test('diagnostic modal renders environment, flags, latest 30 logs and safe actio
   assert.match(output, /키오스크 시작 진단/);
   assert.match(output, /stage-34/);
   assert.doesNotMatch(output, /stage-4"/);
+  assert.match(output, /Bootstrap credential detected at main startup/);
+  assert.match(output, /Bootstrap credential requested through IPC/);
   for (const action of ['refresh', 'reconnect', 'copy', 'open-log', 'close']) {
     assert.match(output, new RegExp(`data-diagnostics-action="${action}"`));
   }

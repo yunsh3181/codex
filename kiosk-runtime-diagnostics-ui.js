@@ -15,6 +15,9 @@
 
   function render(snapshot) {
     const error = [...snapshot.entries].reverse().find(entry => /(?:missing|failed|error|rejection)$/.test(entry.stage)) || {};
+    const auth = [...snapshot.entries].reverse().find(entry =>
+      Object.hasOwn(entry, 'credentialSource') || entry.authDiagnostics
+    ) || {};
     const context = snapshot.context || {};
     const environment = snapshot.environment || {};
     const flags = snapshot.flags || {};
@@ -35,6 +38,14 @@
           ${row('remote module', flags.remoteModuleLoaded)}${row('Firebase 초기화', flags.firebaseReady)}
           ${row('인증 완료', flags.authenticated)}${row('channel 생성', flags.channelCreated)}
           ${row('channel.start 완료', flags.channelStarted)}${row('로그 파일', environment.logPath)}
+          ${row('Bootstrap credential detected at main startup', environment.bootstrapCredentialPresentAtStartup)}
+          ${row('Bootstrap credential requested through IPC', environment.bootstrapCredentialConsumeRequested)}
+          ${row('Bootstrap credential present at consume', environment.bootstrapCredentialPresentAtConsume)}
+          ${row('Bootstrap credential consumed', environment.bootstrapCredentialConsumed)}
+          ${row('credentialSource', auth.credentialSource ?? auth.authDiagnostics?.credentialSource)}
+          ${row('credentialPresent', auth.credentialPresent ?? auth.authDiagnostics?.credentialPresent)}
+          ${row('customTokenSignInAttempted', auth.customTokenSignInAttempted ?? auth.authDiagnostics?.customTokenSignInAttempted)}
+          ${row('customTokenSignInSucceeded', auth.customTokenSignInSucceeded ?? auth.authDiagnostics?.customTokenSignInSucceeded)}
         </dl>
         <h3>최근 진단 로그</h3>
         <pre>${escapeHtml(JSON.stringify(snapshot.entries.slice(-30), null, 2))}</pre>

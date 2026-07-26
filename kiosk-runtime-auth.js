@@ -27,6 +27,7 @@
       authReadyState: 'awaited',
       credentialSource: 'none',
       credentialPresent: false,
+      customTokenSignInAttempted: false,
       customTokenSignInSucceeded: false,
       persistenceUserRestored: false,
       authenticationComplete: false,
@@ -111,7 +112,22 @@
       log('custom-token-consumed', { storeId, kioskId, ...diagnostics });
       try {
         if (customToken) {
-          user = (await auth.signInWithCustomToken(customToken)).user;
+          diagnostics = authDiagnostics({
+            ...diagnostics,
+            customTokenSignInAttempted: true
+          });
+          try {
+            user = (await auth.signInWithCustomToken(customToken)).user;
+          } catch (error) {
+            error.authDiagnostics = authDiagnostics({
+              ...diagnostics,
+              hasCurrentUser: Boolean(auth.currentUser),
+              customTokenSignInSucceeded: false,
+              authDecision: 'reject',
+              authFailureReason: error?.code || 'custom-token-sign-in-failed'
+            });
+            throw error;
+          }
           log('custom-token-sign-in-complete', {
             storeId,
             kioskId,
@@ -174,6 +190,10 @@
       authDecision: 'accept'
     });
     log('authentication-complete', { storeId, kioskId, role: claims.role, ...diagnostics });
+    globalThis.PJ_KIOSK_DIAGNOSTICS?.record?.('authentication-complete', {
+      source: 'kiosk-runtime-auth.js:authenticate',
+      ...diagnostics
+    });
     return { uid: user.uid, role: claims.role, storeId: claimStoreId, kioskId: claimKioskId };
   }
 

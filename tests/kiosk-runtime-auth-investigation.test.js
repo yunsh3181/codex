@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { authenticate } = require('../kiosk-runtime-auth.js');
+const { createBootstrapCredential } = require('../desktop/bootstrap-credential.js');
 
 const root = path.resolve(__dirname, '..');
 const mainSource = fs.readFileSync(path.join(root, 'desktop', 'main.js'), 'utf8');
@@ -72,6 +73,7 @@ test('missing currentUser and credential throws app Error with safe decision dia
     authReadyState: 'awaited',
     credentialSource: 'preload-ipc',
     credentialPresent: false,
+    customTokenSignInAttempted: false,
     customTokenSignInSucceeded: false,
     persistenceUserRestored: false,
     authenticationComplete: false,
@@ -99,6 +101,24 @@ test('present credential calls only signInWithCustomToken and never logs its val
   }
   assert.deepEqual(harness.calls, [['signInWithCustomToken', secret]]);
   assert.doesNotMatch(JSON.stringify(messages), new RegExp(secret));
+});
+
+test('Firebase custom-token rejection preserves safe attempted-sign-in diagnostics', async () => {
+  const harness = firebaseHarness();
+  const firebaseError = new Error('Firebase rejected the credential');
+  firebaseError.code = 'auth/invalid-custom-token';
+  harness.auth.signInWithCustomToken = async () => { throw firebaseError; };
+  const error = await rejection(authenticate({
+    firebase: harness.firebase,
+    identityBridge: { async consumeCustomToken() { return 'sensitive-custom-token'; } }
+  }));
+  assert.equal(error, firebaseError);
+  assert.equal(error.authDiagnostics.credentialSource, 'preload-ipc');
+  assert.equal(error.authDiagnostics.credentialPresent, true);
+  assert.equal(error.authDiagnostics.customTokenSignInAttempted, true);
+  assert.equal(error.authDiagnostics.customTokenSignInSucceeded, false);
+  assert.equal(error.authDiagnostics.authFailureReason, 'auth/invalid-custom-token');
+  assert.doesNotMatch(JSON.stringify(error.authDiagnostics), /sensitive-custom-token/);
 });
 
 test('auth restoration waits for a delayed currentUser and does not consume a credential', async () => {
@@ -159,14 +179,42 @@ test('packaged and development flags do not add an authentication fallback', asy
 
 test('credential supply is environment to one-shot main memory to IPC preload only', () => {
   assert.match(mainSource, /process\.env\.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN \|\| null/);
-  assert.match(mainSource, /const token = kioskFirebaseCustomToken;\s*kioskFirebaseCustomToken = null;\s*return token;/);
+  assert.match(mainSource, /bootstrapCredential\.consume\(senderValid\)/);
+  for (const field of [
+    'bootstrapCredentialPresentAtStartup', 'bootstrapCredentialConsumeRequested',
+    'bootstrapCredentialPresentAtConsume', 'bootstrapCredentialConsumed', 'senderValid'
+  ]) assert.match(mainSource, new RegExp(field));
   assert.match(preloadSource, /ipcRenderer\.invoke\('kiosk-identity:consume-custom-token'\)/);
-  assert.match(htmlSource, /error\?\.authDiagnostics\|\|\{\}/);
+  assert.match(htmlSource, /if\(error\?\.authDiagnostics\)/);
+  assert.match(htmlSource, /authDiagnostics:error\.authDiagnostics/);
   const authSources = mainSource + preloadSource +
     fs.readFileSync(path.join(root, 'kiosk-runtime-auth.js'), 'utf8');
   assert.doesNotMatch(authSources, /localStorage|sessionStorage|signInAnonymously/);
   assert.match(authSources, /authStateReady/);
   assert.match(authSources, /onAuthStateChanged/);
+});
+
+test('main bootstrap credential rejects an invalid sender without consuming and allows one valid consume', () => {
+  const credential = createBootstrapCredential('one-time-secret');
+  assert.deepEqual(credential.diagnostics(), {
+    bootstrapCredentialPresentAtStartup: true,
+    bootstrapCredentialConsumeRequested: false,
+    bootstrapCredentialPresentAtConsume: false,
+    bootstrapCredentialConsumed: false
+  });
+  const invalid = credential.consume(false);
+  assert.equal(invalid.token, null);
+  assert.equal(invalid.senderValid, false);
+  assert.equal(invalid.bootstrapCredentialPresentAtConsume, true);
+  assert.equal(invalid.bootstrapCredentialConsumed, false);
+  const valid = credential.consume(true);
+  assert.equal(valid.token, 'one-time-secret');
+  assert.equal(valid.senderValid, true);
+  assert.equal(valid.bootstrapCredentialConsumed, true);
+  const duplicate = credential.consume(true);
+  assert.equal(duplicate.token, null);
+  assert.equal(duplicate.bootstrapCredentialPresentAtConsume, false);
+  assert.equal(duplicate.bootstrapCredentialConsumed, false);
 });
 
 test('reconnect repeats the same missing-input failure without creating a channel', async () => {
@@ -211,7 +259,8 @@ test('bootstrap tooling never persists credentials or includes service account m
   const generator = fs.readFileSync(path.join(root, 'scripts', 'create-kiosk-custom-token.js'), 'utf8');
   assert.doesNotMatch(powershell, /SetEnvironmentVariable\([^)]*,\s*[^,]+,\s*['"](?:User|Machine)['"]/i);
   assert.doesNotMatch(powershell, /Registry|Set-ItemProperty|New-ItemProperty/i);
-  assert.match(powershell, /SetEnvironmentVariable\(\$environmentName, \$plainToken, 'Process'\)/);
+  assert.match(powershell, /EnvironmentVariables\[\$environmentName\] = \$plainToken/);
+  assert.doesNotMatch(powershell, /SetEnvironmentVariable/);
   assert.match(generator, /firebase-admin\/auth/);
   assert.match(generator, /EXPECTED_PROJECT_ID = 'papajohns-kiosk'/);
   assert.doesNotMatch(generator, /private_key|BEGIN PRIVATE KEY/);
@@ -223,9 +272,9 @@ test('bootstrap checks the selected executable process before setting any token 
   const pathComparison = powershell.indexOf('[StringComparison]::OrdinalIgnoreCase');
   const alreadyRunningError = powershell.indexOf('PapaJohns Kiosk is already running.');
   const environmentSet = powershell.indexOf(
-    "[Environment]::SetEnvironmentVariable($environmentName, $plainToken, 'Process')"
+    '$processStartInfo.EnvironmentVariables[$environmentName] = $plainToken'
   );
-  const processStart = powershell.indexOf('Start-Process -FilePath $resolvedExecutablePath');
+  const processStart = powershell.indexOf('[System.Diagnostics.Process]::Start($processStartInfo)');
 
   assert.ok(processCheck >= 0);
   assert.ok(pathComparison > processCheck);
@@ -238,17 +287,38 @@ test('bootstrap checks the selected executable process before setting any token 
 test('running-process guard never starts or terminates the existing kiosk and always clears secrets', () => {
   const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
   const guard = powershell.match(
-    /foreach \(\$runningProcess[\s\S]+?(?=\n    \[Environment\]::SetEnvironmentVariable)/
+    /foreach \(\$runningProcess[\s\S]+?(?=\n    \$processStartInfo = New-Object)/
   )?.[0] || '';
 
   assert.match(guard, /throw 'PapaJohns Kiosk is already running\./);
-  assert.doesNotMatch(guard, /Start-Process/);
+  assert.doesNotMatch(guard, /\[System\.Diagnostics\.Process\]::Start/);
   assert.doesNotMatch(powershell, /Stop-Process|taskkill/i);
   assert.doesNotMatch(powershell, /SetEnvironmentVariable\([^)]*,\s*[^,]+,\s*['"](?:User|Machine)['"]/i);
-  assert.match(
-    powershell,
-    /\[Environment\]::SetEnvironmentVariable\(\$environmentName, \$null, 'Process'\)/
-  );
+  assert.match(powershell, /EnvironmentVariables\.Remove\(\$environmentName\)/);
   assert.match(powershell, /\$plainToken = \$null/);
   assert.match(powershell, /ZeroFreeBSTR\(\$tokenPointer\)/);
+});
+
+test('bootstrap directly starts a PowerShell 5.1-compatible child with a scoped environment', () => {
+  const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
+  assert.match(powershell, /New-Object System\.Diagnostics\.ProcessStartInfo/);
+  assert.match(powershell, /\$processStartInfo\.FileName = \$resolvedExecutablePath/);
+  assert.match(powershell, /\$processStartInfo\.UseShellExecute = \$false/);
+  assert.match(powershell, /\$processStartInfo\.WorkingDirectory = \[IO\.Path\]::GetDirectoryName/);
+  assert.match(powershell, /\$processStartInfo\.EnvironmentVariables\[\$environmentName\] = \$plainToken/);
+  assert.match(powershell, /\[System\.Diagnostics\.Process\]::Start\(\$processStartInfo\)/);
+  assert.doesNotMatch(powershell, /StartInfo\.Arguments|\.Arguments\s*=|Start-Process|setx|Registry|Stop-Process|taskkill/i);
+  assert.doesNotMatch(powershell, /EnvironmentVariableTarget|['"](?:User|Machine|System)['"]/i);
+  assert.ok(
+    powershell.indexOf('EnvironmentVariables.Remove($environmentName)') >
+      powershell.indexOf('[System.Diagnostics.Process]::Start($processStartInfo)')
+  );
+});
+
+test('bootstrap and Electron diagnostics never log credential material or derived identifiers', () => {
+  const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
+  const authSource = fs.readFileSync(path.join(root, 'kiosk-runtime-auth.js'), 'utf8');
+  const sources = [powershell, mainSource, preloadSource, authSource].join('\n');
+  assert.doesNotMatch(sources, /token(?:Length|Hash|Prefix|Suffix)/i);
+  assert.doesNotMatch(mainSource, /console\.(?:info|log|warn|error)\([^)]*kioskFirebaseCustomToken/);
 });

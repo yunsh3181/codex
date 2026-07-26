@@ -6,6 +6,7 @@ const stateListeners = new Set();
 const openListeners = new Set();
 const testModeListeners = new Set();
 const diagnosticsOpenListeners = new Set();
+const bootstrapCredentialListeners = new Set();
 let operationalStateProvider = null;
 
 ipcRenderer.on('kiosk-updater:state', (_event, state) => {
@@ -56,7 +57,11 @@ contextBridge.exposeInMainWorld('kioskTestMode', Object.freeze({
 }));
 
 contextBridge.exposeInMainWorld('kioskIdentity', Object.freeze({
-  consumeCustomToken: () => ipcRenderer.invoke('kiosk-identity:consume-custom-token')
+  consumeCustomToken: () => ipcRenderer.invoke('kiosk-identity:consume-custom-token').then(token => {
+    const environment = ipcRenderer.sendSync('kiosk-diagnostics:get-environment-sync');
+    for (const listener of bootstrapCredentialListeners) listener(environment);
+    return token;
+  })
 }));
 
 contextBridge.exposeInMainWorld('kioskApp', Object.freeze({
@@ -67,6 +72,11 @@ contextBridge.exposeInMainWorld('kioskDiagnosticsBridge', Object.freeze({
   getEnvironment: () => ipcRenderer.sendSync('kiosk-diagnostics:get-environment-sync'),
   append: entry => ipcRenderer.invoke('kiosk-diagnostics:append', entry),
   openLog: () => ipcRenderer.invoke('kiosk-diagnostics:open-log'),
+  onBootstrapCredentialChange: listener => {
+    if (typeof listener !== 'function') return () => {};
+    bootstrapCredentialListeners.add(listener);
+    return () => bootstrapCredentialListeners.delete(listener);
+  },
   onOpen: listener => {
     if (typeof listener !== 'function') return () => {};
     diagnosticsOpenListeners.add(listener);

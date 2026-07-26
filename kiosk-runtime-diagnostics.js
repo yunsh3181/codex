@@ -129,6 +129,13 @@
     try {
       state.environment = sanitize(root.kioskDiagnosticsBridge?.getEnvironment?.() || {});
     } catch {}
+    root.kioskDiagnosticsBridge?.onBootstrapCredentialChange?.(environment => {
+      state.environment = {
+        ...state.environment,
+        ...sanitize(environment || {})
+      };
+      notify();
+    });
     record('app-start', { source: 'kiosk-runtime-diagnostics.js:initialize' });
     record('document-loading', { source: 'kiosk-runtime-diagnostics.js:load' });
   }
