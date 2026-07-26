@@ -209,7 +209,14 @@ confirmTestMode?.addEventListener('click',async()=>{
  if(!adminTestModeAuthenticated)return;
  confirmTestMode.disabled=true;
  try{
-  if(confirmTestMode.dataset.action==='enable')await adminTestModeRemote.requestEnable();
+  if(confirmTestMode.dataset.action==='enable'){
+   console.info('[remote-test-mode][admin-ui] enable-click',{
+    kioskId:'mobile-01',
+    sessionId:adminTestModeRemote?.getStatus?.().targetSessionId||null,
+    remoteStatus:adminTestModeRemote?.getStatus?.()||null
+   });
+   await adminTestModeRemote.requestEnable();
+  }
   else await adminTestModeRemote.requestDisable();
   testModeModal.hidden=true;
  }catch(error){showAdminMessage(error.message||'테스트 모드 요청에 실패했습니다.',true)}

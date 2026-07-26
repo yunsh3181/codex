@@ -12,6 +12,10 @@
   const PRESENCE_STALE_MS = 45000;
   const PRESENCE_CHECK_INTERVAL_MS = 5000;
 
+  function log(scope, event, details = {}) {
+    globalThis.console?.info?.(`[remote-test-mode][${scope}] ${event}`, details);
+  }
+
   function id(prefix) {
     const uuid = globalThis.crypto?.randomUUID?.();
     return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -41,6 +45,7 @@
     let lastCommand = null;
     let stopped = false;
     let started = false;
+    let presenceWriteCount = 0;
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -56,25 +61,77 @@
 
     async function publishPresence() {
       if (stopped) return;
-      await presenceRef.set(presencePayload(), { merge: false });
+      const writeType = presenceWriteCount === 0 ? 'registration' : 'heartbeat';
+      log('kiosk', `${writeType}-start`, {
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId,
+        role: 'kiosk',
+        heartbeatAt: 'serverTimestamp',
+        lastSeen: null
+      });
+      try {
+        await presenceRef.set(presencePayload(), { merge: false });
+      } catch (error) {
+        log('kiosk', `${writeType}-failed`, {
+          storeId,
+          kioskId,
+          sessionId,
+          code: error?.code || null,
+          message: error?.message || String(error)
+        });
+        throw error;
+      }
+      presenceWriteCount += 1;
+      log('kiosk', `${writeType}-complete`, {
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId,
+        presenceWriteCount
+      });
       onStatus({ phase: 'connected', kioskId, sessionId });
     }
 
     async function acknowledge(command, applied) {
+      const ack = {
+        requestId: command.requestId,
+        kioskId,
+        sessionId,
+        action: command.action,
+        applied,
+        enabled: controller.isEnabled()
+      };
+      log('kiosk', 'ack-write-start', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId,
+        ack
+      });
       await commandRef.update({
-        ack: {
-          requestId: command.requestId,
-          kioskId,
-          sessionId,
-          action: command.action,
-          applied,
-          enabled: controller.isEnabled()
-        },
+        ack,
         acknowledgedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      log('kiosk', 'ack-write-complete', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId,
+        ack
       });
     }
 
     async function receive(snapshot) {
+      log('kiosk', 'command-received', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        exists: Boolean(snapshot.exists),
+        storeId,
+        kioskId,
+        sessionId,
+        command: snapshot.exists ? snapshot.data() || {} : null
+      });
       if (!snapshot.exists || stopped) return;
       const command = snapshot.data() || {};
       if (command.targetSessionId !== sessionId || command.kioskId !== kioskId || command.storeId !== storeId) return;
@@ -101,8 +158,21 @@
       if (started) return { storeId, kioskId, sessionId };
       started = true;
       stopped = false;
+      log('kiosk', 'channel-start', { storeId, kioskId, sessionId });
       heartbeat = setInterval(() => publishPresence().catch(error => onStatus({ phase: 'error', error })), PRESENCE_INTERVAL_MS);
+      log('kiosk', 'command-listener-connecting', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId
+      });
       unsubscribe = commandRef.onSnapshot(snapshot => receive(snapshot).catch(error => onStatus({ phase: 'error', error })), error => onStatus({ phase: 'error', error }));
+      log('kiosk', 'command-listener-connected', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId
+      });
       unsubscribeController = controller.subscribe((state, meta) => {
         if (state.enabled || !lastCommand || lastCommand.action !== 'enable') return;
         acknowledge(lastCommand, true).then(() => onStatus({
@@ -152,6 +222,7 @@
     let targetSessionId = null;
     let pending = null;
     let currentPhase = 'idle';
+    let latestPresenceExists = false;
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -160,9 +231,39 @@
       onStatus({ phase, kioskId, targetSessionId, requestId: pending?.requestId || null, ...extra });
     }
 
+    function presenceDiagnostics() {
+      const presence = latestPresence || {};
+      const heartbeatAt = timestampMillis(presence.heartbeatAt);
+      const lastSeen = timestampMillis(presence.lastSeen);
+      const ageMs = heartbeatAt ? now() - heartbeatAt : null;
+      const matchesIdentity = presence.kioskId === kioskId && presence.storeId === storeId &&
+        presence.role === 'kiosk' && typeof presence.sessionId === 'string';
+      const stale = !heartbeatAt || ageMs > presenceStaleMs;
+      const active = latestPresenceExists && matchesIdentity && !stale;
+      return {
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        queryType: 'document-listener',
+        queriedKioskId: kioskId,
+        queriedSessionId: presence.sessionId || null,
+        activeSessionCount: active ? 1 : 0,
+        stale,
+        staleThresholdMs: presenceStaleMs,
+        heartbeatAt: heartbeatAt || null,
+        heartbeatAgeMs: ageMs,
+        lastSeen: lastSeen || null,
+        matchesIdentity,
+        firestoreQueryResult: {
+          exists: latestPresenceExists,
+          data: latestPresenceExists ? presence : null
+        }
+      };
+    }
+
     function refreshPresence() {
       const presence = latestPresence || {};
       const heartbeatAt = timestampMillis(presence.heartbeatAt);
+      const diagnostics = presenceDiagnostics();
+      log('admin', 'presence-stale-evaluation', diagnostics);
       if (presence.kioskId === kioskId && presence.storeId === storeId && presence.role === 'kiosk' &&
         typeof presence.sessionId === 'string' && heartbeatAt && now() - heartbeatAt <= presenceStaleMs) {
         const changed = targetSessionId !== presence.sessionId;
@@ -223,6 +324,10 @@
 
     async function request(action) {
       if (!user?.uid) throw new Error('관리자 인증이 필요합니다.');
+      log('admin', `${action}-requested`, {
+        ...presenceDiagnostics(),
+        targetSessionId
+      });
       if (!targetSessionId) {
         emit('waiting');
         throw new Error('연결된 키오스크 세션이 없습니다.');
@@ -252,7 +357,9 @@
 
     async function start() {
       presenceUnsubscribe = presenceRef.onSnapshot(snapshot => {
+        latestPresenceExists = snapshot.exists;
         latestPresence = snapshot.exists ? snapshot.data() || {} : null;
+        log('admin', 'presence-query-result', presenceDiagnostics());
         refreshPresence();
       }, error => emit('error', { error }));
       presenceTimer = setInterval(refreshPresence, Math.min(PRESENCE_CHECK_INTERVAL_MS, presenceStaleMs));
@@ -269,6 +376,7 @@
       presenceUnsubscribe = commandUnsubscribe = null;
       targetSessionId = null;
       latestPresence = null;
+      latestPresenceExists = false;
       pending = null;
     }
 
