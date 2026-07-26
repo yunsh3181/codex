@@ -46,6 +46,7 @@
     let stopped = false;
     let started = false;
     let presenceWriteCount = 0;
+    let commandFirstSnapshotLogged = false;
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -158,6 +159,7 @@
       if (started) return { storeId, kioskId, sessionId };
       started = true;
       stopped = false;
+      commandFirstSnapshotLogged = false;
       log('kiosk', 'channel-start', { storeId, kioskId, sessionId });
       heartbeat = setInterval(() => publishPresence().catch(error => onStatus({ phase: 'error', error })), PRESENCE_INTERVAL_MS);
       log('kiosk', 'command-listener-connecting', {
@@ -166,12 +168,28 @@
         kioskId,
         sessionId
       });
-      unsubscribe = commandRef.onSnapshot(snapshot => receive(snapshot).catch(error => onStatus({ phase: 'error', error })), error => onStatus({ phase: 'error', error }));
-      log('kiosk', 'command-listener-connected', {
-        path: `runtimeControls/${storeId}/commands/${kioskId}`,
-        storeId,
-        kioskId,
-        sessionId
+      unsubscribe = commandRef.onSnapshot(snapshot => {
+        if (!commandFirstSnapshotLogged) {
+          commandFirstSnapshotLogged = true;
+          log('kiosk', 'command-listener-first-snapshot', {
+            exists: Boolean(snapshot.exists),
+            path: `runtimeControls/${storeId}/commands/${kioskId}`,
+            storeId,
+            kioskId,
+            sessionId
+          });
+        }
+        receive(snapshot).catch(error => onStatus({ phase: 'error', error }));
+      }, error => {
+        log('kiosk', 'command-listener-error', {
+          path: `runtimeControls/${storeId}/commands/${kioskId}`,
+          storeId,
+          kioskId,
+          sessionId,
+          code: error?.code || null,
+          message: error?.message || String(error)
+        });
+        onStatus({ phase: 'error', error });
       });
       unsubscribeController = controller.subscribe((state, meta) => {
         if (state.enabled || !lastCommand || lastCommand.action !== 'enable') return;
@@ -361,7 +379,16 @@
         latestPresence = snapshot.exists ? snapshot.data() || {} : null;
         log('admin', 'presence-query-result', presenceDiagnostics());
         refreshPresence();
-      }, error => emit('error', { error }));
+      }, error => {
+        log('admin', 'presence-listener-error', {
+          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          storeId,
+          kioskId,
+          code: error?.code || null,
+          message: error?.message || String(error)
+        });
+        emit('error', { error });
+      });
       presenceTimer = setInterval(refreshPresence, Math.min(PRESENCE_CHECK_INTERVAL_MS, presenceStaleMs));
       watchAck();
     }

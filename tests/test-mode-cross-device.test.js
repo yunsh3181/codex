@@ -11,7 +11,7 @@ const root = path.resolve(__dirname, '..');
 const rules = fs.readFileSync(path.join(root, 'firestore.rules'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
-function fakeFirestore(now = () => Date.now()) {
+function fakeFirestore(now = () => Date.now(), { autoSnapshot = true } = {}) {
   const documents = new Map();
   const listeners = new Map();
   const serverTimestamp = Symbol('serverTimestamp');
@@ -28,18 +28,19 @@ function fakeFirestore(now = () => Date.now()) {
     data: () => documents.get(pathName)
   });
   const notify = pathName => {
-    for (const listener of listeners.get(pathName) || []) queueMicrotask(() => listener(snapshot(pathName)));
+    for (const listener of listeners.get(pathName) || []) queueMicrotask(() => listener.next(snapshot(pathName)));
   };
   const ref = pathName => ({
     collection(name) { return collection(`${pathName}/${name}`); },
     async set(value) { documents.set(pathName, materialize(value)); notify(pathName); },
     async update(value) { documents.set(pathName, { ...(documents.get(pathName) || {}), ...materialize(value) }); notify(pathName); },
-    onSnapshot(next) {
+    onSnapshot(next, error) {
       const rows = listeners.get(pathName) || [];
-      rows.push(next);
+      const listener = { next, error };
+      rows.push(listener);
       listeners.set(pathName, rows);
-      queueMicrotask(() => next(snapshot(pathName)));
-      return () => listeners.set(pathName, (listeners.get(pathName) || []).filter(item => item !== next));
+      if (autoSnapshot) queueMicrotask(() => next(snapshot(pathName)));
+      return () => listeners.set(pathName, (listeners.get(pathName) || []).filter(item => item !== listener));
     }
   });
   const collection = pathName => ({ doc(id) { return ref(`${pathName}/${id}`); } });
@@ -51,11 +52,130 @@ function fakeFirestore(now = () => Date.now()) {
         Timestamp: { fromMillis: milliseconds => ({ toMillis: () => milliseconds, toDate: () => new Date(milliseconds) }) }
       }
     },
-    documents
+    documents,
+    emitSnapshot(pathName) {
+      notify(pathName);
+    },
+    emitError(pathName, error) {
+      for (const listener of listeners.get(pathName) || []) queueMicrotask(() => listener.error?.(error));
+    }
   };
 }
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
+
+async function captureInfo(run) {
+  const original = console.info;
+  const entries = [];
+  console.info = (...args) => entries.push(args);
+  try {
+    await run(entries);
+  } finally {
+    console.info = original;
+  }
+}
+
+test('kiosk listener registration does not report connected before the first snapshot', async () => {
+  await captureInfo(async entries => {
+    const transport = fakeFirestore(() => 1000, { autoSnapshot: false });
+    const controller = createController({ role: 'kiosk', now: () => 1000, channelFactory: () => null, runtime: null });
+    const kiosk = createKioskChannel({ ...transport, controller, kioskId: 'mobile-01', sessionId: 'listener-session' });
+    try {
+      await kiosk.start();
+      assert.equal(entries.some(([message]) => message === '[remote-test-mode][kiosk] command-listener-first-snapshot'), false);
+      assert.equal(entries.some(([message]) => message === '[remote-test-mode][kiosk] command-listener-connected'), false);
+    } finally {
+      kiosk.stop();
+      controller.dispose();
+    }
+  });
+});
+
+test('kiosk reports listener success when the first command snapshot is received', async () => {
+  await captureInfo(async entries => {
+    const transport = fakeFirestore(() => 1000, { autoSnapshot: false });
+    const controller = createController({ role: 'kiosk', now: () => 1000, channelFactory: () => null, runtime: null });
+    const kiosk = createKioskChannel({ ...transport, controller, kioskId: 'mobile-01', sessionId: 'listener-session' });
+    try {
+      await kiosk.start();
+      transport.emitSnapshot('runtimeControls/pangyo2-techno-valley/commands/mobile-01');
+      await flush();
+      const success = entries.find(([message]) => message === '[remote-test-mode][kiosk] command-listener-first-snapshot');
+      assert.ok(success);
+      assert.deepEqual(success[1], {
+        exists: false,
+        path: 'runtimeControls/pangyo2-techno-valley/commands/mobile-01',
+        storeId: 'pangyo2-techno-valley',
+        kioskId: 'mobile-01',
+        sessionId: 'listener-session'
+      });
+    } finally {
+      kiosk.stop();
+      controller.dispose();
+    }
+  });
+});
+
+test('kiosk and admin listener errors log diagnostics and preserve status delivery', async () => {
+  await captureInfo(async entries => {
+    const transport = fakeFirestore(() => 1000, { autoSnapshot: false });
+    const kioskStatuses = [];
+    const adminStatuses = [];
+    const kioskController = createController({ role: 'kiosk', now: () => 1000, channelFactory: () => null, runtime: null });
+    const adminController = createController({ role: 'admin', now: () => 1000, channelFactory: () => null, runtime: null });
+    const kiosk = createKioskChannel({
+      ...transport,
+      controller: kioskController,
+      kioskId: 'mobile-01',
+      sessionId: 'listener-session',
+      onStatus: status => kioskStatuses.push(status)
+    });
+    const admin = createAdminChannel({
+      ...transport,
+      controller: adminController,
+      user: { uid: 'admin-1' },
+      kioskId: 'mobile-01',
+      onStatus: status => adminStatuses.push(status)
+    });
+    try {
+      await kiosk.start();
+      await admin.start();
+      const kioskError = Object.assign(new Error('command denied'), { code: 'permission-denied' });
+      const adminError = Object.assign(new Error('presence unavailable'), { code: 'unavailable' });
+      transport.emitError('runtimeControls/pangyo2-techno-valley/commands/mobile-01', kioskError);
+      transport.emitError('runtimeControls/pangyo2-techno-valley/kiosks/mobile-01', adminError);
+      await flush();
+
+      const kioskLog = entries.find(([message]) => message === '[remote-test-mode][kiosk] command-listener-error');
+      assert.deepEqual(kioskLog?.[1], {
+        path: 'runtimeControls/pangyo2-techno-valley/commands/mobile-01',
+        storeId: 'pangyo2-techno-valley',
+        kioskId: 'mobile-01',
+        sessionId: 'listener-session',
+        code: 'permission-denied',
+        message: 'command denied'
+      });
+      assert.equal(kioskStatuses.at(-1)?.phase, 'error');
+      assert.equal(kioskStatuses.at(-1)?.error, kioskError);
+
+      const adminLog = entries.find(([message]) => message === '[remote-test-mode][admin] presence-listener-error');
+      assert.deepEqual(adminLog?.[1], {
+        path: 'runtimeControls/pangyo2-techno-valley/kiosks/mobile-01',
+        storeId: 'pangyo2-techno-valley',
+        kioskId: 'mobile-01',
+        code: 'unavailable',
+        message: 'presence unavailable'
+      });
+      assert.equal(adminStatuses.at(-1)?.phase, 'error');
+      assert.equal(adminStatuses.at(-1)?.error, adminError);
+    } finally {
+      kiosk.stop();
+      admin.stop();
+      kioskController.dispose();
+      adminController.dispose();
+    }
+  });
+});
 
 test('remote Firestore delivery works without BroadcastChannel or Electron IPC and ACK gates applied state', async () => {
   let now = 100000;
