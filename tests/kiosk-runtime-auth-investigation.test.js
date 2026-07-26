@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { authenticate } = require('../kiosk-runtime-auth.js');
 const { createBootstrapCredential } = require('../desktop/bootstrap-credential.js');
+const { validateCustomToken } = require('../scripts/create-kiosk-custom-token.js');
 
 const root = path.resolve(__dirname, '..');
 const mainSource = fs.readFileSync(path.join(root, 'desktop', 'main.js'), 'utf8');
@@ -321,4 +322,31 @@ test('bootstrap and Electron diagnostics never log credential material or derive
   const sources = [powershell, mainSource, preloadSource, authSource].join('\n');
   assert.doesNotMatch(sources, /token(?:Length|Hash|Prefix|Suffix)/i);
   assert.doesNotMatch(mainSource, /console\.(?:info|log|warn|error)\([^)]*kioskFirebaseCustomToken/);
+});
+
+test('custom-token generator accepts exactly three non-empty JWT segments without changing the value', () => {
+  const token = 'header.payload.signature';
+  assert.equal(validateCustomToken(token), token);
+  for (const malformed of [
+    null,
+    '',
+    'header',
+    'header.payload',
+    'header.payload.signature.extra',
+    '.payload.signature',
+    'header..signature',
+    'header.payload.'
+  ]) {
+    assert.throws(() => validateCustomToken(malformed), /Custom Token/);
+  }
+});
+
+test('custom-token generator writes only the validated token to stdout', () => {
+  const generator = fs.readFileSync(path.join(root, 'scripts', 'create-kiosk-custom-token.js'), 'utf8');
+  assert.match(generator, /process\.stdout\.write\(`\$\{token\}\\n`\)/);
+  assert.doesNotMatch(generator, /Custom token created for/);
+  assert.ok(
+    generator.indexOf('validateCustomToken(') <
+      generator.indexOf('process.stdout.write(`${token}\\n`)')
+  );
 });

@@ -8,6 +8,17 @@ const { getAuth } = require('firebase-admin/auth');
 
 const EXPECTED_PROJECT_ID = 'papajohns-kiosk';
 
+function validateCustomToken(token) {
+  if (typeof token !== 'string') {
+    throw new Error('Firebase Admin returned a non-string Custom Token');
+  }
+  const segments = token.split('.');
+  if (segments.length !== 3 || segments.some(segment => !segment)) {
+    throw new Error('Firebase Admin returned a malformed Custom Token');
+  }
+  return token;
+}
+
 function fail(message) {
   console.error(`Error: ${message}`);
   process.exitCode = 1;
@@ -58,10 +69,15 @@ async function main() {
   }
   const app = getApps()[0] || initializeApp({ credential, projectId });
   const uid = `kiosk:${storeId}:${kioskId}`;
-  const token = await getAuth(app).createCustomToken(uid, { role: 'kiosk', storeId, kioskId });
+  const token = validateCustomToken(
+    await getAuth(app).createCustomToken(uid, { role: 'kiosk', storeId, kioskId })
+  );
 
-  console.error(`Custom token created for ${storeId}/${kioskId}. It is shown once; do not save or log it.`);
   process.stdout.write(`${token}\n`);
 }
 
-main().catch(error => fail(error?.message || String(error)));
+if (require.main === module) {
+  main().catch(error => fail(error?.message || String(error)));
+}
+
+module.exports = { main, options, validateCustomToken };
