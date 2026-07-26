@@ -122,7 +122,8 @@ function idleOperationalState() {
     orderInProgress: false,
     paymentInProgress: false,
     firestoreSaving: false,
-    printerBusy: false
+    printerBusy: false,
+    testModeEnabled: false
   };
 }
 
@@ -203,7 +204,8 @@ test('install is blocked during business, order, payment, save, or printer activ
     orderInProgress: true,
     paymentInProgress: true,
     firestoreSaving: true,
-    printerBusy: true
+    printerBusy: true,
+    testModeEnabled: false
   };
   assert.equal(installBlockers(operationalState).length, 5);
   const value = harness({ operationalState });
@@ -212,6 +214,52 @@ test('install is blocked during business, order, payment, save, or printer activ
   const result = await value.manager.installDownloadedUpdate();
   assert.equal(result.status, 'blocked');
   assert.equal(value.updater.quitCalls, 0);
+});
+
+test('test mode bypasses only the business-hours installation blocker', () => {
+  const businessOpen = { ...idleOperationalState(), businessOpen: true };
+  assert.deepEqual(installBlockers(businessOpen), ['영업시간 중입니다.']);
+  assert.deepEqual(installBlockers({ ...businessOpen, testModeEnabled: true }), []);
+
+  const protectedActivities = [
+    ['orderInProgress', '진행 중인 주문이 있습니다.'],
+    ['paymentInProgress', '결제가 진행 중입니다.'],
+    ['firestoreSaving', '주문 저장이 진행 중입니다.'],
+    ['printerBusy', '프린터 작업이 진행 중입니다.']
+  ];
+  for (const [key, message] of protectedActivities) {
+    const state = { ...businessOpen, testModeEnabled: true, [key]: true };
+    assert.deepEqual(installBlockers(state), [message]);
+  }
+  assert.deepEqual(installBlockers(idleOperationalState()), []);
+});
+
+test('downloaded update installs during open business hours only when test mode is active and idle', async () => {
+  const operationalState = {
+    ...idleOperationalState(),
+    businessOpen: true,
+    testModeEnabled: true
+  };
+  const value = harness({ operationalState });
+  value.manager.initialize();
+  value.updater.emit('update-downloaded', { version: '1.1.0' });
+  const result = await value.manager.installDownloadedUpdate();
+  assert.equal(result.status, 'installing');
+  const immediate = value.timers.find(item => item.delay === 0);
+  assert.ok(immediate);
+  immediate.callback();
+  assert.equal(value.updater.quitCalls, 1);
+});
+
+test('install does nothing before an update has downloaded', async () => {
+  const value = harness({
+    operationalState: { ...idleOperationalState(), businessOpen: true, testModeEnabled: true }
+  });
+  value.manager.initialize();
+  const result = await value.manager.installDownloadedUpdate();
+  assert.equal(result.status, 'idle');
+  assert.equal(value.updater.quitCalls, 0);
+  assert.equal(requestIdFrom(value), undefined);
 });
 
 test('downloaded ia32 update restarts only after a validated idle closed state', async () => {
@@ -284,6 +332,7 @@ test('operational IPC payload accepts only the exact boolean contract', () => {
     paymentInProgress: false,
     firestoreSaving: false,
     printerBusy: false,
+    testModeEnabled: false,
     ignored: 'value'
   };
   assert.deepEqual(sanitizeOperationalState(valid), {
@@ -291,10 +340,23 @@ test('operational IPC payload accepts only the exact boolean contract', () => {
     orderInProgress: false,
     paymentInProgress: false,
     firestoreSaving: false,
-    printerBusy: false
+    printerBusy: false,
+    testModeEnabled: false
   });
+  assert.deepEqual(sanitizeOperationalState({ ...valid, testModeEnabled: true }), {
+    businessOpen: false,
+    orderInProgress: false,
+    paymentInProgress: false,
+    firestoreSaving: false,
+    printerBusy: false,
+    testModeEnabled: true
+  });
+  const { testModeEnabled, ...missingTestMode } = valid;
+  assert.equal(sanitizeOperationalState(missingTestMode), null);
+  assert.equal(sanitizeOperationalState({ ...valid, testModeEnabled: 'true' }), null);
   assert.equal(sanitizeOperationalState({ ...valid, printerBusy: 'no' }), null);
   assert.equal(sanitizeOperationalState(null), null);
+  assert.deepEqual(installBlockers({ ...valid, testModeEnabled: 1 }), ['운영 상태를 확인할 수 없습니다.']);
 });
 
 test('renderer exposure is narrow and update controls are admin-shortcut only', () => {
@@ -305,6 +367,7 @@ test('renderer exposure is narrow and update controls are admin-shortcut only', 
   assert.doesNotMatch(preload, /nodeIntegration|require:\s*require|process:/);
   assert.match(main, /input\.control && input\.alt && input\.shift && key === 'u'/);
   assert.match(customer, /onOpenAdmin[\s\S]*?panelOpen = true/);
+  assert.match(customer, /testModeEnabled: isTestModeEnabled\(\)/);
   assert.doesNotMatch(read('index.html'), /data-updater-action="check"|재시작 후 설치/);
 });
 

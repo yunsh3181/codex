@@ -181,7 +181,8 @@
         orderInProgress: orderingSteps.has(state.step) || state.cartItems.length > 0 || state.selectedTables.length > 0,
         paymentInProgress: state.step === 'payment' || mobileOrderSubmitting,
         firestoreSaving: mobileOrderSubmitting,
-        printerBusy: false
+        printerBusy: false,
+        testModeEnabled: isTestModeEnabled()
       };
     }
 

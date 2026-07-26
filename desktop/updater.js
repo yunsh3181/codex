@@ -11,7 +11,8 @@ const OPERATIONAL_KEYS = [
   'orderInProgress',
   'paymentInProgress',
   'firestoreSaving',
-  'printerBusy'
+  'printerBusy',
+  'testModeEnabled'
 ];
 
 function sanitizeOperationalState(value) {
@@ -25,13 +26,14 @@ function sanitizeOperationalState(value) {
 }
 
 function installBlockers(operationalState) {
-  if (!operationalState) return ['운영 상태를 확인할 수 없습니다.'];
+  const sanitized = sanitizeOperationalState(operationalState);
+  if (!sanitized) return ['운영 상태를 확인할 수 없습니다.'];
   const blockers = [];
-  if (operationalState.businessOpen) blockers.push('영업시간 중입니다.');
-  if (operationalState.orderInProgress) blockers.push('진행 중인 주문이 있습니다.');
-  if (operationalState.paymentInProgress) blockers.push('결제가 진행 중입니다.');
-  if (operationalState.firestoreSaving) blockers.push('주문 저장이 진행 중입니다.');
-  if (operationalState.printerBusy) blockers.push('프린터 작업이 진행 중입니다.');
+  if (sanitized.businessOpen && !sanitized.testModeEnabled) blockers.push('영업시간 중입니다.');
+  if (sanitized.orderInProgress) blockers.push('진행 중인 주문이 있습니다.');
+  if (sanitized.paymentInProgress) blockers.push('결제가 진행 중입니다.');
+  if (sanitized.firestoreSaving) blockers.push('주문 저장이 진행 중입니다.');
+  if (sanitized.printerBusy) blockers.push('프린터 작업이 진행 중입니다.');
   return blockers;
 }
 
