@@ -78,3 +78,24 @@ test('seat cards use fixed square geometry and the shared zone palette',()=>{
   assert.ok(css.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`));
  }
 });
+
+test('desktop seat zones use compact 2/3-column grids with natural heights',()=>{
+ assert.match(css,/\.cad-layout\{[^}]*display:flex[^}]*flex-wrap:wrap[^}]*width:min\(100%,950px\)[^}]*align-items:flex-start[^}]*align-content:flex-start[^}]*justify-content:center/);
+ assert.match(css,/\.simple-zone\{width:470px/);
+ assert.match(css,/\.seat-zone-papa\{width:310px\}/);
+ assert.match(css,/\.simple-seat-grid\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)[^}]*width:100%[^}]*gap:10px[^}]*align-content:start[^}]*justify-content:stretch/);
+ assert.match(css,/\.seat-zone-papa \.simple-seat-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
+ assert.doesNotMatch(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.simple-seat\{[^}]*max-width:150px/);
+ assert.match(css,/\.simple-seat\{grid-column:auto/);
+});
+
+test('seat cards keep only the compact name, capacity, and status hierarchy',()=>{
+ const html=renderSeatManager({
+  'papa-2':{status:'occupied',orderNo:'A-101',occupiedAt:new Date()},
+  'outdoor-3':{status:'held',heldAt:new Date()}
+ });
+ assert.equal((html.match(/class="simple-seat /g)||[]).length,13);
+ assert.match(html,/<strong>커플석<\/strong><span>최대 2인<\/span><em><i aria-hidden="true"><\/i>사용중<\/em>/);
+ assert.doesNotMatch(html,/터치하면|터치해서|줄서기 \d+팀|<small>/);
+});
