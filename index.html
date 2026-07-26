@@ -2284,21 +2284,34 @@ let kioskRemoteTestMode=null;
 const kioskRuntimeAuth=window.PJ_KIOSK_RUNTIME_AUTH;
 let kioskRuntimeReconnectTimer=null;
 let kioskRuntimeConnected=false;
+let kioskRuntimeConnecting=false;
+let kioskRuntimeRetryCount=0;
+const kioskFirebaseApp=typeof firebase.app==='function'?firebase.app():null;
+const kioskFirebaseProjectId=kioskFirebaseApp?.options?.projectId||null;
 console.info('[remote-test-mode][kiosk] app-start',{
  storeId:kioskRuntimeStoreId,
  kioskId:kioskRuntimeKioskId,
  hasAuthModule:Boolean(kioskRuntimeAuth?.authenticate),
  hasIdentityBridge:Boolean(window.kioskIdentity?.consumeCustomToken)
 });
+console.info('[remote-test-mode][kiosk] firebase-ready',{
+ projectId:kioskFirebaseProjectId,
+ authDomain:kioskFirebaseApp?.options?.authDomain||null,
+ appName:kioskFirebaseApp?.name||'[DEFAULT]',
+ firestoreAppName:db.app?.name||kioskFirebaseApp?.name||'[DEFAULT]'
+});
 async function connectKioskRuntime(){
- if(kioskRuntimeConnected||!kioskRuntimeAuth?.authenticate)return;
+ if(kioskRuntimeConnected||kioskRuntimeConnecting||!kioskRuntimeAuth?.authenticate)return;
+ kioskRuntimeConnecting=true;
  clearTimeout(kioskRuntimeReconnectTimer);
  kioskRuntimeReconnectTimer=null;
  console.info('[remote-test-mode][kiosk] authentication-attempt',{storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
  try{
   const identity=await kioskRuntimeAuth.authenticate({firebase});
   kioskRuntimeKioskId=identity.kioskId;
-  console.info('[remote-test-mode][kiosk] authentication-complete',identity);
+  console.info('[remote-test-mode][kiosk] authentication-complete',{
+   role:identity.role,storeId:identity.storeId,kioskId:identity.kioskId,projectId:kioskFirebaseProjectId
+  });
   if(configuredKioskId&&configuredKioskId!==identity.kioskId){
    console.warn('[remote-test-mode][kiosk] configured-identity-ignored',{
     configuredKioskId,authenticatedKioskId:identity.kioskId
@@ -2307,26 +2320,48 @@ async function connectKioskRuntime(){
   kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
    db,firebase,controller:kioskTestModeController,
    storeId:identity.storeId,kioskId:identity.kioskId,
-   onStatus:status=>{if(status.phase==='error')console.warn('원격 테스트 모드 연결 실패',status.error)}
+   onStatus:status=>{
+    if(status.phase==='failed')console.warn('[remote-test-mode][kiosk] runtime-status',status)
+   }
+  });
+  console.info('[remote-test-mode][kiosk] channel-created',{
+   ...kioskRemoteTestMode.getIdentity(),
+   path:`runtimeControls/${identity.storeId}/kiosks/${identity.kioskId}`,
+   projectId:kioskFirebaseProjectId
   });
   await kioskRemoteTestMode.start();
   kioskRuntimeConnected=true;
-  console.info('[remote-test-mode][kiosk] session-registration-complete',kioskRemoteTestMode.getIdentity())
+  kioskRuntimeRetryCount=0;
  }catch(error){
+  kioskRemoteTestMode?.stop();
+  kioskRemoteTestMode=null;
+  kioskRuntimeConnected=false;
+  kioskRuntimeRetryCount+=1;
   console.warn('[remote-test-mode][kiosk] session-registration-failed',{
    storeId:kioskRuntimeStoreId,
    kioskId:kioskRuntimeKioskId,
    code:error?.code||null,
-   message:error?.message||String(error)
+   message:error?.message||String(error),
+   retryScheduled:true,
+   retryCount:kioskRuntimeRetryCount
   });
   kioskRuntimeReconnectTimer=setTimeout(connectKioskRuntime,15000)
+ }finally{
+  kioskRuntimeConnecting=false
  }
 }
 connectKioskRuntime();
-window.addEventListener('online',connectKioskRuntime);
+function handleKioskRuntimeOnline(){
+ if(kioskRuntimeConnected&&kioskRemoteTestMode){
+  kioskRemoteTestMode.publishPresence().catch(()=>{})
+  return
+ }
+ connectKioskRuntime()
+}
+window.addEventListener('online',handleKioskRuntimeOnline);
 window.addEventListener('pagehide',()=>{
  clearTimeout(kioskRuntimeReconnectTimer);
- window.removeEventListener('online',connectKioskRuntime);
+ window.removeEventListener('online',handleKioskRuntimeOnline);
  kioskRemoteTestMode?.stop()
 });
 function testModeBanner(){
