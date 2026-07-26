@@ -5,6 +5,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const stateListeners = new Set();
 const openListeners = new Set();
 const testModeListeners = new Set();
+const diagnosticsOpenListeners = new Set();
 let operationalStateProvider = null;
 
 ipcRenderer.on('kiosk-updater:state', (_event, state) => {
@@ -19,6 +20,9 @@ ipcRenderer.on('kiosk-updater:request-operational-state', (_event, requestId) =>
 });
 ipcRenderer.on('kiosk-test-mode:state', (_event, state) => {
   for (const listener of testModeListeners) listener(state);
+});
+ipcRenderer.on('kiosk-diagnostics:open', () => {
+  for (const listener of diagnosticsOpenListeners) listener();
 });
 
 contextBridge.exposeInMainWorld('kioskUpdater', Object.freeze({
@@ -57,4 +61,15 @@ contextBridge.exposeInMainWorld('kioskIdentity', Object.freeze({
 
 contextBridge.exposeInMainWorld('kioskApp', Object.freeze({
   getVersion: () => ipcRenderer.invoke('kiosk-app:get-version')
+}));
+
+contextBridge.exposeInMainWorld('kioskDiagnosticsBridge', Object.freeze({
+  getEnvironment: () => ipcRenderer.sendSync('kiosk-diagnostics:get-environment-sync'),
+  append: entry => ipcRenderer.invoke('kiosk-diagnostics:append', entry),
+  openLog: () => ipcRenderer.invoke('kiosk-diagnostics:open-log'),
+  onOpen: listener => {
+    if (typeof listener !== 'function') return () => {};
+    diagnosticsOpenListeners.add(listener);
+    return () => diagnosticsOpenListeners.delete(listener);
+  }
 }));
