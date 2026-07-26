@@ -136,6 +136,31 @@ html[data-layout="kiosk21"] :where(.head, .c-header) :where(
   white-space: nowrap;
 }
 
+/* Fixed header alignment at the 1080 × 1920 kiosk target. */
+html[data-layout="kiosk21"] :where(.head, .c-header) .brandLogo {
+  width: 141.6px !important;
+  height: 69.6px !important;
+  max-width: 141.6px !important;
+  max-height: 69.6px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  filter: brightness(0) invert(1) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) .langTopBtn {
+  min-height: 70.4px !important;
+  padding: 9.9px 15.4px !important;
+  gap: 5.5px;
+  font-size: 17.6px;
+}
+
+html[data-layout="kiosk21"] :where(.head, .c-header) .langTopBtn span {
+  font-size: 14.08px !important;
+}
+
 html[data-layout="kiosk21"] :where(.progress, .c-progress) {
   width: 100%;
   max-width: none !important;
@@ -552,7 +577,7 @@ html[data-layout="kiosk21"] :where(.cartbar, .c-order-summary) {
 }
 
 html[data-layout="kiosk21"] body .cartbar {
-  padding: 12px 0 calc(12px + var(--safe-bottom)) !important;
+  padding: 12px 10px calc(12px + var(--safe-bottom)) 0 !important;
 }
 
 html[data-layout="kiosk21"] body:is(
@@ -562,12 +587,14 @@ html[data-layout="kiosk21"] body:is(
   [data-step="accompaniment"]
 ) :where(.cartbar, .c-order-summary) {
   height: calc(var(--kiosk21-summary-height) + var(--safe-bottom)) !important;
+  padding-right: 10px !important;
   padding-bottom: calc(12px + var(--safe-bottom)) !important;
 }
 
 html[data-layout="kiosk21"] :where(.cartmain, .cartSummary, .orderSummary) {
   flex: 1 1 auto;
   min-width: 0;
+  margin-left: 5px;
   overflow: hidden;
   overflow-wrap: anywhere;
 }
