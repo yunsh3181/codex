@@ -2430,7 +2430,9 @@ async function connectKioskRuntime(){
   const currentStage=window.PJ_KIOSK_DIAGNOSTICS?.snapshot().currentStage;
   if(currentStage==='authentication-attempt'){
    window.PJ_KIOSK_DIAGNOSTICS?.record('authentication-failed',{
-    source:'kiosk-runtime-auth.js:authenticate',...window.PJ_KIOSK_DIAGNOSTICS.errorDetails(error)
+    source:'kiosk-runtime-auth.js:authenticate',
+    ...(error?.authDiagnostics||{}),
+    ...window.PJ_KIOSK_DIAGNOSTICS.errorDetails(error)
    })
   }else if(!['presence-write-failed','heartbeat-start-failed','channel-start-failed','channel-create-failed'].includes(currentStage)){
    window.PJ_KIOSK_DIAGNOSTICS?.record('connect-runtime-failed',{
