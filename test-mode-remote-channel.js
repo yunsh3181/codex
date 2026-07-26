@@ -80,7 +80,8 @@
     kioskId = DEFAULT_KIOSK_ID,
     sessionId = id('session'),
     now = () => Date.now(),
-    onStatus = () => {}
+    onStatus = () => {},
+    onDiagnostic = () => {}
   }) {
     let unsubscribe = null;
     let heartbeat = null;
@@ -120,9 +121,22 @@
         heartbeatAt: 'serverTimestamp',
         lastSeen: null
       });
+      onDiagnostic({
+        stage: writeType === 'registration' ? 'presence-write-started' : 'heartbeat',
+        storeId, kioskId, sessionId,
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        presenceWriteCount
+      });
       try {
         await presenceRef.set(presencePayload(), { merge: false });
       } catch (error) {
+        onDiagnostic({
+          stage: writeType === 'registration' ? 'presence-write-failed' : 'heartbeat-write-failed',
+          error,
+          storeId, kioskId, sessionId,
+          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          presenceWriteCount
+        });
         log('kiosk', `${eventPrefix}-failed`, {
           path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
           storeId,
@@ -282,12 +296,33 @@
           sessionId
         })).catch(error => onStatus({ phase: 'error', error }));
       });
-      heartbeat = setInterval(() => publishPresence().catch(() => {}), PRESENCE_INTERVAL_MS);
+      try {
+        heartbeat = setInterval(() => publishPresence().catch(() => {}), PRESENCE_INTERVAL_MS);
+      } catch (error) {
+        onDiagnostic({
+          stage: 'heartbeat-start-failed',
+          error,
+          storeId,
+          kioskId,
+          sessionId,
+          path: `runtimeControls/${storeId}/kiosks/${kioskId}`
+        });
+        stop();
+        throw error;
+      }
       log('kiosk', 'heartbeat-started', {
         path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
         storeId,
         kioskId,
         sessionId,
+        intervalMs: PRESENCE_INTERVAL_MS
+      });
+      onDiagnostic({
+        stage: 'heartbeat-started',
+        storeId,
+        kioskId,
+        sessionId,
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
         intervalMs: PRESENCE_INTERVAL_MS
       });
       onStatus({
