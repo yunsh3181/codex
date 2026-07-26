@@ -130,6 +130,7 @@ const retryTestMode=document.getElementById('retryTestMode');
 const testModeModal=document.getElementById('testModeModal');
 const testModeModalTitle=document.getElementById('testModeModalTitle');
 const testModeModalDescription=document.getElementById('testModeModalDescription');
+const testModeDiagnostics=document.getElementById('testModeDiagnostics');
 const cancelTestMode=document.getElementById('cancelTestMode');
 const confirmTestMode=document.getElementById('confirmTestMode');
 const takeoutPending=document.getElementById('takeoutPending');
@@ -170,6 +171,23 @@ function handleAdminRemoteStatus(status){
  adminTestModePhase=status.phase;
  adminTestModeConnected=['connected','requesting-enable','enabled-confirmed','requesting-disable','disabled-confirmed'].includes(status.phase);
  renderAdminTestMode();
+ renderTestModeDiagnostics(status.diagnostics);
+}
+function renderTestModeDiagnostics(diagnostics=adminTestModeRemote?.getStatus?.().diagnostics){
+ if(!testModeDiagnostics)return;
+ const value=diagnostics||{};
+ testModeDiagnostics.textContent=[
+  `storeId: ${displayText(value.storeId)}`,
+  `kioskId: ${displayText(value.kioskId)}`,
+  `presence 경로: ${displayText(value.path)}`,
+  `활성 세션 수: ${value.activeSessionCount??0}`,
+  `선택 sessionId: ${displayText(value.selectedSessionId)}`,
+  `마지막 heartbeat: ${value.heartbeatAt?new Date(value.heartbeatAt).toISOString():'-'}`,
+  `stale: ${value.stale===true?'예':value.stale===false?'아니오':'-'}`,
+  `제외 사유: ${(value.exclusionReasons||[]).join(', ')||'없음'}`,
+  `마지막 commandId: ${displayText(value.lastCommandId)}`,
+  `ACK 상태: ${displayText(value.ackStatus)}`
+ ].join('\n')
 }
 function startAdminTestModeRemote(user){
  stopAdminTestModeRemote();
@@ -195,6 +213,7 @@ function openTestModeConfirmation(){
  confirmTestMode.textContent=enabled?'테스트 모드 종료':'테스트 모드 켜기';
  confirmTestMode.dataset.action=enabled?'disable':'enable';
  testModeModal.hidden=false;
+ renderTestModeDiagnostics();
 }
 const adminTestModeController=window.PJ_AFTER_HOURS_TEST_MODE.createController({
  role:'admin',

@@ -29,6 +29,49 @@
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
+  function normalizeIdentity(value) {
+    if (value === null || value === undefined) return '';
+    return String(value).trim().toLowerCase();
+  }
+
+  function evaluateSessions(sessions, {
+    storeId,
+    kioskId,
+    now = Date.now(),
+    presenceStaleMs = PRESENCE_STALE_MS
+  }) {
+    const expectedStoreId = normalizeIdentity(storeId);
+    const expectedKioskId = normalizeIdentity(kioskId);
+    const evaluated = (Array.isArray(sessions) ? sessions : []).map((candidate, index) => {
+      const data = candidate?.data || candidate || {};
+      const heartbeatAt = timestampMillis(data.heartbeatAt);
+      const reasons = [];
+      if (normalizeIdentity(data.storeId) !== expectedStoreId) reasons.push('storeId 불일치');
+      if (normalizeIdentity(data.kioskId) !== expectedKioskId) reasons.push('kioskId 불일치');
+      if (data.role !== 'kiosk') reasons.push('role 불일치');
+      if (!normalizeIdentity(data.sessionId)) reasons.push('sessionId 없음');
+      if (!heartbeatAt) reasons.push('heartbeat 미확정');
+      else if (now - heartbeatAt > presenceStaleMs) reasons.push('stale heartbeat');
+      return {
+        index,
+        path: candidate?.path || null,
+        data,
+        heartbeatAt,
+        stale: !heartbeatAt || now - heartbeatAt > presenceStaleMs,
+        reasons,
+        active: reasons.length === 0
+      };
+    });
+    const active = evaluated.filter(candidate => candidate.active)
+      .sort((left, right) => right.heartbeatAt - left.heartbeatAt);
+    return {
+      selected: active[0] || null,
+      active,
+      evaluated,
+      ambiguous: active.length > 1 && active[0].heartbeatAt === active[1].heartbeatAt
+    };
+  }
+
   function createKioskChannel({
     db,
     firebase,
@@ -47,6 +90,9 @@
     let started = false;
     let presenceWriteCount = 0;
     let commandFirstSnapshotLogged = false;
+    storeId = normalizeIdentity(storeId);
+    kioskId = normalizeIdentity(kioskId);
+    sessionId = normalizeIdentity(sessionId);
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -232,6 +278,8 @@
     presenceStaleMs = PRESENCE_STALE_MS,
     onStatus = () => {}
   }) {
+    storeId = normalizeIdentity(storeId);
+    kioskId = normalizeIdentity(kioskId);
     let presenceUnsubscribe = null;
     let commandUnsubscribe = null;
     let ackTimer = null;
@@ -241,6 +289,8 @@
     let pending = null;
     let currentPhase = 'idle';
     let latestPresenceExists = false;
+    let lastCommandId = null;
+    let lastAckStatus = '없음';
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -251,25 +301,35 @@
 
     function presenceDiagnostics() {
       const presence = latestPresence || {};
-      const heartbeatAt = timestampMillis(presence.heartbeatAt);
+      const path = `runtimeControls/${storeId}/kiosks/${kioskId}`;
+      const selection = evaluateSessions(latestPresenceExists ? [{ data: presence, path }] : [], {
+        storeId, kioskId, now: now(), presenceStaleMs
+      });
+      const evaluated = selection.evaluated[0];
+      const heartbeatAt = evaluated?.heartbeatAt || 0;
       const lastSeen = timestampMillis(presence.lastSeen);
       const ageMs = heartbeatAt ? now() - heartbeatAt : null;
-      const matchesIdentity = presence.kioskId === kioskId && presence.storeId === storeId &&
-        presence.role === 'kiosk' && typeof presence.sessionId === 'string';
-      const stale = !heartbeatAt || ageMs > presenceStaleMs;
-      const active = latestPresenceExists && matchesIdentity && !stale;
+      const matchesIdentity = Boolean(evaluated && !evaluated.reasons.some(reason => reason.includes('불일치')));
+      const stale = evaluated?.stale ?? true;
       return {
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path,
+        storeId,
+        kioskId,
         queryType: 'document-listener',
         queriedKioskId: kioskId,
         queriedSessionId: presence.sessionId || null,
-        activeSessionCount: active ? 1 : 0,
+        selectedSessionId: selection.selected?.data.sessionId || null,
+        activeSessionCount: selection.active.length,
+        ambiguous: selection.ambiguous,
         stale,
         staleThresholdMs: presenceStaleMs,
         heartbeatAt: heartbeatAt || null,
         heartbeatAgeMs: ageMs,
         lastSeen: lastSeen || null,
         matchesIdentity,
+        exclusionReasons: evaluated?.reasons || ['presence 문서 없음'],
+        lastCommandId,
+        ackStatus: lastAckStatus,
         firestoreQueryResult: {
           exists: latestPresenceExists,
           data: latestPresenceExists ? presence : null
@@ -278,19 +338,16 @@
     }
 
     function refreshPresence() {
-      const presence = latestPresence || {};
-      const heartbeatAt = timestampMillis(presence.heartbeatAt);
       const diagnostics = presenceDiagnostics();
       log('admin', 'presence-stale-evaluation', diagnostics);
-      if (presence.kioskId === kioskId && presence.storeId === storeId && presence.role === 'kiosk' &&
-        typeof presence.sessionId === 'string' && heartbeatAt && now() - heartbeatAt <= presenceStaleMs) {
-        const changed = targetSessionId !== presence.sessionId;
-        targetSessionId = presence.sessionId;
-        if (!pending && (changed || currentPhase !== 'connected')) emit('connected');
+      if (diagnostics.selectedSessionId && !diagnostics.ambiguous) {
+        const changed = targetSessionId !== diagnostics.selectedSessionId;
+        targetSessionId = diagnostics.selectedSessionId;
+        if (!pending && (changed || currentPhase !== 'connected')) emit('connected', { diagnostics });
       } else {
         const changed = targetSessionId !== null;
         targetSessionId = null;
-        if (!pending && (changed || currentPhase !== 'waiting')) emit('waiting');
+        if (!pending && (changed || currentPhase !== 'waiting')) emit('waiting', { diagnostics });
       }
     }
 
@@ -313,6 +370,7 @@
           ack.action !== pending.action) return;
         clearTimeout(ackTimer);
         ackTimer = null;
+        lastAckStatus = ack.applied === true ? 'ACK 수신' : 'ACK 거부';
         if (ack.applied !== true) {
           emit('rejected');
           return;
@@ -351,6 +409,8 @@
         throw new Error('연결된 키오스크 세션이 없습니다.');
       }
       const requestId = id('request');
+      lastCommandId = requestId;
+      lastAckStatus = 'ACK 대기';
       const requestedAtMillis = now();
       const expiresAtMillis = action === 'enable'
         ? requestedAtMillis + Math.min(30 * 60 * 1000, globalThis.PJ_AFTER_HOURS_TEST_MODE?.DURATION_MS || 30 * 60 * 1000)
@@ -413,7 +473,14 @@
       requestEnable: () => request('enable'),
       requestDisable: () => request('disable'),
       retry: () => request(pending?.action || 'enable'),
-      getStatus: () => ({ phase: currentPhase, kioskId, targetSessionId, pending: pending ? { ...pending } : null })
+      getStatus: () => ({
+        phase: currentPhase,
+        storeId,
+        kioskId,
+        targetSessionId,
+        pending: pending ? { ...pending } : null,
+        diagnostics: presenceDiagnostics()
+      })
     };
   }
 
@@ -425,6 +492,8 @@
     PRESENCE_STALE_MS,
     PRESENCE_CHECK_INTERVAL_MS,
     timestampMillis,
+    normalizeIdentity,
+    evaluateSessions,
     createKioskChannel,
     createAdminChannel
   };

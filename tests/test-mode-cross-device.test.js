@@ -5,7 +5,12 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createController } = require('../after-hours-test-mode.js');
-const { createKioskChannel, createAdminChannel } = require('../test-mode-remote-channel.js');
+const {
+  createKioskChannel,
+  createAdminChannel,
+  evaluateSessions,
+  normalizeIdentity
+} = require('../test-mode-remote-channel.js');
 
 const root = path.resolve(__dirname, '..');
 const rules = fs.readFileSync(path.join(root, 'firestore.rules'), 'utf8');
@@ -63,6 +68,44 @@ function fakeFirestore(now = () => Date.now(), { autoSnapshot = true } = {}) {
 }
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
+
+test('session selection normalizes identity, excludes invalid candidates, and chooses the newest heartbeat', () => {
+  const now = Date.parse('2026-07-26T10:00:00Z');
+  const sessions = [
+    { path: 'presence/old', storeId: ' PANGYO2-TECHNO-VALLEY ', kioskId: ' MOBILE-01 ', sessionId: 'old', role: 'kiosk', heartbeatAt: new Date(now - 1000) },
+    { path: 'presence/new', storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', sessionId: 'new', role: 'kiosk', heartbeatAt: { toMillis: () => now - 100 } },
+    { path: 'presence/wrong-store', storeId: 'other', kioskId: 'mobile-01', sessionId: 'wrong-store', role: 'kiosk', heartbeatAt: new Date(now).toISOString() },
+    { path: 'presence/wrong-kiosk', storeId: 'pangyo2-techno-valley', kioskId: 'other', sessionId: 'wrong-kiosk', role: 'kiosk', heartbeatAt: now },
+    { path: 'presence/stale', storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', sessionId: 'stale', role: 'kiosk', heartbeatAt: now - 50000 },
+    { path: 'presence/missing-session', storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', role: 'kiosk', heartbeatAt: now },
+    { path: 'presence/pending-timestamp', storeId: 'pangyo2-techno-valley', kioskId: 'mobile-01', sessionId: 'pending', role: 'kiosk', heartbeatAt: null }
+  ];
+  const result = evaluateSessions(sessions, {
+    storeId: 'PANGYO2-TECHNO-VALLEY',
+    kioskId: ' mobile-01 ',
+    now,
+    presenceStaleMs: 45000
+  });
+
+  assert.equal(normalizeIdentity(' Mobile-01 '), 'mobile-01');
+  assert.equal(result.selected.path, 'presence/new');
+  assert.deepEqual(result.active.map(candidate => candidate.data.sessionId), ['new', 'old']);
+  assert.deepEqual(result.evaluated.find(candidate => candidate.path === 'presence/wrong-store').reasons, ['storeId 불일치']);
+  assert.deepEqual(result.evaluated.find(candidate => candidate.path === 'presence/wrong-kiosk').reasons, ['kioskId 불일치']);
+  assert.deepEqual(result.evaluated.find(candidate => candidate.path === 'presence/stale').reasons, ['stale heartbeat']);
+  assert.deepEqual(result.evaluated.find(candidate => candidate.path === 'presence/missing-session').reasons, ['sessionId 없음']);
+  assert.deepEqual(result.evaluated.find(candidate => candidate.path === 'presence/pending-timestamp').reasons, ['heartbeat 미확정']);
+});
+
+test('equal newest heartbeats are diagnosed as ambiguous instead of selecting an arbitrary session', () => {
+  const candidates = ['a', 'b'].map(sessionId => ({
+    storeId: 'store', kioskId: 'kiosk', sessionId, role: 'kiosk', heartbeatAt: '2026-07-26T10:00:00Z'
+  }));
+  const result = evaluateSessions(candidates, {
+    storeId: 'store', kioskId: 'kiosk', now: Date.parse('2026-07-26T10:00:01Z')
+  });
+  assert.equal(result.ambiguous, true);
+});
 
 async function captureInfo(run) {
   const original = console.info;

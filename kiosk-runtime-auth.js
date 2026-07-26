@@ -51,13 +51,19 @@
         kioskId: claims.kioskId || null
       }
     });
-    if (claims.role !== 'kiosk' || claims.storeId !== storeId || claims.kioskId !== kioskId) {
+    const expectedStoreId = storeId == null ? null : String(storeId).trim().toLowerCase();
+    const expectedKioskId = kioskId == null ? null : String(kioskId).trim().toLowerCase();
+    const claimStoreId = claims.storeId == null ? '' : String(claims.storeId).trim().toLowerCase();
+    const claimKioskId = claims.kioskId == null ? '' : String(claims.kioskId).trim().toLowerCase();
+    if (claims.role !== 'kiosk' || !claimStoreId || !claimKioskId ||
+      (expectedStoreId !== null && claimStoreId !== expectedStoreId) ||
+      (expectedKioskId !== null && claimKioskId !== expectedKioskId)) {
       log('authentication-failed', { storeId, kioskId, uid: user.uid, reason: 'KIOSK_IDENTITY_MISMATCH' });
       await firebase.auth().signOut();
       throw new Error('KIOSK_IDENTITY_MISMATCH');
     }
     log('authentication-complete', { storeId, kioskId, uid: user.uid, role: claims.role });
-    return { uid: user.uid, role: claims.role, storeId: claims.storeId, kioskId: claims.kioskId };
+    return { uid: user.uid, role: claims.role, storeId: claimStoreId, kioskId: claimKioskId };
   }
 
   return { authenticate };
