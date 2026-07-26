@@ -54,6 +54,15 @@ function registerKioskIdentityIpc() {
   });
 }
 
+function registerKioskAppIpc() {
+  ipcMain.removeHandler('kiosk-app:get-version');
+  ipcMain.handle('kiosk-app:get-version', event => {
+    if (!mainWindow || event.sender !== mainWindow.webContents) return null;
+    const version = app.getVersion();
+    return typeof version === 'string' && version.trim() ? version.trim() : null;
+  });
+}
+
 function isDevelopmentMode() {
   return !app.isPackaged && process.argv.includes('--dev');
 }
@@ -188,6 +197,7 @@ if (!hasSingleInstanceLock) {
     createWindow();
     registerTestModeIpc();
     registerKioskIdentityIpc();
+    registerKioskAppIpc();
     updaterManager = createKioskUpdater({
       app,
       autoUpdater,
@@ -210,6 +220,7 @@ if (!hasSingleInstanceLock) {
     ipcMain.removeHandler('kiosk-test-mode:get-state');
     ipcMain.removeHandler('kiosk-test-mode:set-state');
     ipcMain.removeHandler('kiosk-identity:consume-custom-token');
+    ipcMain.removeHandler('kiosk-app:get-version');
     kioskFirebaseCustomToken = null;
   });
 

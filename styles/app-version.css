@@ -1,0 +1,34 @@
+.kioskAppVersion {
+  position: fixed;
+  right: calc(32px + env(safe-area-inset-right, 0px));
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  z-index: 1;
+  max-width: calc(100vw - 64px);
+  overflow: hidden;
+  color: currentColor;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: .64;
+  pointer-events: none;
+  user-select: none;
+}
+
+body[data-step="home"] .kioskAppVersion {
+  color: #49443e;
+}
+
+body[data-step="business-hours"] .kioskAppVersion {
+  color: #fff;
+}
+
+@media (max-width: 560px) {
+  .kioskAppVersion {
+    right: calc(24px + env(safe-area-inset-right, 0px));
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    max-width: calc(100vw - 48px);
+    font-size: 14px;
+  }
+}

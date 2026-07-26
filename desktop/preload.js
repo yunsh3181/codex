@@ -54,3 +54,7 @@ contextBridge.exposeInMainWorld('kioskTestMode', Object.freeze({
 contextBridge.exposeInMainWorld('kioskIdentity', Object.freeze({
   consumeCustomToken: () => ipcRenderer.invoke('kiosk-identity:consume-custom-token')
 }));
+
+contextBridge.exposeInMainWorld('kioskApp', Object.freeze({
+  getVersion: () => ipcRenderer.invoke('kiosk-app:get-version')
+}));
