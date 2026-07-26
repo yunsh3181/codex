@@ -23,6 +23,14 @@ html[data-layout="kiosk21"] {
   scroll-padding-top: var(--kiosk21-stage-top-offset);
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="kiosk21"]::-webkit-scrollbar {
+  display: none;
 }
 
 html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not(
@@ -41,13 +49,15 @@ html[data-layout="kiosk21"] body {
   min-height: 100%;
   margin: 0;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: visible;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app) {
   width: 100%;
   min-width: 0;
   min-height: 100vh;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 html[data-layout="kiosk21"] :where(
@@ -65,6 +75,8 @@ html[data-layout="kiosk21"] :where(
 }
 
 html[data-layout="kiosk21"] :where(.head, .c-header) {
+  position: fixed;
+  inset: 0 0 auto;
   width: 100%;
   max-width: none !important;
   margin-inline: 0;
@@ -162,6 +174,9 @@ html[data-layout="kiosk21"] :where(.head, .c-header) .langTopBtn span {
 }
 
 html[data-layout="kiosk21"] :where(.progress, .c-progress) {
+  position: fixed;
+  right: 0;
+  left: 0;
   width: 100%;
   max-width: none !important;
   margin-inline: 0;
@@ -239,6 +254,16 @@ html[data-layout="kiosk21"] :where(.stage, .mainContent, .sectionWrapper) {
   padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
   padding-bottom: calc(var(--kiosk21-bottom-reserve) + var(--safe-bottom)) !important;
   padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
+}
+
+html[data-layout="kiosk21"] body:not([data-step="home"]):not(
+  [data-step="language"]
+):not([data-step="done"]) .stage {
+  margin-top: var(--kiosk21-stage-top-offset);
+}
+
+html[data-layout="kiosk21"] body[data-step="done"] .stage {
+  margin-top: calc(var(--kiosk21-header-height) + var(--safe-top));
 }
 
 html[data-layout="kiosk21"] :where(.summaryContainer) {
@@ -631,6 +656,13 @@ html[data-layout="kiosk21"] :where(.backdrop, .c-popup-backdrop) {
   padding: calc(32px + var(--safe-top)) calc(32px + var(--safe-right))
     calc(32px + var(--safe-bottom)) calc(32px + var(--safe-left));
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+/* Keep the root position intact while a kiosk dialog owns vertical gestures. */
+html[data-layout="kiosk21"]:has(#modal :where(.backdrop, .c-popup-backdrop)) {
+  overflow-y: hidden;
 }
 
 html[data-layout="kiosk21"] :where(
@@ -653,7 +685,24 @@ html[data-layout="kiosk21"] :where(
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+html[data-layout="kiosk21"] :where(
+  .c-popup,
+  .modal,
+  .popup,
+  .dialog,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal,
+  .discountModal,
+  .helperModal,
+  .setUpsellModal
+)::-webkit-scrollbar {
+  display: none;
 }
 
 html[data-layout="kiosk21"] :where(.modalBody, .modalContent, .popupBody, .dialogBody) {
@@ -662,6 +711,7 @@ html[data-layout="kiosk21"] :where(.modalBody, .modalContent, .popupBody, .dialo
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 html[data-layout="kiosk21"] :where(.modalClose, .closeBtn, .popupClose, .dialogClose) {
@@ -1392,6 +1442,8 @@ html[data-layout="kiosk21"] body[data-step="reserve"] .reserveWheel {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 html[data-layout="kiosk21"] body[data-step="reserve"] .reserveWheel .optionBtn {
