@@ -24,13 +24,41 @@ test('Electron exposes only the installed app version through the existing secur
 
 test('start screens render a safe version label and ordering screens do not', () => {
   assert.match(indexSource, /function startScreenVersionHTML\(\)/);
+  assert.match(indexSource, /function languageView\(\)[\s\S]*startScreenVersionHTML\(\)/);
   assert.match(indexSource, /businessHoursPanel[\s\S]*startScreenVersionHTML\(\)/);
   assert.match(indexSource, /state\.step==='home'[\s\S]*startScreenVersionHTML\(\)/);
   assert.doesNotMatch(indexSource, /function shell\(c\)\{[^}]*startScreenVersionHTML/);
-  assert.match(indexSource, /version&&version!=='undefined'&&version!=='null'/);
+  assert.match(indexSource, /version&&version!=='undefined'&&version!=='null'&&version!=='\[object Object\]'/);
   assert.match(indexSource, /kioskAppVersion='DEV'/);
   assert.match(packageJson.version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/);
   assert.doesNotMatch(indexSource, new RegExp(`PapaJohns Kiosk v${packageJson.version.replace(/\./g, '\\.')}`));
+});
+
+test('language persistence selects the expected start screen and home reset keeps the shared label', () => {
+  assert.match(indexSource, /sessionStorage\.getItem\('pjLangSelected'\)\?'home':'language'/);
+  assert.match(indexSource, /sessionStorage\.setItem\('pjLangSelected','1'\);state\.step='home';render\(\)/);
+  assert.match(indexSource, /function reset\(\)[\s\S]*Object\.assign\(state,\{step:'home'/);
+  assert.match(indexSource, /if\(state\.step==='language'\)return languageView\(\)/);
+  assert.match(indexSource, /if\(state\.step==='home'\)return `[\s\S]*startScreenVersionHTML\(\)/);
+});
+
+test('version loading starts at DEV, upgrades valid Electron values, and keeps DEV for invalid responses', () => {
+  const normalize = value => {
+    const version = typeof value === 'string' ? value.trim() : '';
+    return version && version !== 'undefined' && version !== 'null' && version !== '[object Object]' ? version : 'DEV';
+  };
+  assert.equal(normalize('1.1.0'), '1.1.0');
+  assert.equal(normalize(null), 'DEV');
+  assert.equal(normalize(undefined), 'DEV');
+  assert.equal(normalize({ version: '1.1.0' }), 'DEV');
+  assert.match(indexSource, /Promise\.resolve\(window\.kioskApp\?\.getVersion\?\.\(\)\)\.then\(value=>/);
+  assert.match(indexSource, /kioskAppVersion=normalizedKioskAppVersion\(value\);\s*updateStartScreenVersion\(\)/);
+});
+
+test('business-hours start view covers both before-open and after-close status without changing its decision logic', () => {
+  assert.match(indexSource, /const beforeOpen=businessHoursStatus==='before-open'/);
+  assert.match(indexSource, /beforeOpen\?copy\.beforeOpenTitle:copy\.afterCloseTitle/);
+  assert.match(indexSource, /document\.body\.dataset\.step='business-hours'/);
 });
 
 test('version metadata keeps portrait safe margins and cannot intercept kiosk input', () => {
@@ -40,4 +68,5 @@ test('version metadata keeps portrait safe margins and cannot intercept kiosk in
   assert.match(versionCss, /opacity:\s*\.64/);
   assert.match(versionCss, /pointer-events:\s*none/);
   assert.match(versionCss, /z-index:\s*1/);
+  assert.match(versionCss, /body\[data-step="language"\] \.kioskAppVersion\s*\{\s*z-index:\s*56/);
 });
