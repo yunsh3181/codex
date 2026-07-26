@@ -11,6 +11,48 @@ let mainWindow = null;
 let powerSaveBlockerId = null;
 let quitting = false;
 let updaterManager = null;
+let kioskFirebaseCustomToken = process.env.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN || null;
+const TEST_MODE_DURATION_MS = 30 * 60 * 1000;
+const testModeState = { enabled: false, enabledAt: null, expiresAt: null };
+let testModeTimer = null;
+
+function publicTestModeState() {
+  return { ...testModeState };
+}
+
+function setTestModeState(next = {}) {
+  clearTimeout(testModeTimer);
+  testModeTimer = null;
+  const enabledAt = Number(next.enabledAt);
+  const expiresAt = Number(next.expiresAt);
+  const valid = next.enabled === true && Number.isFinite(enabledAt) && Number.isFinite(expiresAt) &&
+    expiresAt > Date.now() && expiresAt - enabledAt <= TEST_MODE_DURATION_MS;
+  Object.assign(testModeState, valid
+    ? { enabled: true, enabledAt, expiresAt }
+    : { enabled: false, enabledAt: null, expiresAt: null });
+  if (testModeState.enabled) {
+    testModeTimer = setTimeout(() => setTestModeState(), Math.max(1, testModeState.expiresAt - Date.now()));
+  }
+  mainWindow?.webContents.send('kiosk-test-mode:state', publicTestModeState());
+  return publicTestModeState();
+}
+
+function registerTestModeIpc() {
+  ipcMain.removeHandler('kiosk-test-mode:get-state');
+  ipcMain.removeHandler('kiosk-test-mode:set-state');
+  ipcMain.handle('kiosk-test-mode:get-state', () => publicTestModeState());
+  ipcMain.handle('kiosk-test-mode:set-state', (_event, next) => setTestModeState(next));
+}
+
+function registerKioskIdentityIpc() {
+  ipcMain.removeHandler('kiosk-identity:consume-custom-token');
+  ipcMain.handle('kiosk-identity:consume-custom-token', event => {
+    if (!mainWindow || event.sender !== mainWindow.webContents) return null;
+    const token = kioskFirebaseCustomToken;
+    kioskFirebaseCustomToken = null;
+    return token;
+  });
+}
 
 function isDevelopmentMode() {
   return !app.isPackaged && process.argv.includes('--dev');
@@ -144,6 +186,8 @@ if (!hasSingleInstanceLock) {
     Menu.setApplicationMenu(null);
     powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
     createWindow();
+    registerTestModeIpc();
+    registerKioskIdentityIpc();
     updaterManager = createKioskUpdater({
       app,
       autoUpdater,
@@ -160,6 +204,13 @@ if (!hasSingleInstanceLock) {
     }
     powerSaveBlockerId = null;
     updaterManager?.dispose();
+    clearTimeout(testModeTimer);
+    testModeTimer = null;
+    Object.assign(testModeState, { enabled: false, enabledAt: null, expiresAt: null });
+    ipcMain.removeHandler('kiosk-test-mode:get-state');
+    ipcMain.removeHandler('kiosk-test-mode:set-state');
+    ipcMain.removeHandler('kiosk-identity:consume-custom-token');
+    kioskFirebaseCustomToken = null;
   });
 
   app.on('window-all-closed', requestQuit);

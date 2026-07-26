@@ -275,3 +275,11 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
  .manual-call-actions{grid-column:1/-1}
  .manual-call-heading>small{white-space:normal}
 }
+.test-mode-button{border:1px solid #929b95;background:#e6e9e7;color:#26312b;border-radius:12px;padding:10px 14px;font-weight:900;white-space:nowrap}
+.test-mode-button.enabled{border-color:#a64b00;background:#f28c18;color:#211306;box-shadow:0 0 0 3px rgba(242,140,24,.2)}
+.test-mode-connection{font-size:12px;font-weight:800;padding:7px 9px;border-radius:999px;white-space:nowrap}
+.test-mode-connection.connected{background:#d9f4e4;color:#075a2f}
+.test-mode-connection.waiting{background:#fff0c9;color:#795000}
+.test-mode-description{white-space:pre-line;line-height:1.7;color:#38312b}
+.test-mode-confirm{border:0;border-radius:12px;padding:13px 16px;background:#e87500;color:#fff;font-weight:900}
+.test-mode-retry{border:1px solid #bd6500;background:#fff3dd;color:#7a3b00;border-radius:10px;padding:8px 10px;font-weight:900}

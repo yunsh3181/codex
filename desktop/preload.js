@@ -4,6 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 const stateListeners = new Set();
 const openListeners = new Set();
+const testModeListeners = new Set();
 let operationalStateProvider = null;
 
 ipcRenderer.on('kiosk-updater:state', (_event, state) => {
@@ -15,6 +16,9 @@ ipcRenderer.on('kiosk-updater:open-admin', (_event, state) => {
 ipcRenderer.on('kiosk-updater:request-operational-state', (_event, requestId) => {
   const state = operationalStateProvider ? operationalStateProvider() : null;
   ipcRenderer.send('kiosk-updater:operational-state', requestId, state);
+});
+ipcRenderer.on('kiosk-test-mode:state', (_event, state) => {
+  for (const listener of testModeListeners) listener(state);
 });
 
 contextBridge.exposeInMainWorld('kioskUpdater', Object.freeze({
@@ -35,4 +39,18 @@ contextBridge.exposeInMainWorld('kioskUpdater', Object.freeze({
     if (typeof provider !== 'function') return;
     operationalStateProvider = provider;
   }
+}));
+
+contextBridge.exposeInMainWorld('kioskTestMode', Object.freeze({
+  getState: () => ipcRenderer.invoke('kiosk-test-mode:get-state'),
+  setState: state => ipcRenderer.invoke('kiosk-test-mode:set-state', state),
+  onState: listener => {
+    if (typeof listener !== 'function') return () => {};
+    testModeListeners.add(listener);
+    return () => testModeListeners.delete(listener);
+  }
+}));
+
+contextBridge.exposeInMainWorld('kioskIdentity', Object.freeze({
+  consumeCustomToken: () => ipcRenderer.invoke('kiosk-identity:consume-custom-token')
 }));
