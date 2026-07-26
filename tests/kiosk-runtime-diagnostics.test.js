@@ -77,7 +77,7 @@ test('diagnostic modal renders environment, flags, latest 30 logs and safe actio
   const entries = Array.from({ length: 35 }, (_, index) => ({ stage: `stage-${index}` }));
   const output = diagnosticsUi.render({
     entries,
-    environment: { appVersion: '1.2.5', electronVersion: '43.2.0', packaged: true },
+    environment: { appVersion: '1.2.6', electronVersion: '43.2.0', packaged: true },
     context: { projectId: 'papajohns-kiosk', storeId: 'store', kioskId: 'kiosk' },
     flags: { remoteModuleLoaded: true },
     currentStage: 'connected',
