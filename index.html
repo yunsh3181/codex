@@ -2277,16 +2277,10 @@ const kioskTestModeController=testModeApi.createController({
 });
 kioskTestModeController.start();
 const remoteTestModeApi=window.PJ_TEST_MODE_REMOTE||{createKioskChannel:()=>({start(){return Promise.resolve()},stop(){}})};
-const kioskRuntimeStoreId='pangyo2-techno-valley';
-const kioskRuntimeKioskId=localStorage.getItem('pjDeviceId')||'mobile-01';
-const kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
- db,
- firebase,
- controller:kioskTestModeController,
- storeId:kioskRuntimeStoreId,
- kioskId:kioskRuntimeKioskId,
- onStatus:status=>{if(status.phase==='error')console.warn('원격 테스트 모드 연결 실패',status.error)}
-});
+const kioskRuntimeStoreId=remoteTestModeApi.normalizeIdentity?.('pangyo2-techno-valley')||'pangyo2-techno-valley';
+const configuredKioskId=remoteTestModeApi.normalizeIdentity?.(localStorage.getItem('pjDeviceId'))||'';
+let kioskRuntimeKioskId=configuredKioskId||'mobile-01';
+let kioskRemoteTestMode=null;
 const kioskRuntimeAuth=window.PJ_KIOSK_RUNTIME_AUTH;
 let kioskRuntimeReconnectTimer=null;
 let kioskRuntimeConnected=false;
@@ -2302,8 +2296,19 @@ async function connectKioskRuntime(){
  kioskRuntimeReconnectTimer=null;
  console.info('[remote-test-mode][kiosk] authentication-attempt',{storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
  try{
-  const identity=await kioskRuntimeAuth.authenticate({firebase,storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
+  const identity=await kioskRuntimeAuth.authenticate({firebase});
+  kioskRuntimeKioskId=identity.kioskId;
   console.info('[remote-test-mode][kiosk] authentication-complete',identity);
+  if(configuredKioskId&&configuredKioskId!==identity.kioskId){
+   console.warn('[remote-test-mode][kiosk] configured-identity-ignored',{
+    configuredKioskId,authenticatedKioskId:identity.kioskId
+   })
+  }
+  kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
+   db,firebase,controller:kioskTestModeController,
+   storeId:identity.storeId,kioskId:identity.kioskId,
+   onStatus:status=>{if(status.phase==='error')console.warn('원격 테스트 모드 연결 실패',status.error)}
+  });
   await kioskRemoteTestMode.start();
   kioskRuntimeConnected=true;
   console.info('[remote-test-mode][kiosk] session-registration-complete',kioskRemoteTestMode.getIdentity())
@@ -2322,7 +2327,7 @@ window.addEventListener('online',connectKioskRuntime);
 window.addEventListener('pagehide',()=>{
  clearTimeout(kioskRuntimeReconnectTimer);
  window.removeEventListener('online',connectKioskRuntime);
- kioskRemoteTestMode.stop()
+ kioskRemoteTestMode?.stop()
 });
 function testModeBanner(){
  return isTestModeEnabled()?`<div class="testModeBanner" role="status">${t('ui.testMode.banner')}</div>`:''

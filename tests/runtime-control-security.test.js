@@ -111,5 +111,10 @@ test('kiosk authentication accepts only matching custom claims', async () => {
     }), {})
   });
   await assert.doesNotReject(authenticate({ firebase: makeFirebase(kiosk.token), storeId: STORE, kioskId: KIOSK }));
+  assert.deepEqual(
+    await authenticate({ firebase: makeFirebase({ role: 'kiosk', storeId: ` ${STORE.toUpperCase()} `, kioskId: ` ${KIOSK.toUpperCase()} ` }) }),
+    { uid: 'kiosk-principal', role: 'kiosk', storeId: STORE, kioskId: KIOSK },
+    'authenticated claims are the normalized runtime identity when local configuration is stale'
+  );
   await assert.rejects(authenticate({ firebase: makeFirebase(otherKiosk.token), storeId: STORE, kioskId: KIOSK }), /KIOSK_IDENTITY_MISMATCH/);
 });
