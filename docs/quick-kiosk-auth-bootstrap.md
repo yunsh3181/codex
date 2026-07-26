@@ -34,6 +34,12 @@ it in shell history, chat, tickets, screenshots, log files, GitHub, or source co
 
 ## 3. Bootstrap the Windows kiosk
 
+Before bootstrap, fully exit PapaJohns Kiosk. Open Windows Task Manager and confirm that
+no `PapaJohns-Kiosk.exe` process remains. Do not continue while an order or payment is in
+progress. The bootstrap script never terminates the application; if it finds the selected
+executable already running, or cannot safely verify the path of a same-named process, it
+stops before setting the token environment variable.
+
 From the checkout or a securely copied scripts directory on the kiosk:
 
 ```powershell
@@ -62,8 +68,9 @@ ACK if that is part of the site acceptance check.
 
 ## 5. Verify persistence
 
-Fully exit the kiosk. Start `PapaJohns-Kiosk.exe` normally, without the bootstrap script
-and without `PJ_KIOSK_FIREBASE_CUSTOM_TOKEN`. Confirm `authentication-complete` and the
+After confirming initial authentication, fully exit the kiosk and verify in Task Manager
+that `PapaJohns-Kiosk.exe` is gone. Start it normally, without the bootstrap script and
+without `PJ_KIOSK_FIREBASE_CUSTOM_TOKEN`. Confirm `authentication-complete` and the
 presence stages again. Diagnostics should show `credentialSource: firebase-persistence`
 and a current user.
 

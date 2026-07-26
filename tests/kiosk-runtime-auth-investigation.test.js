@@ -216,3 +216,39 @@ test('bootstrap tooling never persists credentials or includes service account m
   assert.match(generator, /EXPECTED_PROJECT_ID = 'papajohns-kiosk'/);
   assert.doesNotMatch(generator, /private_key|BEGIN PRIVATE KEY/);
 });
+
+test('bootstrap checks the selected executable process before setting any token environment', () => {
+  const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
+  const processCheck = powershell.indexOf('Get-Process -Name $processName');
+  const pathComparison = powershell.indexOf('[StringComparison]::OrdinalIgnoreCase');
+  const alreadyRunningError = powershell.indexOf('PapaJohns Kiosk is already running.');
+  const environmentSet = powershell.indexOf(
+    "[Environment]::SetEnvironmentVariable($environmentName, $plainToken, 'Process')"
+  );
+  const processStart = powershell.indexOf('Start-Process -FilePath $resolvedExecutablePath');
+
+  assert.ok(processCheck >= 0);
+  assert.ok(pathComparison > processCheck);
+  assert.ok(alreadyRunningError > pathComparison);
+  assert.ok(environmentSet > alreadyRunningError);
+  assert.ok(processStart > environmentSet);
+  assert.match(powershell, /path cannot be verified[\s\S]+run this bootstrap script again/);
+});
+
+test('running-process guard never starts or terminates the existing kiosk and always clears secrets', () => {
+  const powershell = fs.readFileSync(path.join(root, 'scripts', 'bootstrap-kiosk-auth.ps1'), 'utf8');
+  const guard = powershell.match(
+    /foreach \(\$runningProcess[\s\S]+?(?=\n    \[Environment\]::SetEnvironmentVariable)/
+  )?.[0] || '';
+
+  assert.match(guard, /throw 'PapaJohns Kiosk is already running\./);
+  assert.doesNotMatch(guard, /Start-Process/);
+  assert.doesNotMatch(powershell, /Stop-Process|taskkill/i);
+  assert.doesNotMatch(powershell, /SetEnvironmentVariable\([^)]*,\s*[^,]+,\s*['"](?:User|Machine)['"]/i);
+  assert.match(
+    powershell,
+    /\[Environment\]::SetEnvironmentVariable\(\$environmentName, \$null, 'Process'\)/
+  );
+  assert.match(powershell, /\$plainToken = \$null/);
+  assert.match(powershell, /ZeroFreeBSTR\(\$tokenPointer\)/);
+});

@@ -28,8 +28,33 @@ try {
         throw 'PapaJohns-Kiosk.exe was not found. Pass -ExecutablePath with the installed executable path.'
     }
 
+    $resolvedExecutablePath = [IO.Path]::GetFullPath(
+        (Resolve-Path -LiteralPath $ExecutablePath).Path
+    )
+    $processName = [IO.Path]::GetFileNameWithoutExtension($resolvedExecutablePath)
+    $runningProcesses = @(Get-Process -Name $processName -ErrorAction SilentlyContinue)
+    foreach ($runningProcess in $runningProcesses) {
+        try {
+            $runningPath = $runningProcess.Path
+        }
+        catch {
+            throw 'A PapaJohns Kiosk process is running, but its path cannot be verified. Fully exit the kiosk application and run this bootstrap script again.'
+        }
+        if ([string]::IsNullOrWhiteSpace($runningPath)) {
+            throw 'A PapaJohns Kiosk process is running, but its path cannot be verified. Fully exit the kiosk application and run this bootstrap script again.'
+        }
+        $resolvedRunningPath = [IO.Path]::GetFullPath($runningPath)
+        if ([string]::Equals(
+            $resolvedRunningPath,
+            $resolvedExecutablePath,
+            [StringComparison]::OrdinalIgnoreCase
+        )) {
+            throw 'PapaJohns Kiosk is already running. Fully exit the kiosk application and run this bootstrap script again.'
+        }
+    }
+
     [Environment]::SetEnvironmentVariable($environmentName, $plainToken, 'Process')
-    $process = Start-Process -FilePath $ExecutablePath -PassThru
+    $process = Start-Process -FilePath $resolvedExecutablePath -PassThru
     Write-Host "PapaJohns Kiosk started (process $($process.Id))."
 }
 finally {
