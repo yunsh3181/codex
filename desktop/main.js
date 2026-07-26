@@ -6,6 +6,7 @@ const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, screen, shell } = r
 const { autoUpdater } = require('electron-updater');
 const { createKioskUpdater } = require('./updater');
 const { createDiagnosticsLog } = require('./diagnostics-log');
+const { createBootstrapCredential } = require('./bootstrap-credential');
 
 const entryFile = path.resolve(__dirname, '..', 'index.html');
 let mainWindow = null;
@@ -13,7 +14,11 @@ let powerSaveBlockerId = null;
 let quitting = false;
 let updaterManager = null;
 let diagnosticsLog = null;
-let kioskFirebaseCustomToken = process.env.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN || null;
+const bootstrapCredential = createBootstrapCredential(
+  process.env.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN || null
+);
+const { bootstrapCredentialPresentAtStartup } = bootstrapCredential;
+delete process.env.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN;
 const TEST_MODE_DURATION_MS = 30 * 60 * 1000;
 const testModeState = { enabled: false, enabledAt: null, expiresAt: null };
 let testModeTimer = null;
@@ -49,10 +54,15 @@ function registerTestModeIpc() {
 function registerKioskIdentityIpc() {
   ipcMain.removeHandler('kiosk-identity:consume-custom-token');
   ipcMain.handle('kiosk-identity:consume-custom-token', event => {
-    if (!mainWindow || event.sender !== mainWindow.webContents) return null;
-    const token = kioskFirebaseCustomToken;
-    kioskFirebaseCustomToken = null;
-    return token;
+    const senderValid = Boolean(mainWindow && event.sender === mainWindow.webContents);
+    const result = bootstrapCredential.consume(senderValid);
+    appendMainDiagnostic('bootstrap-credential-consume', {
+      bootstrapCredentialConsumeRequested: result.bootstrapCredentialConsumeRequested,
+      bootstrapCredentialPresentAtConsume: result.bootstrapCredentialPresentAtConsume,
+      bootstrapCredentialConsumed: result.bootstrapCredentialConsumed,
+      senderValid: result.senderValid
+    });
+    return result.token;
   });
 }
 
@@ -72,7 +82,8 @@ function diagnosticEnvironment() {
     chromiumVersion: process.versions.chrome || null,
     nodeVersion: process.versions.node || null,
     packaged: app.isPackaged,
-    logPath: diagnosticsLog?.logPath || null
+    logPath: diagnosticsLog?.logPath || null,
+    ...bootstrapCredential.diagnostics()
   };
 }
 
@@ -277,6 +288,9 @@ if (!hasSingleInstanceLock) {
   app.whenReady().then(() => {
     diagnosticsLog = createDiagnosticsLog({ userDataPath: app.getPath('userData') });
     appendMainDiagnostic('app-start');
+    appendMainDiagnostic('bootstrap-credential-detected', {
+      bootstrapCredentialPresentAtStartup
+    });
     Menu.setApplicationMenu(null);
     powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
     registerDiagnosticsIpc();
@@ -311,7 +325,7 @@ if (!hasSingleInstanceLock) {
     ipcMain.removeAllListeners('kiosk-diagnostics:get-environment-sync');
     ipcMain.removeHandler('kiosk-diagnostics:append');
     ipcMain.removeHandler('kiosk-diagnostics:open-log');
-    kioskFirebaseCustomToken = null;
+    bootstrapCredential.clear();
   });
 
   app.on('window-all-closed', requestQuit);

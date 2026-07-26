@@ -2428,10 +2428,11 @@ async function connectKioskRuntime(){
   kioskRuntimeRetryCount=0;
  }catch(error){
   const currentStage=window.PJ_KIOSK_DIAGNOSTICS?.snapshot().currentStage;
-  if(currentStage==='authentication-attempt'){
+  if(error?.authDiagnostics){
    window.PJ_KIOSK_DIAGNOSTICS?.record('authentication-failed',{
     source:'kiosk-runtime-auth.js:authenticate',
-    ...(error?.authDiagnostics||{}),
+    authDiagnostics:error.authDiagnostics,
+    ...error.authDiagnostics,
     ...window.PJ_KIOSK_DIAGNOSTICS.errorDetails(error)
    })
   }else if(!['presence-write-failed','heartbeat-start-failed','channel-start-failed','channel-create-failed'].includes(currentStage)){

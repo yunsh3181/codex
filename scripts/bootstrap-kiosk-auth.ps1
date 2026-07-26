@@ -7,6 +7,8 @@ $ErrorActionPreference = 'Stop'
 $environmentName = 'PJ_KIOSK_FIREBASE_CUSTOM_TOKEN'
 $secureToken = Read-Host 'Paste the Firebase Custom Token (input is hidden)' -AsSecureString
 $tokenPointer = [IntPtr]::Zero
+$plainToken = $null
+$processStartInfo = $null
 
 try {
     $tokenPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureToken)
@@ -53,18 +55,29 @@ try {
         }
     }
 
-    [Environment]::SetEnvironmentVariable($environmentName, $plainToken, 'Process')
-    $process = Start-Process -FilePath $resolvedExecutablePath -PassThru
+    $processStartInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $processStartInfo.FileName = $resolvedExecutablePath
+    $processStartInfo.UseShellExecute = $false
+    $processStartInfo.WorkingDirectory = [IO.Path]::GetDirectoryName($resolvedExecutablePath)
+    $processStartInfo.EnvironmentVariables[$environmentName] = $plainToken
+    $process = [System.Diagnostics.Process]::Start($processStartInfo)
+    if ($null -eq $process) {
+        throw 'PapaJohns Kiosk could not be started.'
+    }
+    [void]$processStartInfo.EnvironmentVariables.Remove($environmentName)
+    $plainToken = $null
     Write-Host "PapaJohns Kiosk started (process $($process.Id))."
 }
 finally {
-    [Environment]::SetEnvironmentVariable($environmentName, $null, 'Process')
+    if ($null -ne $processStartInfo) {
+        [void]$processStartInfo.EnvironmentVariables.Remove($environmentName)
+    }
     $plainToken = $null
     if ($tokenPointer -ne [IntPtr]::Zero) {
         [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPointer)
     }
 }
 
-Write-Host 'The temporary process environment credential has been removed.'
+Write-Host 'The temporary child process credential has been removed from bootstrap memory.'
 Write-Host 'Confirm authentication-complete, channel-created, presence-write-success, heartbeat-started, and connected in diagnostics.'
 Write-Host 'Then fully exit and restart the kiosk without this script to verify Firebase Auth persistence.'

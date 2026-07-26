@@ -47,15 +47,19 @@ powershell -ExecutionPolicy Bypass -File scripts\bootstrap-kiosk-auth.ps1
 ```
 
 Paste the token into the hidden prompt. The script finds the electron-builder executable
-at `%LOCALAPPDATA%\Programs\PapaJohns-Kiosk\PapaJohns-Kiosk.exe`, starts it with the
-credential in the current process environment, and immediately removes that environment
-value. It does not write the token to a file, Registry, user environment, or system
-environment. For a nonstandard installation, pass `-ExecutablePath`.
+at `%LOCALAPPDATA%\Programs\PapaJohns-Kiosk\PapaJohns-Kiosk.exe`, starts it directly with
+`UseShellExecute = false`, and places the credential only in that child's
+`ProcessStartInfo.EnvironmentVariables`. It then removes the value from the start
+information and bootstrap memory. It does not put the token in command-line arguments or
+write it to a file, Registry, user environment, or system environment. For a nonstandard
+installation, pass `-ExecutablePath`.
 
 ## 4. Verify initial authentication and presence
 
 Open kiosk diagnostics and confirm these stages, without a token or UID appearing:
 
+- `bootstrap-credential-detected` with `bootstrapCredentialPresentAtStartup: true`
+- `bootstrap-credential-consume` with requested, present, consumed, and valid sender booleans
 - `authentication-complete`
 - `channel-created`
 - `presence-write-success`
