@@ -2981,7 +2981,7 @@ function buildCartDisplayModel(order){
 }
 function cartCategoryHtml(title,rows,showUnitQty=false){
  if(!rows.length)return '';
- return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'}"><span>${row.name} ${showUnitQty||row.qty>1?t('unit.quantity',{count:row.qty}):''}</span>${row.included?`<strong class="cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'':`<strong>${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
+ return `<section class="cartCategory"><h2>${title}</h2>${rows.map(row=>`<div class="${row.added?'cartDetailRow':'cartBaseRow'} cartItemSummary"><span class="cartItemName">${row.name}</span><span class="cartItemQuantity">×${row.qty}</span><span class="cartItemFlexibleSpace" aria-hidden="true"></span>${row.included?`<strong class="cartItemPrice cartIncludedLabel">${t('review.includedInSet')}</strong>`:row.amount===null?'<span class="cartItemPrice" aria-hidden="true"></span>':`<strong class="cartItemPrice">${cartMoney(row.amount,row.added)}</strong>`}</div>`).join('')}</section>`
 }
 function cartOrderDetailHtml(model){
  const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),

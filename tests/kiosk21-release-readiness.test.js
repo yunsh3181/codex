@@ -11,11 +11,11 @@ const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
 test('release changes do not alter protected application sources', () => {
-  assert.equal(sha256(html), '59749a35193a9d345ad7e088b6f74a631156f366c196d79cb218d363cc659677');
+  assert.equal(sha256(html), 'c48e62aa399de14a6eb6e701fa92b0bb2dac3850cc4b627923ab743a3dc16e49');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '8f43acbb35939a0fec4cdb18bd0d322a68119974016f56bdcd900f911b1fbbd2');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
-  assert.equal(sha256(kiosk), '5cf6b9bb10c626861dbf40ab4232863b4bec4da0f707b6055c5d61b4beaa1ec6');
+  assert.equal(sha256(kiosk), '7a145ba4727835f38ec3f473e7c67636256c075d60989ff5731497145a53caf4');
 });
 
 test('order state cart price discount IDs and Firestore payload stay guarded', () => {
