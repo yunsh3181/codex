@@ -100,8 +100,11 @@ test('kiosk reports listener success when the first command snapshot is received
       await kiosk.start();
       transport.emitSnapshot('runtimeControls/pangyo2-techno-valley/commands/mobile-01');
       await flush();
-      const success = entries.find(([message]) => message === '[remote-test-mode][kiosk] command-listener-first-snapshot');
-      assert.ok(success);
+      transport.emitSnapshot('runtimeControls/pangyo2-techno-valley/commands/mobile-01');
+      await flush();
+      const successLogs = entries.filter(([message]) => message === '[remote-test-mode][kiosk] command-listener-first-snapshot');
+      assert.equal(successLogs.length, 1, 'listener 인스턴스의 최초 snapshot 성공 로그는 한 번만 기록한다');
+      const [success] = successLogs;
       assert.deepEqual(success[1], {
         exists: false,
         path: 'runtimeControls/pangyo2-techno-valley/commands/mobile-01',
