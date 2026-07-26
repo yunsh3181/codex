@@ -2290,17 +2290,30 @@ const kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
 const kioskRuntimeAuth=window.PJ_KIOSK_RUNTIME_AUTH;
 let kioskRuntimeReconnectTimer=null;
 let kioskRuntimeConnected=false;
+console.info('[remote-test-mode][kiosk] app-start',{
+ storeId:kioskRuntimeStoreId,
+ kioskId:kioskRuntimeKioskId,
+ hasAuthModule:Boolean(kioskRuntimeAuth?.authenticate),
+ hasIdentityBridge:Boolean(window.kioskIdentity?.consumeCustomToken)
+});
 async function connectKioskRuntime(){
  if(kioskRuntimeConnected||!kioskRuntimeAuth?.authenticate)return;
  clearTimeout(kioskRuntimeReconnectTimer);
  kioskRuntimeReconnectTimer=null;
+ console.info('[remote-test-mode][kiosk] authentication-attempt',{storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
  try{
-  await kioskRuntimeAuth.authenticate({firebase,storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
+  const identity=await kioskRuntimeAuth.authenticate({firebase,storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
+  console.info('[remote-test-mode][kiosk] authentication-complete',identity);
   await kioskRemoteTestMode.start();
   kioskRuntimeConnected=true;
-  console.info('kiosk session registered')
+  console.info('[remote-test-mode][kiosk] session-registration-complete',kioskRemoteTestMode.getIdentity())
  }catch(error){
-  console.warn('kiosk session authentication failed',error.message);
+  console.warn('[remote-test-mode][kiosk] session-registration-failed',{
+   storeId:kioskRuntimeStoreId,
+   kioskId:kioskRuntimeKioskId,
+   code:error?.code||null,
+   message:error?.message||String(error)
+  });
   kioskRuntimeReconnectTimer=setTimeout(connectKioskRuntime,15000)
  }
 }
