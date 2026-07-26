@@ -90,6 +90,7 @@
     let started = false;
     let presenceWriteCount = 0;
     let commandFirstSnapshotLogged = false;
+    let lastPresenceSuccessAt = null;
     storeId = normalizeIdentity(storeId);
     kioskId = normalizeIdentity(kioskId);
     sessionId = normalizeIdentity(sessionId);
@@ -109,7 +110,8 @@
     async function publishPresence() {
       if (stopped) return;
       const writeType = presenceWriteCount === 0 ? 'registration' : 'heartbeat';
-      log('kiosk', `${writeType}-start`, {
+      const eventPrefix = writeType === 'registration' ? 'presence-write' : 'heartbeat-write';
+      log('kiosk', `${eventPrefix}-start`, {
         path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
         storeId,
         kioskId,
@@ -121,24 +123,51 @@
       try {
         await presenceRef.set(presencePayload(), { merge: false });
       } catch (error) {
-        log('kiosk', `${writeType}-failed`, {
+        log('kiosk', `${eventPrefix}-failed`, {
+          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
           storeId,
           kioskId,
           sessionId,
+          name: error?.name || 'Error',
           code: error?.code || null,
           message: error?.message || String(error)
+        });
+        onStatus({
+          phase: 'failed',
+          stage: writeType === 'registration' ? 'presence-write-started' : 'heartbeat',
+          error: {
+            name: error?.name || 'Error',
+            code: error?.code || null,
+            message: error?.message || String(error)
+          },
+          storeId,
+          kioskId,
+          sessionId,
+          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          presenceWriteCount,
+          lastSuccessAt: lastPresenceSuccessAt
         });
         throw error;
       }
       presenceWriteCount += 1;
-      log('kiosk', `${writeType}-complete`, {
+      lastPresenceSuccessAt = now();
+      log('kiosk', `${eventPrefix}-success`, {
         path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
         storeId,
         kioskId,
         sessionId,
         presenceWriteCount
       });
-      onStatus({ phase: 'connected', kioskId, sessionId });
+      onStatus({
+        phase: writeType === 'registration' ? 'presence-write-succeeded' : 'connected',
+        stage: writeType === 'registration' ? 'presence-write-succeeded' : 'connected',
+        storeId,
+        kioskId,
+        sessionId,
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        presenceWriteCount,
+        lastSuccessAt: lastPresenceSuccessAt
+      });
     }
 
     async function acknowledge(command, applied) {
@@ -207,7 +236,13 @@
       stopped = false;
       commandFirstSnapshotLogged = false;
       log('kiosk', 'channel-start', { storeId, kioskId, sessionId });
-      heartbeat = setInterval(() => publishPresence().catch(error => onStatus({ phase: 'error', error })), PRESENCE_INTERVAL_MS);
+      try {
+        await publishPresence();
+      } catch (error) {
+        started = false;
+        stopped = true;
+        throw error;
+      }
       log('kiosk', 'command-listener-connecting', {
         path: `runtimeControls/${storeId}/commands/${kioskId}`,
         storeId,
@@ -247,7 +282,30 @@
           sessionId
         })).catch(error => onStatus({ phase: 'error', error }));
       });
-      await publishPresence().catch(error => onStatus({ phase: 'error', error }));
+      heartbeat = setInterval(() => publishPresence().catch(() => {}), PRESENCE_INTERVAL_MS);
+      log('kiosk', 'heartbeat-started', {
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId,
+        intervalMs: PRESENCE_INTERVAL_MS
+      });
+      onStatus({
+        phase: 'connected',
+        stage: 'connected',
+        storeId,
+        kioskId,
+        sessionId,
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        presenceWriteCount,
+        lastSuccessAt: lastPresenceSuccessAt
+      });
+      log('kiosk', 'connected', {
+        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId
+      });
       return { storeId, kioskId, sessionId };
     }
 

@@ -308,7 +308,7 @@ test('expired requests and commands for an old kiosk session are rejected after 
   restartedController.dispose();
 });
 
-test('a failed initial presence write does not prevent heartbeat recovery or create duplicate timers', async () => {
+test('a failed initial presence write rejects startup and a retry registers without duplicate listeners', async () => {
   const transport = fakeFirestore();
   const controller = createController({ role: 'kiosk', channelFactory: () => null, runtime: null });
   const originalCollection = transport.db.collection;
@@ -329,7 +329,12 @@ test('a failed initial presence write does not prevent heartbeat recovery or cre
                 const originalSet = ref.set;
                 ref.set = async value => {
                   presenceAttempts += 1;
-                  if (presenceAttempts === 1) throw new Error('offline');
+                  if (presenceAttempts === 1) {
+                    throw Object.assign(new Error('write denied'), {
+                      name: 'FirebaseError',
+                      code: 'permission-denied'
+                    });
+                  }
                   return originalSet(value);
                 };
               }
@@ -349,13 +354,28 @@ test('a failed initial presence write does not prevent heartbeat recovery or cre
     };
   };
   const statuses = [];
-  const kiosk = createKioskChannel({ ...transport, controller, onStatus: value => statuses.push(value.phase) });
+  const kiosk = createKioskChannel({ ...transport, controller, onStatus: value => statuses.push(value) });
+  await assert.rejects(kiosk.start(), /write denied/);
+  assert.deepEqual(statuses.at(-1), {
+    phase: 'failed',
+    stage: 'presence-write-started',
+    error: {
+      name: 'FirebaseError',
+      code: 'permission-denied',
+      message: 'write denied'
+    },
+    storeId: 'pangyo2-techno-valley',
+    kioskId: 'mobile-01',
+    sessionId: kiosk.getIdentity().sessionId,
+    path: 'runtimeControls/pangyo2-techno-valley/kiosks/mobile-01',
+    presenceWriteCount: 0,
+    lastSuccessAt: null
+  });
   await kiosk.start();
-  await kiosk.start();
-  assert.equal(statuses.includes('error'), true);
+  assert.equal(statuses.some(status => status.phase === 'failed'), true);
   assert.equal(commandSubscriptions, 1, 'start is idempotent');
-  await kiosk.publishPresence();
-  assert.equal(statuses.at(-1), 'connected');
+  assert.equal(statuses.at(-1).phase, 'connected');
+  assert.equal(presenceAttempts, 2);
   kiosk.stop();
   controller.dispose();
 });

@@ -179,6 +179,7 @@ function renderTestModeDiagnostics(diagnostics=adminTestModeRemote?.getStatus?.(
  testModeDiagnostics.textContent=[
   `storeId: ${displayText(value.storeId)}`,
   `kioskId: ${displayText(value.kioskId)}`,
+  `Firebase projectId: ${displayText(typeof firebase.app==='function'?firebase.app().options.projectId:firebaseConfig.projectId)}`,
   `presence 경로: ${displayText(value.path)}`,
   `활성 세션 수: ${value.activeSessionCount??0}`,
   `선택 sessionId: ${displayText(value.selectedSessionId)}`,
