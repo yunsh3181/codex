@@ -20,6 +20,10 @@ body[data-step="home"] .kioskAppVersion {
   color: #49443e;
 }
 
+body[data-step="language"] .kioskAppVersion {
+  z-index: 56;
+}
+
 body[data-step="business-hours"] .kioskAppVersion {
   color: #fff;
 }
