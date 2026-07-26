@@ -10,6 +10,7 @@
   const ACK_TIMEOUT_MS = 10000;
   const PRESENCE_INTERVAL_MS = 15000;
   const PRESENCE_STALE_MS = 45000;
+  const PRESENCE_CHECK_INTERVAL_MS = 5000;
 
   function id(prefix) {
     const uuid = globalThis.crypto?.randomUUID?.();
@@ -39,6 +40,7 @@
     let unsubscribeController = null;
     let lastCommand = null;
     let stopped = false;
+    let started = false;
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -96,8 +98,9 @@
     }
 
     async function start() {
+      if (started) return { storeId, kioskId, sessionId };
+      started = true;
       stopped = false;
-      await publishPresence();
       heartbeat = setInterval(() => publishPresence().catch(error => onStatus({ phase: 'error', error })), PRESENCE_INTERVAL_MS);
       unsubscribe = commandRef.onSnapshot(snapshot => receive(snapshot).catch(error => onStatus({ phase: 'error', error })), error => onStatus({ phase: 'error', error }));
       unsubscribeController = controller.subscribe((state, meta) => {
@@ -110,10 +113,13 @@
           sessionId
         })).catch(error => onStatus({ phase: 'error', error }));
       });
+      await publishPresence().catch(error => onStatus({ phase: 'error', error }));
       return { storeId, kioskId, sessionId };
     }
 
     function stop() {
+      if (!started) return;
+      started = false;
       stopped = true;
       clearInterval(heartbeat);
       heartbeat = null;
@@ -141,6 +147,8 @@
     let presenceUnsubscribe = null;
     let commandUnsubscribe = null;
     let ackTimer = null;
+    let presenceTimer = null;
+    let latestPresence = null;
     let targetSessionId = null;
     let pending = null;
     let currentPhase = 'idle';
@@ -150,6 +158,21 @@
     function emit(phase, extra = {}) {
       currentPhase = phase;
       onStatus({ phase, kioskId, targetSessionId, requestId: pending?.requestId || null, ...extra });
+    }
+
+    function refreshPresence() {
+      const presence = latestPresence || {};
+      const heartbeatAt = timestampMillis(presence.heartbeatAt);
+      if (presence.kioskId === kioskId && presence.storeId === storeId && presence.role === 'kiosk' &&
+        typeof presence.sessionId === 'string' && heartbeatAt && now() - heartbeatAt <= presenceStaleMs) {
+        const changed = targetSessionId !== presence.sessionId;
+        targetSessionId = presence.sessionId;
+        if (!pending && (changed || currentPhase !== 'connected')) emit('connected');
+      } else {
+        const changed = targetSessionId !== null;
+        targetSessionId = null;
+        if (!pending && (changed || currentPhase !== 'waiting')) emit('waiting');
+      }
     }
 
     function watchAck() {
@@ -229,27 +252,23 @@
 
     async function start() {
       presenceUnsubscribe = presenceRef.onSnapshot(snapshot => {
-        const presence = snapshot.exists ? snapshot.data() || {} : {};
-        const heartbeatAt = timestampMillis(presence.heartbeatAt);
-        if (presence.kioskId === kioskId && presence.storeId === storeId && presence.role === 'kiosk' &&
-          typeof presence.sessionId === 'string' && heartbeatAt && now() - heartbeatAt <= presenceStaleMs) {
-          targetSessionId = presence.sessionId;
-          if (!pending) emit('connected');
-        } else {
-          targetSessionId = null;
-          if (!pending) emit('waiting');
-        }
+        latestPresence = snapshot.exists ? snapshot.data() || {} : null;
+        refreshPresence();
       }, error => emit('error', { error }));
+      presenceTimer = setInterval(refreshPresence, Math.min(PRESENCE_CHECK_INTERVAL_MS, presenceStaleMs));
       watchAck();
     }
 
     function stop() {
       clearTimeout(ackTimer);
       ackTimer = null;
+      clearInterval(presenceTimer);
+      presenceTimer = null;
       presenceUnsubscribe?.();
       commandUnsubscribe?.();
       presenceUnsubscribe = commandUnsubscribe = null;
       targetSessionId = null;
+      latestPresence = null;
       pending = null;
     }
 
@@ -269,6 +288,7 @@
     ACK_TIMEOUT_MS,
     PRESENCE_INTERVAL_MS,
     PRESENCE_STALE_MS,
+    PRESENCE_CHECK_INTERVAL_MS,
     timestampMillis,
     createKioskChannel,
     createAdminChannel
