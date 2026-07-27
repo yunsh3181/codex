@@ -11,17 +11,14 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const compact = value => value.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, '');
 const css = compact(kiosk);
 
-test('kiosk app is the single native vertical touch scroller with a visible scrollbar', () => {
+test('kiosk app remains the single native vertical touch scroller', () => {
   assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overflow-x:hidden;[^}]*overflow-y:hidden;/);
   assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overscroll-behavior-x:none;/);
   assert.match(css, /html\[data-layout="kiosk21"\]body\{[^}]*height:100%;[^}]*min-height:0;[^}]*overflow-y:hidden;/);
   assert.match(css, /html\[data-layout="kiosk21"\]#main\.app\{[^}]*height:100dvh;[^}]*min-height:0;[^}]*overflow-x:hidden;[^}]*overflow-y:auto;/);
-  assert.match(css, /html\[data-layout="kiosk21"\]#main\.app\{[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;[^}]*scrollbar-color:#d71920#e5e7eb;[^}]*scrollbar-gutter:stable;[^}]*scrollbar-width:auto;/);
-  assert.match(kiosk, /#main\.app::\-webkit-scrollbar\s*\{[\s\S]*?width: 28px/);
-  assert.match(kiosk, /#main\.app::\-webkit-scrollbar-track\s*\{[\s\S]*?background: #e5e7eb/);
-  assert.match(kiosk, /#main\.app::\-webkit-scrollbar-thumb\s*\{[\s\S]*?min-height: 96px;[\s\S]*?border: 2px solid transparent;[\s\S]*?border-radius: 14px;[\s\S]*?background: #d71920;[\s\S]*?background-clip: padding-box/);
-  assert.match(kiosk, /#main\.app::\-webkit-scrollbar-thumb:hover\s*\{[\s\S]*?background-color: #b5121b/);
-  assert.doesNotMatch(css, /#main\.app::\-webkit-scrollbar\{display:none/);
+  assert.match(css, /html\[data-layout="kiosk21"\]#main\.app\{[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;[^}]*scrollbar-width:none;/);
+  assert.match(kiosk, /#main\.app::\-webkit-scrollbar\s*\{[\s\S]*?width: 0;[\s\S]*?height: 0/);
+  assert.doesNotMatch(html, /(?:wheel|touchmove)[\s\S]{0,160}preventDefault/);
 });
 
 test('touch scrolling remains kiosk-only and leaves other device layers alone', () => {

@@ -30,7 +30,7 @@ test('home uses exact 1.15 card multiplier and rectangular promos',()=>{
   assert.ok(compact.includes('height:clamp(253px,18.975vh,365.7px)!important'));
   assert.ok(compact.includes('aspect-ratio:16/9!important'));
   assert.ok(compact.includes('.heroPromoStrip{grid-auto-rows:auto!important;align-items:start!important'));
-  assert.match(html,/device-kiosk21\.css\?v=kiosk-scrollbar-v1\.2\.10/);
+  assert.match(html,/device-kiosk21\.css\?v=kiosk-scroll-indicator-v1\.2\.11/);
   assert.doesNotMatch(css,/html\[data-layout="kiosk21"\][^{]*\.heroPromo[^{]*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/);
 });
 
