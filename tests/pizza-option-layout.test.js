@@ -44,12 +44,15 @@ test('three and four person sets use compact equal composition cards with visibl
   assert.match(html,/html\[data-layout\] body\[data-step="mode"\][\s\S]*?:is\(\.setOptionCombined-3\.setOptionCombined-3,\.setOptionCombined-4\.setOptionCombined-4\)[\s\S]*?\.setCrustCard\{[\s\S]*?min-height:112px!important/);
 });
 
-test('three and four person sets show the half-and-half notice without changing eligibility logic',()=>{
-  assert.match(html,/\$\{state\.set>=3\?`<aside class="halfGuideNotice">/);
+test('half-and-half guidance is modal-only and keeps eligibility logic unchanged',()=>{
+  assert.doesNotMatch(html,/<aside class="halfGuideNotice">/);
+  assert.doesNotMatch(html,/body\[data-step="mode"\] \.halfGuideNotice/);
+  assert.match(html,/if\(state\.modal==='halfGuide'\)return `<div class="backdrop"><div class="modal halfGuideModal" role="dialog" aria-modal="true" aria-labelledby="halfGuideTitle">/);
   for(const key of ['halfGuideTitle','halfGuideBase','halfGuideUnavailable','halfGuideUnavailableItems','halfGuideJohns']){
     assert.ok(html.includes(`ui.mode.${key}`),key);
   }
-  assert.match(html,/\.halfGuideNotice\{[\s\S]*?font-size:clamp\(18px,2\.1vw,22px\)!important;[\s\S]*?line-height:1\.45!important/);
+  assert.match(html,/\.halfGuideModal\{[\s\S]*?width:min\(680px,100%\)!important;[\s\S]*?font-size:clamp\(18px,2\.1vw,24px\)!important/);
+  assert.match(html,/autofocus onclick="confirmHalfGuide\(\)"/);
   assert.match(html,/function halfFirstEligible\(id\)\{return !\['P004','P007','P008','P011'\]\.includes\(id\)\}/);
   assert.match(html,/function halfAllowed\(first,second\)\{/);
 });

@@ -1,8 +1,8 @@
 html[data-layout="phone"] {
   --phone-header-height: 72px;
   --phone-header-padding: 6px 10px;
-  --phone-progress-padding: 8px 9px;
-  --phone-progress-gap: 6px;
+  --phone-progress-padding: 3px 5px 2px;
+  --phone-progress-gap: 0;
   --phone-stage-padding-top: 20px;
   --phone-stage-padding-inline: 10px;
 }
@@ -14,9 +14,10 @@ html[data-layout="phone"] .head {
 
 html[data-layout="phone"] .progress {
   top: var(--phone-header-height) !important;
-  min-height: 82px;
-  padding: 7px 8px 6px !important;
-  gap: 0 !important;
+  height: 52px;
+  min-height: 52px;
+  padding: var(--phone-progress-padding) !important;
+  gap: var(--phone-progress-gap) !important;
   align-items: flex-start;
   overflow: hidden;
 }
@@ -26,16 +27,16 @@ html[data-layout="phone"] .progress .progressStep {
   display: grid;
   flex: 1 1 20%;
   min-width: 0;
-  min-height: 68px;
+  min-height: 44px;
   padding: 0 2px !important;
-  grid-template-rows: 32px auto;
+  grid-template-rows: 24px auto;
   place-items: start center;
-  gap: 4px;
+  gap: 1px;
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   color: #66706a;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 850;
   line-height: 1.12;
   overflow: visible;
@@ -46,14 +47,14 @@ html[data-layout="phone"] .progress .progressStep::before {
   position: relative;
   z-index: 2;
   display: grid;
-  width: 30px;
-  height: 30px;
+  width: 22px;
+  height: 22px;
   place-items: center;
   border: 2px solid #cbd1cd;
   border-radius: 50%;
   background: #f2f4f2;
   color: #69716c;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 950;
 }
 
@@ -69,9 +70,9 @@ html[data-layout="phone"] .progress .progressStep:not(:last-child)::after {
   content: "";
   position: absolute;
   z-index: 1;
-  top: 14px;
-  left: calc(50% + 15px);
-  width: calc(100% - 30px);
+  top: 10px;
+  left: calc(50% + 11px);
+  width: calc(100% - 22px);
   height: 2px;
   background: #d7dcd8;
 }
@@ -96,9 +97,9 @@ html[data-layout="phone"] .progress .progressStep.current::before {
 html[data-layout="phone"] .progress .progressStep.completed .uiIcon {
   position: absolute;
   z-index: 3;
-  top: 7px;
-  width: 16px;
-  height: 16px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
   color: #fff;
 }
 
