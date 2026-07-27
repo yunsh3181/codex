@@ -2346,6 +2346,9 @@ async function connectKioskRuntime(){
  kioskRuntimeConnecting=true;
  clearTimeout(kioskRuntimeReconnectTimer);
  kioskRuntimeReconnectTimer=null;
+ console.info('[RUNTIME] authentication-start',{
+  storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId,projectId:kioskFirebaseProjectId
+ });
  console.info('[remote-test-mode][kiosk] authentication-attempt',{storeId:kioskRuntimeStoreId,kioskId:kioskRuntimeKioskId});
  window.PJ_KIOSK_DIAGNOSTICS?.record('connect-runtime-attempt',{source:'index.html:connectKioskRuntime'});
  window.PJ_KIOSK_DIAGNOSTICS?.record('authentication-attempt',{source:'index.html:connectKioskRuntime'});
@@ -2361,6 +2364,11 @@ async function connectKioskRuntime(){
   console.info('[remote-test-mode][kiosk] authentication-complete',{
    role:identity.role,storeId:identity.storeId,kioskId:identity.kioskId,projectId:kioskFirebaseProjectId
   });
+  console.info('[RUNTIME] authentication-success',{
+   uid:identity.uid,
+   claims:{role:identity.role,storeId:identity.storeId,kioskId:identity.kioskId},
+   projectId:kioskFirebaseProjectId
+  });
   if(configuredKioskId&&configuredKioskId!==identity.kioskId){
    console.warn('[remote-test-mode][kiosk] configured-identity-ignored',{
     configuredKioskId,authenticatedKioskId:identity.kioskId
@@ -2370,6 +2378,10 @@ async function connectKioskRuntime(){
    kioskRemoteTestMode=remoteTestModeApi.createKioskChannel({
     db,firebase,controller:kioskTestModeController,
     storeId:identity.storeId,kioskId:identity.kioskId,
+    authContext:{
+     uid:identity.uid,
+     claims:{role:identity.role,storeId:identity.storeId,kioskId:identity.kioskId}
+    },
     onDiagnostic:diagnostic=>{
      const diagnosticStages={
       'presence-write-started':'presence-write-start',

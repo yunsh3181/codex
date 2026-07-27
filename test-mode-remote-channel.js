@@ -16,6 +16,10 @@
     globalThis.console?.info?.(`[remote-test-mode][${scope}] ${event}`, details);
   }
 
+  function runtimeLog(event, details = {}) {
+    globalThis.console?.info?.(`[RUNTIME] ${event}`, details);
+  }
+
   function id(prefix) {
     const uuid = globalThis.crypto?.randomUUID?.();
     return uuid ? `${prefix}-${uuid}` : `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -79,6 +83,7 @@
     storeId = STORE_ID,
     kioskId = DEFAULT_KIOSK_ID,
     sessionId = id('session'),
+    authContext = {},
     now = () => Date.now(),
     onStatus = () => {},
     onDiagnostic = () => {}
@@ -97,6 +102,15 @@
     sessionId = normalizeIdentity(sessionId);
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
+    const presencePath = `runtimeControls/${storeId}/kiosks/${kioskId}`;
+    const safeAuthContext = {
+      uid: authContext.uid || null,
+      claims: {
+        role: authContext.claims?.role || null,
+        storeId: authContext.claims?.storeId || null,
+        kioskId: authContext.claims?.kioskId || null
+      }
+    };
 
     function presencePayload() {
       return {
@@ -112,8 +126,15 @@
       if (stopped) return;
       const writeType = presenceWriteCount === 0 ? 'registration' : 'heartbeat';
       const eventPrefix = writeType === 'registration' ? 'presence-write' : 'heartbeat-write';
+      runtimeLog(`${eventPrefix}-start`, {
+        operation: 'setDoc',
+        path: presencePath,
+        storeId,
+        kioskId,
+        presenceWriteCount
+      });
       log('kiosk', `${eventPrefix}-start`, {
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         storeId,
         kioskId,
         sessionId,
@@ -124,21 +145,35 @@
       onDiagnostic({
         stage: writeType === 'registration' ? 'presence-write-started' : 'heartbeat',
         storeId, kioskId, sessionId,
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         presenceWriteCount
       });
       try {
         await presenceRef.set(presencePayload(), { merge: false });
       } catch (error) {
+        runtimeLog(`${eventPrefix}-failed`, {
+          error: {
+            code: error?.code || null,
+            message: error?.message || String(error)
+          },
+          currentUser: {
+            uid: safeAuthContext.uid
+          },
+          claims: safeAuthContext.claims,
+          storeId,
+          kioskId,
+          documentPath: presencePath,
+          operation: 'setDoc',
+        });
         onDiagnostic({
           stage: writeType === 'registration' ? 'presence-write-failed' : 'heartbeat-write-failed',
           error,
           storeId, kioskId, sessionId,
-          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          path: presencePath,
           presenceWriteCount
         });
         log('kiosk', `${eventPrefix}-failed`, {
-          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          path: presencePath,
           storeId,
           kioskId,
           sessionId,
@@ -157,7 +192,7 @@
           storeId,
           kioskId,
           sessionId,
-          path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+          path: presencePath,
           presenceWriteCount,
           lastSuccessAt: lastPresenceSuccessAt
         });
@@ -165,8 +200,15 @@
       }
       presenceWriteCount += 1;
       lastPresenceSuccessAt = now();
+      runtimeLog(`${eventPrefix}-success`, {
+        operation: 'setDoc',
+        path: presencePath,
+        storeId,
+        kioskId,
+        presenceWriteCount
+      });
       log('kiosk', `${eventPrefix}-success`, {
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         storeId,
         kioskId,
         sessionId,
@@ -178,10 +220,20 @@
         storeId,
         kioskId,
         sessionId,
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         presenceWriteCount,
         lastSuccessAt: lastPresenceSuccessAt
       });
+    }
+
+    async function registerPresence() {
+      runtimeLog('registerPresence-called', {
+        path: presencePath,
+        storeId,
+        kioskId,
+        sessionId
+      });
+      return publishPresence();
     }
 
     async function acknowledge(command, applied) {
@@ -251,13 +303,19 @@
       commandFirstSnapshotLogged = false;
       log('kiosk', 'channel-start', { storeId, kioskId, sessionId });
       try {
-        await publishPresence();
+        await registerPresence();
       } catch (error) {
         started = false;
         stopped = true;
         throw error;
       }
       log('kiosk', 'command-listener-connecting', {
+        path: `runtimeControls/${storeId}/commands/${kioskId}`,
+        storeId,
+        kioskId,
+        sessionId
+      });
+      runtimeLog('command-listener-start', {
         path: `runtimeControls/${storeId}/commands/${kioskId}`,
         storeId,
         kioskId,
@@ -297,7 +355,23 @@
         })).catch(error => onStatus({ phase: 'error', error }));
       });
       try {
-        heartbeat = setInterval(() => publishPresence().catch(() => {}), PRESENCE_INTERVAL_MS);
+        runtimeLog('heartbeat-start', {
+          path: presencePath,
+          storeId,
+          kioskId,
+          sessionId,
+          intervalMs: PRESENCE_INTERVAL_MS
+        });
+        heartbeat = setInterval(() => {
+          runtimeLog('heartbeat-tick', {
+            path: presencePath,
+            storeId,
+            kioskId,
+            sessionId,
+            nextPresenceWriteCount: presenceWriteCount + 1
+          });
+          publishPresence().catch(() => {});
+        }, PRESENCE_INTERVAL_MS);
       } catch (error) {
         onDiagnostic({
           stage: 'heartbeat-start-failed',
@@ -305,13 +379,13 @@
           storeId,
           kioskId,
           sessionId,
-          path: `runtimeControls/${storeId}/kiosks/${kioskId}`
+          path: presencePath
         });
         stop();
         throw error;
       }
       log('kiosk', 'heartbeat-started', {
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         storeId,
         kioskId,
         sessionId,
@@ -322,7 +396,7 @@
         storeId,
         kioskId,
         sessionId,
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         intervalMs: PRESENCE_INTERVAL_MS
       });
       onStatus({
@@ -331,7 +405,7 @@
         storeId,
         kioskId,
         sessionId,
-        path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
+        path: presencePath,
         presenceWriteCount,
         lastSuccessAt: lastPresenceSuccessAt
       });
@@ -356,7 +430,14 @@
       unsubscribeController = null;
     }
 
-    return { start, stop, publishPresence, receive, getIdentity: () => ({ storeId, kioskId, sessionId }) };
+    return {
+      start,
+      stop,
+      registerPresence,
+      publishPresence,
+      receive,
+      getIdentity: () => ({ storeId, kioskId, sessionId })
+    };
   }
 
   function createAdminChannel({
