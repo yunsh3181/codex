@@ -24,8 +24,10 @@
     channelFactory = name => typeof BroadcastChannel === 'function' ? new BroadcastChannel(name) : null,
     runtime = typeof window !== 'undefined' ? window.kioskTestMode : null,
     acceptRemoteMessages = true,
+    disableOnDispose = role === 'admin',
     onChange = () => {},
     onConnection = () => {},
+    onLifecycle = () => {},
     onExpire = () => {},
     onOpening = () => {}
   } = {}) {
@@ -35,14 +37,25 @@
     let minuteTimer = null;
     let heartbeatTimer = null;
     let lastPeerAt = 0;
+    let connectionReported = false;
     let disposed = false;
+    let runtimeUnsubscribe = null;
     let activeRequestId = null;
     const seenRequestIds = new Set();
     const changeListeners = new Set();
 
     const snapshot = () => ({ ...state });
     const peerConnected = () => now() - lastPeerAt < 15000;
-    const emitConnection = () => onConnection({ connected: peerConnected(), lastPeerAt });
+    const emitLifecycle = (event, details = {}) => {
+      globalThis.console?.info?.(`[test-mode-runtime][${role || 'unknown'}] ${event}`, details);
+      onLifecycle({ event, role, ...details });
+    };
+    const emitConnection = () => {
+      const connected = peerConnected();
+      onConnection({ connected, lastPeerAt });
+      if (connected && !connectionReported) emitLifecycle('local-channel-connected', { lastPeerAt });
+      connectionReported = connected;
+    };
 
     function clearTimers() {
       clearTimeout(expiryTimer);
@@ -72,6 +85,7 @@
         minuteTimer = setInterval(() => notify('tick'), 60000);
       }
       if (changed || reason === 'tick') notify(reason);
+      if (changed) emitLifecycle(state.enabled ? 'test-mode-on' : 'test-mode-off', { reason });
       if (relay) broadcast('state');
       return snapshot();
     }
@@ -152,20 +166,28 @@
       if (channel) channel.onmessage = receive;
       if (runtime?.getState) {
         try { apply(await runtime.getState(), 'runtime'); } catch (error) { console.warn('테스트 모드 런타임 조회 실패', error); }
-        runtime.onState?.(next => apply(next, 'runtime'));
+        runtimeUnsubscribe = runtime.onState?.(next => apply(next, 'runtime')) || null;
       }
       broadcast('hello');
       broadcast('request-state');
       heartbeatTimer = setInterval(() => { broadcast('ping'); emitConnection(); }, 5000);
       setTimeout(emitConnection, 1200);
+      emitLifecycle('runtime-ready', {
+        broadcastChannel: Boolean(channel),
+        electronIpc: Boolean(runtime?.getState && runtime?.setState)
+      });
       return snapshot();
     }
 
     function dispose() {
+      if (disposed) return;
+      if (disableOnDispose && state.enabled) disable('admin-disposed');
       disposed = true;
       clearTimers();
       clearInterval(heartbeatTimer);
       heartbeatTimer = null;
+      runtimeUnsubscribe?.();
+      runtimeUnsubscribe = null;
       channel?.close();
       channel = null;
       state = { ...OFF_STATE };

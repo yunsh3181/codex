@@ -233,6 +233,11 @@ function stopAdminTestModeRemote(){
  adminTestModeConnected=false;
  adminTestModePhase='waiting';
 }
+function disposeAdminTestModeSession(){
+ adminTestModeRemote?.stop();
+ adminTestModeRemote=null;
+ adminTestModeController?.dispose();
+}
 function openTestModeConfirmation(){
  const enabled=adminTestModeController.isEnabled();
  testModeModalTitle.textContent=enabled?'테스트 모드를 종료하시겠습니까?':'영업시간 외 테스트 모드를 켜시겠습니까?';
@@ -272,6 +277,7 @@ confirmTestMode?.addEventListener('click',async()=>{
 });
 retryTestMode?.addEventListener('click',async()=>{retryTestMode.disabled=true;try{await adminTestModeRemote?.retry()}catch(error){showAdminMessage(error.message,true)}finally{retryTestMode.disabled=false}});
 testModeModal?.addEventListener('click',event=>{if(event.target===testModeModal)testModeModal.hidden=true});
+window.addEventListener('pagehide',disposeAdminTestModeSession,{once:true});
 const soundVolume=document.getElementById('soundVolume');
 const volumeValue=document.getElementById('volumeValue');
 const voiceEnabled=document.getElementById('voiceEnabled');

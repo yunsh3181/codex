@@ -14,6 +14,8 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const main = fs.readFileSync(path.join(root, 'desktop', 'main.js'), 'utf8');
 const preload = fs.readFileSync(path.join(root, 'desktop', 'preload.js'), 'utf8');
 const remote = fs.readFileSync(path.join(root, 'test-mode-remote-channel.js'), 'utf8');
+const controller = fs.readFileSync(path.join(root, 'after-hours-test-mode.js'), 'utf8');
+const diagnosticsSource = fs.readFileSync(path.join(root, 'kiosk-runtime-diagnostics.js'), 'utf8');
 const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
 test('diagnostic stages cover the complete startup and failure flow in execution order', () => {
@@ -38,6 +40,19 @@ test('diagnostic stages cover the complete startup and failure flow in execution
     'heartbeat-start-failed', 'uncaught-error', 'unhandled-rejection'
   ]) assert.ok(html.includes(stage) || main.includes(stage) ||
     fs.readFileSync(path.join(root, 'kiosk-runtime-diagnostics.js'), 'utf8').includes(stage), stage);
+});
+
+test('runtime session logs expose the requested connection sequence', () => {
+  for (const event of [
+    'remote-module-check',
+    'remote-module-loaded',
+    'runtime-ready',
+    'authentication-start',
+    'authentication-success',
+    'channel-connected',
+    'test-mode-on',
+    'test-mode-off'
+  ]) assert.match(html + controller + diagnosticsSource, new RegExp(event));
 });
 
 test('diagnostic sanitizer removes secret-bearing fields and URL API keys', () => {
