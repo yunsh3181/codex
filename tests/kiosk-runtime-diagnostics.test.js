@@ -55,6 +55,27 @@ test('runtime session logs expose the requested connection sequence', () => {
   ]) assert.match(html + controller + diagnosticsSource, new RegExp(event));
 });
 
+test('runtime presence trace distinguishes registration, Firestore write, heartbeat, and listener stages', () => {
+  for (const event of [
+    '[RUNTIME] authentication-start',
+    '[RUNTIME] authentication-success'
+  ]) assert.ok(html.includes(event), event);
+  for (const event of [
+    'registerPresence-called',
+    'presence-write-start',
+    'heartbeat-start',
+    'heartbeat-tick',
+    'command-listener-start'
+  ]) assert.ok(remote.includes(event), event);
+  assert.match(remote, /runtimeLog\(`\$\{eventPrefix\}-success`/);
+  assert.match(remote, /runtimeLog\(`\$\{eventPrefix\}-failed`/);
+  assert.match(remote, /operation: 'setDoc'/);
+  assert.match(remote, /currentUser: \{\s*uid: safeAuthContext\.uid/);
+  assert.match(remote, /claims: safeAuthContext\.claims/);
+  assert.match(remote, /documentPath: presencePath/);
+  assert.doesNotMatch(html + remote, /idToken|accessToken|refreshToken/);
+});
+
 test('diagnostic sanitizer removes secret-bearing fields and URL API keys', () => {
   const value = diagnostics.sanitize({
     apiKey: 'secret',
