@@ -173,6 +173,7 @@ const soundPreset=document.getElementById('soundPreset');
 let adminTestModeAuthenticated=false;
 let adminTestModeConnected=false;
 let adminTestModePhase='waiting';
+let adminTestModeErrorCode=null;
 let adminTestModeRemote=null;
 function testModeMinutes(state){
  return Math.max(1,Math.ceil((state.expiresAt-Date.now())/60000))
@@ -184,7 +185,7 @@ function renderAdminTestMode(state=adminTestModeController.getState()){
  testModeButton.classList.toggle('enabled',state.enabled);
  testModeButton.textContent=state.enabled?`⚠️ 테스트 모드 켜짐 · ${testModeMinutes(state)}분 남음`:'테스트 모드 꺼짐';
  testModeButton.setAttribute('aria-pressed',String(state.enabled));
- const phaseLabels={connected:'키오스크 연결됨 · mobile-01','requesting-enable':'테스트 모드 활성화 요청 중 · mobile-01','enabled-confirmed':'테스트 모드 적용됨 · mobile-01','requesting-disable':'테스트 모드 종료 요청 중 · mobile-01','disabled-confirmed':'테스트 모드 종료 확인 · mobile-01',waiting:'키오스크 연결 대기 · mobile-01','no-response':'키오스크 응답 없음 · mobile-01',rejected:'키오스크 적용 거부 · mobile-01',error:'적용 확인 불가 · mobile-01'};
+ const phaseLabels={connected:'키오스크 연결됨 · mobile-01','requesting-enable':'테스트 모드 활성화 요청 중 · mobile-01','enabled-confirmed':'테스트 모드 적용됨 · mobile-01','requesting-disable':'테스트 모드 종료 요청 중 · mobile-01','disabled-confirmed':'테스트 모드 종료 확인 · mobile-01',waiting:'키오스크 연결 대기 · 실시간 세션 없음 · mobile-01','no-response':'ACK 대기 시간 초과 · mobile-01',rejected:'키오스크 적용 거부 · mobile-01',error:adminTestModeErrorCode==='permission-denied'?'Firestore 권한 거부 · mobile-01':'command 전송 또는 조회 실패 · mobile-01'};
  testModeConnection.textContent=phaseLabels[adminTestModePhase]||phaseLabels.waiting;
  const confirmed=['connected','enabled-confirmed','disabled-confirmed'].includes(adminTestModePhase);
  testModeConnection.className=`test-mode-connection ${confirmed?'connected':'waiting'}`;
@@ -197,6 +198,7 @@ function setAuthenticatedTestModeUI(authenticated){
 }
 function handleAdminRemoteStatus(status){
  adminTestModePhase=status.phase;
+ adminTestModeErrorCode=status.error?.code||status.diagnostics?.errorCode||null;
  adminTestModeConnected=['connected','requesting-enable','enabled-confirmed','requesting-disable','disabled-confirmed'].includes(status.phase);
  renderAdminTestMode();
  renderTestModeDiagnostics(status.diagnostics);
@@ -215,7 +217,9 @@ function renderTestModeDiagnostics(diagnostics=adminTestModeRemote?.getStatus?.(
   `stale: ${value.stale===true?'예':value.stale===false?'아니오':'-'}`,
   `제외 사유: ${(value.exclusionReasons||[]).join(', ')||'없음'}`,
   `마지막 commandId: ${displayText(value.lastCommandId)}`,
-  `ACK 상태: ${displayText(value.ackStatus)}`
+  `ACK 상태: ${displayText(value.ackStatus)}`,
+  `실패 operation: ${displayText(value.failedOperation)}`,
+  `Firestore error code: ${displayText(value.errorCode)}`
  ].join('\n')
 }
 function startAdminTestModeRemote(user){
@@ -232,6 +236,7 @@ function stopAdminTestModeRemote(){
  adminTestModeRemote=null;
  adminTestModeConnected=false;
  adminTestModePhase='waiting';
+ adminTestModeErrorCode=null;
 }
 function disposeAdminTestModeSession(){
  adminTestModeRemote?.stop();

@@ -5,8 +5,17 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.admin == true;
     }
 
+    function validRuntimeId(value) {
+      return value is string
+        && value.size() >= 1
+        && value.size() <= 128
+        && value.matches('^[A-Za-z0-9_-]+$');
+    }
+
     function isKiosk(storeId, kioskId) {
       return request.auth != null
+        && validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
         && request.auth.token.role == 'kiosk'
         && request.auth.token.storeId == storeId
         && request.auth.token.kioskId == kioskId;
@@ -141,31 +150,39 @@ service cloud.firestore {
     }
 
     match /runtimeControls/{storeId}/kiosks/{kioskId} {
-      allow read: if isAdmin() || isKiosk(storeId, kioskId);
+      allow read: if validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
+        && (isAdmin() || isKiosk(storeId, kioskId));
       allow create, update: if isKiosk(storeId, kioskId)
         && request.resource.data.keys().hasOnly([
           'storeId','kioskId','sessionId','role','heartbeatAt'
         ])
         && request.resource.data.storeId == storeId
         && request.resource.data.kioskId == kioskId
-        && validString(request.resource.data.sessionId, 128)
+        && validRuntimeId(request.resource.data.sessionId)
         && request.resource.data.role == 'kiosk'
         && request.resource.data.heartbeatAt == request.time;
-      allow delete: if false;
+      allow delete: if validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
+        && isAdmin();
     }
 
     match /runtimeControls/{storeId}/commands/{kioskId} {
-      allow read: if isAdmin() || isKiosk(storeId, kioskId);
+      allow read: if validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
+        && (isAdmin() || isKiosk(storeId, kioskId));
       allow create, update: if isAdmin()
+        && validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
         && request.resource.data.keys().hasOnly([
           'storeId','kioskId','targetSessionId','action','requestId','requestedBy',
           'requestedAt','expiresAt','ack','acknowledgedAt'
         ])
         && request.resource.data.storeId == storeId
         && request.resource.data.kioskId == kioskId
-        && validString(request.resource.data.targetSessionId, 128)
+        && validRuntimeId(request.resource.data.targetSessionId)
         && request.resource.data.action in ['enable','disable']
-        && validString(request.resource.data.requestId, 128)
+        && validRuntimeId(request.resource.data.requestId)
         && request.resource.data.requestedBy == request.auth.uid
         && request.resource.data.requestedAt == request.time
         && request.resource.data.expiresAt is timestamp
@@ -187,7 +204,9 @@ service cloud.firestore {
         && request.resource.data.ack.action == resource.data.action
         && request.resource.data.ack.applied is bool
         && request.resource.data.ack.enabled is bool;
-      allow delete: if isAdmin();
+      allow delete: if validRuntimeId(storeId)
+        && validRuntimeId(kioskId)
+        && isAdmin();
     }
 
     match /customers/{customerId} { allow read, write: if isAdmin(); }
