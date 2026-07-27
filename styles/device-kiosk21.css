@@ -20,17 +20,9 @@ html[data-layout="kiosk21"] {
       var(--kiosk21-bottom-gap) + var(--safe-bottom)
   );
   --kiosk21-modal-width: 840px;
-  scroll-padding-top: var(--kiosk21-stage-top-offset);
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: none;
-  touch-action: pan-y;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-html[data-layout="kiosk21"]::-webkit-scrollbar {
-  display: none;
 }
 
 html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not(
@@ -45,19 +37,47 @@ html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"])
 
 html[data-layout="kiosk21"] body {
   width: 100%;
+  height: 100%;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
   margin: 0;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: hidden;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app) {
   width: 100%;
+  height: 100dvh;
   min-width: 0;
-  min-height: 100vh;
-  overflow-x: clip;
-  overflow-y: visible;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: var(--kiosk21-stage-top-offset);
+  scroll-padding-bottom: var(--kiosk21-bottom-stack-height);
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: #d71920 rgba(0, 107, 60, .10);
+  scrollbar-width: auto;
+}
+
+html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar {
+  width: 18px;
+}
+
+html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-track {
+  background: rgba(0, 107, 60, .10);
+}
+
+html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-thumb {
+  min-height: 72px;
+  border: 2px solid rgba(255, 255, 255, .72);
+  border-radius: 999px;
+  background: #d71920;
+}
+
+html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-thumb:hover {
+  background: #b5122b;
 }
 
 html[data-layout="kiosk21"] :where(
@@ -252,7 +272,9 @@ html[data-layout="kiosk21"] :where(.stage, .mainContent, .sectionWrapper) {
   scroll-margin-top: var(--kiosk21-stage-top-offset);
   padding-top: var(--kiosk21-page-padding) !important;
   padding-right: calc(var(--kiosk21-page-padding) + var(--safe-right)) !important;
-  padding-bottom: calc(var(--kiosk21-bottom-reserve) + var(--safe-bottom)) !important;
+  padding-bottom: calc(
+    var(--kiosk21-bottom-stack-height) + var(--kiosk21-bottom-reserve)
+  ) !important;
   padding-left: calc(var(--kiosk21-page-padding) + var(--safe-left)) !important;
 }
 
@@ -661,7 +683,8 @@ html[data-layout="kiosk21"] :where(.backdrop, .c-popup-backdrop) {
 }
 
 /* Keep the root position intact while a kiosk dialog owns vertical gestures. */
-html[data-layout="kiosk21"]:has(#modal :where(.backdrop, .c-popup-backdrop)) {
+html[data-layout="kiosk21"] body:has(#modal :where(.backdrop, .c-popup-backdrop))
+  :where(#main, .app) {
   overflow-y: hidden;
 }
 
@@ -687,7 +710,8 @@ html[data-layout="kiosk21"] :where(
   overscroll-behavior: contain;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  scrollbar-color: #d71920 rgba(0, 107, 60, .10);
+  scrollbar-width: auto;
 }
 
 html[data-layout="kiosk21"] :where(
@@ -702,7 +726,39 @@ html[data-layout="kiosk21"] :where(
   .helperModal,
   .setUpsellModal
 )::-webkit-scrollbar {
-  display: none;
+  width: 18px;
+}
+
+html[data-layout="kiosk21"] :where(
+  .c-popup,
+  .modal,
+  .popup,
+  .dialog,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal,
+  .discountModal,
+  .helperModal,
+  .setUpsellModal
+)::-webkit-scrollbar-track {
+  background: rgba(0, 107, 60, .10);
+}
+
+html[data-layout="kiosk21"] :where(
+  .c-popup,
+  .modal,
+  .popup,
+  .dialog,
+  .upsellModal,
+  .finalUpsellModal,
+  .benefitHelperModal,
+  .discountModal,
+  .helperModal,
+  .setUpsellModal
+)::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(255, 255, 255, .72);
+  border-radius: 999px;
+  background: #d71920;
 }
 
 html[data-layout="kiosk21"] :where(.modalBody, .modalContent, .popupBody, .dialogBody) {
