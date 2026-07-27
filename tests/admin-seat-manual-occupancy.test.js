@@ -14,7 +14,8 @@ function createSeatManager(initialStatus='empty'){
  const listeners={};
  const dialog={
   open:false,
-  showModal(){this.open=true},
+  showCount:0,
+  showModal(){this.open=true;this.showCount+=1},
   close(){this.open=false},
   addEventListener(type,handler){listeners[`dialog:${type}`]=handler}
  };
@@ -33,7 +34,11 @@ function createSeatManager(initialStatus='empty'){
  };
  const elements={
   seatSummary:{innerHTML:''},
-  seatAdmin:{innerHTML:''},
+  seatAdmin:{
+   innerHTML:'',
+   addEventListener(type,handler){listeners[`seat-admin:${type}`]=handler},
+   contains(element){return element?.insideSeatAdmin===true}
+  },
   seatConnection:{textContent:'',className:''},
   seatOccupancyDialog:dialog,
   occupiedSeatDialog:occupiedDialog
@@ -60,8 +65,49 @@ function createSeatManager(initialStatus='empty'){
  };
  context.window.top=context.window;
  vm.runInNewContext(source,context);
- return {context,dialog,occupiedDialog,listeners,writes};
+ return {context,dialog,occupiedDialog,elements,listeners,writes};
 }
+
+function clickTarget(seatId,tag='button',insideSeatAdmin=true){
+ const card={dataset:{seatId},insideSeatAdmin};
+ return tag==='button'?{closest(){return card}}:{closest(selector){assert.equal(selector,'[data-seat-id]');return card}};
+}
+
+test('seat cards use safe data attributes without inline JavaScript',()=>{
+ const manager=createSeatManager();
+ assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat empty" data-seat-id="papa-2">/);
+ assert.doesNotMatch(manager.elements.seatAdmin.innerHTML,/\sonclick=/);
+ assert.doesNotMatch(source,/jsArg|onclick="manageSeat/);
+ assert.match(html,/seats\.js\?v=43\.7\.1\.4/);
+});
+
+test('delegated seat clicks handle cards and their nested content exactly once',()=>{
+ for(const tag of ['button','strong','span','em']){
+  const manager=createSeatManager();
+  manager.listeners['seat-admin:click']({target:clickTarget('papa-2',tag)});
+  assert.equal(manager.dialog.open,true,`${tag} click should select the seat`);
+  assert.equal(manager.dialog.showCount,1,`${tag} click should be handled once`);
+ }
+});
+
+test('delegated clicks ignore empty space, outside elements, and unknown seats',()=>{
+ const manager=createSeatManager();
+ manager.listeners['seat-admin:click']({target:{closest(){return null}}});
+ manager.listeners['seat-admin:click']({target:clickTarget('papa-2','span',false)});
+ manager.listeners['seat-admin:click']({target:clickTarget('unknown-seat','span')});
+ assert.equal(manager.dialog.open,false);
+ assert.equal(manager.writes.length,0);
+});
+
+test('rerendering does not register another delegated click listener',()=>{
+ const manager=createSeatManager();
+ const listener=manager.listeners['seat-admin:click'];
+ manager.context.render();
+ manager.context.render();
+ assert.equal(manager.listeners['seat-admin:click'],listener);
+ listener({target:clickTarget('papa-2','strong')});
+ assert.equal(manager.dialog.showCount,1);
+});
 
 test('empty seat uses the requested manual occupancy dialog',async()=>{
  assert.match(html,/>좌석 사용 시작</);
@@ -109,6 +155,16 @@ test('occupied and non-empty operational states do not open the new dialog',asyn
   assert.equal(manager.dialog.open,false);
   assert.equal(manager.writes.length,0);
  }
+});
+
+test('held seats retain their existing confirmed clear behavior',async()=>{
+ const manager=createSeatManager('held');
+ manager.context.confirm=()=>true;
+ await manager.context.manageSeat('papa-2');
+ assert.equal(manager.dialog.open,false);
+ assert.equal(manager.writes.length,1);
+ assert.equal(manager.writes[0].id,'papa-2');
+ assert.equal(manager.writes[0].payload.status,'empty');
 });
 
 test('occupied seat action dialog opens the existing order management entry',async()=>{
