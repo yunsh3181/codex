@@ -2,3 +2,11 @@ html,body{height:100%;margin:0;background:#0d1712;color:#fff;font-family:system-
 
 /* Unified three-state seat indicators */
 .seat-summary .empty{background:#E8F7EC;color:#1F7A3A}.seat-summary .held{background:#FFF4D6;color:#C77B00}.seat-summary .occupied{background:#FDE7E7;color:#C62828}
+.seat-occupancy-dialog{width:min(calc(100% - 32px),440px);padding:0;border:0;border-radius:18px;box-shadow:0 24px 70px rgba(15,23,42,.28)}
+.seat-occupancy-dialog::backdrop{background:rgba(15,23,42,.48)}
+.seat-occupancy-dialog form{padding:28px}
+.seat-occupancy-dialog h2{margin:0;color:#172033;font-size:24px;line-height:1.3}
+.seat-occupancy-dialog p{margin:14px 0 26px;color:#475569;font-size:16px;line-height:1.6}
+.seat-occupancy-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+.seat-occupancy-dialog-actions button{min-width:92px;padding:12px 18px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font:inherit;font-weight:800;cursor:pointer}
+.seat-occupancy-dialog-actions .confirm{border-color:#f2b705;background:#ffd31a;color:#352a00}

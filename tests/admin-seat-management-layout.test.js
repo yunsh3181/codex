@@ -15,7 +15,7 @@ function renderSeatManager(documents={}){
  const db={collection(name){return {onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}}}};
  const context={
   console,db,
-  document:{body:{classList:{add(){}}},getElementById(id){return elements[id]}},
+  document:{body:{classList:{add(){}}},getElementById(id){return elements[id]},querySelector(){return null}},
   window:{top:null},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},
   setInterval(){},
   firebase:{

@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>좌석 관리 · 판교2테크노밸리점</title><link rel="stylesheet" href="../admin.css?v=43.7.1.1"><link rel="stylesheet" href="../seats.css?v=43.7.1.1"><link rel="stylesheet" href="../seats-mobile.css?v=43.7.1.1"></head><body>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>좌석 관리 · 판교2테크노밸리점</title><link rel="stylesheet" href="../admin.css?v=43.7.1.1"><link rel="stylesheet" href="../seats.css?v=43.7.1.2"><link rel="stylesheet" href="../seats-mobile.css?v=43.7.1.1"></head><body>
 
 <header class="admin-header"><div><h1>🪑 좌석 관리</h1><p>파파존스 판교2테크노밸리점</p></div><div class="admin-tools"><a class="sound-settings-button" href="../admin/">← 주문 관리</a><span id="seatConnection" class="connection">연결 중</span></div></header>
 <main class="seat-admin-main seat-admin-cad">
@@ -8,4 +8,14 @@
 </section>
 <section id="seatAdmin" class="cad-layout"></section>
 </main>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="../firebase-config.js?v=43.7.1.1"></script><script src="../seats.js?v=43.7.1.1"></script></body></html>
+<dialog id="seatOccupancyDialog" class="seat-occupancy-dialog" aria-labelledby="seatOccupancyDialogTitle" aria-describedby="seatOccupancyDialogDescription">
+  <form method="dialog">
+    <h2 id="seatOccupancyDialogTitle">좌석 사용 시작</h2>
+    <p id="seatOccupancyDialogDescription">선택한 좌석을 사용중으로 변경하시겠습니까?</p>
+    <div class="seat-occupancy-dialog-actions">
+      <button type="button" data-seat-occupancy-cancel>취소</button>
+      <button type="button" class="confirm" data-seat-occupancy-confirm>확인</button>
+    </div>
+  </form>
+</dialog>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="../firebase-config.js?v=43.7.1.1"></script><script src="../seats.js?v=43.7.1.2"></script></body></html>
