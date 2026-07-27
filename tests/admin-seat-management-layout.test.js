@@ -9,7 +9,11 @@ const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 
 function renderSeatManager(documents={}){
- const elements={seatSummary:{innerHTML:''},seatAdmin:{innerHTML:''},seatConnection:{textContent:'',className:''}};
+ const elements={
+  seatSummary:{innerHTML:''},
+  seatAdmin:{innerHTML:'',addEventListener(){},contains(){return true}},
+  seatConnection:{textContent:'',className:''}
+ };
  const seatSnapshot={forEach(callback){Object.entries(documents).forEach(([id,data])=>callback({id,data:()=>data}));}};
  const emptySnapshot={docs:[]};
  const db={collection(name){return {onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}}}};
@@ -29,7 +33,7 @@ function renderSeatManager(documents={}){
 }
 
 function cards(html){
- return [...html.matchAll(/<button class="simple-seat ([^"]+)" data-seat-id="([^"]+)"/g)]
+ return [...html.matchAll(/<button type="button" class="simple-seat ([^"]+)" data-seat-id="([^"]+)"/g)]
   .map(([,status,id])=>({status,id}));
 }
 

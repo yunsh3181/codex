@@ -9,7 +9,6 @@ const master=[
  {id:'room-1',zone:'room',name:'룸테이블 1',displayName:'룸1',capacity:4},{id:'room-2',zone:'room',name:'룸테이블 2',displayName:'룸2',capacity:4},{id:'room-3',zone:'room',name:'룸테이블 3',displayName:'룸3',capacity:4}
 ];
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]));
-const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const statusNames={empty:'빈자리',held:'주문중',occupied:'사용중'};
 const statusIcons={empty:'🟢',held:'🟡',occupied:'🔴'};
 let docs={};let waitDocs=[];
@@ -32,8 +31,10 @@ function openOccupiedSeatOrder(){const id=pendingOccupiedSeatId;if(!master.some(
 async function clearOccupiedSeat(){const id=pendingOccupiedSeatId;if(!master.some(seat=>seat.id===id))return;closeOccupiedSeatDialog();await updateSeat(id,'empty')}
 async function manageSeat(id){const base=master.find(x=>x.id===id);if(!base)return;const remote=docs[id]||{},s=seatData(base);if(s.status==='occupied'){requestOccupiedSeatAction(id);return;}if(s.status==='held'){if(confirm(`${s.name}의 주문중 상태를 해제하시겠습니까?`))await updateSeat(id,'empty');return;}if(remote.status&&remote.status!=='empty')return;if(s.status==='empty')requestManualOccupancy(id);}
 async function bulkAction(){const targets=master.map(seatData).filter(s=>['occupied','held'].includes(s.status));if(!targets.length)return alert('해제할 좌석이 없습니다.');if(!confirm(`${targets.length}개 좌석을 사용가능으로 변경하시겠습니까?`))return;await Promise.all(targets.map(s=>updateSeat(s.id,'empty')));}
-function render(){const all=master.map(seatData),count=st=>all.filter(s=>s.status===st).length;document.getElementById('seatSummary').innerHTML=`<span class="empty">🟢 사용가능 ${count('empty')}</span><span class="held">🟡 주문중 ${count('held')}</span><span class="occupied">🔴 사용중 ${count('occupied')}</span><button class="bulk-clean-button start" onclick="bulkAction()">전체 해제</button>`;document.getElementById('seatAdmin').innerHTML=zones.map(z=>`<section class="simple-zone seat-zone-${z.id}" data-seat-zone="${z.id}"><h2>${z.name}</h2><div class="simple-seat-grid">${all.filter(s=>s.zone===z.id).map(s=>`<button class="simple-seat ${s.status}" data-seat-id="${esc(s.id)}" onclick="manageSeat(${jsArg(s.id)})"><strong>${s.displayName}</strong><span>최대 ${s.capacity}인</span><em><i aria-hidden="true"></i>${statusNames[s.status]}</em></button>`).join('')}</div></section>`).join('');}
+function render(){const all=master.map(seatData),count=st=>all.filter(s=>s.status===st).length;document.getElementById('seatSummary').innerHTML=`<span class="empty">🟢 사용가능 ${count('empty')}</span><span class="held">🟡 주문중 ${count('held')}</span><span class="occupied">🔴 사용중 ${count('occupied')}</span><button class="bulk-clean-button start" onclick="bulkAction()">전체 해제</button>`;document.getElementById('seatAdmin').innerHTML=zones.map(z=>`<section class="simple-zone seat-zone-${z.id}" data-seat-zone="${z.id}"><h2>${z.name}</h2><div class="simple-seat-grid">${all.filter(s=>s.zone===z.id).map(s=>`<button type="button" class="simple-seat ${s.status}" data-seat-id="${esc(s.id)}"><strong>${s.displayName}</strong><span>최대 ${s.capacity}인</span><em><i aria-hidden="true"></i>${statusNames[s.status]}</em></button>`).join('')}</div></section>`).join('');}
 window.manageSeat=manageSeat;window.touchSeat=manageSeat;window.bulkAction=bulkAction;
+const seatAdmin=document.getElementById('seatAdmin');
+seatAdmin?.addEventListener('click',event=>{const element=event.target.closest?.('[data-seat-id]');if(!element||!seatAdmin.contains(element))return;const seatId=element.dataset.seatId;if(!master.some(seat=>seat.id===seatId))return;manageSeat(seatId);});
 document.querySelector?.('[data-seat-occupancy-cancel]')?.addEventListener('click',closeOccupancyDialog);
 document.querySelector?.('[data-seat-occupancy-confirm]')?.addEventListener('click',confirmManualOccupancy);
 occupancyDialog()?.addEventListener('cancel',event=>{event.preventDefault();closeOccupancyDialog()});
