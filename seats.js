@@ -14,6 +14,7 @@ const statusNames={empty:'빈자리',held:'주문중',occupied:'사용중'};
 const statusIcons={empty:'🟢',held:'🟡',occupied:'🔴'};
 let docs={};let waitDocs=[];
 let pendingOccupancySeatId=null;
+let pendingOccupiedSeatId=null;
 function toDate(value){if(!value)return null;if(typeof value.toDate==='function')return value.toDate();const d=new Date(value);return Number.isNaN(d.getTime())?null:d;}
 function normalizedSeatStatus(status){return status==='held'?'held':status==='occupied'?'occupied':'empty'}
 function seatData(s){const remote=docs[s.id]||{};return {...s,...remote,status:normalizedSeatStatus(remote.status)};}
@@ -24,13 +25,22 @@ function occupancyDialog(){return document.getElementById('seatOccupancyDialog')
 function closeOccupancyDialog(){pendingOccupancySeatId=null;occupancyDialog()?.close()}
 function requestManualOccupancy(id){pendingOccupancySeatId=id;occupancyDialog()?.showModal()}
 async function confirmManualOccupancy(){const id=pendingOccupancySeatId;if(!id)return;closeOccupancyDialog();await updateSeat(id,'occupied')}
-async function manageSeat(id){const base=master.find(x=>x.id===id);if(!base)return;const remote=docs[id]||{},s=seatData(base);if(s.status==='occupied'){if(confirm(`${s.name}을 사용가능으로 변경하시겠습니까?`))await updateSeat(id,'empty');return;}if(s.status==='held'){if(confirm(`${s.name}의 주문중 상태를 해제하시겠습니까?`))await updateSeat(id,'empty');return;}if(remote.status&&remote.status!=='empty')return;if(s.status==='empty')requestManualOccupancy(id);}
+function occupiedSeatDialog(){return document.getElementById('occupiedSeatDialog')}
+function closeOccupiedSeatDialog(){pendingOccupiedSeatId=null;occupiedSeatDialog()?.close()}
+function requestOccupiedSeatAction(id){pendingOccupiedSeatId=id;occupiedSeatDialog()?.showModal()}
+function openOccupiedSeatOrder(){const id=pendingOccupiedSeatId;if(!master.some(seat=>seat.id===id))return;closeOccupiedSeatDialog();location.assign(`../admin/?seatId=${encodeURIComponent(id)}`)}
+async function clearOccupiedSeat(){const id=pendingOccupiedSeatId;if(!master.some(seat=>seat.id===id))return;closeOccupiedSeatDialog();await updateSeat(id,'empty')}
+async function manageSeat(id){const base=master.find(x=>x.id===id);if(!base)return;const remote=docs[id]||{},s=seatData(base);if(s.status==='occupied'){requestOccupiedSeatAction(id);return;}if(s.status==='held'){if(confirm(`${s.name}의 주문중 상태를 해제하시겠습니까?`))await updateSeat(id,'empty');return;}if(remote.status&&remote.status!=='empty')return;if(s.status==='empty')requestManualOccupancy(id);}
 async function bulkAction(){const targets=master.map(seatData).filter(s=>['occupied','held'].includes(s.status));if(!targets.length)return alert('해제할 좌석이 없습니다.');if(!confirm(`${targets.length}개 좌석을 사용가능으로 변경하시겠습니까?`))return;await Promise.all(targets.map(s=>updateSeat(s.id,'empty')));}
 function render(){const all=master.map(seatData),count=st=>all.filter(s=>s.status===st).length;document.getElementById('seatSummary').innerHTML=`<span class="empty">🟢 사용가능 ${count('empty')}</span><span class="held">🟡 주문중 ${count('held')}</span><span class="occupied">🔴 사용중 ${count('occupied')}</span><button class="bulk-clean-button start" onclick="bulkAction()">전체 해제</button>`;document.getElementById('seatAdmin').innerHTML=zones.map(z=>`<section class="simple-zone seat-zone-${z.id}" data-seat-zone="${z.id}"><h2>${z.name}</h2><div class="simple-seat-grid">${all.filter(s=>s.zone===z.id).map(s=>`<button class="simple-seat ${s.status}" data-seat-id="${esc(s.id)}" onclick="manageSeat(${jsArg(s.id)})"><strong>${s.displayName}</strong><span>최대 ${s.capacity}인</span><em><i aria-hidden="true"></i>${statusNames[s.status]}</em></button>`).join('')}</div></section>`).join('');}
 window.manageSeat=manageSeat;window.touchSeat=manageSeat;window.bulkAction=bulkAction;
 document.querySelector?.('[data-seat-occupancy-cancel]')?.addEventListener('click',closeOccupancyDialog);
 document.querySelector?.('[data-seat-occupancy-confirm]')?.addEventListener('click',confirmManualOccupancy);
 occupancyDialog()?.addEventListener('cancel',event=>{event.preventDefault();closeOccupancyDialog()});
+document.querySelector?.('[data-occupied-seat-cancel]')?.addEventListener('click',closeOccupiedSeatDialog);
+document.querySelector?.('[data-occupied-seat-order]')?.addEventListener('click',openOccupiedSeatOrder);
+document.querySelector?.('[data-occupied-seat-clear]')?.addEventListener('click',clearOccupiedSeat);
+occupiedSeatDialog()?.addEventListener('cancel',event=>{event.preventDefault();closeOccupiedSeatDialog()});
 firebase.auth().onAuthStateChanged(async user=>{try{if(!user)throw new Error('login');const token=await user.getIdTokenResult(true);if(token.claims.admin!==true)throw new Error('admin');document.body.classList.add('admin-unlocked');}catch(e){await firebase.auth().signOut().catch(()=>{});if(window.top===window)location.replace('../admin/');}});
 db.collection('seats').onSnapshot(snap=>{docs={};snap.forEach(d=>docs[d.id]=d.data());const badge=document.getElementById('seatConnection');badge.textContent='실시간 연결';badge.className='connection live';render();},e=>{document.getElementById('seatConnection').textContent='연결 오류';alert(e.message);});
 

@@ -18,15 +18,25 @@ function createSeatManager(initialStatus='empty'){
   close(){this.open=false},
   addEventListener(type,handler){listeners[`dialog:${type}`]=handler}
  };
+ const occupiedDialog={
+  open:false,
+  showModal(){this.open=true},
+  close(){this.open=false},
+  addEventListener(type,handler){listeners[`occupied-dialog:${type}`]=handler}
+ };
  const buttons={
   '[data-seat-occupancy-cancel]':{addEventListener(type,handler){listeners[`cancel:${type}`]=handler}},
-  '[data-seat-occupancy-confirm]':{addEventListener(type,handler){listeners[`confirm:${type}`]=handler}}
+  '[data-seat-occupancy-confirm]':{addEventListener(type,handler){listeners[`confirm:${type}`]=handler}},
+  '[data-occupied-seat-cancel]':{addEventListener(type,handler){listeners[`occupied-cancel:${type}`]=handler}},
+  '[data-occupied-seat-order]':{addEventListener(type,handler){listeners[`occupied-order:${type}`]=handler}},
+  '[data-occupied-seat-clear]':{addEventListener(type,handler){listeners[`occupied-clear:${type}`]=handler}}
  };
  const elements={
   seatSummary:{innerHTML:''},
   seatAdmin:{innerHTML:''},
   seatConnection:{textContent:'',className:''},
-  seatOccupancyDialog:dialog
+  seatOccupancyDialog:dialog,
+  occupiedSeatDialog:occupiedDialog
  };
  const seatSnapshot={forEach(callback){callback({id:'papa-2',data:()=>({status:initialStatus})})}};
  const emptySnapshot={docs:[]};
@@ -41,7 +51,7 @@ function createSeatManager(initialStatus='empty'){
    getElementById(id){return elements[id]},
    querySelector(selector){return buttons[selector]||null}
   },
-  window:{top:null},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},
+  window:{top:null},location:{replace(){},assign(url){context.assignedUrl=url}},encodeURIComponent,alert(){},confirm(){return false},prompt(){return null},
   setInterval(){},
   firebase:{
    auth(){return {onAuthStateChanged(callback){callback({getIdTokenResult:async()=>({claims:{admin:true}})})},signOut:async()=>{}}},
@@ -50,7 +60,7 @@ function createSeatManager(initialStatus='empty'){
  };
  context.window.top=context.window;
  vm.runInNewContext(source,context);
- return {context,dialog,listeners,writes};
+ return {context,dialog,occupiedDialog,listeners,writes};
 }
 
 test('empty seat uses the requested manual occupancy dialog',async()=>{
@@ -91,6 +101,7 @@ test('occupied and non-empty operational states do not open the new dialog',asyn
  const occupied=createSeatManager('occupied');
  await occupied.context.manageSeat('papa-2');
  assert.equal(occupied.dialog.open,false);
+ assert.equal(occupied.occupiedDialog.open,true);
 
  for(const status of ['reserved','cleaning','inactive']){
   const manager=createSeatManager(status);
@@ -98,4 +109,26 @@ test('occupied and non-empty operational states do not open the new dialog',asyn
   assert.equal(manager.dialog.open,false);
   assert.equal(manager.writes.length,0);
  }
+});
+
+test('occupied seat action dialog opens the existing order management entry',async()=>{
+ assert.match(html,/>사용중 좌석</);
+ assert.match(html,/>원하는 작업을 선택하세요\.</);
+ for(const label of ['취소','주문관리 이동','사용가능으로 변경'])assert.match(html,new RegExp(`>${label}<`));
+ const manager=createSeatManager('occupied');
+ await manager.context.manageSeat('papa-2');
+ manager.listeners['occupied-order:click']();
+ assert.equal(manager.context.assignedUrl,'../admin/?seatId=papa-2');
+ assert.equal(manager.writes.length,0);
+});
+
+test('occupied seat can be cleared through the existing updateSeat path',async()=>{
+ const manager=createSeatManager('occupied');
+ await manager.context.manageSeat('papa-2');
+ await manager.listeners['occupied-clear:click']();
+ assert.equal(manager.writes.length,1);
+ assert.equal(manager.writes[0].name,'seats');
+ assert.equal(manager.writes[0].id,'papa-2');
+ assert.equal(manager.writes[0].payload.status,'empty');
+ assert.equal(manager.writes[0].options.merge,true);
 });
