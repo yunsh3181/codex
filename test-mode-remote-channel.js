@@ -18,6 +18,7 @@
 
   function runtimeLog(event, details = {}) {
     globalThis.console?.info?.(`[RUNTIME] ${event}`, details);
+    globalThis.kioskRuntimeLog?.append?.(event, details).catch?.(() => {});
   }
 
   function id(prefix) {
