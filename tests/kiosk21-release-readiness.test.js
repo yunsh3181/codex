@@ -11,11 +11,12 @@ const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
 test('release changes do not alter protected application sources', () => {
-  assert.equal(sha256(html), 'e7aa0619d21a736e0f126cdfb7da393559513cd87635bf175fd37344a5938e61');
+  assert.equal(sha256(html), '1a2c9c2d02f66d686ec659609d4d63d515afb2efc998909bc354beabd27db0fb');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '8f43acbb35939a0fec4cdb18bd0d322a68119974016f56bdcd900f911b1fbbd2');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
-  assert.equal(sha256(kiosk), 'e2288b98dbc381986a8db9cf58084d16ca0d6fef7f3b46519c7f1add1fa710fe');
+  assert.equal(sha256(kiosk), 'b8060900df2518469f71662017e1cf3bfe3c4facbe9cbf19dc26105c90901b02');
+  assert.equal(sha256(read('kiosk-scroll-indicator.js')), 'b4aa9f1a60a94bea90da79793a300cc838a872b2c451c00ec7597753a393b95d');
 });
 
 test('order state cart price discount IDs and Firestore payload stay guarded', () => {

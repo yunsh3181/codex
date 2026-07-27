@@ -2137,7 +2137,8 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app" role="main" tabindex="0"></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<script src="kiosk-scroll-indicator.js?v=kiosk-scroll-indicator-v1.2.11"></script>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
 <script src="assets/vendor/firebase/firebase-firestore-compat.js"></script>
@@ -2599,6 +2600,7 @@ function render(){
   }
  }
  lastRenderedStep=state.step;
+ window.PJ_KIOSK_SCROLL_INDICATOR?.schedule();
 }
 
 const kioskScrollContainer=document.getElementById('main');
@@ -6640,4 +6642,4 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">
-<link rel="stylesheet" href="styles/device-kiosk21.css?v=kiosk-scrollbar-v1.2.10">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=kiosk-scroll-indicator-v1.2.11">

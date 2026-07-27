@@ -57,29 +57,49 @@ html[data-layout="kiosk21"] #main.app {
   scroll-padding-bottom: var(--kiosk21-bottom-stack-height);
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: #d71920 #e5e7eb;
-  scrollbar-gutter: stable;
-  scrollbar-width: auto;
+  scrollbar-width: none;
 }
 
 html[data-layout="kiosk21"] #main.app::-webkit-scrollbar {
-  width: 28px;
+  width: 0;
+  height: 0;
 }
 
-html[data-layout="kiosk21"] #main.app::-webkit-scrollbar-track {
+html[data-layout="kiosk21"] .kiosk-scroll-indicator {
+  position: fixed;
+  z-index: 80;
+  top: calc(var(--kiosk21-stage-top-offset) + 8px);
+  right: max(8px, var(--safe-right));
+  bottom: calc(var(--kiosk21-bottom-stack-height) + 8px);
+  box-sizing: border-box;
+  width: 20px;
+  min-width: 18px;
+  max-width: 24px;
+  overflow: hidden;
+  border: 1px solid #9ca3af;
+  border-radius: 12px;
   background: #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+  pointer-events: none;
+  user-select: none;
 }
 
-html[data-layout="kiosk21"] #main.app::-webkit-scrollbar-thumb {
+html[data-layout="kiosk21"] .kiosk-scroll-indicator[hidden],
+html[data-layout="kiosk21"] body:has(#modal :where(.backdrop, .c-popup-backdrop))
+  .kiosk-scroll-indicator {
+  display: none;
+}
+
+html[data-layout="kiosk21"] .kiosk-scroll-indicator-thumb {
+  position: absolute;
+  inset: 0 1px auto;
+  min-width: 16px;
   min-height: 96px;
-  border: 2px solid transparent;
-  border-radius: 14px;
+  border-radius: 11px;
   background: #d71920;
-  background-clip: padding-box;
-}
-
-html[data-layout="kiosk21"] #main.app::-webkit-scrollbar-thumb:hover {
-  background-color: #b5121b;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .4);
+  opacity: 1;
+  will-change: transform;
 }
 
 html[data-layout="kiosk21"] :where(
