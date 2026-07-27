@@ -13,6 +13,28 @@ let subscriptionsStarted=false;
 let receivedOrders=[];
 let manualCustomerCalls=[];
 let businessDayRefreshTimer=null;
+let adminAuthenticated=false;
+let initialOrdersLoaded=false;
+let requestedSeatEntryHandled=false;
+
+function requestedAdminSeatId(){
+ if(typeof URLSearchParams!=='function'||typeof location==='undefined')return '';
+ return String(new URLSearchParams(location.search||'').get('seatId')||'');
+}
+function clearRequestedAdminSeatId(){
+ if(typeof URL!=='function'||typeof history==='undefined'||typeof location==='undefined')return;
+ const url=new URL(location.href);
+ url.searchParams.delete('seatId');
+ history.replaceState(history.state,'',`${url.pathname}${url.search}${url.hash}`);
+}
+function openRequestedSeatOrder(){
+ if(requestedSeatEntryHandled||!adminAuthenticated||!initialOrdersLoaded)return false;
+ const seatId=requestedAdminSeatId();
+ if(!seatId||!ADMIN_SEATS.some(seat=>seat.id===seatId))return false;
+ requestedSeatEntryHandled=true;
+ clearRequestedAdminSeatId();
+ return openSeatOrderDetail(seatId);
+}
 
 function stopRealtimeSubscriptions(){
  if(unsubscribeOrders){unsubscribeOrders();unsubscribeOrders=null}
@@ -43,6 +65,7 @@ function startRealtimeSubscriptions(){
  if(subscriptionsStarted)return;
  subscriptionsStarted=true;
  initialLoad=true;
+ initialOrdersLoaded=false;
  waitingInitialLoad=true;
 
  unsubscribeOrders=db.collection('orders').onSnapshot(snapshot=>{
@@ -59,6 +82,8 @@ function startRealtimeSubscriptions(){
  if(soundEnabled&&hasUnacceptedOrders())startNewOrderRepeat();
  else if(!hasUnacceptedOrders())stopNewOrderRepeat();
  initialLoad=false;
+ initialOrdersLoaded=true;
+ openRequestedSeatOrder();
 },error=>{
  console.error(error);
  connectionBadge.textContent='연결 오류';
@@ -103,10 +128,12 @@ firebase.auth().onAuthStateChanged(async user=>{
   adminGate.hidden=ok;
   document.body.classList.toggle('admin-authenticated',ok);
   if(ok){
+   adminAuthenticated=true;
    setAuthenticatedTestModeUI(true);
    startAdminTestModeRemote(user);
    startRealtimeSubscriptions();
   }else{
+   adminAuthenticated=false;
    setAuthenticatedTestModeUI(false);
    stopAdminTestModeRemote();
    stopRealtimeSubscriptions();
@@ -116,6 +143,7 @@ firebase.auth().onAuthStateChanged(async user=>{
    }
   }
  }catch(error){
+  adminAuthenticated=false;
   stopRealtimeSubscriptions();
   adminLoginError.textContent='관리자 권한 확인 실패: '+error.message;
  }

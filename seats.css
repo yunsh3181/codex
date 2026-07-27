@@ -10,3 +10,5 @@ html,body{height:100%;margin:0;background:#0d1712;color:#fff;font-family:system-
 .seat-occupancy-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
 .seat-occupancy-dialog-actions button{min-width:92px;padding:12px 18px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font:inherit;font-weight:800;cursor:pointer}
 .seat-occupancy-dialog-actions .confirm{border-color:#f2b705;background:#ffd31a;color:#352a00}
+.occupied-seat-dialog-actions{flex-wrap:wrap}
+@media(max-width:560px){.occupied-seat-dialog-actions button{width:100%}}
