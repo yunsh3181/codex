@@ -11,14 +11,15 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const compact = value => value.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, '');
 const css = compact(kiosk);
 
-test('kiosk root is the single native vertical touch scroller', () => {
-  assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overflow-x:hidden;[^}]*overflow-y:auto;/);
+test('kiosk app is the single native vertical touch scroller with a visible scrollbar', () => {
+  assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overflow-x:hidden;[^}]*overflow-y:hidden;/);
   assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overscroll-behavior-x:none;/);
-  assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*touch-action:pan-y;/);
-  assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*scrollbar-width:none;/);
-  assert.match(kiosk, /html\[data-layout="kiosk21"\]::\-webkit-scrollbar\s*\{[\s\S]*?display: none/);
-  assert.match(css, /html\[data-layout="kiosk21"\]body\{[^}]*overflow-y:visible;/);
-  assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*overflow-x:clip;[^}]*overflow-y:visible;/);
+  assert.match(css, /html\[data-layout="kiosk21"\]body\{[^}]*height:100%;[^}]*min-height:0;[^}]*overflow-y:hidden;/);
+  assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*height:100dvh;[^}]*min-height:0;[^}]*overflow-x:hidden;[^}]*overflow-y:auto;/);
+  assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;[^}]*scrollbar-width:auto;/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar\s*\{[\s\S]*?width: 18px/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar-thumb\s*\{[\s\S]*?background: #d71920/);
+  assert.doesNotMatch(css, /:where\(#main,\.app\)::\-webkit-scrollbar\{display:none/);
 });
 
 test('touch scrolling remains kiosk-only and leaves other device layers alone', () => {
@@ -36,6 +37,7 @@ test('fixed header, progress, and footer reserves remain unchanged', () => {
   assert.match(css, /:where\(\.progress,\.c-progress\)\{[^}]*position:fixed;/);
   assert.match(css, /body:not\(\[data-step="home"\]\):not\(\[data-step="language"\]\):not\(\[data-step="done"\]\)\.stage\{[^}]*margin-top:var\(--kiosk21-stage-top-offset\)/);
   assert.match(html, /\.cartbar\{[^}]*position:fixed/);
+  assert.match(css, /:where\(\.stage,\.mainContent,\.sectionWrapper\)\{[^}]*padding-bottom:calc\(var\(--kiosk21-bottom-stack-height\)\+var\(--kiosk21-bottom-reserve\)\)/);
 });
 
 test('native gesture handling keeps tap controls and avoids a manual drag engine', () => {
@@ -46,9 +48,16 @@ test('native gesture handling keeps tap controls and avoids a manual drag engine
 });
 
 test('modal owns touch and wheel scrolling while the kiosk root is locked', () => {
-  assert.match(css, /:has\(#modal:where\(\.backdrop,\.c-popup-backdrop\)\)\{overflow-y:hidden;/);
+  assert.match(css, /body:has\(#modal:where\(\.backdrop,\.c-popup-backdrop\)\):where\(#main,\.app\)\{overflow-y:hidden;/);
   assert.match(css, /:where\(\.backdrop,\.c-popup-backdrop\)\{[^}]*overscroll-behavior:none;[^}]*touch-action:none;/);
   assert.match(css, /:where\(\.c-popup,[\s\S]*?overflow-y:auto;[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;/);
+});
+
+test('new kiosk steps reset the app scroller and Page Up or Page Down scroll it', () => {
+  assert.match(html, /if\(stepChanged\)\{\s*main\.scrollTop=0;\s*main\.scrollLeft=0;/);
+  assert.match(html, /kioskScrollContainer\.addEventListener\('keydown',event=>\{/);
+  assert.match(html, /\['PageUp','PageDown'\]\.includes\(event\.key\)/);
+  assert.match(html, /event\.currentTarget\.scrollBy\(\{top:direction\*event\.currentTarget\.clientHeight\*\.85,behavior:'smooth'\}\)/);
 });
 
 test('reservation wheel contains its own vertical gesture', () => {

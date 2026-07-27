@@ -2137,7 +2137,7 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app"></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
 <script src="assets/vendor/firebase/firebase-firestore-compat.js"></script>
@@ -2590,12 +2590,25 @@ function render(){
  const activeProgress=document.querySelector('.progressStep.current');
  if(activeProgress)requestAnimationFrame(()=>activeProgress.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}));
  if(stepChanged){
-  window.scrollTo({top:0,left:0,behavior:'auto'});
-  document.documentElement.scrollTop=0;
-  document.body.scrollTop=0;
+  main.scrollTop=0;
+  main.scrollLeft=0;
+  if(document.documentElement.dataset?.layout!=='kiosk21'){
+   window.scrollTo({top:0,left:0,behavior:'auto'});
+   document.documentElement.scrollTop=0;
+   document.body.scrollTop=0;
+  }
  }
  lastRenderedStep=state.step;
 }
+
+const kioskScrollContainer=document.getElementById('main');
+if(kioskScrollContainer?.addEventListener)kioskScrollContainer.addEventListener('keydown',event=>{
+ if(document.documentElement.dataset?.layout!=='kiosk21'||!['PageUp','PageDown'].includes(event.key))return;
+ if(document.querySelector('#modal .backdrop')||event.target.closest('input,textarea,select,[contenteditable="true"]'))return;
+ event.preventDefault();
+ const direction=event.key==='PageDown'?1:-1;
+ event.currentTarget.scrollBy({top:direction*event.currentTarget.clientHeight*.85,behavior:'smooth'});
+});
 function view(){
  if(state.step==='language')return languageView();
  if(state.step==='home')return `${testModeBanner()}<section class="darkHero">
@@ -6627,4 +6640,4 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
 </style>
 <link rel="stylesheet" href="styles/device-phone.css">
 <link rel="stylesheet" href="styles/device-tablet.css">
-<link rel="stylesheet" href="styles/device-kiosk21.css?v=live-cart-banner-20260725">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=vertical-scrollbar-20260727">
