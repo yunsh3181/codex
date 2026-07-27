@@ -14,7 +14,9 @@ test('phone progress uses five accessible stages without changing kiosk stages',
   assert.ok(progressSource.includes("...(phoneLayout?['cartReview','review','phone','payment']:[])"));
   assert.ok(progressSource.includes("...(!phoneLayout?[{id:'checkout'"));
   assert.match(phoneCss, /html\[data-layout="phone"\] \.progress \.progressStep [^{]*\{[^}]*flex: 1 1 20%/);
-  assert.match(phoneCss, /min-height: 82px/);
+  assert.match(phoneCss, /html\[data-layout="phone"\] \.progress [^{]*\{[^}]*height: 52px;[^}]*min-height: 52px/);
+  assert.match(phoneCss, /\.progress \.progressStep [^{]*\{[^}]*min-height: 44px;[^}]*font-size: 10px/);
+  assert.match(phoneCss, /\.progress \.progressStep::before [^{]*\{[^}]*width: 22px;[^}]*height: 22px/);
   assert.match(phoneCss, /\.progressStep\.current::before [^{]*\{[^}]*background: #c8102e/);
   assert.match(phoneCss, /\.progressStep\.completed::before [^{]*\{[^}]*background: #006b3c/);
 });
