@@ -6,6 +6,7 @@ const { app, BrowserWindow, Menu, ipcMain, powerSaveBlocker, screen, shell } = r
 const { autoUpdater } = require('electron-updater');
 const { createKioskUpdater } = require('./updater');
 const { createDiagnosticsLog } = require('./diagnostics-log');
+const { createRuntimeLog } = require('./runtime-log');
 const { createBootstrapCredential } = require('./bootstrap-credential');
 
 const entryFile = path.resolve(__dirname, '..', 'index.html');
@@ -14,6 +15,7 @@ let powerSaveBlockerId = null;
 let quitting = false;
 let updaterManager = null;
 let diagnosticsLog = null;
+let runtimeLog = null;
 const bootstrapCredential = createBootstrapCredential(
   process.env.PJ_KIOSK_FIREBASE_CUSTOM_TOKEN || null
 );
@@ -123,6 +125,14 @@ function registerDiagnosticsIpc() {
     if (!mainWindow || event.sender !== mainWindow.webContents || !diagnosticsLog) return false;
     diagnosticsLog.append({ scope: 'main', stage: 'diagnostics-log-open-request' });
     return (await shell.openPath(diagnosticsLog.logPath)) === '';
+  });
+}
+
+function registerRuntimeLogIpc() {
+  ipcMain.removeHandler('kiosk-runtime-log:append');
+  ipcMain.handle('kiosk-runtime-log:append', (event, entry) => {
+    if (!mainWindow || event.sender !== mainWindow.webContents) return false;
+    return runtimeLog?.append(entry?.event, entry?.details) === true;
   });
 }
 
@@ -287,6 +297,7 @@ if (!hasSingleInstanceLock) {
 
   app.whenReady().then(() => {
     diagnosticsLog = createDiagnosticsLog({ userDataPath: app.getPath('userData') });
+    runtimeLog = createRuntimeLog({ userDataPath: app.getPath('userData') });
     appendMainDiagnostic('app-start');
     appendMainDiagnostic('bootstrap-credential-detected', {
       bootstrapCredentialPresentAtStartup
@@ -294,6 +305,7 @@ if (!hasSingleInstanceLock) {
     Menu.setApplicationMenu(null);
     powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
     registerDiagnosticsIpc();
+    registerRuntimeLogIpc();
     createWindow();
     registerTestModeIpc();
     registerKioskIdentityIpc();
@@ -325,6 +337,7 @@ if (!hasSingleInstanceLock) {
     ipcMain.removeAllListeners('kiosk-diagnostics:get-environment-sync');
     ipcMain.removeHandler('kiosk-diagnostics:append');
     ipcMain.removeHandler('kiosk-diagnostics:open-log');
+    ipcMain.removeHandler('kiosk-runtime-log:append');
     bootstrapCredential.clear();
   });
 

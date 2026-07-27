@@ -83,3 +83,7 @@ contextBridge.exposeInMainWorld('kioskDiagnosticsBridge', Object.freeze({
     return () => diagnosticsOpenListeners.delete(listener);
   }
 }));
+
+contextBridge.exposeInMainWorld('kioskRuntimeLog', Object.freeze({
+  append: (event, details) => ipcRenderer.invoke('kiosk-runtime-log:append', { event, details })
+}));

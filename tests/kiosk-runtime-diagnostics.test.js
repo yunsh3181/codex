@@ -10,6 +10,7 @@ const root = path.resolve(__dirname, '..');
 const diagnostics = require('../kiosk-runtime-diagnostics');
 const diagnosticsUi = require('../kiosk-runtime-diagnostics-ui');
 const { createDiagnosticsLog } = require('../desktop/diagnostics-log');
+const { createRuntimeLog } = require('../desktop/runtime-log');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const main = fs.readFileSync(path.join(root, 'desktop', 'main.js'), 'utf8');
 const preload = fs.readFileSync(path.join(root, 'desktop', 'preload.js'), 'utf8');
@@ -109,6 +110,37 @@ test('file diagnostics append UTF-8 and rotate without making failures fatal', (
   assert.equal(failing.append({ stage: 'app-start' }), false);
 });
 
+test('runtime file log appends allowlisted events and strips token-shaped fields', () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'runtime-log-'));
+  const existingLogPath = path.join(temporary, 'runtime.log');
+  const previousLogPath = `${existingLogPath}.1`;
+  fs.writeFileSync(existingLogPath, 'x'.repeat(121));
+  fs.writeFileSync(previousLogPath, 'old-rotation');
+  const now = () => new Date('2026-07-28T04:55:12.345Z');
+  const log = createRuntimeLog({ userDataPath: temporary, now, maxBytes: 120 });
+  assert.equal(log.logPath, existingLogPath);
+  assert.equal(fs.readFileSync(previousLogPath, 'utf8'), 'x'.repeat(121));
+  assert.equal(fs.existsSync(existingLogPath), false);
+  assert.equal(log.append('presence-write-failed', {
+    error: { code: 'unknown', message: 'write failed', token: 'error-secret' },
+    currentUser: { uid: 'kiosk-user', refreshToken: 'refresh-secret' },
+    claims: { role: 'kiosk', storeId: 'store', kioskId: 'kiosk', customToken: 'custom-secret' },
+    storeId: 'store',
+    kioskId: 'kiosk',
+    documentPath: 'runtimeControls/store/kiosks/kiosk',
+    operation: 'setDoc',
+    idToken: 'id-secret',
+    accessToken: 'access-secret',
+    apiKey: 'api-secret'
+  }), true);
+  assert.equal(log.append('not-allowlisted', { message: 'ignored' }), false);
+  const output = fs.readFileSync(log.logPath, 'utf8');
+  assert.match(output, /2026-07-28T04:55:12\.345Z\n\[RUNTIME\]\npresence-write-failed/);
+  assert.match(output, /"uid":"kiosk-user"/);
+  assert.match(output, /"operation":"setDoc"/);
+  assert.doesNotMatch(output, /id-secret|access-secret|refresh-secret|custom-secret|api-secret|error-secret/);
+});
+
 test('diagnostic modal renders environment, flags, latest 30 logs and safe actions', () => {
   const entries = Array.from({ length: 35 }, (_, index) => ({ stage: `stage-${index}` }));
   const output = diagnosticsUi.render({
@@ -147,6 +179,8 @@ test('renderer bridge and main process collect diagnostics without weakening Ele
   assert.match(main, /contextIsolation:\s*true/);
   assert.match(main, /nodeIntegration:\s*false/);
   assert.match(main, /sandbox:\s*true/);
+  assert.match(preload, /exposeInMainWorld\('kioskRuntimeLog'/);
+  assert.match(main, /kiosk-runtime-log:append/);
 });
 
 test('reconnect is guarded and reuses one channel and one heartbeat', () => {
@@ -165,6 +199,7 @@ test('packaged files include remote, Firebase, preload, IPC, and diagnostic UI a
     'assets/vendor/firebase/firebase-app-compat.js',
     'desktop/preload.js',
     'desktop/diagnostics-log.js',
+    'desktop/runtime-log.js',
     'kiosk-runtime-diagnostics.js',
     'kiosk-runtime-diagnostics-ui.js',
     'styles/kiosk-runtime-diagnostics.css'
