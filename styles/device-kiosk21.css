@@ -57,27 +57,29 @@ html[data-layout="kiosk21"] :where(#main, .app) {
   scroll-padding-bottom: var(--kiosk21-bottom-stack-height);
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: #d71920 rgba(0, 107, 60, .10);
+  scrollbar-color: #d71920 #e5e7eb;
+  scrollbar-gutter: stable;
   scrollbar-width: auto;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar {
-  width: 18px;
+  width: 24px;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-track {
-  background: rgba(0, 107, 60, .10);
+  background: #e5e7eb;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-thumb {
-  min-height: 72px;
-  border: 2px solid rgba(255, 255, 255, .72);
-  border-radius: 999px;
+  min-height: 80px;
+  border: 4px solid transparent;
+  border-radius: 12px;
   background: #d71920;
+  background-clip: padding-box;
 }
 
 html[data-layout="kiosk21"] :where(#main, .app)::-webkit-scrollbar-thumb:hover {
-  background: #b5122b;
+  background-color: #b5121b;
 }
 
 html[data-layout="kiosk21"] :where(
