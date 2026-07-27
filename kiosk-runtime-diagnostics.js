@@ -26,6 +26,11 @@
   };
   const listeners = new Set();
   const failureStage = stage => /(?:missing|failed|error|rejection)$/.test(stage);
+  const lifecycleStage = Object.freeze({
+    'connect-runtime-attempt': 'authentication-start',
+    'authentication-complete': 'authentication-success',
+    connected: 'channel-connected'
+  });
 
   function safeString(value, limit = 2000) {
     return String(value == null ? '' : value).replace(/(apiKey=)[^&\s]+/ig, '$1[REDACTED]').slice(0, limit);
@@ -108,6 +113,13 @@
     state.entries.push(entry);
     if (state.entries.length > MAX_ENTRIES) state.entries.splice(0, state.entries.length - MAX_ENTRIES);
     root.console?.info?.('[remote-runtime][kiosk]', entry);
+    if (lifecycleStage[stage]) {
+      root.console?.info?.(`[remote-test-mode][kiosk] ${lifecycleStage[stage]}`, {
+        storeId: entry.storeId,
+        kioskId: entry.kioskId,
+        sessionId: entry.sessionId
+      });
+    }
     Promise.resolve(root.kioskDiagnosticsBridge?.append?.(entry)).catch(() => {});
     notify();
     return entry;

@@ -64,6 +64,43 @@ test('admin and kiosk exchange transient state and explicit disable without pers
   restarted.dispose();
 });
 
+test('closing an enabled admin session broadcasts OFF to every kiosk window', async () => {
+  const channelFactory = channelPair();
+  const admin = createController({ role: 'admin', channelFactory });
+  const kioskA = createController({ role: 'kiosk', channelFactory });
+  const kioskB = createController({ role: 'kiosk', channelFactory });
+  await Promise.all([admin.start(), kioskA.start(), kioskB.start()]);
+  admin.enable({ requestId: 'enable-all' });
+  assert.equal(kioskA.isEnabled(), true);
+  assert.equal(kioskB.isEnabled(), true);
+  admin.dispose();
+  assert.equal(kioskA.isEnabled(), false);
+  assert.equal(kioskB.isEnabled(), false);
+  kioskA.dispose();
+  kioskB.dispose();
+});
+
+test('runtime lifecycle logs are ordered and dispose unsubscribes IPC state', async () => {
+  const events = [];
+  let unsubscribed = 0;
+  const controller = createController({
+    role: 'kiosk',
+    channelFactory: () => ({ postMessage() {}, close() {} }),
+    runtime: {
+      async getState() { return OFF_STATE; },
+      async setState() {},
+      onState() { return () => { unsubscribed += 1; }; }
+    },
+    onLifecycle: entry => events.push(entry.event)
+  });
+  await controller.start();
+  controller.enable({ requestId: 'runtime-on' });
+  controller.disable('runtime-off');
+  controller.dispose();
+  assert.deepEqual(events, ['runtime-ready', 'test-mode-on', 'test-mode-off']);
+  assert.equal(unsubscribed, 1);
+});
+
 test('authenticated admin UI requires confirmation and reports remaining time and peer state', () => {
   assert.match(adminHtml, /id="testModeButton"[^>]*hidden/);
   assert.match(adminHtml, /id="testModeModal"[\s\S]*?id="confirmTestMode"/);
@@ -77,6 +114,7 @@ test('authenticated admin UI requires confirmation and reports remaining time an
   assert.match(adminSource, /'requesting-enable':'테스트 모드 활성화 요청 중/);
   assert.match(adminSource, /'requesting-disable':'테스트 모드 종료 요청 중/);
   assert.match(adminSource, /acceptRemoteMessages:false/);
+  assert.match(adminSource, /pagehide',disposeAdminTestModeSession,\{once:true\}/);
 });
 
 test('kiosk bypasses only the closed UI and displays a non-dismissible banner', () => {
