@@ -2525,13 +2525,14 @@ function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;s
 
 function progress(){
  if(state.step==='home'||state.step==='done')return '';
+ const phoneLayout=document.documentElement.dataset?.layout==='phone';
  const groups=[
   {id:'order',label:t('ui.progress.order'),steps:['type','party','area','table','timing','reserve']},
   {id:'benefit',label:t('ui.progress.benefit'),steps:['promo','setChoice']},
   {id:'pizza',label:t('ui.progress.pizza'),steps:['size','mode','pizzaOptions','pizza','crust','topping']},
   {id:'side',label:t('ui.progress.side'),steps:['side']},
-  {id:'drink',label:t('ui.progress.drink'),steps:['drink','accompaniment']},
-  {id:'checkout',label:t('ui.progress.checkout'),steps:['cartReview','review','phone','payment']}
+  {id:'drink',label:t('ui.progress.drink'),steps:['drink','accompaniment',...(phoneLayout?['cartReview','review','phone','payment']:[])]},
+  ...(!phoneLayout?[{id:'checkout',label:t('ui.progress.checkout'),steps:['cartReview','review','phone','payment']}]:[])
  ];
  let i=Math.max(0,groups.findIndex(g=>g.steps.includes(state.step)));
  return `<nav class="progress" aria-label="${escAttr(t('ui.progress.order'))}">${groups.map((g,n)=>{const status=n<i?'completed':n===i?'current':'locked';const enabled=n<=i;return `<button type="button" class="progressStep ${status} ${n<i?'done':n===i?'on':''}" data-progress-group="${g.id}" ${enabled?`onclick="navigateProgress('${g.id}')" aria-disabled="false"`:'disabled aria-disabled="true"'} ${n===i?'aria-current="step"':''}>${n<i?uiIcon('check','iconTiny'):''}<span>${g.label}</span></button>`}).join('')}</nav>`

@@ -14,9 +14,111 @@ html[data-layout="phone"] .head {
 
 html[data-layout="phone"] .progress {
   top: var(--phone-header-height) !important;
-  padding: var(--phone-progress-padding) !important;
-  gap: var(--phone-progress-gap) !important;
-  overflow-x: auto;
+  min-height: 82px;
+  padding: 7px 8px 6px !important;
+  gap: 0 !important;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+html[data-layout="phone"] .progress .progressStep {
+  position: relative;
+  display: grid;
+  flex: 1 1 20%;
+  min-width: 0;
+  min-height: 68px;
+  padding: 0 2px !important;
+  grid-template-rows: 32px auto;
+  place-items: start center;
+  gap: 4px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #66706a;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.12;
+  overflow: visible;
+}
+
+html[data-layout="phone"] .progress .progressStep::before {
+  content: counter(phone-progress);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 2px solid #cbd1cd;
+  border-radius: 50%;
+  background: #f2f4f2;
+  color: #69716c;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+html[data-layout="phone"] .progress {
+  counter-reset: phone-progress;
+}
+
+html[data-layout="phone"] .progress .progressStep {
+  counter-increment: phone-progress;
+}
+
+html[data-layout="phone"] .progress .progressStep:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 14px;
+  left: calc(50% + 15px);
+  width: calc(100% - 30px);
+  height: 2px;
+  background: #d7dcd8;
+}
+
+html[data-layout="phone"] .progress .progressStep.completed::before {
+  border-color: #006b3c;
+  background: #006b3c;
+  color: transparent;
+}
+
+html[data-layout="phone"] .progress .progressStep.completed:not(:last-child)::after {
+  background: #006b3c;
+}
+
+html[data-layout="phone"] .progress .progressStep.current::before {
+  border-color: #c8102e;
+  background: #c8102e;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(200,16,46,.14);
+}
+
+html[data-layout="phone"] .progress .progressStep.completed .uiIcon {
+  position: absolute;
+  z-index: 3;
+  top: 7px;
+  width: 16px;
+  height: 16px;
+  color: #fff;
+}
+
+html[data-layout="phone"] .progress .progressStep > span {
+  min-width: 0;
+  max-width: 100%;
+  color: inherit;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] .progress .progressStep.current > span {
+  color: #831124;
+  font-weight: 950;
+}
+
+html[data-layout="phone"] .progress .progressStep.locked {
+  opacity: 1;
 }
 
 html[data-layout="phone"] .stage {

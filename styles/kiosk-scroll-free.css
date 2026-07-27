@@ -80,7 +80,9 @@ body[data-step="topping"] .toppingTextCard h3 {
   min-height: 0 !important;
   margin: 0 !important;
   place-items: center;
-  font-size: clamp(14px, 1.55vw, 19px) !important;
+  color: #17221c;
+  font-size: clamp(18px, 1.75vw, 22px) !important;
+  font-weight: 950;
   line-height: 1.12 !important;
   text-align: center;
   -webkit-line-clamp: 2;
@@ -109,12 +111,19 @@ body[data-step="topping"] .toppingTextCard .qty b {
   min-width: 0 !important;
   min-height: 48px !important;
   color: #111 !important;
+  font-size: 14px !important;
 }
 
 body[data-step="topping"] .toppingTextCard.active {
   border-color: #d71920 !important;
-  background: #fff7d6 !important;
-  box-shadow: inset 0 0 0 2px #d71920;
+  background: #c8102e !important;
+  box-shadow: inset 0 0 0 2px #8f0b21, 0 8px 18px rgba(143,11,33,.24);
+}
+
+body[data-step="topping"] .toppingTextCard.active h3,
+body[data-step="topping"] .toppingTextCard.active .price,
+body[data-step="topping"] .toppingTextCard.active .qty b {
+  color: #fff !important;
 }
 
 body[data-step="topping"] .toppingCheck {
@@ -126,8 +135,9 @@ body[data-step="topping"] .toppingCheck {
   height: 25px;
   place-items: center;
   border-radius: 50%;
-  background: #087348;
-  color: #fff;
+  border: 2px solid #fff;
+  background: #fff;
+  color: #c8102e;
   font-size: 16px;
   font-weight: 1000;
   line-height: 1;
@@ -200,44 +210,44 @@ body[data-step="topping"] .toppingTextCard .badge {
   }
 
   body[data-step="topping"] .toppingTextGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 4px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
   }
 
   body[data-step="topping"] .toppingTextCard,
   body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
     padding: 5px !important;
-    grid-template-rows: minmax(2em, auto) auto 36px;
-    gap: 2px;
+    grid-template-rows: minmax(2.2em, auto) auto 44px;
+    gap: 3px;
     border-radius: 9px !important;
   }
 
   body[data-step="topping"] .toppingTextCard h3 {
     padding-inline: 15px;
-    font-size: 10px !important;
-    line-height: 1.05 !important;
+    font-size: 16px !important;
+    line-height: 1.1 !important;
   }
 
   body[data-step="topping"] .toppingTextCard .price {
-    font-size: 10px !important;
+    font-size: 12px !important;
   }
 
   body[data-step="topping"] .toppingTextCard .qty {
-    grid-template-columns: 36px minmax(24px, 1fr) 36px !important;
-    gap: 2px !important;
+    grid-template-columns: 44px minmax(24px, 1fr) 44px !important;
+    gap: 4px !important;
   }
 
   body[data-step="topping"] .toppingTextCard .qty button {
-    width: 36px !important;
-    min-width: 36px !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    font-size: 22px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    font-size: 19px !important;
   }
 
   body[data-step="topping"] .toppingTextCard .qty b {
-    min-height: 36px !important;
-    font-size: 15px !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
   }
 
   body[data-step="topping"] .toppingCheck {
