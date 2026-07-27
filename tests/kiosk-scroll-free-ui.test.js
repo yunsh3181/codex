@@ -10,7 +10,7 @@ const compact = css.replace(/\s+/g, ' ');
 
 test('scroll-free stylesheet is loaded after device-specific styles', () => {
   const kiosk = html.indexOf('styles/device-kiosk21.css?v=kiosk-scroll-indicator-v1.2.11');
-  const scrollFree = html.indexOf('styles/kiosk-scroll-free.css?v=kiosk-scroll-free-v4');
+  const scrollFree = html.indexOf('styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13');
   assert.ok(kiosk >= 0);
   assert.ok(scrollFree > kiosk);
 });
@@ -35,6 +35,13 @@ test('topping screen is text-only and keeps ID-based quantity handlers', () => {
     'html[data-layout] body[data-step="topping"] .grid.adaptiveCards.toppingTextGrid, ' +
     'body[data-step="topping"] .toppingTextGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important'
   ));
+  assert.match(compact, /\.toppingTextCard:is\(\.active, \.selected\) [^{]*\{[^}]*padding: 38px 10px 10px !important/);
+  assert.match(compact, /\.toppingTextCard\.active::after [^{]*\{[^}]*content: none !important/);
+  assert.match(compact, /\.toppingCheck [^{]*\{[^}]*top: 8px;[^}]*right: 8px;[^}]*border-radius: 8px/);
+  assert.match(compact, /\.toppingTextCard \.badge [^{]*\{[^}]*right: 42px;[^}]*left: auto/);
+  assert.match(compact, /\.toppingTextCard \.qty button::after [^{]*\{[^}]*inset: 5px;[^}]*background: var\(--g, #006b3c\);[^}]*color: #fff/);
+  assert.match(compact, /\.toppingTextCard \.qty button [^{]*\{[^}]*width: 48px !important;[^}]*height: 48px !important/);
+  assert.match(compact, /\.toppingTextCard \.qty b [^{]*\{[^}]*min-height: 38px !important;[^}]*height: 38px/);
 });
 
 test('side menu uses an isolated four-column cropped card layout', () => {
@@ -45,6 +52,11 @@ test('side menu uses an isolated four-column cropped card layout', () => {
   assert.ok(html.includes("qty('setSides','${x.id}',1,2,${need})"));
   assert.match(compact, /body\[data-step="side"\] \.sideMenuGrid [^{]*\{[^}]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\) !important/);
   assert.match(compact, /body\[data-step="side"\] \.sideMenuCard \.imagePic img [^{]*\{[^}]*object-fit: cover !important/);
+  for (const image of ['menu_image_005.jpg', 'menu_image_004.jpg', 'menu_image_003.jpg']) {
+    assert.ok(compact.includes(`[src$="${image}"]`), image);
+  }
+  assert.match(compact, /\.sideMenuCard \.imagePic img:is\([^}]*\) \{ transform: scale\(1\.34\) !important; \}/);
+  assert.match(compact, /\.sideMenuCard \.imagePic img [^{]*\{[^}]*transform: none !important/);
 });
 
 test('new CSS does not redefine shared card, grid, or menu-item selectors', () => {

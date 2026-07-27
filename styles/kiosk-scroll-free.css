@@ -68,7 +68,7 @@ body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
   position: relative;
   display: grid !important;
   min-height: 0 !important;
-  padding: 10px !important;
+  padding: 38px 10px 10px !important;
   grid-template-rows: minmax(2.25em, auto) auto 48px;
   gap: 5px;
   align-content: center;
@@ -79,6 +79,7 @@ body[data-step="topping"] .toppingTextCard h3 {
   display: grid !important;
   min-height: 0 !important;
   margin: 0 !important;
+  padding: 0;
   place-items: center;
   color: #17221c;
   font-size: clamp(18px, 1.75vw, 22px) !important;
@@ -101,15 +102,53 @@ body[data-step="topping"] .toppingTextCard .qty {
 }
 
 body[data-step="topping"] .toppingTextCard .qty button {
+  position: relative;
   width: 48px !important;
   min-width: 48px !important;
   height: 48px !important;
   min-height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+}
+
+body[data-step="topping"] .toppingTextCard .qty button::after {
+  position: absolute;
+  inset: 5px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #005630;
+  border-radius: 9px;
+  background: var(--g, #006b3c);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 1000;
+  line-height: 1;
+  transition: background .15s, filter .15s;
+}
+
+body[data-step="topping"] .toppingTextCard .qty button:first-child::after {
+  content: "−";
+}
+
+body[data-step="topping"] .toppingTextCard .qty button:last-child::after {
+  content: "+";
+}
+
+body[data-step="topping"] .toppingTextCard .qty button:hover::after {
+  background: #005630;
+}
+
+body[data-step="topping"] .toppingTextCard .qty button:active::after {
+  filter: brightness(.82);
 }
 
 body[data-step="topping"] .toppingTextCard .qty b {
+  align-self: center;
   min-width: 0 !important;
-  min-height: 48px !important;
+  min-height: 38px !important;
+  height: 38px;
   color: #111 !important;
   font-size: 14px !important;
 }
@@ -120,6 +159,10 @@ body[data-step="topping"] .toppingTextCard.active {
   box-shadow: inset 0 0 0 2px #8f0b21, 0 8px 18px rgba(143,11,33,.24);
 }
 
+body[data-step="topping"] .toppingTextCard.active::after {
+  content: none !important;
+}
+
 body[data-step="topping"] .toppingTextCard.active h3,
 body[data-step="topping"] .toppingTextCard.active .price,
 body[data-step="topping"] .toppingTextCard.active .qty b {
@@ -128,13 +171,13 @@ body[data-step="topping"] .toppingTextCard.active .qty b {
 
 body[data-step="topping"] .toppingCheck {
   position: absolute;
-  top: 7px;
-  right: 7px;
+  top: 8px;
+  right: 8px;
   display: grid;
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 24px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: 8px;
   border: 2px solid #fff;
   background: #fff;
   color: #c8102e;
@@ -145,10 +188,11 @@ body[data-step="topping"] .toppingCheck {
 
 body[data-step="topping"] .toppingTextCard .badge {
   position: absolute;
-  top: 7px;
-  left: 7px;
+  top: 8px;
+  right: 42px;
+  left: auto;
   margin: 0;
-  padding: 3px 6px;
+  padding: 4px 7px;
   font-size: 10px;
 }
 
@@ -180,7 +224,15 @@ body[data-step="side"] .sideMenuCard .imagePic img {
   padding: 0 !important;
   object-fit: cover !important;
   object-position: center !important;
-  transform: scale(1.12);
+  transform: none !important;
+}
+
+body[data-step="side"] .sideMenuCard .imagePic img:is(
+  [src$="menu_image_005.jpg"],
+  [src$="menu_image_004.jpg"],
+  [src$="menu_image_003.jpg"]
+) {
+  transform: scale(1.34) !important;
 }
 
 body[data-step="side"] .sideMenuCard h3 {
@@ -284,14 +336,14 @@ body[data-step="side"] .sideMenuCard.active .qty b {
 
   body[data-step="topping"] .toppingTextCard,
   body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
-    padding: 5px !important;
+    padding: 25px 5px 5px !important;
     grid-template-rows: minmax(2.2em, auto) auto 44px;
     gap: 3px;
     border-radius: 9px !important;
   }
 
   body[data-step="topping"] .toppingTextCard h3 {
-    padding-inline: 15px;
+    padding: 0;
     font-size: 16px !important;
     line-height: 1.1 !important;
   }
@@ -313,23 +365,31 @@ body[data-step="side"] .sideMenuCard.active .qty b {
     font-size: 19px !important;
   }
 
+  body[data-step="topping"] .toppingTextCard .qty button::after {
+    inset: 4px;
+    border-radius: 8px;
+    font-size: 19px;
+  }
+
   body[data-step="topping"] .toppingTextCard .qty b {
-    min-height: 44px !important;
+    min-height: 35px !important;
+    height: 35px;
     font-size: 13px !important;
   }
 
   body[data-step="topping"] .toppingCheck {
-    top: 3px;
-    right: 3px;
-    width: 18px;
+    top: 4px;
+    right: 4px;
+    width: 20px;
     height: 18px;
     font-size: 11px;
   }
 
   body[data-step="topping"] .toppingTextCard .badge {
-    top: 3px;
-    left: 3px;
-    padding: 2px 3px;
+    top: 4px;
+    right: 28px;
+    left: auto;
+    padding: 2px 4px;
     font-size: 7px;
   }
 

@@ -34,3 +34,12 @@ test('selected and disabled states remain visible without changing their behavio
   assert.match(html,/onclick="selectCrust\('\$\{c\.name\}'\)"/);
   assert.match(html,/\$\{halfDisabled\?'disabled':''\} onclick="selectPizzaMode\('half'\)"/);
 });
+
+test('three and four person sets use compact equal composition cards with visible prices',()=>{
+  assert.match(html,/class="setOptionCombined setOptionCombined-\$\{state\.set\}"/);
+  assert.match(html,/modeMainLabel[^>]*>\$\{t\('ui\.pizzaOptions\.whole'\)\}<\/span><span class="modeBasePrice">\$\{money\(0\)\}/);
+  assert.match(html,/html\[data-layout\] body\[data-step="mode"\][\s\S]*?:is\(\.setOptionCombined-3\.setOptionCombined-3,\.setOptionCombined-4\.setOptionCombined-4\)[\s\S]*?\.optionButtons\.two\.modeOptionButtons\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important;[\s\S]*?align-items:stretch!important/);
+  assert.match(html,/html\[data-layout\] body\[data-step="mode"\][\s\S]*?:is\(\.setOptionCombined-3\.setOptionCombined-3,\.setOptionCombined-4\.setOptionCombined-4\)[\s\S]*?\.modeOptionButtons \.optionBtn\{[\s\S]*?min-height:156px!important;[\s\S]*?height:156px!important/);
+  assert.match(html,/html\[data-layout\] body\[data-step="mode"\][\s\S]*?:is\(\.setOptionCombined-3\.setOptionCombined-3,\.setOptionCombined-4\.setOptionCombined-4\)[\s\S]*?\.modeOptionButtons \.modeMainLabel\{[\s\S]*?font-size:clamp\(43px,4\.8vw,48px\)!important/);
+  assert.match(html,/html\[data-layout\] body\[data-step="mode"\][\s\S]*?:is\(\.setOptionCombined-3\.setOptionCombined-3,\.setOptionCombined-4\.setOptionCombined-4\)[\s\S]*?\.setCrustCard\{[\s\S]*?min-height:132px!important/);
+});
