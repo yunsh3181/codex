@@ -16,9 +16,11 @@ test('kiosk app is the single native vertical touch scroller with a visible scro
   assert.match(css, /html\[data-layout="kiosk21"\]\{[^}]*overscroll-behavior-x:none;/);
   assert.match(css, /html\[data-layout="kiosk21"\]body\{[^}]*height:100%;[^}]*min-height:0;[^}]*overflow-y:hidden;/);
   assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*height:100dvh;[^}]*min-height:0;[^}]*overflow-x:hidden;[^}]*overflow-y:auto;/);
-  assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;[^}]*scrollbar-width:auto;/);
-  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar\s*\{[\s\S]*?width: 18px/);
-  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar-thumb\s*\{[\s\S]*?background: #d71920/);
+  assert.match(css, /html\[data-layout="kiosk21"\]:where\(#main,\.app\)\{[^}]*overscroll-behavior:contain;[^}]*touch-action:pan-y;[^}]*scrollbar-color:#d71920#e5e7eb;[^}]*scrollbar-gutter:stable;[^}]*scrollbar-width:auto;/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar\s*\{[\s\S]*?width: 24px/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar-track\s*\{[\s\S]*?background: #e5e7eb/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar-thumb\s*\{[\s\S]*?min-height: 80px;[\s\S]*?border: 4px solid transparent;[\s\S]*?border-radius: 12px;[\s\S]*?background: #d71920;[\s\S]*?background-clip: padding-box/);
+  assert.match(kiosk, /:where\(#main, \.app\)::\-webkit-scrollbar-thumb:hover\s*\{[\s\S]*?background-color: #b5121b/);
   assert.doesNotMatch(css, /:where\(#main,\.app\)::\-webkit-scrollbar\{display:none/);
 });
 

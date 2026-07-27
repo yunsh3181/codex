@@ -15,7 +15,7 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '8f43acbb35939a0fec4cdb18bd0d322a68119974016f56bdcd900f911b1fbbd2');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
-  assert.equal(sha256(kiosk), 'e66d4352b7f1566ad6f427549e9dd96748e0510cf2bffd6e701d32ecd6452eb8');
+  assert.equal(sha256(kiosk), '656d37d4c0493545878e0565b6ce570d80535fcb3a1b572b87cb3952477c7886');
 });
 
 test('order state cart price discount IDs and Firestore payload stay guarded', () => {
