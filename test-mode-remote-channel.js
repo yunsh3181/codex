@@ -384,6 +384,7 @@
     let latestPresenceExists = false;
     let lastCommandId = null;
     let lastAckStatus = '없음';
+    let lastFirestoreError = null;
     const presenceRef = db.collection('runtimeControls').doc(storeId).collection('kiosks').doc(kioskId);
     const commandRef = db.collection('runtimeControls').doc(storeId).collection('commands').doc(kioskId);
 
@@ -423,6 +424,9 @@
         exclusionReasons: evaluated?.reasons || ['presence 문서 없음'],
         lastCommandId,
         ackStatus: lastAckStatus,
+        errorCode: lastFirestoreError?.code || null,
+        errorMessage: lastFirestoreError?.message || null,
+        failedOperation: lastFirestoreError?.operation || null,
         firestoreQueryResult: {
           exists: latestPresenceExists,
           data: latestPresenceExists ? presence : null
@@ -481,7 +485,14 @@
         }, 'kiosk-ack');
         emit(pending.action === 'enable' ? 'enabled-confirmed' : 'disabled-confirmed');
         pending = null;
-      }, error => emit('error', { error }));
+      }, error => {
+        lastFirestoreError = {
+          code: error?.code || null,
+          message: error?.message || String(error),
+          operation: 'command-listen'
+        };
+        emit('error', { error, diagnostics: presenceDiagnostics() });
+      });
     }
 
     function waitForAck(request) {
@@ -510,18 +521,29 @@
         : requestedAtMillis + ACK_TIMEOUT_MS;
       pending = { requestId, action, targetSessionId, requestedAtMillis, expiresAtMillis };
       emit(action === 'enable' ? 'requesting-enable' : 'requesting-disable');
-      await commandRef.set({
-        storeId,
-        kioskId,
-        targetSessionId,
-        action,
-        requestId,
-        requestedBy: user.uid,
-        requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        expiresAt: firebase.firestore.Timestamp.fromMillis(expiresAtMillis),
-        ack: null,
-        acknowledgedAt: null
-      }, { merge: false });
+      try {
+        await commandRef.set({
+          storeId,
+          kioskId,
+          targetSessionId,
+          action,
+          requestId,
+          requestedBy: user.uid,
+          requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          expiresAt: firebase.firestore.Timestamp.fromMillis(expiresAtMillis),
+          ack: null,
+          acknowledgedAt: null
+        }, { merge: false });
+        lastFirestoreError = null;
+      } catch (error) {
+        lastFirestoreError = {
+          code: error?.code || null,
+          message: error?.message || String(error),
+          operation: 'command-write'
+        };
+        emit('error', { error, diagnostics: presenceDiagnostics() });
+        throw error;
+      }
       waitForAck(pending);
       return requestId;
     }
@@ -533,6 +555,11 @@
         log('admin', 'presence-query-result', presenceDiagnostics());
         refreshPresence();
       }, error => {
+        lastFirestoreError = {
+          code: error?.code || null,
+          message: error?.message || String(error),
+          operation: 'presence-read'
+        };
         log('admin', 'presence-listener-error', {
           path: `runtimeControls/${storeId}/kiosks/${kioskId}`,
           storeId,
@@ -540,7 +567,7 @@
           code: error?.code || null,
           message: error?.message || String(error)
         });
-        emit('error', { error });
+        emit('error', { error, diagnostics: presenceDiagnostics() });
       });
       presenceTimer = setInterval(refreshPresence, Math.min(PRESENCE_CHECK_INTERVAL_MS, presenceStaleMs));
       watchAck();

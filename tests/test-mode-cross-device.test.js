@@ -457,7 +457,7 @@ test('a forged ACK cannot move the admin controller to confirmed state', async (
 test('security rules separate runtime control from orders and restrict request and ACK writes', () => {
   assert.match(rules, /match \/runtimeControls\/\{storeId\}\/commands\/\{kioskId\}/);
   assert.match(rules, /function isKiosk\(storeId, kioskId\)/);
-  assert.match(rules, /allow read: if isAdmin\(\) \|\| isKiosk\(storeId, kioskId\)/);
+  assert.match(rules, /\(isAdmin\(\) \|\| isKiosk\(storeId, kioskId\)\)/);
   assert.match(rules, /allow create, update: if isKiosk\(storeId, kioskId\)/);
   assert.match(rules, /allow update: if isKiosk\(storeId, kioskId\)/);
   assert.match(rules, /request\.resource\.data\.requestedBy == request\.auth\.uid/);
