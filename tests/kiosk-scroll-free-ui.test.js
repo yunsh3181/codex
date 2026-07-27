@@ -10,7 +10,7 @@ const compact = css.replace(/\s+/g, ' ');
 
 test('scroll-free stylesheet is loaded after device-specific styles', () => {
   const kiosk = html.indexOf('styles/device-kiosk21.css?v=kiosk-scroll-indicator-v1.2.11');
-  const scrollFree = html.indexOf('styles/kiosk-scroll-free.css?v=kiosk-scroll-free-v1');
+  const scrollFree = html.indexOf('styles/kiosk-scroll-free.css?v=kiosk-scroll-free-v4');
   assert.ok(kiosk >= 0);
   assert.ok(scrollFree > kiosk);
 });
@@ -31,6 +31,20 @@ test('topping screen is text-only and keeps ID-based quantity handlers', () => {
   assert.ok(toppingView.includes("toppingQty('${item.id}',-1)"));
   assert.doesNotMatch(toppingView, /toppingVisual\(item\.name\)/);
   assert.match(compact, /body\[data-step="topping"\] \.toppingTextCard\.active [^{]*\{[^}]*border-color: #d71920 !important/);
+  assert.ok(compact.includes(
+    'html[data-layout] body[data-step="topping"] .grid.adaptiveCards.toppingTextGrid, ' +
+    'body[data-step="topping"] .toppingTextGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important'
+  ));
+});
+
+test('side menu uses an isolated four-column cropped card layout', () => {
+  const sideView = html.match(/if\(state\.step==='side'\)[\s\S]*?if\(state\.step==='drink'\)/)?.[0] || '';
+  assert.ok(sideView.includes('sideMenuGrid'));
+  assert.ok(html.includes('card sideMenuCard'));
+  assert.ok(html.includes("qty('${key}','${x.id}',1,9,99)"));
+  assert.ok(html.includes("qty('setSides','${x.id}',1,2,${need})"));
+  assert.match(compact, /body\[data-step="side"\] \.sideMenuGrid [^{]*\{[^}]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\) !important/);
+  assert.match(compact, /body\[data-step="side"\] \.sideMenuCard \.imagePic img [^{]*\{[^}]*object-fit: cover !important/);
 });
 
 test('new CSS does not redefine shared card, grid, or menu-item selectors', () => {
@@ -43,7 +57,7 @@ test('new CSS does not redefine shared card, grid, or menu-item selectors', () =
   for (const selector of selectors) {
     assert.match(
       selector,
-      /body\[data-step="(?:pizza|topping)"\]/,
+      /body\[data-step="(?:pizza|topping|side)"\]/,
       `unscoped selector: ${selector}`
     );
   }

@@ -11,7 +11,7 @@ const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
 test('release changes do not alter protected application sources', () => {
-  assert.equal(sha256(html), '5a230021f1a16feac0069e71cf9d1578083fd90027c8baa3d856d1fbdd771653');
+  assert.equal(sha256(html), 'f3ae5ede0d3890f7eb89ddb6d8e68b80b39ea97e8913824854a6d1dc2f000667');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), 'e8837f123694f00c1d44b734d8d49d5da70c8a97838081741163e75a8da2f40c');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
