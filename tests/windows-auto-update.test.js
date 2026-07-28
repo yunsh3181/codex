@@ -178,6 +178,25 @@ test('download progress and completion expose the new version without restarting
   assert.equal(value.updater.quitCalls, 0);
 });
 
+test('no available update keeps the existing up-to-date handling', () => {
+  const value = harness();
+  value.manager.initialize();
+  value.updater.emit('update-not-available', { version: '1.0.3' });
+  assert.equal(value.manager.snapshot().status, 'up-to-date');
+  assert.equal(value.manager.snapshot().latestVersion, '1.0.3');
+  assert.equal(value.updater.quitCalls, 0);
+});
+
+test('download failures keep the existing updater error handling', () => {
+  const value = harness();
+  value.manager.initialize();
+  value.updater.emit('update-available', { version: '1.1.0' });
+  value.updater.emit('error', new Error('download failed'));
+  assert.equal(value.manager.snapshot().status, 'error');
+  assert.match(value.manager.snapshot().error, /download failed/);
+  assert.equal(value.updater.quitCalls, 0);
+});
+
 test('downloaded updates are not checked or downloaded repeatedly', async () => {
   const value = harness();
   value.manager.initialize();
@@ -198,7 +217,7 @@ test('network and release errors keep the current version running', async () => 
   assert.equal(value.updater.quitCalls, 0);
 });
 
-test('install is blocked during business, order, payment, save, or printer activity', async () => {
+test('install is blocked by active operations but not by business hours', async () => {
   const operationalState = {
     businessOpen: true,
     orderInProgress: true,
@@ -207,7 +226,7 @@ test('install is blocked during business, order, payment, save, or printer activ
     printerBusy: true,
     testModeEnabled: false
   };
-  assert.equal(installBlockers(operationalState).length, 5);
+  assert.equal(installBlockers(operationalState).length, 4);
   const value = harness({ operationalState });
   value.manager.initialize();
   value.updater.emit('update-downloaded', { version: '1.1.0' });
@@ -216,9 +235,9 @@ test('install is blocked during business, order, payment, save, or printer activ
   assert.equal(value.updater.quitCalls, 0);
 });
 
-test('test mode bypasses only the business-hours installation blocker', () => {
+test('business hours never add an installation blocker', () => {
   const businessOpen = { ...idleOperationalState(), businessOpen: true };
-  assert.deepEqual(installBlockers(businessOpen), ['영업시간 중입니다.']);
+  assert.deepEqual(installBlockers(businessOpen), []);
   assert.deepEqual(installBlockers({ ...businessOpen, testModeEnabled: true }), []);
 
   const protectedActivities = [
@@ -234,14 +253,18 @@ test('test mode bypasses only the business-hours installation blocker', () => {
   assert.deepEqual(installBlockers(idleOperationalState()), []);
 });
 
-test('downloaded update installs during open business hours only when test mode is active and idle', async () => {
+test('business-hours update check, download, install, and restart remain available', async () => {
   const operationalState = {
     ...idleOperationalState(),
     businessOpen: true,
-    testModeEnabled: true
+    testModeEnabled: false
   };
   const value = harness({ operationalState });
   value.manager.initialize();
+  await value.manager.checkForUpdates();
+  assert.equal(value.updater.checkCalls, 1);
+  value.updater.emit('update-available', { version: '1.1.0' });
+  assert.equal(value.manager.snapshot().status, 'downloading');
   value.updater.emit('update-downloaded', { version: '1.1.0' });
   const result = await value.manager.installDownloadedUpdate();
   assert.equal(result.status, 'installing');
@@ -249,6 +272,16 @@ test('downloaded update installs during open business hours only when test mode 
   assert.ok(immediate);
   immediate.callback();
   assert.equal(value.updater.quitCalls, 1);
+});
+
+test('updater error handling remains active after an install starts', async () => {
+  const value = harness({ operationalState: idleOperationalState() });
+  value.manager.initialize();
+  value.updater.emit('update-downloaded', { version: '1.1.0' });
+  assert.equal((await value.manager.installDownloadedUpdate()).status, 'installing');
+  value.updater.emit('error', new Error('install failed'));
+  assert.equal(value.manager.snapshot().status, 'error');
+  assert.match(value.manager.snapshot().error, /install failed/);
 });
 
 test('install does nothing before an update has downloaded', async () => {
