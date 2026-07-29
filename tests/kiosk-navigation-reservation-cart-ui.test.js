@@ -88,7 +88,7 @@ test('standard cart breakdown is used only when every component equals stored pr
   assert.equal(model.mode,'standard');
   assert.equal(model.componentTotal,48000);
   assert.equal(model.total,48000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,28500);
+  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,null);
   assert.deepEqual(model.meta,{dough:'클래식',size:'라지',crust:'치즈롤',composition:'cart.halfPizza'});
   assert.equal(model.categories.toppings.find(row=>row.id==='T1').amount,1500);
   assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,1);
@@ -126,7 +126,7 @@ test('order quantity and option quantity are multiplied exactly once',()=>{
   assert.equal(model.mode,'standard');
   assert.equal(model.total,99000);
   assert.equal(model.componentTotal,99000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,57000);
+  assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,null);
   assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,4);
   assert.equal(model.categories.toppings.find(row=>row.id==='T1').amount,6000);
   assert.equal(model.categories.sides[0].amount,19800);
@@ -148,6 +148,22 @@ test('cart renderer emits each consolidated category at most once',()=>{
   assert.doesNotMatch(html,/function cartItemHtml\(/);
   assert.match(html,/money\(model\.total\)/);
   assert.doesNotMatch(html,/if\s*\(name\s*===\s*["']치즈롤["']\)/);
+});
+
+test('pizza detail order and labels use dedicated review translations',()=>{
+  const detail=html.slice(html.indexOf('function cartPizzaMetaHtml'),html.indexOf('function changeCartQty'));
+  const pizzaCategory=detail.indexOf('function cartPizzaCategoryHtml');
+  const heading=detail.indexOf("<h2>${t('ui.summary.pizza')}</h2>");
+  const meta=detail.indexOf('cartPizzaMetaHtml(model.meta)');
+  const pizzaTopping=detail.indexOf("t('review.pizzaToppingLabel')");
+  assert.ok(pizzaCategory>=0&&heading>pizzaCategory&&meta>heading&&pizzaTopping>meta);
+  for(const key of ['review.doughTypeLabel','review.sizeLabel','review.crustTypeLabel','review.compositionLabel','review.pizzaToppingLabel','review.toppingAddTitle']){
+    assert.ok(detail.includes(`t('${key}')`),key);
+  }
+  assert.doesNotMatch(detail,/ui\.pizzaOptions\.composition/);
+  assert.match(detail,/\$\{row\.name\}×\$\{row\.qty\}/);
+  const pizzaMarkup=detail.slice(detail.indexOf('function cartPizzaCategoryHtml'),detail.indexOf('function cartCategoryHtml'));
+  assert.doesNotMatch(pizzaMarkup,/cartItemPrice|cartMoney|row\.amount/);
 });
 
 test('live kiosk cart detail typography applies to cart and final review',()=>{
