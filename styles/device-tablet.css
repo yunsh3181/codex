@@ -126,6 +126,10 @@ html[data-layout="tablet"] :where(.progress, .c-progress) :where(
   white-space: nowrap;
 }
 
+html[data-layout="tablet"] .progress .progressStep[class~="done"] {
+  padding: 8px 10px;
+}
+
 html[data-layout="tablet"] :where(.stage, .mainContent, .sectionWrapper) {
   box-sizing: border-box;
   padding-right: calc(var(--tablet-page-padding) + var(--safe-right)) !important;

@@ -1292,6 +1292,29 @@ html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .
   transform: none !important;
 }
 
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .optionSetup {
+  max-width: 980px;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .optionSection,
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection {
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .optionSection .optionButtons,
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .optionButtons {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .optionSection .optionBtn,
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .doughOptionSection .optionBtn {
+  min-height: 104px !important;
+  padding: 16px 10px !important;
+  font-size: 28px;
+}
+
 html[data-layout="kiosk21"] body[data-step="accompaniment"] .grid.four.accompanimentGrid.adaptiveCards {
   grid-template-columns: minmax(0, 1fr) !important;
   gap: 18px !important;
