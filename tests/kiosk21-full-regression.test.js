@@ -66,7 +66,7 @@ test('header progress stage and product surfaces stay contained', () => {
 });
 
 test('summary-visible and summary-hidden stacks remain explicit', () => {
-  assert.match(kiosk, /body:not\(\[data-step="home"\]\):not\(\[data-step="done"\]\):not\([\s\S]*?--kiosk21-active-summary-height: var\(--kiosk21-summary-height\)/);
+  assert.match(kiosk, /body:not\(\[data-step="home"\]\):not\(\[data-step="done"\]\) \{[\s\S]*?--kiosk21-active-summary-height: var\(--kiosk21-summary-height\)/);
   assert.ok(kiosk.includes('--kiosk21-active-summary-height: 0px'));
   assert.match(kiosk, /:where\(\.selectionFooterSpacer,[\s\S]*?height: var\(--kiosk21-bottom-stack-height\)/);
 });
@@ -87,7 +87,7 @@ test('all ordering paths and popup families retain behavior markup', () => {
   for (const route of [
     'language', 'home', 'party', 'area', 'table', 'timing', 'reserve', 'promo',
     'setChoice', 'size', 'mode', 'pizzaOptions', 'pizza', 'crust', 'half',
-    'topping', 'side', 'drink', 'accompaniment', 'cartReview', 'review',
+    'topping', 'side', 'drink', 'accompaniment', 'review',
     'phone', 'payment', 'done',
   ]) assert.ok(html.includes(`'${route}'`) || html.includes(`"${route}"`), route);
   for (const popup of [

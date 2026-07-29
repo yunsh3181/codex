@@ -16,11 +16,11 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(pkg.version, '1.2.15');
   assert.equal(lock.version, '1.2.15');
   assert.equal(lock.packages[''].version, '1.2.15');
-  assert.equal(sha256(html), '5fcf8758181c849a7e7eb6dae55e735ba2ce67a8e188d567d4131d795cd453d2');
+  assert.equal(sha256(html), '9a8a08fc703360324f4cb4c40c41fb81a82aaec27786f7775a9dfba21d063b02');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
-  assert.equal(sha256(read('styles/device-phone.css')), '5a910c903c6d1e948d85dfeeb865855241d92e6167e3d3816462c4678d193299');
-  assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
-  assert.equal(sha256(kiosk), '5f27bbb5bda501786458ffdd692126fa2c5a5811a0629777056ad02b346d0c4f');
+  assert.equal(sha256(read('styles/device-phone.css')), '9e12e5101ecd7e83021896a740b2fd25a7b88bbe6fbfc11ef20dad2f0d0afda8');
+  assert.equal(sha256(read('styles/device-tablet.css')), '0805113da2cd4bb19e32b51e29146ab6ecc6662395dacba2a1adcec7f10dee6f');
+  assert.equal(sha256(kiosk), 'f0c26863b641c855abea072af4506dc375a4e841ba4bd45df0edaf2f2a271f57');
   assert.equal(sha256(read('kiosk-scroll-indicator.js')), 'b4aa9f1a60a94bea90da79793a300cc838a872b2c451c00ec7597753a393b95d');
 });
 
@@ -60,7 +60,7 @@ test('takeout timing descriptions are doubled and use kiosk yellow', () => {
 
 test('language and large-order rendering remain dynamic and non-destructive', () => {
   for (const locale of ['ko', 'en', 'ja', 'zh', 'vi', 'es']) assert.ok(html.includes(locale), locale);
-  assert.ok(html.includes('cartItems.map'));
+  assert.ok(html.includes('(state.cartItems||[]).map'));
   assert.ok(html.includes('reviewOrderList'));
   assert.match(kiosk, /\.reviewOrderHead h3,[\s\S]*?overflow-wrap: anywhere/);
   assert.match(kiosk, /\.cartOrderPrice,[\s\S]*?white-space: nowrap/);

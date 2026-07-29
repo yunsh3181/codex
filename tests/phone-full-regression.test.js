@@ -72,7 +72,7 @@ test('all required order and popup routes remain represented without script chan
   for (const step of [
     'language', 'home', 'party', 'area', 'table', 'timing', 'promo', 'setChoice',
     'size', 'mode', 'pizzaOptions', 'pizza', 'crust', 'topping', 'side', 'drink',
-    'accompaniment', 'cartReview', 'review', 'phone', 'payment', 'done',
+    'accompaniment', 'review', 'phone', 'payment', 'done',
   ]) assert.ok(html.includes(`'${step}'`) || html.includes(`"${step}"`), step);
 
   for (const popup of [

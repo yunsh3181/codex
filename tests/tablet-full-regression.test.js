@@ -65,7 +65,7 @@ test('legacy selectors, state ownership, and complete order routes remain intact
   for (const route of [
     'language', 'home', 'party', 'area', 'table', 'timing', 'promo', 'setChoice',
     'size', 'mode', 'pizzaOptions', 'pizza', 'crust', 'half', 'topping', 'side',
-    'drink', 'accompaniment', 'cartReview', 'review', 'phone', 'payment', 'done',
+    'drink', 'accompaniment', 'review', 'phone', 'payment', 'done',
   ]) assert.ok(html.includes(`'${route}'`) || html.includes(`"${route}"`), route);
   for (const popup of [
     'upsellModal', 'finalUpsellModal', 'benefitHelperModal', 'discountModal',

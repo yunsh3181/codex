@@ -10,7 +10,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const compact = tablet.replace(/\s+/g, '');
 
 test('tablet checkout stages are runtime scoped and preserve the 880px content width', () => {
-  for (const step of ['cartReview', 'review', 'phone', 'payment', 'done']) {
+  for (const step of ['review', 'phone', 'payment', 'done']) {
     assert.ok(tablet.includes(`[data-step="${step}"]`), step);
   }
   assert.ok(compact.includes('max-width:var(--tablet-content-max)'));
@@ -20,7 +20,7 @@ test('tablet checkout stages are runtime scoped and preserve the 880px content w
 
 test('tablet checkout wraps descriptions and keeps prices right aligned', () => {
   for (const selector of [
-    '.summary', '.review', '.cartReview', '.reviewOrderCard', '.reviewSection', '.cartOrderCard',
+    '.summary', '.review', '.reviewOrderCard', '.reviewSection', '.cartOrderCard',
   ]) assert.ok(tablet.includes(selector), selector);
   assert.match(tablet, /\.reviewOrderHead h3,[\s\S]*?overflow-wrap: anywhere/);
   assert.match(tablet, /\.cartOrderPrice,[\s\S]*?text-align: right;[\s\S]*?white-space: nowrap/);

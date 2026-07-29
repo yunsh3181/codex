@@ -10,7 +10,7 @@ const phoneCss = fs
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
 test('checkout and completion activation is scoped to the phone device selector', () => {
-  for (const step of ['cartReview', 'review', 'phone', 'payment', 'done']) {
+  for (const step of ['review', 'phone', 'payment', 'done']) {
     assert.ok(phoneCss.includes(`html[data-layout="phone"]body[data-step="${step}"]`));
   }
   assert.doesNotMatch(phoneCss, /@media[^}]*data-step=(?:"|\\")?(?:cartReview|review|phone|payment|done)/);

@@ -12,7 +12,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const compact = kiosk.replace(/\s+/g, '');
 
 test('checkout runtime scope preserves the 960px kiosk surface', () => {
-  for (const step of ['cartReview', 'review', 'phone', 'payment', 'done']) {
+  for (const step of ['review', 'phone', 'payment', 'done']) {
     assert.ok(kiosk.includes(`[data-step="${step}"]`), step);
   }
   assert.ok(kiosk.includes('--kiosk21-content-max: 960px'));
@@ -64,7 +64,7 @@ test('kiosk activation cannot affect phone, tablet, or default device layers', (
 
 test('behavior-bearing order, cart, price, and Firestore selectors remain present', () => {
   for (const token of [
-    'pressPhone', 'selectPayment', 'validPayment', 'checkoutCart', 'cartTotal',
+    'pressPhone', 'selectPayment', 'validPayment', 'addCurrentOrderToReview', 'cartTotal',
     'currentOrderTotal', 'submitMobileOrder', "db.collection('orders').doc", 'state.orderNo',
   ]) assert.ok(html.includes(token), token);
 });

@@ -11,7 +11,7 @@ const toppingCss = fs.readFileSync(path.join(root, 'styles/kiosk-scroll-free.css
 test('phone progress uses five accessible stages without changing kiosk stages', () => {
   const progressSource = html.match(/function progress\(\)\{[\s\S]*?function progressTarget/)?.[0] || '';
   assert.ok(progressSource.includes("dataset?.layout==='phone'"));
-  assert.ok(progressSource.includes("...(phoneLayout?['cartReview','review','phone','payment']:[])"));
+  assert.ok(progressSource.includes("...(phoneLayout?['review','phone','payment']:[])"));
   assert.ok(progressSource.includes("...(!phoneLayout?[{id:'checkout'"));
   assert.match(phoneCss, /html\[data-layout="phone"\] \.progress \.progressStep [^{]*\{[^}]*flex: 1 1 20%/);
   assert.match(phoneCss, /html\[data-layout="phone"\] \.progress [^{]*\{[^}]*height: 52px;[^}]*min-height: 52px/);

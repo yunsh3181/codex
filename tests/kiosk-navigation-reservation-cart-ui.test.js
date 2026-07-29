@@ -50,7 +50,7 @@ test('reservation controls and selected value are kiosk-sized',()=>{
   assert.ok(compact.includes('.reserveSelectionb{color:#d71920;font-size:48px'));
 });
 
-const displaySource=html.slice(html.indexOf('function cartCatalogLines'),html.indexOf('function cartItemHtml'));
+const displaySource=html.slice(html.indexOf('function cartCatalogLines'),html.indexOf('function changeCartQty'));
 const catalog={
   PIZZAS:[{id:'P1',name:'존스',L:29500},{id:'P2',name:'식스',L:27500}],
   CRUSTS:[{name:'오리지널',L:0},{name:'치즈롤',L:4000}],
@@ -143,15 +143,15 @@ test('cart renderer emits each consolidated category at most once',()=>{
   assert.match(html,/cartCategoryHtml\(drinkTitle,model\.categories\.drinks,true\)/);
   assert.match(html,/cartCategoryHtml\(t\('ui\.drinkScreen\.accompanimentTitle'\),model\.categories\.accompaniment,true\)/);
   assert.match(html,/function reviewOrderCard\(order,index\)\{const model=buildCartDisplayModel\(order\)/);
-  assert.match(html,/function cartItemHtml\(x,i\)\{[\s\S]*?cartOrderDetailHtml\(model\)/);
-  assert.match(html,/if\(currentHasItems\(\)\)arr\.push\(\{\.\.\.orderSnapshot\(\),__current:false\}\)/);
+  assert.match(html,/function allReviewOrders\(\)\{return \(state\.cartItems\|\|\[\]\)\.map/);
+  assert.doesNotMatch(html,/function cartItemHtml\(/);
   assert.match(html,/money\(model\.total\)/);
   assert.doesNotMatch(html,/if\s*\(name\s*===\s*["']치즈롤["']\)/);
 });
 
 test('live kiosk cart detail typography applies to cart and final review',()=>{
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartCategory h2[\s\S]*?font-size: 26px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) :where\([\s\S]*?\.cartBaseRow[\s\S]*?font-size: 24px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartDetailRow[\s\S]*?font-size: 20px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartOrderTotal[\s\S]*?font-size: 28px/);
+  assert.match(css,/body\[data-step="review"\] \.cartCategory h2[\s\S]*?font-size: 26px/);
+  assert.match(css,/body\[data-step="review"\] :where\([\s\S]*?\.cartBaseRow[\s\S]*?font-size: 24px/);
+  assert.match(css,/body\[data-step="review"\] \.cartDetailRow[\s\S]*?font-size: 20px/);
+  assert.match(css,/body\[data-step="review"\] \.cartOrderTotal[\s\S]*?font-size: 28px/);
 });

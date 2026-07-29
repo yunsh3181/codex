@@ -62,8 +62,7 @@ const screenSetups={
   side:"Object.assign(state,{step:'side',set:null,finalAddMode:null,extraSides:{}})",
   drink:"Object.assign(state,{step:'drink',set:null,finalAddMode:null,extraDrinks:{}})",
   accompaniment:"Object.assign(state,{step:'accompaniment',extraDrinks:{}})",
-  cart:"Object.assign(state,{step:'cartReview',cartItems:[]})",
-  review:"Object.assign(state,{step:'review',cartItems:[],left:'P001',right:null,size:'L',mode:'single',promo:'normal',crust:'오리지널',dough:'오리지널',toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null})",
+  review:"Object.assign(state,{step:'review',cartItems:[{pizza:'P001',pizzaLeft:'P001',pizzaRight:null,size:'L',mode:'single',promo:'normal',price:29900,normalPrice:29900,discount:0,qty:1,crust:'오리지널',dough:'오리지널',toppings:{},sides:{},drinks:{},includedSides:{},includedDrinks:{}}],left:null,right:null})",
   phone:"Object.assign(state,{step:'phone',phone:''})",
   payment:"Object.assign(state,{step:'payment',phone:'12345678',paymentMethod:null,cartItems:[],left:'P001',size:'L',mode:'single',promo:'normal',crust:'오리지널',dough:'오리지널',toppings:{},extraSides:{},extraDrinks:{}})",
   done:"Object.assign(state,{step:'done',orderNo:'P1234',paymentMethod:'card',orderTiming:'now'})"
