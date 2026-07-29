@@ -1,6 +1,6 @@
 {
   "name": "papajohns-kiosk",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "private": true,
   "description": "PapaJohn's customer web kiosk and Windows Electron shell",
   "author": "PapaJohn's Pangyo 2nd Techno Valley",
