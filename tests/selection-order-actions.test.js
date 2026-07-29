@@ -170,9 +170,11 @@ assert.ok(!accompaniment.includes('card skipCard" onclick="finishAccompaniment()
 for(const step of ['promo','setChoice','size','mode','pizzaOptions','accompaniment','language']){
   assert.ok(kioskOptionCss.includes(`html[data-layout="kiosk21"] body[data-step="${step}"]`),`${step} single-column styling is kiosk21 and step scoped`);
 }
-for(const selector of ['darkBenefitGrid','darkSetGrid','sizeGuideGrid','modeChoiceGrid','doughOptionSection','accompanimentGrid','languageGrid']){
+for(const selector of ['darkBenefitGrid','darkSetGrid','sizeGuideGrid','modeChoiceGrid','accompanimentGrid','languageGrid']){
   assert.match(kioskOptionCss,new RegExp(`\\.${selector}[^{]*\\{[\\s\\S]*?grid-template-columns: minmax\\(0, 1fr\\) !important`),`${selector} renders one full-width column`);
 }
+assert.match(kioskOptionCss,/body\[data-step="pizzaOptions"\] \.doughOptionSection \.optionButtons\s*\{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) !important/,'integrated dough options stay in one three-column row');
+assert.match(kioskOptionCss,/body\[data-step="pizzaOptions"\] \.doughOptionSection \.optionBtn\s*\{[\s\S]*?min-height: 104px !important/,'integrated dough options fit the usable kiosk height');
 for(const protectedStep of ['crust','drink','side','topping','review','payment']){
   assert.ok(!selectedOptionCss.includes(`body[data-step="${protectedStep}"]`),`${protectedStep} receives no selected-option override`);
 }
@@ -227,8 +229,33 @@ for(const setSize of [3,4]){
 }
 const doughOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'takeout',promo:'takeout',bannerTakeout:true,size:'L',mode:'single',dough:'오리지널',crust:'오리지널'})");
 assert.ok(doughOptions.includes('class="optionSection doughOptionSection"'),'only the integrated dough section receives its dedicated scope');
-assert.ok(doughOptions.includes("onclick=\"setBannerOption('dough','오리지널')\""),'dough selection handler remains attached');
-assert.ok(doughOptions.includes("onclick=\"setBannerOption('crust','오리지널')\""),'protected crust selection handler remains attached');
+assert.ok(doughOptions.includes("onclick=\"setStandardPizzaOption('dough','오리지널')\""),'dough selection handler remains attached');
+assert.ok(doughOptions.includes("onclick=\"setStandardPizzaOption('crust','오리지널')\""),'protected crust selection handler remains attached');
+
+const emptyOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'dinein',promo:'normal',set:null,bannerTakeout:false,size:null,mode:'single',dough:null,crust:null,left:null,right:null})");
+assert.ok(emptyOptions.includes('사이즈를 먼저 선택해 주세요'),'dependent options explain why they are unavailable');
+assert.match(emptyOptions,/class="optionContinue" disabled/,'next is disabled until all three options are valid');
+vm.runInContext("confirmStandardPizzaOptions()",context);
+assert.strictEqual(vm.runInContext("state.step",context),'pizzaOptions','an incomplete option selection cannot enter composition');
+
+vm.runInContext("setStandardPizzaOption('size','R');setStandardPizzaOption('dough','오리지널');setStandardPizzaOption('crust','오리지널')",context);
+assert.strictEqual(vm.runInContext("standardPizzaOptionsValid()",context),true,'regular classic original is a valid combination');
+vm.runInContext("setStandardPizzaOption('dough','씬도우')",context);
+assert.strictEqual(vm.runInContext("state.dough",context),'오리지널','clicking a disabled dough does not change state');
+vm.runInContext("confirmStandardPizzaOptions()",context);
+assert.strictEqual(vm.runInContext("state.step",context),'mode','valid options enter whole or half selection');
+vm.runInContext("selectPizzaMode('single');pickPizza('P001')",context);
+assert.strictEqual(vm.runInContext("state.step",context),'topping','whole pizza selection goes directly to toppings without reopening crust');
+vm.runInContext("prevStep();prevStep();prevStep()",context);
+assert.strictEqual(vm.runInContext("state.step",context),'pizzaOptions','back follows topping to pizza to mode to integrated options');
+
+vm.runInContext("Object.assign(state,{step:'pizzaOptions',promo:'normal',size:'F',dough:'씬도우',crust:'골드링'});setStandardPizzaOption('size','L')",context);
+assert.deepStrictEqual(JSON.parse(vm.runInContext("JSON.stringify({dough:state.dough,crust:state.crust})",context)),{dough:null,crust:'골드링'},'size change clears only the newly incompatible dough');
+vm.runInContext("setStandardPizzaOption('size','R')",context);
+assert.strictEqual(vm.runInContext("state.crust",context),null,'size change clears a newly incompatible crust');
+
+vm.runInContext("Object.assign(state,{step:'pizzaOptions',promo:'normal',size:'L',dough:'크루아상',crust:'치즈롤'});confirmStandardPizzaOptions();selectPizzaMode('half');confirmHalfGuide();pickPizza('P001');pickPizza('P003');confirmHalf()",context);
+assert.strictEqual(vm.runInContext("state.step",context),'topping','two half selections continue directly to toppings');
 for(const language of languages){
   context.window.PJ_I18N.setLanguage(language);
   const languageMarkup=render("Object.assign(state,{step:'language'})");
