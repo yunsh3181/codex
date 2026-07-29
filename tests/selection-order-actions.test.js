@@ -232,7 +232,7 @@ assert.ok(doughOptions.includes('class="optionSection doughOptionSection"'),'onl
 assert.ok(doughOptions.includes("onclick=\"setStandardPizzaOption('dough','오리지널')\""),'dough selection handler remains attached');
 assert.ok(doughOptions.includes("onclick=\"setStandardPizzaOption('crust','오리지널')\""),'protected crust selection handler remains attached');
 assert.ok(doughOptions.includes('피자 선택 후 가격 확정'),'pizza-dependent size cards defer the amount until pizza selection');
-assert.ok(doughOptions.includes('+ 6,000원'),'the takeout croissant card uses the existing banner option fee');
+assert.ok(doughOptions.includes('+ 6,000원'),'the croissant card uses the existing CRUSTS dough fee');
 assert.ok(doughOptions.includes('+ 4,000원'),'large crust cards use the existing CRUSTS price data');
 assert.ok(doughOptions.includes('추가금 없음'),'zero-fee options are labelled explicitly');
 
@@ -244,7 +244,29 @@ assert.strictEqual(vm.runInContext("standardOptionPriceText('crust','골드링')
 
 const normalPriceOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'dinein',promo:'normal',bannerTakeout:false,size:'L',dough:'크루아상',crust:'오리지널'})");
 assert.ok(normalPriceOptions.includes('크루아상은 오리지널 크러스트만 가능</span><span class=\"optionPrice\">+ 4,000원'),'disabled crust cards retain both their reason and existing price');
-assert.strictEqual(vm.runInContext("standardOptionPriceText('dough','크루아상')",context),'추가금 없음','normal-order dough display follows the unchanged crustFee calculation');
+assert.strictEqual(vm.runInContext("standardOptionPriceText('dough','크루아상')",context),'+ 6,000원','normal-order croissant dough displays its existing CRUSTS fee');
+assert.strictEqual(vm.runInContext("standardOptionPriceText('crust','오리지널')",context),'추가금 없음','croissant original crust does not repeat the dough fee');
+assert.strictEqual(vm.runInContext("standardOptionPriceText('crust','치즈롤')",context),'+ 4,000원','disabled cheese roll keeps only its own large crust fee');
+assert.strictEqual(vm.runInContext("standardOptionPriceText('crust','골드링')",context),'+ 4,000원','disabled gold ring keeps only its own large crust fee');
+
+for(const orderCase of [
+  {name:'normal dine-in',orderType:'dinein',promo:'normal',bannerTakeout:false,discounted:false},
+  {name:'normal takeout',orderType:'takeout',promo:'normal',bannerTakeout:false,discounted:false},
+  {name:'20% takeout',orderType:'takeout',promo:'takeout',bannerTakeout:true,discounted:true}
+]){
+  vm.runInContext(`Object.assign(state,{orderType:'${orderCase.orderType}',promo:'${orderCase.promo}',bannerTakeout:${orderCase.bannerTakeout},size:'L',mode:'single',left:'P001',right:null,dough:'크루아상',crust:'오리지널',toppings:{},extraSides:{},extraDrinks:{},set:null})`,context);
+  const croissantPrice=JSON.parse(vm.runInContext("JSON.stringify(price())",context));
+  const pizzaAmount=vm.runInContext("po('P001').L",context);
+  assert.strictEqual(croissantPrice.crust,6000,`${orderCase.name} charges the existing croissant fee exactly once`);
+  if(orderCase.discounted){
+    const expectedDiscount=Math.round((pizzaAmount+6000)*(vm.runInContext('SETTINGS.PACK_DISCOUNT',context)/100));
+    assert.strictEqual(croissantPrice.discount,expectedDiscount,'20% takeout discount includes the single croissant fee');
+    assert.strictEqual(croissantPrice.total,pizzaAmount+6000-expectedDiscount,'20% takeout payment matches the displayed croissant fee');
+  }else{
+    assert.strictEqual(croissantPrice.discount,0,`${orderCase.name} does not introduce a discount`);
+    assert.strictEqual(croissantPrice.total,pizzaAmount+6000,`${orderCase.name} payment matches the displayed croissant fee`);
+  }
+}
 
 const emptyOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'dinein',promo:'normal',set:null,bannerTakeout:false,size:null,mode:'single',dough:null,crust:null,left:null,right:null})");
 assert.ok(emptyOptions.includes('사이즈를 먼저 선택해 주세요'),'dependent options explain why they are unavailable');

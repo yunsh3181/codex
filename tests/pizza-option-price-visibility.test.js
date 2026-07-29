@@ -23,6 +23,6 @@ test('all six languages provide option surcharge and deferred-price copy',()=>{
 });
 
 test('option price display reads existing price sources without changing checkout functions',()=>{
-  assert.match(html,/function standardOptionPriceText\(kind,value\)\{[\s\S]*?bannerOptionFee\(value\)[\s\S]*?CRUSTS\.find\(c=>c\.name===value\)\?\.\[state\.size\]/);
-  assert.match(html,/function crustFee\(\)\{if\(state\.promo==='upup'\)return 0;if\(state\.bannerTakeout&&state\.dough==='크루아상'\)return state\.size==='L'\?6000:0;return CRUSTS\.find/);
+  assert.match(html,/function standardOptionPriceText\(kind,value\)\{[\s\S]*?value==='크루아상'[\s\S]*?CRUSTS\.find\(c=>c\.name==='크루아상'\)\?\.\[state\.size\][\s\S]*?CRUSTS\.find\(c=>c\.name===value\)\?\.\[state\.size\]/);
+  assert.match(html,/function crustFee\(\)\{if\(state\.promo==='upup'\)return 0;if\(state\.dough==='크루아상'\)return CRUSTS\.find\(c=>c\.name==='크루아상'\)\?\.\[state\.size\]\|\|0;return CRUSTS\.find/);
 });
