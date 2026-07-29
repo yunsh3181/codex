@@ -68,6 +68,8 @@ function displayModel(order){
     po:id=>catalog.PIZZAS.find(item=>item.id===id),
     optionDisplayName:item=>item.name,
     cartPizzaNames:x=>x.mode==='half'?'존스 / 식스':'존스',
+    customerDoughLabel:value=>value==='오리지널'?'클래식':value,
+    customerSizeLabel:value=>({R:'레귤러',L:'라지',F:'패밀리사이즈'}[value]||value),
     customerCrustLabel:value=>value,
     setOrderName:value=>`${value}인 세트`,
     benefitName:value=>value,
@@ -87,10 +89,9 @@ test('standard cart breakdown is used only when every component equals stored pr
   assert.equal(model.componentTotal,48000);
   assert.equal(model.total,48000);
   assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,28500);
-  assert.equal(model.categories.pizza.find(row=>row.id==='crust').amount,4000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='crust').added,true);
-  assert.equal(model.categories.pizza.find(row=>row.id==='half').amount,1000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='T1').amount,1500);
+  assert.deepEqual(model.meta,{dough:'클래식',size:'라지',crust:'치즈롤',composition:'cart.halfPizza'});
+  assert.equal(model.categories.toppings.find(row=>row.id==='T1').amount,1500);
+  assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,1);
   assert.deepEqual(input,before);
 });
 
@@ -113,6 +114,7 @@ test('promotions never expose contradictory catalog pizza prices',()=>{
     assert.equal(model.mode,'promotion-safe',promo);
     assert.equal(model.total,price,promo);
     assert.ok(model.categories.pizza.every(row=>row.amount===null),promo);
+    assert.ok(model.categories.toppings.every(row=>row.amount!==null),promo);
     assert.ok(model.categories.pizza.every(row=>row.included===false),promo);
     assert.ok(model.benefit,promo);
   }
@@ -125,9 +127,8 @@ test('order quantity and option quantity are multiplied exactly once',()=>{
   assert.equal(model.total,99000);
   assert.equal(model.componentTotal,99000);
   assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,57000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='crust').amount,8000);
-  assert.equal(model.categories.pizza.find(row=>row.id==='T1').qty,2);
-  assert.equal(model.categories.pizza.find(row=>row.id==='T1').amount,6000);
+  assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,4);
+  assert.equal(model.categories.toppings.find(row=>row.id==='T1').amount,6000);
   assert.equal(model.categories.sides[0].amount,19800);
   assert.equal(model.categories.drinks[0].amount,5000);
   assert.equal(model.categories.accompaniment[0].amount,1200);
