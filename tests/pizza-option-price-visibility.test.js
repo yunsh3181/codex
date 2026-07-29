@@ -9,6 +9,7 @@ const i18n=fs.readFileSync(path.join(root,'i18n/ui.js'),'utf8');
 
 test('pizza option guidance reuses the established kiosk yellow with readable disabled copy',()=>{
   assert.match(html,/--v10-yellow:#f7cf2b/);
+  assert.match(html,/\.optionSetup \.optionBtn\.active\{color:var\(--v10-yellow,#f7cf2b\)!important\}/);
   assert.match(html,/\.optionReason,\.optionPrice\{[^}]*color:var\(--v10-yellow,#f7cf2b\)!important/);
   assert.match(html,/\.optionSetup \.optionBtn:disabled\{[^}]*opacity:1!important;[^}]*background:#555b57!important;[^}]*color:#fff!important/);
   assert.doesNotMatch(html,/\.optionReason[^}]*color:(?:var\(--r\)|#7b1118|#d71920)/);
