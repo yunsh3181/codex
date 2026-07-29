@@ -254,8 +254,25 @@ assert.deepStrictEqual(JSON.parse(vm.runInContext("JSON.stringify({dough:state.d
 vm.runInContext("setStandardPizzaOption('size','R')",context);
 assert.strictEqual(vm.runInContext("state.crust",context),null,'size change clears a newly incompatible crust');
 
-vm.runInContext("Object.assign(state,{step:'pizzaOptions',promo:'normal',size:'L',dough:'크루아상',crust:'치즈롤'});confirmStandardPizzaOptions();selectPizzaMode('half');confirmHalfGuide();pickPizza('P001');pickPizza('P003');confirmHalf()",context);
-assert.strictEqual(vm.runInContext("state.step",context),'topping','two half selections continue directly to toppings');
+const croissantOptions=render("Object.assign(state,{step:'pizzaOptions',promo:'normal',set:null,size:'L',dough:'크루아상',crust:null})");
+assert.ok(croissantOptions.includes('크루아상은 오리지널 크러스트만 가능'),'croissant explains its original-crust-only restriction');
+assert.match(croissantOptions,/button class="optionBtn " disabled aria-disabled="true" onclick="setStandardPizzaOption\('crust','치즈롤'\)"/,'croissant disables cheese roll');
+assert.match(croissantOptions,/button class="optionBtn " disabled aria-disabled="true" onclick="setStandardPizzaOption\('crust','골드링'\)"/,'croissant disables gold ring');
+vm.runInContext("state.crust='치즈롤';confirmStandardPizzaOptions()",context);
+assert.strictEqual(vm.runInContext("state.step",context),'pizzaOptions','croissant with cheese roll cannot enter composition');
+vm.runInContext("setStandardPizzaOption('crust','골드링')",context);
+assert.strictEqual(vm.runInContext("state.crust",context),'치즈롤','clicking croissant gold ring does not change state');
+
+const thinOptions=render("Object.assign(state,{step:'pizzaOptions',promo:'normal',set:null,size:'F',dough:'씬도우',crust:'골드링'})");
+assert.ok(thinOptions.includes('씬도우는 오리지널·골드링만 가능'),'thin dough explains why cheese roll is disabled');
+assert.strictEqual(vm.runInContext("standardPizzaOptionsValid()",context),true,'family thin dough with gold ring remains valid');
+vm.runInContext("setStandardPizzaOption('crust','치즈롤')",context);
+assert.strictEqual(vm.runInContext("state.crust",context),'골드링','clicking thin-dough cheese roll does not change state');
+
+vm.runInContext("Object.assign(state,{step:'pizzaOptions',promo:'normal',size:'L',dough:'오리지널',crust:'치즈롤'});setStandardPizzaOption('dough','크루아상')",context);
+assert.deepStrictEqual(JSON.parse(vm.runInContext("JSON.stringify({dough:state.dough,crust:state.crust})",context)),{dough:'크루아상',crust:null},'changing to croissant clears an incompatible crust');
+vm.runInContext("Object.assign(state,{step:'pizzaOptions',promo:'normal',size:'F',dough:'오리지널',crust:'치즈롤'});setStandardPizzaOption('dough','씬도우')",context);
+assert.deepStrictEqual(JSON.parse(vm.runInContext("JSON.stringify({dough:state.dough,crust:state.crust})",context)),{dough:'씬도우',crust:null},'changing to thin dough clears cheese roll');
 for(const language of languages){
   context.window.PJ_I18N.setLanguage(language);
   const languageMarkup=render("Object.assign(state,{step:'language'})");
