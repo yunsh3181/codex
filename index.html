@@ -2989,11 +2989,11 @@ function confirmTables(){
 function normalizeHappyHourFlow(){if(state.promo!=='happy')return;state.size='R';state.mode='single';state.dough='오리지널';state.crust='오리지널';if(['size','mode','crust'].includes(state.step))state.step=state.left?'topping':'pizza'}
 function pickPromo(p){state.setSidePrompted=false;state.setSideExtraMode=false;state.setDrinkPrompted=false;state.setDrinkExtraMode=false;state.promo=p;if(p==='set'){state.step='setChoice'}else if(p==='happy'){state.size='R';state.mode='single';state.dough='오리지널';state.crust='오리지널';if(isHappyHourNow()){state.orderTiming='now';state.happyReserveOnly=false;state.reserveTime=null;state.step='pizza'}else if(state.orderTiming==='reserve'&&validHappyReserveTime()){state.happyReserveOnly=true;state.step='pizza'}else{state.orderTiming='reserve';state.happyReserveOnly=true;state.reserveTime=null;state.reserveHour=null;state.reserveMinute=null;state.step='reserve'}}else if(p==='upup'){state.size='F';state.step='mode'}else state.step='size';render()}
 function chooseSet(n){state.setSidePrompted=false;state.setSideExtraMode=false;state.setDrinkPrompted=false;state.setDrinkExtraMode=false;state.set=n;state.size=n===2?'R':n===3?'L':'F';state.mode='single';state.dough='오리지널';state.left=null;state.right=null;state.cat='ALL';state.crust='오리지널';state.step=n===2?'pizza':'mode';render()}
-function setSetOption(key,value){if(key==='mode'&&value==='half'&&state.size==='R')return;state[key]=value;if(key==='mode'){state.left=null;state.right=null;if(value==='half'){state.modal='halfGuide';render();return}}render()}function confirmSetOptions(){state.left=null;state.right=null;state.cat='ALL';state.step='pizza';render()}
+function setSetOption(key,value){if(key==='mode'&&value==='half'&&state.size==='R')return;state[key]=value;if(key==='mode'){state.left=null;state.right=null;if(value==='half'&&![3,4].includes(state.set)){state.modal='halfGuide';render();return}}render()}function confirmSetOptions(halfGuideConfirmed=false){if([3,4].includes(state.set)&&state.mode==='half'&&!halfGuideConfirmed){state.modal='halfGuide';render();return}state.left=null;state.right=null;state.cat='ALL';state.step='pizza';render()}
 function confirmHalfGuide(){
  state.modal=null;
  if(state.step==='pizzaOptions'){render();return}
- if(state.set){confirmSetOptions();return}
+ if(state.set){confirmSetOptions(true);return}
  state.step='pizza';
  render();
 }
