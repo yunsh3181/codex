@@ -64,7 +64,7 @@ test('kiosk activation cannot affect phone, tablet, or default device layers', (
 
 test('behavior-bearing order, cart, price, and Firestore selectors remain present', () => {
   for (const token of [
-    'pressPhone', 'selectPayment', 'validPayment', 'checkoutCart', 'cartTotal',
+    'pressPhone', 'selectPayment', 'validPayment', 'addCurrentOrderToReview', 'cartTotal',
     'currentOrderTotal', 'submitMobileOrder', "db.collection('orders').doc", 'state.orderNo',
   ]) assert.ok(html.includes(token), token);
 });

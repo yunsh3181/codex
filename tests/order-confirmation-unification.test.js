@@ -9,14 +9,16 @@ const reviewActionsSource=html.slice(
   html.indexOf('function reviewTotals')
 );
 
-test('every cart checkout enters the shared order confirmation page',()=>{
-  assert.match(html,/function checkoutCart\(\)\{if\(!state\.cartItems\.length\)return;state\.step='review';render\(\)\}/);
-  assert.doesNotMatch(html,/function checkoutCart\(\)[\s\S]{0,120}state\.step='phone'/);
+test('every completed order enters the shared confirmation without a cart review step',()=>{
+  assert.match(html,/function addCurrentOrderToReview\(\)\{if\(currentHasItems\(\)\)state\.cartItems=\[\.\.\.state\.cartItems,orderSnapshot\(\)\];clearCurrentProduct\(\);state\.step='review';render\(\)\}/);
+  assert.doesNotMatch(html,/if\(state\.step==='cartReview'\)return shell/);
+  assert.doesNotMatch(html,/function checkoutCart\(/);
 });
 
 test('the shared confirmation renders the takeout reference actions for every benefit',()=>{
   const reviewView=html.match(/if\(state\.step==='review'\)return shell\(`[\s\S]*?`\);/)?.[0]||'';
   assert.match(reviewView,/reviewOrdersHTML\(\).*reviewAddActionsHTML\(\).*reviewTotalsHTML\(\)/);
+  assert.match(reviewView,/state\.cartItems\.length\?'':'disabled'/);
   assert.match(reviewActionsSource,/addAnotherSet\(\)/);
   assert.match(reviewActionsSource,/addAnotherUpUp\(\)/);
   assert.match(reviewActionsSource,/addAnotherSingle\(\)/);
@@ -28,13 +30,15 @@ test('all discovered benefits keep using the same review data and total renderer
     assert.ok(html.includes(`id:'${benefit}'`)||html.includes(`'${benefit}'`),benefit);
   }
   assert.match(html,/function reviewOrderCard\(order,index\)\{const model=buildCartDisplayModel\(order\)/);
+  assert.match(html,/function reviewOrderCard[\s\S]*?changeCartQty\(\$\{index\},-1\)[\s\S]*?removeCartItem\(\$\{index\}\)/);
+  assert.match(html,/function allReviewOrders\(\)\{return \(state\.cartItems\|\|\[\]\)\.map/);
   assert.match(html,/function reviewTotals\(\)\{const orders=allReviewOrders\(\)/);
   assert.match(html,/function reviewTotalsHTML\(\)\{const totals=reviewTotals\(\)/);
 });
 
 test('confirmation routing does not mutate order type or pricing',()=>{
-  const checkout=html.match(/function checkoutCart\(\)\{[^}]+\}/)?.[0]||'';
-  assert.doesNotMatch(`${checkout}${reviewActionsSource}`,/orderType\s*=|promo\s*=|price\s*=|discount\s*=/);
-  assert.match(html,/review:\(state\.cartItems\.length\?'cartReview':\(state\.orderType==='takeout'\?'accompaniment':'drink'\)\)/);
+  const enterReview=html.match(/function addCurrentOrderToReview\(\)\{[^}]+\}/)?.[0]||'';
+  assert.doesNotMatch(`${enterReview}${reviewActionsSource}`,/orderType\s*=|promo\s*=|price\s*=|discount\s*=/);
+  assert.match(html,/review:'promo'/);
   assert.match(html,/phone:'review'/);
 });

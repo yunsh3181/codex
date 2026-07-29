@@ -16,7 +16,7 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(pkg.version, '1.2.15');
   assert.equal(lock.version, '1.2.15');
   assert.equal(lock.packages[''].version, '1.2.15');
-  assert.equal(sha256(html), '5fcf8758181c849a7e7eb6dae55e735ba2ce67a8e188d567d4131d795cd453d2');
+  assert.equal(sha256(html), '006a2e50f5d0ba5f03b9d35db1eb518c975002e324cb3660467ca42b64e74722');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '5a910c903c6d1e948d85dfeeb865855241d92e6167e3d3816462c4678d193299');
   assert.equal(sha256(read('styles/device-tablet.css')), '67326feeb53d7201b82265c300bf1ea241206c794dede25c2487159fefb62e50');
@@ -60,7 +60,7 @@ test('takeout timing descriptions are doubled and use kiosk yellow', () => {
 
 test('language and large-order rendering remain dynamic and non-destructive', () => {
   for (const locale of ['ko', 'en', 'ja', 'zh', 'vi', 'es']) assert.ok(html.includes(locale), locale);
-  assert.ok(html.includes('cartItems.map'));
+  assert.ok(html.includes('(state.cartItems||[]).map'));
   assert.ok(html.includes('reviewOrderList'));
   assert.match(kiosk, /\.reviewOrderHead h3,[\s\S]*?overflow-wrap: anywhere/);
   assert.match(kiosk, /\.cartOrderPrice,[\s\S]*?white-space: nowrap/);
