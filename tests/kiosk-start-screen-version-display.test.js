@@ -25,7 +25,6 @@ test('Electron exposes only the installed app version through the existing secur
 test('start screens render a safe version label and ordering screens do not', () => {
   assert.match(indexSource, /function startScreenVersionHTML\(\)/);
   assert.match(indexSource, /function languageView\(\)[\s\S]*startScreenVersionHTML\(\)/);
-  assert.match(indexSource, /businessHoursPanel[\s\S]*startScreenVersionHTML\(\)/);
   assert.match(indexSource, /state\.step==='home'[\s\S]*startScreenVersionHTML\(\)/);
   assert.doesNotMatch(indexSource, /function shell\(c\)\{[^}]*startScreenVersionHTML/);
   assert.match(indexSource, /version&&version!=='undefined'&&version!=='null'&&version!=='\[object Object\]'/);
@@ -55,10 +54,9 @@ test('version loading starts at DEV, upgrades valid Electron values, and keeps D
   assert.match(indexSource, /kioskAppVersion=normalizedKioskAppVersion\(value\);\s*updateStartScreenVersion\(\)/);
 });
 
-test('business-hours start view covers both before-open and after-close status without changing its decision logic', () => {
-  assert.match(indexSource, /const beforeOpen=businessHoursStatus==='before-open'/);
-  assert.match(indexSource, /beforeOpen\?copy\.beforeOpenTitle:copy\.afterCloseTitle/);
-  assert.match(indexSource, /document\.body\.dataset\.step='business-hours'/);
+test('business-hours status never replaces the kiosk start screen', () => {
+  assert.doesNotMatch(indexSource, /businessHoursClosedView|dataset\.step='business-hours'/);
+  assert.match(indexSource, /function render\(\)\{/);
 });
 
 test('version metadata keeps portrait safe margins and cannot intercept kiosk input', () => {

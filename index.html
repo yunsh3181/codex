@@ -2232,68 +2232,15 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
 function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 
-let businessHoursStatus=window.PJ_BUSINESS_HOURS?null:'open';
-let businessHoursClosing=false;
 function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
 function isTestModeEnabled(){return kioskTestModeController?.isEnabled()===true}
-function isOrderingAllowed(){return isBusinessOpen()||isTestModeEnabled()}
-function businessHoursClosedView(){
- const beforeOpen=businessHoursStatus==='before-open';
- const copy=window.PJ_BUSINESS_HOURS.UI_COPY;
- return `<section class="businessHoursScreen" aria-live="polite"><div class="businessHoursPanel">
-  <img class="businessHoursLogo" src="assets/images/papajohns_red_logo.png" alt="Papa John’s">
-  <div class="businessHoursStore">${copy.store}</div>
-  <h1 class="businessHoursTitle">${beforeOpen?copy.beforeOpenTitle:copy.afterCloseTitle}</h1>
-  <p class="businessHoursLabel">${copy.hoursLabel}</p>
-  <p class="businessHoursTime">${copy.hours}</p>
-  <p class="businessHoursMessage">${beforeOpen?copy.beforeOpenMessage:copy.afterCloseMessage}</p>
-  <time id="businessHoursClock" class="businessHoursClock"></time>
- </div>${startScreenVersionHTML()}</section>`
-}
-function updateBusinessHoursClock(date=new Date()){
- const clock=document.getElementById('businessHoursClock');
- if(clock)clock.textContent=window.PJ_BUSINESS_HOURS.UI_COPY.currentTime+' · '+window.PJ_BUSINESS_HOURS.formatKoreanTime(date)
-}
-function requireBusinessOpenPure(date=new Date()){
- if(isTestModeEnabled())return true;
- if(window.PJ_BUSINESS_HOURS)window.PJ_BUSINESS_HOURS.requireOpen(date)
-}
-function closeForBusinessHours(){
- if(businessHoursClosing)return;
- businessHoursClosing=true;
- businessHoursStatus=window.PJ_BUSINESS_HOURS.getStatus();
- reset();
- mobileOrderSubmitting=false;
- render()
-}
-function assertBusinessOpen(){
- if(isTestModeEnabled())return true;
- try{requireBusinessOpenPure();return true}
- catch(error){
-  if(error?.code!=='BUSINESS_HOURS_CLOSED')throw error;
-  closeForBusinessHours();
-  return false
- }
-}
-function handleBusinessHoursChange(nextStatus,previousStatus,date){
- businessHoursStatus=nextStatus;
- if(nextStatus==='open'){
-  if(isTestModeEnabled()){kioskTestModeController.disable('opening');return}
-  businessHoursClosing=false;
-  if(previousStatus&&previousStatus!=='open')reset();
-  render()
- }else{
-  closeForBusinessHours()
- }
- updateBusinessHoursClock(date)
-}
+function isOrderingAllowed(){return true}
 
 let testCompletion=null;
 function endTestModeFlow(){
  reset();
  testCompletion=null;
  mobileOrderSubmitting=false;
- businessHoursClosing=false;
  render()
 }
 const testModeApi=window.PJ_AFTER_HOURS_TEST_MODE||{createController:options=>({start(){},isEnabled(){return false},disable(){},getState(){return {enabled:false,enabledAt:null,expiresAt:null}}})};
@@ -2303,7 +2250,7 @@ const kioskTestModeController=testModeApi.createController({
   if(meta.reason==='tick')return;
   if(!next.enabled)endTestModeFlow();
   else if(isBusinessOpen())kioskTestModeController.disable('opening');
-  else{businessHoursClosing=false;reset();render()}
+  else{reset();render()}
  }
 });
 kioskTestModeController.start();
@@ -2585,14 +2532,6 @@ function applyAdaptiveCardSizing(){
  });
 }
 function render(){
- if(businessHoursStatus!=='open'&&!isTestModeEnabled()){
-  document.body.dataset.step='business-hours';
-  document.getElementById('main').innerHTML=businessHoursClosedView();
-  document.getElementById('cart').innerHTML='';
-  document.getElementById('modal').innerHTML='';
-  updateBusinessHoursClock();
-  return
- }
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
  document.body.dataset.step=state.step||'';
@@ -3430,7 +3369,6 @@ function buildMobileOrderPayload(){
 }
 async function submitMobileOrder(){
  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
- requireBusinessOpenPure();
  if(!window.PJ_NETWORK.isOnline())throw new Error(t('ui.payment.saveFailedConnection'));
  const payload=buildMobileOrderPayload();
  if(!['dinein','takeout'].includes(payload.orderType))throw new Error(t('ui.payment.invalidOrderType'));
@@ -3438,13 +3376,11 @@ async function submitMobileOrder(){
  if(!Number.isInteger(payload.itemCount)||payload.itemCount<1||payload.itemCount>100)throw new Error(t('ui.payment.invalidQuantity'));
  if(!Number.isFinite(payload.total)||payload.total<0||payload.total>3000000)throw new Error(t('ui.payment.invalidAmount'));
  if(!/^010\d{8}$/.test(payload.phone||''))throw new Error(t('ui.payment.phoneCheck'));
- requireBusinessOpenPure();
  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
  const orderRef=db.collection('orders').doc();
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
  await db.runTransaction(async transaction=>{
   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
-  requireBusinessOpenPure();
   if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
   transaction.set(orderRef,payload);
@@ -3457,14 +3393,12 @@ async function submitMobileOrder(){
 
 async function complete(event){
  if(event){event.preventDefault();event.stopPropagation()}
- if(!assertBusinessOpen())return
  const errorBox=document.getElementById('submitError');if(errorBox)errorBox.textContent='';
  if(!validPhone()){if(errorBox)errorBox.textContent=t('ui.payment.invalidPhone');return}
  if(!validPayment()){if(errorBox)errorBox.textContent=t('ui.payment.invalidMethod');return}
  const button=document.getElementById('paymentSubmitBtn')||document.querySelector('.paymentSubmitBtn');
  if(button){button.disabled=true;button.textContent=t('ui.payment.submitting')}
  try{
-  if(!assertBusinessOpen())return
   if(isTestModeEnabled()){
    const payload=buildMobileOrderPayload();
    testCompletion={orderType:state.orderType,itemCount:payload.itemCount,total:payload.total};
@@ -3478,7 +3412,6 @@ async function complete(event){
   state.step='done';render();
   setTimeout(()=>{reset();render()},5000)
  }catch(error){
-  if(error?.code==='BUSINESS_HOURS_CLOSED'){closeForBusinessHours();return}
   console.error(error);
   alert(t('ui.payment.saveFailedConnection')+'\n'+error.message);
   if(errorBox)errorBox.textContent=error.message||t('ui.payment.saveFailed');if(button){button.disabled=false;button.textContent=t('ui.payment.submit')}
@@ -3526,11 +3459,7 @@ mobileSeatTimer=setInterval(()=>{if(isOrderingAllowed()&&state.step==='table')re
 ['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
 window.addEventListener('pagehide',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
-const businessHoursMonitor=window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.createMonitor({
- onStatusChange:handleBusinessHoursChange,
- onClockTick:updateBusinessHoursClock
-}):null;
-if(businessHoursMonitor)businessHoursMonitor.start();else render();
+render();
 window.__PJ_BOOT_OK=true;
 
 document.addEventListener('pointerdown',e=>{

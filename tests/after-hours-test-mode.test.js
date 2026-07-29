@@ -117,9 +117,9 @@ test('authenticated admin UI requires confirmation and reports remaining time an
   assert.match(adminSource, /pagehide',disposeAdminTestModeSession,\{once:true\}/);
 });
 
-test('kiosk bypasses only the closed UI and displays a non-dismissible banner', () => {
-  assert.match(html, /businessHoursStatus!=='open'&&!isTestModeEnabled\(\)/);
-  assert.match(html, /function isOrderingAllowed\(\)\{return isBusinessOpen\(\)\|\|isTestModeEnabled\(\)\}/);
+test('kiosk ordering stays available and test mode displays a non-dismissible banner', () => {
+  assert.doesNotMatch(html, /businessHoursStatus!=='open'&&!isTestModeEnabled\(\)/);
+  assert.match(html, /function isOrderingAllowed\(\)\{return true\}/);
   assert.match(html, /function areaSchedulePolicy\(area\)\{\n if\(isTestModeEnabled\(\)\)return/);
   assert.match(html, /class="testModeBanner" role="status"/);
   assert.doesNotMatch(html, /testModeBanner[\s\S]{0,100}(?:close|dismiss|닫기)/i);
