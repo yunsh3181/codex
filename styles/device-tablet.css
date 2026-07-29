@@ -289,7 +289,6 @@ html[data-layout="tablet"] :where(
 /* Phase 3-5: checkout, payment, and completion geometry. Runtime layout
  * scoping keeps phone and landscape/default ownership unchanged. */
 html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"],
@@ -302,7 +301,6 @@ html[data-layout="tablet"] body:is(
 }
 
 html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"]
@@ -310,13 +308,9 @@ html[data-layout="tablet"] body:is(
   padding-bottom: calc(32px + var(--safe-bottom)) !important;
 }
 
-html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="tablet"] body[data-step="review"] :where(
   .summary,
   .review,
-  .cartReview,
   .reviewOrderCard,
   .reviewSection,
   .cartOrderCard
@@ -325,10 +319,7 @@ html[data-layout="tablet"] body:is(
   max-width: 100%;
 }
 
-html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="tablet"] body[data-step="review"] :where(
   .cartOrderTop > :first-child,
   .cartOrderName,
   .cartOrderDesc,
@@ -342,10 +333,7 @@ html[data-layout="tablet"] body:is(
   word-break: keep-all;
 }
 
-html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="tablet"] body[data-step="review"] :where(
   .cartOrderPrice,
   .reviewOrderHead > strong,
   .reviewSection li span:last-child,
@@ -357,10 +345,7 @@ html[data-layout="tablet"] body:is(
   white-space: nowrap;
 }
 
-html[data-layout="tablet"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(.multiCartTotal, .reviewDiscountBox .line) {
+html[data-layout="tablet"] body[data-step="review"] :where(.multiCartTotal, .reviewDiscountBox .line) {
   justify-content: space-between;
   text-align: right;
 }

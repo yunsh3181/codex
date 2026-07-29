@@ -173,7 +173,7 @@ for(const step of ['promo','setChoice','size','mode','pizzaOptions','accompanime
 for(const selector of ['darkBenefitGrid','darkSetGrid','sizeGuideGrid','modeChoiceGrid','doughOptionSection','accompanimentGrid','languageGrid']){
   assert.match(kioskOptionCss,new RegExp(`\\.${selector}[^{]*\\{[\\s\\S]*?grid-template-columns: minmax\\(0, 1fr\\) !important`),`${selector} renders one full-width column`);
 }
-for(const protectedStep of ['crust','drink','side','topping','cartReview','review','payment']){
+for(const protectedStep of ['crust','drink','side','topping','review','payment']){
   assert.ok(!selectedOptionCss.includes(`body[data-step="${protectedStep}"]`),`${protectedStep} receives no selected-option override`);
 }
 assert.match(kioskOptionCss,/body\[data-step="accompaniment"\] \.textQtyCard \.qty button\s*\{[\s\S]*?width: 84px !important;[\s\S]*?height: 84px !important/,'accompaniment quantity controls are 84px touch targets');

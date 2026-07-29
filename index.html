@@ -2994,7 +2994,7 @@ function continueAfterSide(){if(needsDisposables()&&state.disposables===null){st
 function skipSide(){if(state.finalAddMode==='side'){state.finalAddMode=null;addCurrentOrderToReview();return}continueAfterSide()}
 function continueSetSide(){if(!setSideBaseComplete())return;if(!state.setSidePrompted){maybePromptSetSideExtra();return}continueAfterSide()}
 function skipSideExtra(){state.setSideExtraMode=false;continueAfterSide()}
-function continueAfterDrink(){if(state.set||state.promo==='upup'){addCurrentOrderToCart();return}if(maybePromptBetterBenefit())return;openFinalUpsell()}
+function continueAfterDrink(){if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}if(maybePromptBetterBenefit())return;openFinalUpsell()}
 function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompaniment';render();return}if(state.finalAddMode==='drink'){state.finalAddMode=null;addCurrentOrderToReview();return}continueAfterDrink()}
 function skipDrink(){routeAfterDrink()}
 function skipDrinkExtra(){state.setDrinkExtraMode=false;routeAfterDrink()}
@@ -3071,7 +3071,7 @@ function nextStep(){
  }else if(state.step==='drink'){
   if(state.finalAddMode==='drink'){state.finalAddMode=null;addCurrentOrderToReview();return}
   if(state.set&&!state.setDrinkPrompted){maybePromptSetDrinkExtra();return}
-  if(state.set||state.promo==='upup'){addCurrentOrderToCart();return}
+  if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}
   if(maybePromptBetterBenefit())return;
   openFinalUpsell();return
  }else if(state.step==='review')state.step='phone';
@@ -3181,7 +3181,6 @@ function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.q
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
 function clearCurrentProduct(){Object.assign(state,{setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null})}
 function addCurrentOrderToReview(){if(currentHasItems())state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct();state.step='review';render()}
-function addCurrentOrderToCart(){addCurrentOrderToReview()}
 function preserveCurrentOrderForAdd(){if(currentHasItems())state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct()}
 function addAnotherSet(){preserveCurrentOrderForAdd();state.promo='set';state.step='setChoice';render()}
 function addAnotherUpUp(){preserveCurrentOrderForAdd();state.promo='upup';state.size='F';state.step='mode';render()}
@@ -4839,11 +4838,10 @@ body[data-step="drink"] .buttonOnlyQty .qty{
 
 @media(max-width:560px){
   .app{padding-bottom:0!important}
-  body:not([data-step="home"]):not([data-step="done"]):not([data-step="cartReview"]) .stage{
+  body:not([data-step="home"]):not([data-step="done"]) .stage{
     padding-bottom:calc(90px + env(safe-area-inset-bottom))!important;
   }
-  body[data-step="done"] .stage,
-  body[data-step="cartReview"] .stage{padding-bottom:18px!important}
+  body[data-step="done"] .stage{padding-bottom:18px!important}
 
   .happyPromo .happyHours{font-size:17px!important}
   .happyPromo .happyDealLine{font-size:13px!important;line-height:1.2!important}
@@ -5361,34 +5359,14 @@ body[data-step="accompaniment"] .card h3{
 .reviewDiscountBox .discountLine,
 .reviewDiscountBox .totalDiscount{color:var(--v10-red)!important}
 
-/* Cart and payment pages use Kakao yellow with deep-green/black/red text. */
-body[data-step="cartReview"],
-body[data-step="cartReview"] .app,
-body[data-step="cartReview"] .stage,
+/* Payment pages use Kakao yellow with deep-green/black/red text. */
 body[data-step="payment"],
 body[data-step="payment"] .app,
 body[data-step="payment"] .stage{
   background:var(--v10-kakao)!important;
 }
-body[data-step="cartReview"] .cartPage .title,
 body[data-step="payment"] .title{color:var(--v10-green)!important}
-body[data-step="cartReview"] .cartPage .sub,
 body[data-step="payment"] .sub{color:#111!important}
-body[data-step="cartReview"] .cartOrderCard,
-body[data-step="cartReview"] .cartEmpty{
-  background:#fff9bd!important;
-  border-color:#b99f00!important;
-  color:#111!important;
-}
-body[data-step="cartReview"] .cartOrderCard h2,
-body[data-step="cartReview"] .cartOrderCard h3{color:var(--v10-green)!important}
-body[data-step="cartReview"] .cartOrderPrice,
-body[data-step="cartReview"] .multiCartTotal strong{color:var(--v10-red)!important}
-body[data-step="cartReview"] .multiCartTotal{
-  background:var(--v10-kakao)!important;
-  color:var(--v10-green)!important;
-  border:3px solid var(--v10-green)!important;
-}
 body[data-step="payment"] .summary{
   background:var(--v10-kakao)!important;
   color:#111!important;

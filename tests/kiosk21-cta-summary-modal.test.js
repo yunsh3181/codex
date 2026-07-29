@@ -34,7 +34,7 @@ test('summary is positioned above the viewport edge and contains flexible text a
 
 test('summary-visible state activates the complete bottom stack', () => {
   assert.match(kiosk, /--kiosk21-bottom-stack-height: calc\([\s\S]*?var\(--kiosk21-cta-height\)[\s\S]*?var\(--kiosk21-active-summary-height\)[\s\S]*?var\(--safe-bottom\)/);
-  assert.match(kiosk, /body:not\(\[data-step="home"\]\):not\(\[data-step="done"\]\):not\([\s\S]*?\[data-step="cartReview"\][\s\S]*?--kiosk21-active-summary-height: var\(--kiosk21-summary-height\)/);
+  assert.match(kiosk, /body:not\(\[data-step="home"\]\):not\(\[data-step="done"\]\) \{[\s\S]*?--kiosk21-active-summary-height: var\(--kiosk21-summary-height\)/);
   assert.match(html, /function bar\(\)\{if\(\['home','done'\]\.includes\(state\.step\)\)return ''/);
   assert.match(kiosk, /\.selectionFooterSpacer, \.c-selection-footer-spacer, \.footerSpacer\)[\s\S]*?height: var\(--kiosk21-bottom-stack-height\)/);
   assert.ok(html.includes('class="selectionFooterSpacer"'));
@@ -44,7 +44,7 @@ test('summary-visible state activates the complete bottom stack', () => {
 test('summary-hidden state keeps its height at zero without DOM-presence detection', () => {
   assert.match(kiosk, /--kiosk21-active-summary-height: 0px/);
   assert.doesNotMatch(kiosk, /body:has\(\.cartbar, \.c-order-summary\)/);
-  for (const step of ['home', 'done', 'cartReview']) {
+  for (const step of ['home', 'done']) {
     assert.ok(kiosk.includes(`[data-step="${step}"]`), `${step} remains summary-hidden`);
   }
 });

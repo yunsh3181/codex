@@ -25,9 +25,7 @@ html[data-layout="kiosk21"] {
   overscroll-behavior-x: none;
 }
 
-html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]):not(
-  [data-step="cartReview"]
-) {
+html[data-layout="kiosk21"] body:not([data-step="home"]):not([data-step="done"]) {
   --kiosk21-active-summary-height: var(--kiosk21-summary-height);
   --kiosk21-bottom-stack-height: calc(
     var(--kiosk21-cta-height) + var(--kiosk21-summary-height) +
@@ -836,7 +834,6 @@ html[data-layout="kiosk21"] :where(
  * token is the only activation switch; state, copy, and component styling
  * continue to come from the existing application layers. */
 html[data-layout="kiosk21"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"],
@@ -850,7 +847,6 @@ html[data-layout="kiosk21"] body:is(
 }
 
 html[data-layout="kiosk21"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"]
@@ -858,10 +854,7 @@ html[data-layout="kiosk21"] body:is(
   padding-bottom: calc(48px + var(--safe-bottom)) !important;
 }
 
-html[data-layout="kiosk21"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="kiosk21"] body[data-step="review"] :where(
   .cartOrderTop > :first-child,
   .cartOrderName,
   .cartOrderDesc,
@@ -876,10 +869,7 @@ html[data-layout="kiosk21"] body:is(
   word-break: keep-all;
 }
 
-html[data-layout="kiosk21"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="kiosk21"] body[data-step="review"] :where(
   .cartOrderPrice,
   .reviewOrderHead > strong,
   .reviewSection li span:last-child,
@@ -891,10 +881,7 @@ html[data-layout="kiosk21"] body:is(
   white-space: nowrap;
 }
 
-html[data-layout="kiosk21"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(.cartOrderTop, .reviewOrderHead, .reviewSection li, .reviewDiscountBox .line, .multiCartTotal) {
+html[data-layout="kiosk21"] body[data-step="review"] :where(.cartOrderTop, .reviewOrderHead, .reviewSection li, .reviewDiscountBox .line, .multiCartTotal) {
   min-width: 0;
   gap: 24px;
   justify-content: space-between;
@@ -1556,18 +1543,18 @@ html[data-layout="kiosk21"] body[data-step="reserve"] .reserveConfirm {
 }
 
 /* Cart detail view model reads existing catalog prices without changing cart. */
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartCategory {
+html[data-layout="kiosk21"] body[data-step="review"] .cartCategory {
   padding: 18px 0;
   border-bottom: 2px solid #e2e6e2;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartCategory h2 {
+html[data-layout="kiosk21"] body[data-step="review"] .cartCategory h2 {
   margin: 0 0 14px;
   color: #006b3c !important;
   font-size: 26px;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
+html[data-layout="kiosk21"] body[data-step="review"] :where(
   .cartBaseRow,
   .cartDetailRow,
   .cartOrderTotal
@@ -1579,7 +1566,7 @@ html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review
   font-size: 24px;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemSummary {
+html[data-layout="kiosk21"] body[data-step="review"] .cartItemSummary {
   display: grid;
   grid-template-columns: minmax(0, auto) auto minmax(12px, 1fr) auto;
   align-items: baseline;
@@ -1587,30 +1574,30 @@ html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review
   width: 100%;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemName {
+html[data-layout="kiosk21"] body[data-step="review"] .cartItemName {
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: keep-all;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
+html[data-layout="kiosk21"] body[data-step="review"] :where(
   .cartItemQuantity,
   .cartItemPrice
 ) {
   white-space: nowrap;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartItemPrice {
+html[data-layout="kiosk21"] body[data-step="review"] .cartItemPrice {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartDetailRow {
+html[data-layout="kiosk21"] body[data-step="review"] .cartDetailRow {
   padding: 7px 0 7px 28px;
   font-size: 20px;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) :where(
+html[data-layout="kiosk21"] body[data-step="review"] :where(
   .cartBaseRow,
   .cartDetailRow
 ) strong {
@@ -1619,13 +1606,13 @@ html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review
   white-space: nowrap;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartOrderTotal {
+html[data-layout="kiosk21"] body[data-step="review"] .cartOrderTotal {
   padding-top: 20px;
   font-size: 28px;
   font-weight: 1000;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartBenefitRow {
+html[data-layout="kiosk21"] body[data-step="review"] .cartBenefitRow {
   display: flex;
   justify-content: space-between;
   gap: 24px;
@@ -1635,7 +1622,7 @@ html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review
   font-weight: 900;
 }
 
-html[data-layout="kiosk21"] body:is([data-step="cartReview"], [data-step="review"]) .cartIncludedLabel {
+html[data-layout="kiosk21"] body[data-step="review"] .cartIncludedLabel {
   color: #006b3c !important;
 }
 

@@ -12,7 +12,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const compact = kiosk.replace(/\s+/g, '');
 
 test('checkout runtime scope preserves the 960px kiosk surface', () => {
-  for (const step of ['cartReview', 'review', 'phone', 'payment', 'done']) {
+  for (const step of ['review', 'phone', 'payment', 'done']) {
     assert.ok(kiosk.includes(`[data-step="${step}"]`), step);
   }
   assert.ok(kiosk.includes('--kiosk21-content-max: 960px'));

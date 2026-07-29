@@ -4,6 +4,12 @@ const fs=require('node:fs');
 const path=require('node:path');
 
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
+const runtimeStyles=[
+  'styles/device-phone.css',
+  'styles/device-tablet.css',
+  'styles/device-kiosk21.css',
+  'styles/network-status.css'
+].map(file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8')).join('\n');
 const reviewActionsSource=html.slice(
   html.indexOf('function reviewAddActionsHTML'),
   html.indexOf('function reviewTotals')
@@ -13,6 +19,8 @@ test('every completed order enters the shared confirmation without a cart review
   assert.match(html,/function addCurrentOrderToReview\(\)\{if\(currentHasItems\(\)\)state\.cartItems=\[\.\.\.state\.cartItems,orderSnapshot\(\)\];clearCurrentProduct\(\);state\.step='review';render\(\)\}/);
   assert.doesNotMatch(html,/if\(state\.step==='cartReview'\)return shell/);
   assert.doesNotMatch(html,/function checkoutCart\(/);
+  assert.doesNotMatch(html,/addCurrentOrderToCart/);
+  assert.doesNotMatch(runtimeStyles,/cartReview/);
 });
 
 test('the shared confirmation renders the takeout reference actions for every benefit',()=>{

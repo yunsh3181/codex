@@ -528,7 +528,6 @@ html[data-layout="phone"] :where(
  * These rules only contain and reflow the legacy UI; order state, pricing,
  * fixed CTA, and order-summary behavior remain owned by the existing layers. */
 html[data-layout="phone"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"],
@@ -539,7 +538,6 @@ html[data-layout="phone"] body:is(
 }
 
 html[data-layout="phone"] body:is(
-  [data-step="cartReview"],
   [data-step="review"],
   [data-step="phone"],
   [data-step="payment"],
@@ -550,10 +548,7 @@ html[data-layout="phone"] body:is(
   max-width: 100%;
 }
 
-html[data-layout="phone"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="phone"] body[data-step="review"] :where(
   .cartOrderCard,
   .cartOrderTop,
   .cartOrderName,
@@ -568,10 +563,7 @@ html[data-layout="phone"] body:is(
   max-width: 100%;
 }
 
-html[data-layout="phone"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="phone"] body[data-step="review"] :where(
   .cartOrderName,
   .cartOrderDesc,
   .reviewOrderHead h3,
@@ -582,10 +574,7 @@ html[data-layout="phone"] body:is(
   overflow-wrap: anywhere;
 }
 
-html[data-layout="phone"] body:is(
-  [data-step="cartReview"],
-  [data-step="review"]
-) :where(
+html[data-layout="phone"] body[data-step="review"] :where(
   .cartOrderPrice,
   .reviewOrderHead > strong,
   .reviewSection li span:last-child,
@@ -598,7 +587,6 @@ html[data-layout="phone"] body:is(
   white-space: nowrap;
 }
 
-html[data-layout="phone"] body[data-step="cartReview"] .cartPage,
 html[data-layout="phone"] body[data-step="review"] .stage {
   padding-bottom: calc(18px + var(--safe-bottom)) !important;
 }

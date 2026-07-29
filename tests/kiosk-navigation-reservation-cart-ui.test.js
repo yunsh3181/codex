@@ -150,8 +150,8 @@ test('cart renderer emits each consolidated category at most once',()=>{
 });
 
 test('live kiosk cart detail typography applies to cart and final review',()=>{
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartCategory h2[\s\S]*?font-size: 26px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) :where\([\s\S]*?\.cartBaseRow[\s\S]*?font-size: 24px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartDetailRow[\s\S]*?font-size: 20px/);
-  assert.match(css,/body:is\(\[data-step="cartReview"\], \[data-step="review"\]\) \.cartOrderTotal[\s\S]*?font-size: 28px/);
+  assert.match(css,/body\[data-step="review"\] \.cartCategory h2[\s\S]*?font-size: 26px/);
+  assert.match(css,/body\[data-step="review"\] :where\([\s\S]*?\.cartBaseRow[\s\S]*?font-size: 24px/);
+  assert.match(css,/body\[data-step="review"\] \.cartDetailRow[\s\S]*?font-size: 20px/);
+  assert.match(css,/body\[data-step="review"\] \.cartOrderTotal[\s\S]*?font-size: 28px/);
 });
