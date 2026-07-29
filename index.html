@@ -3462,20 +3462,6 @@ window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSea
 render();
 window.__PJ_BOOT_OK=true;
 
-document.addEventListener('pointerdown',e=>{
- const target=e.target.closest('button');
- if(!target||target.disabled||target.closest('.keypad'))return;
- const r=document.createElement('span');
- r.className='ripple';
- const size=Math.max(target.offsetWidth,target.offsetHeight)*.28;
- r.style.width=r.style.height=size+'px';
- r.style.left=e.clientX+'px';
- r.style.top=e.clientY+'px';
- document.body.appendChild(r);
- setTimeout(()=>r.remove(),520);
-},{passive:true});
-
-
 function playUiTick(){
  try{
   const Ctx=window.AudioContext||window.webkitAudioContext;

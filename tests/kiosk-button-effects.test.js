@@ -15,12 +15,11 @@ function rule(selector) {
   return kiosk.slice(open + 1, close);
 }
 
-test('home dine-in and takeout cards have explicit pointer selection feedback', () => {
+test('home dine-in and takeout cards have no pressed animation', () => {
   const states = rule(
     'html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active'
   );
-  assert.match(states, /outline:\s*6px solid currentColor\s*!important/);
-  assert.match(states, /outline-offset:\s*-6px/);
+  assert.match(states, /outline:\s*0\s*!important/);
   assert.match(states, /transform:\s*none\s*!important/);
 });
 
@@ -32,7 +31,7 @@ test('home cards retain a branded keyboard focus indicator', () => {
   assert.match(focus, /outline-offset:\s*3px/);
 });
 
-test('phone keypad active feedback cannot scale, translate, animate, or glow', () => {
+test('phone keypad has no active transition, transform, animation, or opacity change', () => {
   const keypad = rule(
     'html[data-layout="kiosk21"] body[data-step="phone"] .keypad button,\n' +
     'html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active'
@@ -42,18 +41,24 @@ test('phone keypad active feedback cannot scale, translate, animate, or glow', (
   assert.match(keypad, /filter:\s*none\s*!important/);
   assert.match(keypad, /box-shadow:\s*none\s*!important/);
   assert.doesNotMatch(keypad, /scale\(|translate[XY]?\(/);
+  assert.match(keypad, /transition:\s*none\s*!important/);
   assert.match(
     rule('html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active'),
-    /opacity:\s*0\.85/
+    /opacity:\s*1/
   );
 });
 
-test('kiosk button transitions stay short and ripple is disabled', () => {
-  const buttons = compact(rule('html[data-layout="kiosk21"] button'));
-  assert.match(buttons, /background-color80mslinear/);
-  assert.match(buttons, /opacity80mslinear/);
-  assert.doesNotMatch(buttons, /(?:2\d\d|[3-9]\d\d)ms/);
+test('kiosk touch targets have no transition and ripple is disabled', () => {
+  const buttons = compact(
+    rule('html[data-layout="kiosk21"] :where(button, [role="button"], [onclick])')
+  );
+  assert.match(buttons, /transition:none!important/);
   assert.match(rule('html[data-layout="kiosk21"] .ripple'), /display:\s*none\s*!important/);
+});
+
+test('kiosk no longer creates JavaScript pointer ripples', () => {
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /className\s*=\s*['"]ripple['"]/);
 });
 
 test('persistent selected states remain owned by the application stylesheet', () => {

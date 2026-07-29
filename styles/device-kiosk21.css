@@ -1025,21 +1025,19 @@ html[data-layout="kiosk21"] body[data-step="done"] .doneHomeBtn {
   }
 }
 
-/* Keep kiosk touch feedback quiet and stable without changing persistent
- * selected, active, disabled, or validation states. */
-html[data-layout="kiosk21"] button {
-  transition:
-    background-color 80ms linear,
-    color 80ms linear,
-    opacity 80ms linear !important;
+/* Keep kiosk touch targets immediate and stable without changing persistent
+ * selected, disabled, loading, or validation states. */
+html[data-layout="kiosk21"] :where(button, [role="button"], [onclick]) {
+  transition: none !important;
   -webkit-tap-highlight-color: transparent;
 }
 
-html[data-layout="kiosk21"] button:active:not(:disabled) {
+html[data-layout="kiosk21"] :where(button, [role="button"], [onclick]):is(:hover, :active):not(:disabled),
+html[data-layout="kiosk21"] :where(button, [role="button"], [onclick]):is(:hover, :active)::before,
+html[data-layout="kiosk21"] :where(button, [role="button"], [onclick]):is(:hover, :active)::after {
   transform: none !important;
   filter: none !important;
-  box-shadow: none !important;
-  opacity: 0.88;
+  transition: none !important;
 }
 
 html[data-layout="kiosk21"] .ripple {
@@ -1430,10 +1428,8 @@ html[data-layout="kiosk21"] body[data-step="language"] .languageSelectedMark {
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:active {
-  outline: 6px solid currentColor !important;
-  outline-offset: -6px;
+  outline: 0 !important;
   transform: none !important;
-  box-shadow: none !important;
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroChoice:focus-visible {
@@ -1650,14 +1646,12 @@ html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {
   animation: none !important;
   filter: none !important;
   box-shadow: none !important;
-  transition:
-    background-color 80ms linear,
-    opacity 80ms linear !important;
+  transition: none !important;
   -webkit-tap-highlight-color: transparent;
 }
 
 html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {
-  opacity: 0.85;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
