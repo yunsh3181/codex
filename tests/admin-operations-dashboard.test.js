@@ -49,8 +49,8 @@ assert.ok(admin.includes('class="seat-overview-card seat-zone-${seat.zone} ${sta
 assert.ok(admin.includes('style="grid-row-start:${seat.row};grid-column-start:${seat.column}"'),'real seat cards receive explicit grid positions');
 assert.ok(!css.includes('.seat-overview-card.empty{')&&!css.includes('.seat-overview-card.occupied{')&&!css.includes('.seat-overview-card.held{'),'state classes do not override the whole card palette');
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("status==='empty'")&&admin.includes('`<article ${attributes}>'),'empty seats render as non-interactive articles');
-assert.ok(admin.includes('`<button type="button" ${attributes} data-action="open-seat-order"'),'occupied and held seats open their linked order');
+assert.ok(admin.includes("const action=status==='held'?'open-seat-order':'toggle-seat'"),'empty and occupied seats share the overview toggle action while held seats retain order detail');
+assert.ok(admin.includes('`<button type="button" ${attributes} data-action="${action}"'),'all overview seats render as accessible action buttons');
 assert.ok(admin.includes('data-action="clear-seat" data-seat-id="${esc(seatId)}"'),'seat clearing remains available from the linked order detail');
 assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
 assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');

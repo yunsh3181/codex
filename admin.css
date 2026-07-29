@@ -184,10 +184,19 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .payment-metric.paid strong{color:#006b35;font-size:21px;font-weight:1000;white-space:nowrap}
 .order-operations .actions{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0}
 .order-operations .actions button{padding:9px 8px}
+.new-order-lines{display:grid;gap:0;padding:0 18px 14px}
+.new-order-line{display:grid;align-items:stretch;border:1px solid var(--line);border-bottom:0;background:#fff}
+.new-order-line>span{display:flex;align-items:center;min-width:0;padding:12px 14px;font-weight:850;line-height:1.45;word-break:keep-all;overflow-wrap:anywhere}
+.new-order-line>span+span{border-left:1px solid var(--line)}
+.new-order-primary{grid-template-columns:minmax(150px,.8fr) minmax(300px,2.2fr) minmax(180px,1.25fr) minmax(170px,1.1fr)}
+.new-order-secondary{grid-template-columns:minmax(110px,.8fr) minmax(130px,1fr) minmax(150px,1.1fr) minmax(140px,1fr) minmax(140px,1fr);border-bottom:1px solid var(--line)}
+.new-order-lines>.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
 @media(max-width:1050px){
  .order-card-body{grid-template-columns:1fr}
  .order-menu{border-right:0;border-bottom:1px solid var(--line)}
  .payment-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .new-order-line{grid-template-columns:1fr}
+ .new-order-line>span+span{border-left:0;border-top:1px solid var(--line)}
 }
 @media(max-width:700px){
  .order-head{align-items:flex-start;flex-direction:column}
