@@ -1447,6 +1447,7 @@ button,a,[role="button"],.card,.tableCard,.areaCard,.darkBenefitCard,.darkSetCar
 .cartPage{max-width:900px;margin:0 auto}.cartOrderCard{background:#fff;border:1px solid #e3e7e3;border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 8px 22px rgba(0,0,0,.06)}
 .cartOrderTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.cartOrderName{font-size:21px;font-weight:1000}.cartOrderDesc{margin-top:8px;color:#626962;line-height:1.55}.cartOrderPrice{font-size:22px;font-weight:1000;color:var(--r);white-space:nowrap}
 .cartOrderActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.cartOrderActions button{border:1px solid #d8ddd8;background:#fff;border-radius:10px;padding:8px 12px;font-weight:900}.cartOrderActions .remove{color:var(--r)}
+.cartPizzaMeta{display:flex;flex-wrap:wrap;gap:8px 0;padding:4px 0 10px;font-size:13px}.cartPizzaMeta span{display:inline-flex;gap:5px;align-items:baseline}.cartPizzaMeta span:not(:last-child)::after{content:"";height:14px;margin:0 10px;border-right:1px solid #aeb5ae}.cartPizzaMeta b{color:#303630}.cartPizzaToppingLine{display:flex;gap:6px;min-width:0;padding:4px 0}.cartPizzaToppingLine b{flex:0 0 auto}.cartPizzaToppingLine span{min-width:0;overflow-wrap:anywhere}.cartCategory{padding:12px 0;border-bottom:1px solid var(--line)}.cartCategory h2{margin:0 0 8px;font-size:15px}.cartItemSummary{display:grid;grid-template-columns:minmax(0,auto) auto minmax(12px,1fr) auto;align-items:baseline;column-gap:8px;padding:4px 0}.cartItemFlexibleSpace{align-self:center;min-width:12px;border-bottom:1px dashed #aeb5ae}.cartItemName{min-width:0;overflow-wrap:anywhere}.cartItemQuantity,.cartItemPrice{white-space:nowrap}.cartItemPrice{text-align:right;font-variant-numeric:tabular-nums}.cartBenefitRow,.cartOrderTotal{display:flex;justify-content:space-between;gap:18px;padding:12px 0}.cartBenefitRow{color:var(--g);font-weight:900}.cartOrderTotal{border-top:2px solid #222;font-size:19px;font-weight:1000}
 .multiCartTotal{background:#173c2d;color:#fff;border-radius:20px;padding:20px;display:flex;justify-content:space-between;align-items:center;font-size:25px;font-weight:1000;margin-top:20px}
 .multiCartButtons{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:10px;margin-top:16px}.multiCartButtons button{border:0;border-radius:14px;padding:17px 12px;font-weight:1000;font-size:17px}.addSetBtn{background:#fff0dc;color:#8a4d00}.addSingleBtn{background:#e8f2ed;color:#075f39}.orderNowBtn{background:var(--r);color:#fff}
 .cartEmpty{background:#fff;border-radius:20px;padding:38px;text-align:center}
@@ -3136,7 +3137,7 @@ function cartCatalogLines(map,master,unitPrice,orderQty,included=false){
   const item=master.find(candidate=>candidate.id===id),qty=Number(value)||0;
   if(!item||qty<=0)return [];
   const unit=included?0:Number(unitPrice(item)||0);
-  return [{id,name:optionDisplayName(item),qty,amount:unit*qty*orderQty,included,added:false}];
+  return [{id,name:optionDisplayName(item),qty:qty*orderQty,amount:unit*qty*orderQty,included,added:false}];
  })
 }
 function buildCartDisplayModel(order){
@@ -3156,17 +3157,28 @@ function buildCartDisplayModel(order){
  const hasIncluded=includedSides.length>0||includedDrinks.length>0;
  const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&componentUnit===storedUnit;
  const pizza=[];
- if(left)pizza.push({id:'pizza',name:cartPizzaNames(order),qty,amount:standard?pizzaUnit*qty:null,included:false,added:false});
- if(left&&crustUnit)pizza.push({id:'crust',name:customerCrustLabel(order.crust),qty:1,amount:standard?crustUnit*qty:null,included:false,added:standard});
- if(left&&halfUnit)pizza.push({id:'half',name:t('review.halfPizza'),qty:1,amount:standard?halfUnit*qty:null,included:false,added:standard});
- toppings.forEach(line=>pizza.push({...line,amount:standard?line.amount:null,included:false,added:standard}));
+ if(left)pizza.push({id:'pizza',name:cartPizzaNames(order),qty,amount:null,included:false,added:false});
  return {
   mode:standard?'standard':'promotion-safe',
-  categories:{pizza,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
+  meta:left?{
+   dough:customerDoughLabel(order.dough||'오리지널'),
+   size:customerSizeLabel(size),
+   crust:customerCrustLabel(order.crust||'오리지널'),
+   composition:t(order.mode==='half'?'cart.halfPizza':'cart.singlePizza')
+  }:null,
+  categories:{pizza,toppings,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
   benefit:standard?'':(order.set?setOrderName(order.set):benefitName(order.promo||'normal')),
   componentTotal:componentUnit*qty,
   total:storedUnit*qty
  }
+}
+function cartPizzaMetaHtml(meta){
+ if(!meta)return '';
+ return `<div class="cartPizzaMeta"><span><b>${t('review.doughTypeLabel')} :</b>${meta.dough}</span><span><b>${t('review.sizeLabel')} :</b>${meta.size}</span><span><b>${t('review.crustTypeLabel')} :</b>${meta.crust}</span><span><b>${t('review.compositionLabel')} :</b>${meta.composition}</span></div>`
+}
+function cartPizzaCategoryHtml(model){
+ if(!model.categories.pizza.length)return '';
+ return `<section class="cartCategory cartPizzaCategory"><h2>${t('ui.summary.pizza')}</h2>${cartPizzaMetaHtml(model.meta)}${model.categories.pizza.map(row=>`<div class="cartPizzaToppingLine"><b>${t('review.pizzaToppingLabel')} :</b><span>${row.name}×${row.qty}</span></div>`).join('')}</section>`
 }
 function cartCategoryHtml(title,rows,showUnitQty=false){
  if(!rows.length)return '';
@@ -3175,7 +3187,7 @@ function cartCategoryHtml(title,rows,showUnitQty=false){
 function cartOrderDetailHtml(model){
  const sideTitle=window.PJ_I18N.sideCategory({i18nId:'strips'}),
   drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
- return `${cartCategoryHtml(t('ui.progress.pizza'),model.categories.pizza)}${cartCategoryHtml(sideTitle,model.categories.sides,true)}${cartCategoryHtml(drinkTitle,model.categories.drinks,true)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment,true)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div>`
+ return `${cartPizzaCategoryHtml(model)}${cartCategoryHtml(t('review.toppingAddTitle'),model.categories.toppings)}${cartCategoryHtml(sideTitle,model.categories.sides,true)}${cartCategoryHtml(drinkTitle,model.categories.drinks,true)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment,true)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div>`
 }
 function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
 function removeCartItem(i){state.cartItems.splice(i,1);render()}
