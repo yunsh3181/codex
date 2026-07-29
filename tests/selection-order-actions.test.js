@@ -183,7 +183,7 @@ assert.match(kioskOptionCss,/body\[data-step="language"\] \.languageGrid button:
 const regularMode=render("Object.assign(state,{step:'mode',promo:'normal',set:null,size:'R',mode:'single'})");
 assert.match(regularMode,/<button class="card modeChoiceCard" disabled onclick="selectPizzaMode\('half'\)">/,'Regular half-and-half remains disabled');
 assert.ok(regularMode.includes("onclick=\"selectPizzaMode('single')\""),'whole-pizza selection handler remains attached');
-vm.runInContext("Object.assign(state,{step:'mode',promo:'set',set:3,size:'L',mode:'single',modal:null,left:null,right:null,crust:'오리지널'})",context);
+vm.runInContext("Object.assign(state,{step:'mode',promo:'normal',set:null,size:'L',mode:'single',modal:null,left:null,right:null,crust:'오리지널'})",context);
 vm.runInContext("setSetOption('mode','single')",context);
 let halfGuideState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal})",context));
 assert.deepStrictEqual(halfGuideState,{step:'mode',mode:'single',modal:null},'whole pizza does not open the half guide');
@@ -203,6 +203,28 @@ assert.deepStrictEqual(halfGuideState,{step:'pizza',mode:'half',modal:null},'con
 vm.runInContext("prevStep();setSetOption('mode','half')",context);
 halfGuideState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal})",context));
 assert.deepStrictEqual(halfGuideState,{step:'mode',mode:'half',modal:'halfGuide'},'back navigation allows the half guide to appear again');
+for(const setSize of [3,4]){
+  const pizzaSize=setSize===3?'L':'F';
+  vm.runInContext(`Object.assign(state,{step:'mode',promo:'set',set:${setSize},size:'${pizzaSize}',mode:'single',modal:null,left:null,right:null,crust:'오리지널'})`,context);
+  vm.runInContext("setSetOption('mode','half')",context);
+  let delayedHalfState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(delayedHalfState,{step:'mode',mode:'half',modal:null,crust:'오리지널'},`${setSize}-person half selection stays on options without opening the guide`);
+  vm.runInContext("setSetOption('crust','치즈롤')",context);
+  delayedHalfState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(delayedHalfState,{step:'mode',mode:'half',modal:null,crust:'치즈롤'},`${setSize}-person half and crust selections remain on the current screen`);
+  vm.runInContext("confirmSetOptions()",context);
+  delayedHalfState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(delayedHalfState,{step:'mode',mode:'half',modal:'halfGuide',crust:'치즈롤'},`${setSize}-person half next click opens the guide without navigating`);
+  vm.runInContext("state.modal=null;render()",context);
+  delayedHalfState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(delayedHalfState,{step:'mode',mode:'half',modal:null,crust:'치즈롤'},`closing the ${setSize}-person guide keeps the current selections`);
+  vm.runInContext("confirmSetOptions();confirmHalfGuide()",context);
+  delayedHalfState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(delayedHalfState,{step:'pizza',mode:'half',modal:null,crust:'치즈롤'},`confirming the ${setSize}-person guide enters pizza selection`);
+  vm.runInContext(`Object.assign(state,{step:'mode',promo:'set',set:${setSize},size:'${pizzaSize}',mode:'single',modal:null,left:null,right:null,crust:'골드링'});confirmSetOptions()`,context);
+  const wholePizzaState=JSON.parse(vm.runInContext("JSON.stringify({step:state.step,mode:state.mode,modal:state.modal,crust:state.crust})",context));
+  assert.deepStrictEqual(wholePizzaState,{step:'pizza',mode:'single',modal:null,crust:'골드링'},`${setSize}-person whole pizza keeps the existing popup-free next flow`);
+}
 const doughOptions=render("Object.assign(state,{step:'pizzaOptions',orderType:'takeout',promo:'takeout',bannerTakeout:true,size:'L',mode:'single',dough:'오리지널',crust:'오리지널'})");
 assert.ok(doughOptions.includes('class="optionSection doughOptionSection"'),'only the integrated dough section receives its dedicated scope');
 assert.ok(doughOptions.includes("onclick=\"setBannerOption('dough','오리지널')\""),'dough selection handler remains attached');
