@@ -56,6 +56,7 @@ body[data-step="topping"] .toppingTextTitle {
 body[data-step="topping"] .toppingTextNotice {
   margin-bottom: 10px !important;
   padding: 9px 12px !important;
+  font-size: 17.6px !important;
 }
 
 body[data-step="topping"] .toppingTextGrid {
@@ -69,7 +70,7 @@ body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
   display: grid !important;
   min-height: 0 !important;
   padding: 38px 10px 10px !important;
-  grid-template-rows: minmax(2.25em, auto) auto 48px;
+  grid-template-rows: 2.24em 1.1em 48px;
   gap: 5px;
   align-content: center;
   border-radius: 14px !important;
@@ -77,21 +78,27 @@ body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
 
 body[data-step="topping"] .toppingTextCard h3 {
   display: grid !important;
-  min-height: 0 !important;
+  min-height: 2.24em !important;
+  height: 2.24em;
   margin: 0 !important;
   padding: 0;
   place-items: center;
   color: #17221c;
-  font-size: clamp(18px, 1.75vw, 22px) !important;
+  font-size: clamp(19.8px, 1.925vw, 24.2px) !important;
   font-weight: 950;
   line-height: 1.12 !important;
   text-align: center;
-  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  -webkit-line-clamp: unset !important;
 }
 
 body[data-step="topping"] .toppingTextCard .price {
+  display: grid;
+  min-height: 1.1em;
   margin: 0 !important;
-  font-size: clamp(14px, 1.45vw, 18px) !important;
+  place-items: center;
+  font-size: clamp(15.4px, 1.595vw, 19.8px) !important;
   line-height: 1.1 !important;
   text-align: center;
 }
@@ -150,7 +157,7 @@ body[data-step="topping"] .toppingTextCard .qty b {
   min-height: 38px !important;
   height: 38px;
   color: #111 !important;
-  font-size: 14px !important;
+  font-size: 15.4px !important;
 }
 
 body[data-step="topping"] .toppingTextCard.active {
@@ -193,7 +200,7 @@ body[data-step="topping"] .toppingTextCard .badge {
   left: auto;
   margin: 0;
   padding: 4px 7px;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 html[data-layout] body[data-step="side"] .grid.adaptiveCards.sideMenuGrid,
@@ -325,7 +332,7 @@ body[data-step="side"] .sideMenuCard.active .qty b {
   body[data-step="topping"] .toppingTextNotice {
     margin-bottom: 5px !important;
     padding: 5px 7px !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
   }
 
   html[data-layout] body[data-step="topping"] .grid.adaptiveCards.toppingTextGrid,
@@ -337,19 +344,21 @@ body[data-step="side"] .sideMenuCard.active .qty b {
   body[data-step="topping"] .toppingTextCard,
   body[data-step="topping"] .toppingTextCard:is(.active, .selected) {
     padding: 25px 5px 5px !important;
-    grid-template-rows: minmax(2.2em, auto) auto 44px;
+    grid-template-rows: 2.2em 1.1em 44px;
     gap: 3px;
     border-radius: 9px !important;
   }
 
   body[data-step="topping"] .toppingTextCard h3 {
     padding: 0;
-    font-size: 16px !important;
+    min-height: 2.2em !important;
+    height: 2.2em;
+    font-size: 17.6px !important;
     line-height: 1.1 !important;
   }
 
   body[data-step="topping"] .toppingTextCard .price {
-    font-size: 12px !important;
+    font-size: 13.2px !important;
   }
 
   body[data-step="topping"] .toppingTextCard .qty {
@@ -374,7 +383,7 @@ body[data-step="side"] .sideMenuCard.active .qty b {
   body[data-step="topping"] .toppingTextCard .qty b {
     min-height: 35px !important;
     height: 35px;
-    font-size: 13px !important;
+    font-size: 14.3px !important;
   }
 
   body[data-step="topping"] .toppingCheck {
@@ -390,7 +399,7 @@ body[data-step="side"] .sideMenuCard.active .qty b {
     right: 28px;
     left: auto;
     padding: 2px 4px;
-    font-size: 7px;
+    font-size: 7.7px;
   }
 
   html[data-layout] body[data-step="side"] .grid.adaptiveCards.sideMenuGrid,
