@@ -5,6 +5,8 @@ const path=require('node:path');
 
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const catalog=JSON.parse(html.match(/window\.KIOSK_DATA = (\{[\s\S]*?\n\});\s*<\/script>/)[1]);
+const comparisonSource=html.match(/function benefitFinalPaymentComparison\(currentProduct,candidateProduct,existingCart=cartTotal\(\)\)\{[\s\S]*?\n\}/)[0];
+const benefitFinalPaymentComparison=Function(`return (${comparisonSource})`)();
 
 test('recommendation is enabled only for normal and takeout orders',()=>{
   assert.match(html,/!\['normal','takeout'\]\.includes\(state\.promo\|\|'normal'\)/);
@@ -33,6 +35,14 @@ test('recommendations are sorted by real payment saving and suppressed per order
   assert.match(html,/state\.benefitPromptedKeys\.includes\(key\)/);
   assert.match(html,/extraSides:state\.extraSides,extraDrinks:state\.extraDrinks/);
   assert.match(html,/function finishFinalAdd\(\)\{state\.finalAddMode=null;if\(maybePromptBetterBenefit\(\)\)return/);
+});
+
+test('existing cart total is displayed in both recommendation totals without changing the product saving',()=>{
+  const comparison=benefitFinalPaymentComparison(31120,28500,20000);
+  assert.deepEqual(comparison,{currentPrice:51120,price:48500,saving:2620});
+  const reviewFinalPayment=20000+28500;
+  assert.equal(comparison.price,reviewFinalPayment);
+  assert.match(html,/benefitFinalPaymentComparison\(currentProduct,candidateProduct\)/);
 });
 
 test('application always requires a customer action',()=>{

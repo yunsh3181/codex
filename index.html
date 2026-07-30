@@ -3334,14 +3334,18 @@ function benefitChangeLines(id){
  }
  return lines
 }
+function benefitFinalPaymentComparison(currentProduct,candidateProduct,existingCart=cartTotal()){
+ return {currentPrice:existingCart+currentProduct,price:existingCart+candidateProduct,saving:currentProduct-candidateProduct}
+}
 function bestBenefitSuggestion(){
- const current=price().total;
+ const currentProduct=price().total;
  const suggestions=[];
  for(const id of comparableBenefitIds()){
-  const v=benefitCandidatePrice(id);
-  if(Number.isFinite(v)&&v<current&&id!==(state.promo||'normal')){
+  const candidateProduct=benefitCandidatePrice(id);
+  if(Number.isFinite(candidateProduct)&&candidateProduct<currentProduct&&id!==(state.promo||'normal')){
+   const comparison=benefitFinalPaymentComparison(currentProduct,candidateProduct);
    const extraValue=benefitExtraValue(id);
-   suggestions.push({id,price:v,saving:current-v,currentPrice:current,extraValue,totalValue:current-v+extraValue,changes:benefitChangeLines(id)})
+   suggestions.push({id,...comparison,extraValue,totalValue:comparison.saving+extraValue,changes:benefitChangeLines(id)})
   }
  }
  return suggestions.sort((a,b)=>b.saving-a.saving)
