@@ -23,6 +23,15 @@ test('mobile review keeps item names, quantities, and prices visible', () => {
   assert.doesNotMatch(phone, /\.cartItemQuantity\s*\{[\s\S]*?display:\s*none/);
   assert.doesNotMatch(phone, /body\[data-step="review"\][\s\S]{0,120}(?:text-overflow:\s*ellipsis|-webkit-line-clamp)/);
   assert.match(phone, /\.cartItemName\s*\{[\s\S]*?overflow-wrap:\s*anywhere/);
+  assert.match(
+    phone,
+    /:is\([\s\S]*?\.cartPizzaPriceLine\.discount > span,[\s\S]*?\.cartBenefitRow > span,[\s\S]*?\.cartBenefitRow > strong[\s\S]*?\)\s*\{[\s\S]*?line-height:\s*13px;[\s\S]*?padding-bottom:\s*2px;/
+  );
+  assert.match(
+    phone,
+    /:is\([\s\S]*?\.cartPizzaPriceLine\.discount,[\s\S]*?\.cartBenefitRow[\s\S]*?\)\s*\{[\s\S]*?padding-block:\s*0;/
+  );
+  assert.match(phone, /\.reviewDiscountBox\s*\{[\s\S]*?padding-block:\s*1px;/);
 });
 
 test('mobile review brand reuses localized data in a scoped three-line header', () => {

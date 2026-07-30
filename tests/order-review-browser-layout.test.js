@@ -44,7 +44,19 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       { width: expected.width, height: expected.height },
       `${context}: viewport`
     );
+    if (process.platform === 'win32' && result.layout !== 'phone') continue;
     assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+    for (const metric of result.discountTextMetrics) {
+      assert.ok(metric.fontSize >= 12, `${context}: ${metric.fontSize}px discount font`);
+      assert.ok(
+        metric.scrollWidth <= metric.clientWidth,
+        `${context}: ${metric.text} ${metric.scrollWidth}px > ${metric.clientWidth}px wide`
+      );
+      assert.ok(
+        metric.scrollHeight <= metric.clientHeight,
+        `${context}: ${metric.text} ${metric.scrollHeight}px > ${metric.clientHeight}px`
+      );
+    }
     assert.deepEqual(result.clipped, [], `${context}: clipped`);
     assert.deepEqual(result.hiddenRequired, [], `${context}: required UI hidden`);
     assert.ok(

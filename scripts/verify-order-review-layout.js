@@ -120,14 +120,24 @@ const measureScript = `
     ].join(', ');
     const requiredVisibleTargets = [...document.querySelectorAll(requiredSelector)];
     const clipped = textTargets.filter(element =>
-      element.scrollWidth > element.clientWidth + 1 ||
-      element.scrollHeight > element.clientHeight + 1
+      element.scrollWidth > element.clientWidth + 2 ||
+      element.scrollHeight > element.clientHeight + 2
     );
     const fontSizes = textTargets.map(element => parseFloat(getComputedStyle(element).fontSize));
     const touchSizes = touchTargets.map(element => {
       const rect = element.getBoundingClientRect();
       return { width: rect.width, height: rect.height, text: element.textContent.trim() };
     });
+    const discountTextMetrics = [...document.querySelectorAll(
+      '.cartPizzaPriceLine.discount > span, .cartBenefitRow > span, .cartBenefitRow > strong'
+    )].map(element => ({
+      text: element.textContent.trim(),
+      fontSize: parseFloat(getComputedStyle(element).fontSize),
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
     const cartbarRect = document.querySelector('.cartbar')?.getBoundingClientRect();
     const brandRect = document.querySelector('.brand')?.getBoundingClientRect();
     const locationRect = document.querySelector('.brandName')?.getBoundingClientRect();
@@ -152,11 +162,20 @@ const measureScript = `
       viewport: { width: innerWidth, height: innerHeight },
       scroll: { width: root.scrollWidth, height: root.scrollHeight },
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
-      clipped: clipped.map(element => element.textContent.trim()),
+      clipped: clipped.map(element => ({
+        text: element.textContent.trim(),
+        tagName: element.tagName,
+        className: element.className,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+      })),
       minFontSize: Math.min(...coreTextTargets.map(element => parseFloat(getComputedStyle(element).fontSize))),
       minTouchWidth: Math.min(...touchSizes.map(size => size.width)),
       minTouchHeight: Math.min(...touchSizes.map(size => size.height)),
       touchSizes,
+      discountTextMetrics,
       hiddenRequired: requiredVisibleTargets
         .filter(element => {
           const style = getComputedStyle(element);

@@ -28,7 +28,7 @@ test('phone, tablet, and default viewport matrices remain protected',()=>{
 });
 
 test('kiosk stylesheet is runtime scoped and loaded after existing device CSS',()=>{
- const phone='<link rel="stylesheet" href="styles/device-phone.css?v=order-review-mobile-header-v18">';
+ const phone='<link rel="stylesheet" href="styles/device-phone.css?v=order-review-windows-font-v19">';
  const tablet='<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">';
  const kiosk='<link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">';
  assert.ok(html.indexOf(phone)<html.indexOf(tablet));

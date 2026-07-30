@@ -1229,6 +1229,7 @@ html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox {
   gap: 0 8px;
   margin-top: 0;
   padding: 3px 7px;
+  padding-block: 1px;
   border-radius: 10px;
   letter-spacing: -0.4px;
 }
@@ -1238,6 +1239,22 @@ html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .line {
   padding: 1px 0;
   font-size: 12px;
   line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] :is(
+  .cartPizzaPriceLine.discount > span,
+  .cartBenefitRow > span,
+  .cartBenefitRow > strong
+) {
+  line-height: 13px;
+  padding-bottom: 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"] :is(
+  .cartPizzaPriceLine.discount,
+  .cartBenefitRow
+) {
+  padding-block: 0;
 }
 
 html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .totalDiscount {
