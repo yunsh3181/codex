@@ -23,7 +23,7 @@ test('phone progress uses five accessible stages without changing kiosk stages',
 
 test('topping cards preserve readable hierarchy, selection contrast, and touch targets', () => {
   assert.match(toppingCss, /body\[data-step="topping"\] \.toppingTextGrid [^{]*\{[^}]*repeat\(4, minmax\(0, 1fr\)\)/);
-  assert.match(toppingCss, /\.toppingTextCard h3 [^{]*\{[^}]*font-size: clamp\(18px, 1\.75vw, 22px\)/);
+  assert.match(toppingCss, /\.toppingTextCard h3 [^{]*\{[^}]*font-size: clamp\(19\.8px, 1\.925vw, 24\.2px\)/);
   assert.match(toppingCss, /\.toppingTextCard\.active [^{]*\{[^}]*background: #c8102e !important/);
   assert.match(toppingCss, /\.toppingTextCard\.active h3,[^{]*\.toppingTextCard\.active \.qty b [^{]*\{[^}]*color: #fff !important/);
   assert.match(toppingCss, /@media \(max-width: 700px\)[\s\S]*\.toppingTextGrid [^{]*\{[^}]*repeat\(2, minmax\(0, 1fr\)\)/);
