@@ -9,7 +9,7 @@ const css = fs.readFileSync(path.join(root, 'styles/kiosk-scroll-free.css'), 'ut
 const compact = css.replace(/\s+/g, ' ');
 
 test('scroll-free stylesheet is loaded after device-specific styles', () => {
-  const kiosk = html.indexOf('styles/device-kiosk21.css?v=kiosk-scroll-indicator-v1.2.11');
+  const kiosk = html.indexOf('styles/device-kiosk21.css?v=home-banner-layout');
   const scrollFree = html.indexOf('styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13');
   assert.ok(kiosk >= 0);
   assert.ok(scrollFree > kiosk);

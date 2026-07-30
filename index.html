@@ -6665,7 +6665,7 @@ body[data-step="home"] .heroTop{
 body[data-step="home"] .heroBrandLockup{
   display:flex!important;
   align-items:center!important;
-  gap:12.96px!important;
+  gap:6px!important;
   min-width:0;
 }
 body[data-step="home"] .heroBrandLockup .heroLogoDark{
@@ -6681,6 +6681,7 @@ body[data-step="home"] .heroBrandLockup .heroLogoDark{
 body[data-step="home"] .heroBrandText{
   display:flex!important;
   min-width:0;
+  margin-left:-32px!important;
   flex-direction:column!important;
   align-items:flex-start!important;
   justify-content:center!important;
@@ -6694,7 +6695,7 @@ body[data-step="home"] .heroBrandText .heroLocation{
   border-radius:0!important;
   background:transparent!important;
   color:#f7cf2b!important;
-  font-size:16.9px!important;
+  font-size:20.28px!important;
   line-height:1.15!important;
   font-weight:1000!important;
   white-space:nowrap!important;
@@ -6704,7 +6705,7 @@ body[data-step="home"] .heroBrandLockup .heroTagline{
   max-width:none!important;
   margin:0!important;
   color:#fff!important;
-  font-size:16px!important;
+  font-size:19.2px!important;
   line-height:1!important;
   white-space:nowrap!important;
   text-transform:uppercase;
@@ -6738,8 +6739,15 @@ body[data-step="home"] .heroPromoStrip{
   margin-top:auto!important;
 }
 body[data-step="home"] .heroPromo{
+  height:364px!important;
   min-height:270px!important;
   padding:36px 24px!important;
+}
+body[data-step="home"] .heroPromo>*{
+  max-width:100%;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
 }
 body[data-step="home"] .happyPromo .happyHours,
 body[data-step="home"] .takeoutPromo .takeoutDiscount,
@@ -6846,13 +6854,62 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
   }
 }
 
+@media (min-width:701px) and (max-width:1024px) and (orientation:portrait){
+  body[data-step="home"] .app{
+    padding-bottom:0!important;
+  }
+  body[data-step="home"] .darkHero{
+    min-height:100vh!important;
+    padding-bottom:calc(96px + var(--safe-bottom))!important;
+  }
+  body[data-step="home"] .heroChoice,
+  body[data-step="home"] .heroChoice.dinein,
+  body[data-step="home"] .heroChoice.takeout{
+    height:178px!important;
+    min-height:178px!important;
+    padding:20px 26px!important;
+  }
+  body[data-step="home"] .heroChoiceGrid{
+    gap:12px!important;
+  }
+  body[data-step="home"] .heroPromo{
+    height:236px!important;
+    min-height:236px!important;
+    padding:14px 10px!important;
+    gap:5px!important;
+  }
+  body[data-step="home"] .heroPromo h3{
+    font-size:18px!important;
+    line-height:1.08!important;
+  }
+  body[data-step="home"] .heroPromo strong,
+  body[data-step="home"] .happyPromo .happyHours,
+  body[data-step="home"] .beerAd strong{
+    font-size:17px!important;
+    line-height:1.12!important;
+  }
+  body[data-step="home"] .heroPromo p,
+  body[data-step="home"] .takeoutSizeNote{
+    font-size:14px!important;
+    line-height:1.18!important;
+  }
+  body[data-step="home"] .takeoutPromo .takeoutDiscount{
+    font-size:30px!important;
+    line-height:1.02!important;
+  }
+  body[data-step="home"] .happyOrderNow,
+  body[data-step="home"] .takeoutOrderNow{
+    font-size:17px!important;
+  }
+}
+
 @media(max-width:700px){
   body[data-step="home"] .darkHero{
     gap:7px!important;
     padding-top:10px!important;
   }
   body[data-step="home"] .heroBrandLockup{
-    gap:4px!important;
+    gap:2px!important;
   }
   body[data-step="home"] .heroBrandLockup .heroLogoDark{
     width:88px!important;
@@ -6862,14 +6919,20 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
     transform:none;
   }
   body[data-step="home"] .heroBrandText{
+    margin-left:-8px!important;
+    max-width:calc(100vw - 216px)!important;
     gap:2px!important;
   }
   body[data-step="home"] .heroBrandText .heroLocation{
-    font-size:12px!important;
+    font-size:14.4px!important;
     padding-bottom:1px!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere;
   }
   body[data-step="home"] .heroBrandLockup .heroTagline{
-    font-size:8.5px!important;
+    font-size:10.2px!important;
+    white-space:normal!important;
+    overflow-wrap:normal;
   }
   body[data-step="home"] .heroChoice,
   body[data-step="home"] .heroChoice.dinein,
@@ -6877,6 +6940,7 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
     min-height:126px!important;
   }
   body[data-step="home"] .heroPromo{
+    height:78px!important;
     min-height:128px!important;
     padding:12px 7px!important;
   }
@@ -6902,5 +6966,5 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
 </style>
 <link rel="stylesheet" href="styles/device-phone.css?v=mobile-progress-compact-v2">
 <link rel="stylesheet" href="styles/device-tablet.css">
-<link rel="stylesheet" href="styles/device-kiosk21.css?v=kiosk-scroll-indicator-v1.2.11">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=home-banner-layout">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
