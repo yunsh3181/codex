@@ -55,7 +55,7 @@ test('indicator DOM is static, unique, decorative, and keeps cache busting',()=>
  assert.equal((html.match(/id="kioskScrollIndicatorThumb"/g)||[]).length,1);
  assert.match(html,/id="kioskScrollIndicator"[^>]*aria-hidden="true"[^>]*hidden/);
  assert.match(html,/kiosk-scroll-indicator\.js\?v=kiosk-scroll-indicator-v1\.2\.11/);
- assert.match(html,/device-kiosk21\.css\?v=home-banner-layout/);
+ assert.match(html,/device-kiosk21\.css\?v=order-review-single-screen-v5/);
 });
 
 test('indicator styles are kiosk-only, visible, non-interactive, and do not affect horizontal layout',()=>{

@@ -696,3 +696,150 @@ html[data-layout="tablet"] .darkSetPhoto {
     padding-left: 8px;
   }
 }
+
+/* Order review uses two columns so all pricing details remain above the fold. */
+html[data-layout="tablet"] body[data-step="review"] .stage {
+  padding: 12px 18px 14px !important;
+}
+
+html[data-layout="tablet"] body[data-step="review"] :where(.title, .sub) {
+  margin-bottom: 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewOrderList {
+  gap: 7px;
+  margin-top: 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewOrderCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin: 0;
+  padding: 11px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaCategory,
+html[data-layout="tablet"] body[data-step="review"] .cartOrderActions {
+  grid-column: 1 / -1;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartCategory {
+  min-width: 0;
+  padding: 6px 0;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartCategory h2 {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaMeta {
+  padding: 2px 0 5px;
+  font-size: 11px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaToppingLine {
+  padding: 2px 0;
+  font-size: 12px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaPriceBreakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin-top: 5px;
+  padding: 8px 10px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaPriceLine {
+  padding: 3px 0;
+  font-size: 12px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartPizzaPriceLine.final {
+  margin-top: 0;
+  padding-top: 3px;
+  font-size: 14px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartItemSummary {
+  padding: 2px 0;
+  font-size: 12px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] :where(.cartBenefitRow, .cartOrderTotal) {
+  padding: 7px 0;
+  font-size: 13px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartOrderActions {
+  margin-top: 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .cartOrderActions button {
+  min-height: 34px;
+  padding: 5px 11px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewAddMore {
+  margin: 7px 0;
+  padding: 9px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewAddMore h2 {
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewAddMoreGrid {
+  gap: 7px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewAddMoreGrid button {
+  min-height: 36px;
+  padding: 5px;
+  font-size: 12px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewAddMore p {
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewDiscountBox {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin-top: 7px;
+  padding: 9px 11px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewDiscountBox .line {
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewDiscountBox .totalDiscount {
+  margin-top: 0;
+  padding-top: 4px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewDiscountBox .final {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  padding-top: 6px;
+  font-size: 17px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewConfirmBtn {
+  min-height: 44px;
+  margin-top: 7px;
+  padding: 9px 12px;
+  font-size: 17px;
+}
+
+html[data-layout="tablet"] body[data-step="review"] .reviewConfirmNote {
+  margin-top: 3px;
+  font-size: 10px;
+}

@@ -30,7 +30,7 @@ test('home uses exact 1.15 card multiplier and overflow-safe promos',()=>{
   assert.ok(compact.includes('height:clamp(253px,18.975vh,365.7px)!important'));
   assert.ok(compact.includes('aspect-ratio:4/3!important'));
   assert.ok(compact.includes('.heroPromoStrip{grid-auto-rows:auto!important;align-items:stretch!important'));
-  assert.match(html,/device-kiosk21\.css\?v=home-banner-layout/);
+  assert.match(html,/device-kiosk21\.css\?v=order-review-single-screen-v5/);
   assert.doesNotMatch(css,/html\[data-layout="kiosk21"\][^{]*\.heroPromo[^{]*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/);
 });
 
