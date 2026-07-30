@@ -6853,6 +6853,55 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
   }
 }
 
+@media (min-width:701px) and (max-width:1024px) and (orientation:portrait){
+  body[data-step="home"] .app{
+    padding-bottom:0!important;
+  }
+  body[data-step="home"] .darkHero{
+    min-height:100vh!important;
+    padding-bottom:calc(96px + var(--safe-bottom))!important;
+  }
+  body[data-step="home"] .heroChoice,
+  body[data-step="home"] .heroChoice.dinein,
+  body[data-step="home"] .heroChoice.takeout{
+    height:178px!important;
+    min-height:178px!important;
+    padding:20px 26px!important;
+  }
+  body[data-step="home"] .heroChoiceGrid{
+    gap:12px!important;
+  }
+  body[data-step="home"] .heroPromo{
+    height:236px!important;
+    min-height:236px!important;
+    padding:14px 10px!important;
+    gap:5px!important;
+  }
+  body[data-step="home"] .heroPromo h3{
+    font-size:18px!important;
+    line-height:1.08!important;
+  }
+  body[data-step="home"] .heroPromo strong,
+  body[data-step="home"] .happyPromo .happyHours,
+  body[data-step="home"] .beerAd strong{
+    font-size:17px!important;
+    line-height:1.12!important;
+  }
+  body[data-step="home"] .heroPromo p,
+  body[data-step="home"] .takeoutSizeNote{
+    font-size:14px!important;
+    line-height:1.18!important;
+  }
+  body[data-step="home"] .takeoutPromo .takeoutDiscount{
+    font-size:30px!important;
+    line-height:1.02!important;
+  }
+  body[data-step="home"] .happyOrderNow,
+  body[data-step="home"] .takeoutOrderNow{
+    font-size:17px!important;
+  }
+}
+
 @media(max-width:700px){
   body[data-step="home"] .darkHero{
     gap:7px!important;
