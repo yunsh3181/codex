@@ -109,9 +109,16 @@ const measureScript = `
     const touchTargets = [...document.querySelectorAll(
       '.cartOrderActions button, .reviewAddMoreGrid button, .reviewConfirmBtn, .langTopBtn'
     )];
-    const requiredVisibleTargets = [...document.querySelectorAll(
-      '.progress, .progress .progressStep, .langTopBtn span, .cartbar .cartmain, .cartbar .cartprice'
-    )];
+    const isPhoneReview = root.dataset.layout === 'phone';
+    const requiredSelector = [
+      '.progress',
+      '.progress .progressStep',
+      '.langTopBtn span',
+      '.cartbar .cartmain',
+      '.cartbar .cartprice',
+      ...(isPhoneReview ? ['.brandName', '.brandLogo', '.reviewBrandTagline'] : []),
+    ].join(', ');
+    const requiredVisibleTargets = [...document.querySelectorAll(requiredSelector)];
     const clipped = textTargets.filter(element =>
       element.scrollWidth > element.clientWidth + 1 ||
       element.scrollHeight > element.clientHeight + 1
@@ -122,6 +129,20 @@ const measureScript = `
       return { width: rect.width, height: rect.height, text: element.textContent.trim() };
     });
     const cartbarRect = document.querySelector('.cartbar')?.getBoundingClientRect();
+    const brandRect = document.querySelector('.brand')?.getBoundingClientRect();
+    const locationRect = document.querySelector('.brandName')?.getBoundingClientRect();
+    const logoRect = document.querySelector('.brandLogo')?.getBoundingClientRect();
+    const taglineRect = document.querySelector('.reviewBrandTagline')?.getBoundingClientRect();
+    const languageButtonRect = document.querySelector('.langTopBtn')?.getBoundingClientRect();
+    const languageTextRect = document.querySelector('.langTopBtn span')?.getBoundingClientRect();
+    const rect = value => value ? {
+      top: value.top,
+      right: value.right,
+      bottom: value.bottom,
+      left: value.left,
+      width: value.width,
+      height: value.height,
+    } : null;
     const stageChildren = [...document.querySelector('.stage').children];
     const lastContent = stageChildren
       .map(element => ({ className: element.className, bottom: element.getBoundingClientRect().bottom }))
@@ -146,6 +167,39 @@ const measureScript = `
         .map(element => element.className || element.tagName),
       contentOverlapPx: cartbarRect ? Math.max(0, reviewContentBottom - cartbarRect.top) : 0,
       lastContent,
+      reviewBrand: isPhoneReview ? {
+        location: rect(locationRect),
+        logo: rect(logoRect),
+        tagline: rect(taglineRect),
+        gapAboveLogo: logoRect.top - locationRect.bottom,
+        gapBelowLogo: taglineRect.top - logoRect.bottom,
+        ordered: locationRect.top < logoRect.top && logoRect.top < taglineRect.top,
+        contained: locationRect.left >= brandRect.left - 1 &&
+          locationRect.right <= brandRect.right + 1 &&
+          locationRect.top >= brandRect.top - 1 &&
+          locationRect.bottom <= brandRect.bottom + 1 &&
+          taglineRect.left >= brandRect.left - 1 &&
+          taglineRect.right <= brandRect.right + 1 &&
+          taglineRect.top >= brandRect.top - 1 &&
+          taglineRect.bottom <= brandRect.bottom + 1 &&
+          logoRect.top >= brandRect.top - 1 &&
+          logoRect.bottom <= brandRect.bottom + 1,
+        separateFromLanguage: brandRect.right <= languageButtonRect.left,
+      } : null,
+      nonPhoneTaglineHidden: isPhoneReview ? null :
+        getComputedStyle(document.querySelector('.reviewBrandTagline')).display === 'none',
+      languageBounds: {
+        button: rect(languageButtonRect),
+        text: rect(languageTextRect),
+        textInsideButton: languageTextRect.left >= languageButtonRect.left &&
+          languageTextRect.right <= languageButtonRect.right &&
+          languageTextRect.top >= languageButtonRect.top &&
+          languageTextRect.bottom <= languageButtonRect.bottom,
+        buttonInsideViewport: languageButtonRect.left >= 0 &&
+          languageButtonRect.right <= innerWidth &&
+          languageButtonRect.top >= 0 &&
+          languageButtonRect.bottom <= innerHeight,
+      },
       layout: root.dataset.layout
     };
   })()

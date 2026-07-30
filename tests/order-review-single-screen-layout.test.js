@@ -25,6 +25,18 @@ test('mobile review keeps item names, quantities, and prices visible', () => {
   assert.match(phone, /\.cartItemName\s*\{[\s\S]*?overflow-wrap:\s*anywhere/);
 });
 
+test('mobile review brand reuses localized data in a scoped three-line header', () => {
+  const shell = html.slice(html.indexOf('function shell(c)'), html.indexOf('function toppingVisual'));
+  assert.match(
+    shell,
+    /class="brandLogo"[\s\S]*?class="brandName">\$\{t\('home\.location'\)\}[\s\S]*?class="reviewBrandTagline">\$\{t\('home\.tagline'\)\}/
+  );
+  assert.match(phone, /body\[data-step="review"\] \.brand\s*\{[\s\S]*?grid-template-rows:\s*10px 22px 9px/);
+  assert.match(phone, /body\[data-step="review"\] \.langTopBtn\s*\{[\s\S]*?width:\s*110px[\s\S]*?height:\s*44px/);
+  assert.doesNotMatch(tablet, /reviewBrandTagline/);
+  assert.doesNotMatch(kiosk, /reviewBrandTagline/);
+});
+
 test('pizza option pricing detail remains complete on the shared review renderer', () => {
   const source = html.slice(
     html.indexOf('function cartPizzaPriceBreakdownHtml'),

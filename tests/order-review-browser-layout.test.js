@@ -6,7 +6,7 @@ const fs = require('node:fs');
 
 const root = path.resolve(__dirname, '..');
 
-test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, () => {
+test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, t => {
   const electron = require('electron');
   assert.ok(fs.existsSync(electron), `Electron executable not found: ${electron}`);
   let command = electron;
@@ -16,6 +16,11 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     const architecture = binary.includes('arm64') ? '-arm64' :
       binary.includes('x86_64') ? '-x86_64' : null;
     if (architecture) {
+      const supported = spawnSync('/usr/bin/arch', [architecture, '/usr/bin/true']);
+      if (supported.status !== 0) {
+        t.skip(`Electron ${architecture.slice(1)} is not supported by this host`);
+        return;
+      }
       command = '/usr/bin/arch';
       args = [architecture, electron, ...args];
     }
@@ -49,6 +54,23 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     assert.ok(result.minFontSize >= 12, `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);
     assert.ok(result.minTouchHeight >= 44, `${context}: ${result.minTouchHeight}px touch height`);
+    assert.equal(
+      result.languageBounds.textInsideButton,
+      true,
+      `${context}: LANGUAGE text bounds ${JSON.stringify(result.languageBounds)}`
+    );
+    assert.equal(result.languageBounds.buttonInsideViewport, true, `${context}: LANGUAGE viewport bounds`);
+    if (result.layout === 'phone') {
+      assert.equal(result.reviewBrand.ordered, true, `${context}: brand order`);
+      assert.equal(result.reviewBrand.contained, true, `${context}: brand containment`);
+      assert.equal(result.reviewBrand.separateFromLanguage, true, `${context}: brand/language overlap`);
+      assert.ok(result.reviewBrand.gapAboveLogo >= 0, `${context}: location/logo overlap`);
+      assert.ok(result.reviewBrand.gapBelowLogo >= 0, `${context}: logo/tagline overlap`);
+      assert.ok(result.reviewBrand.gapAboveLogo <= 2, `${context}: ${result.reviewBrand.gapAboveLogo}px upper gap`);
+      assert.ok(result.reviewBrand.gapBelowLogo <= 2, `${context}: ${result.reviewBrand.gapBelowLogo}px lower gap`);
+    } else {
+      assert.equal(result.nonPhoneTaglineHidden, true, `${context}: non-phone header changed`);
+    }
   }
 });
 

@@ -39,7 +39,7 @@ test('phone stylesheet is loaded after legacy inline styles and scopes the four 
  const root=path.join(__dirname,'..');
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const css=fs.readFileSync(path.join(root,'styles/device-phone.css'),'utf8');
- const link='<link rel="stylesheet" href="styles/device-phone.css?v=order-review-single-screen-v17">';
+ const link='<link rel="stylesheet" href="styles/device-phone.css?v=order-review-mobile-header-v18">';
  assert.ok(html.includes(link));
  assert.ok(html.lastIndexOf(link)>html.lastIndexOf('</style>'));
  ['.head','.progress','.stage','.grid.two','.grid.four','.halfPreview','.grid.adaptiveCards'].forEach(selector=>{

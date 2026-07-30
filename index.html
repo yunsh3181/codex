@@ -2530,7 +2530,7 @@ function navigateProgress(group){
  state.step=progressTarget(group);
  render();
 }
-function shell(c){return `${testModeBanner()}<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
+function shell(c){return `${testModeBanner()}<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b><span class="reviewBrandTagline">${t('home.tagline')}</span></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
 function toppingVisual(name){
  const n=String(name||'');
  const icon=n.includes('치즈')?'🧀':n.includes('페퍼로니')?'🍕':n.includes('베이컨')||n.includes('햄')?'🥓':n.includes('버섯')?'🍄':n.includes('올리브')?'🫒':n.includes('양파')?'🧅':n.includes('피망')||n.includes('할라페뇨')?'🫑':n.includes('토마토')?'🍅':n.includes('옥수수')?'🌽':n.includes('파인애플')?'🍍':n.includes('감자')?'🥔':n.includes('닭')||n.includes('치킨')?'🍗':'🥩';
@@ -3909,6 +3909,7 @@ body[data-step="drink"] .imagePic{display:flex!important;align-items:center!impo
 .languageGrid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:12px;width:min(860px,92vw)}
 .languageGrid button,.langTopBtn,.heroLangBtn{border:1px solid rgba(255,255,255,.28);border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-weight:1000;padding:13px 16px}
 .langTopBtn{margin-left:auto}
+.reviewBrandTagline{display:none}
 .heroLangBtn{position:absolute;right:28px;top:22px;z-index:3}
 .normalOrderGuide{display:block;margin-top:10px;color:#fff3c6;font-weight:1000;line-height:1.35}
 .heroChoice:not(.dinein) .heroBoxVisual{display:none}
@@ -7016,7 +7017,7 @@ html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,
   line-height:1.2!important;
 }
 </style>
-<link rel="stylesheet" href="styles/device-phone.css?v=order-review-single-screen-v17">
+<link rel="stylesheet" href="styles/device-phone.css?v=order-review-mobile-header-v18">
 <link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
