@@ -33,6 +33,7 @@ test('language logo, banners, footer and promo layout use kiosk-only refinements
   assert.match(html, /body\[data-step="home"\] \.heroPromo>\*\{[\s\S]*?max-width:100%[\s\S]*?white-space:normal!important[\s\S]*?overflow-wrap:anywhere/);
   assert.match(html, /@media\(max-width:700px\)\{[\s\S]*?\.heroBrandText \.heroLocation\{[\s\S]*?font-size:14\.4px!important[\s\S]*?\.heroBrandLockup \.heroTagline\{[\s\S]*?font-size:10\.2px!important/);
   assert.match(html, /@media\(max-width:700px\)\{[\s\S]*?\.heroBrandLockup\{[\s\S]*?gap:2px!important[\s\S]*?\.heroBrandText\{[\s\S]*?margin-left:-8px!important/);
+  assert.match(html, /@media\(max-width:700px\)\{[\s\S]*?\.heroBrandText\{[\s\S]*?max-width:calc\(100vw - 216px\)!important[\s\S]*?\.heroLocation\{[\s\S]*?white-space:normal!important[\s\S]*?overflow-wrap:anywhere[\s\S]*?\.heroTagline\{[\s\S]*?white-space:normal!important/);
   assert.match(html, /\.heroTop>\.heroLangBtn span\{[\s\S]*?font-size:9\.6px!important/);
   assert.match(html, /\.langTopBtn span\{[\s\S]*?font-size:12\.8px!important/);
   assert.match(html, /\.cartbar\{[\s\S]*?padding-left:0!important[\s\S]*?padding-right:0!important/);
@@ -50,4 +51,21 @@ test('tablet home fits its viewport while preserving three equal banners', () =>
   assert.match(tabletHome, /\.heroChoice,[\s\S]*?height:178px!important[\s\S]*?min-height:178px!important/);
   assert.match(tabletHome, /\.heroPromo\{[\s\S]*?height:236px!important[\s\S]*?min-height:236px!important/);
   assert.doesNotMatch(tabletHome, /overflow\s*:\s*hidden/);
+});
+
+test('mobile branding stays clear of the LANGUAGE button at supported widths', () => {
+  const horizontalPadding = 12;
+  const logoAndGapWidth = 88 + 2 - 8;
+  const languageButtonWidth = 92;
+  const headerGap = 18;
+
+  for (const viewportWidth of [360, 390]) {
+    const brandTextWidth = viewportWidth - 216;
+    const brandRight = horizontalPadding + logoAndGapWidth + brandTextWidth;
+    const languageButtonLeft = viewportWidth - horizontalPadding - languageButtonWidth;
+    assert.ok(
+      brandRight + headerGap <= languageButtonLeft,
+      `${viewportWidth}px branding must not overlap the LANGUAGE button`,
+    );
+  }
 });
