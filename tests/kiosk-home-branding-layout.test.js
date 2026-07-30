@@ -20,14 +20,17 @@ test('home branding is a horizontal white lockup and happy hour keeps order now'
   assert.match(html, /\.heroBrandLockup\{[\s\S]*?display:flex!important/);
   assert.match(html, /\.heroBrandLockup\{[\s\S]*?gap:12\.96px!important/);
   assert.match(html, /\.heroBrandLockup \.heroLogoDark\{[\s\S]*?width:248\.4px!important[\s\S]*?height:149\.04px!important[\s\S]*?translateY\(-10px\)[\s\S]*?brightness\(0\) invert\(1\)/);
-  assert.match(html, /\.heroBrandText \.heroLocation\{[\s\S]*?color:#f7cf2b!important[\s\S]*?font-size:16\.9px!important/);
+  assert.match(html, /\.heroBrandText \.heroLocation\{[\s\S]*?color:#f7cf2b!important[\s\S]*?font-size:20\.28px!important/);
+  assert.match(html, /\.heroBrandLockup \.heroTagline\{[\s\S]*?font-size:19\.2px!important/);
   assert.match(html, /\.heroBrandLockup \.heroTagline\{[\s\S]*?white-space:nowrap!important[\s\S]*?text-transform:uppercase/);
   assert.match(html, /\.happyOrderNow,[\s\S]*?\.takeoutOrderNow\{[\s\S]*?color:var\(--home-pj-red\)!important/);
 });
 
 test('language logo, banners, footer and promo layout use kiosk-only refinements', () => {
   assert.match(html, /body\[data-step="language"\] \.languageScreen>\.heroLogoDark\{[\s\S]*?width:403px!important[\s\S]*?brightness\(0\) invert\(1\)/);
-  assert.match(html, /body\[data-step="home"\] \.heroPromo\{[\s\S]*?min-height:270px!important/);
+  assert.match(html, /body\[data-step="home"\] \.heroPromo\{[\s\S]*?height:364px!important[\s\S]*?min-height:270px!important/);
+  assert.match(html, /body\[data-step="home"\] \.heroPromo>\*\{[\s\S]*?max-width:100%[\s\S]*?white-space:normal!important[\s\S]*?overflow-wrap:anywhere/);
+  assert.match(html, /@media\(max-width:700px\)\{[\s\S]*?\.heroBrandText \.heroLocation\{[\s\S]*?font-size:14\.4px!important[\s\S]*?\.heroBrandLockup \.heroTagline\{[\s\S]*?font-size:10\.2px!important/);
   assert.match(html, /\.heroTop>\.heroLangBtn span\{[\s\S]*?font-size:9\.6px!important/);
   assert.match(html, /\.langTopBtn span\{[\s\S]*?font-size:12\.8px!important/);
   assert.match(html, /\.cartbar\{[\s\S]*?padding-left:0!important[\s\S]*?padding-right:0!important/);

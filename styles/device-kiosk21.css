@@ -1482,13 +1482,13 @@ html[data-layout="kiosk21"] body[data-step="home"] :where(
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromo {
   min-height: 0 !important;
   height: auto !important;
-  aspect-ratio: 16 / 9 !important;
-  padding-block: 18px !important;
+  aspect-ratio: 4 / 3 !important;
+  padding: 18px 14px !important;
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip {
   grid-auto-rows: auto !important;
-  align-items: start !important;
+  align-items: stretch !important;
 }
 
 /* Reservation picker uses the kiosk content width and two equal touch cards. */

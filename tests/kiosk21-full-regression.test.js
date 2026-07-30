@@ -49,6 +49,8 @@ test('kiosk layout tokens freeze the release geometry', () => {
   ]) assert.ok(css.includes(declaration), declaration);
   assert.ok(css.includes('--kiosk21-stage-top-offset:calc(var(--kiosk21-header-height)+var(--kiosk21-progress-height)+var(--safe-top))'));
   assert.ok(css.includes('--kiosk21-bottom-stack-height:calc(var(--kiosk21-cta-height)+var(--kiosk21-active-summary-height)+var(--kiosk21-bottom-gap)+var(--safe-bottom))'));
+  assert.match(kiosk, /body\[data-step="home"\] \.heroPromo \{[\s\S]*?aspect-ratio: 4 \/ 3 !important[\s\S]*?padding: 18px 14px !important/);
+  assert.match(kiosk, /body\[data-step="home"\] \.heroPromoStrip \{[\s\S]*?align-items: stretch !important/);
 });
 
 test('header progress stage and product surfaces stay contained', () => {
