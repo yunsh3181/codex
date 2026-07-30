@@ -959,6 +959,14 @@ body{
 .benefitCompare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
 .benefitCompareBox{padding:16px;border-radius:18px;background:#f3e9dd;text-align:left}
 .benefitCompareBox strong{display:block;color:#c8102e;margin-bottom:6px}
+.benefitSuggestionList{display:grid;gap:14px;max-height:min(54vh,560px);overflow:auto;margin:18px 0;padding:2px;text-align:left}
+.benefitSuggestion{padding:18px;border-radius:20px;background:#fff;border:2px solid #eadfd3;box-shadow:0 8px 22px rgba(78,48,24,.08)}
+.benefitSuggestion h3{margin:0 0 10px;color:var(--g);font-size:21px}
+.benefitSuggestion .benefitCompare{margin:10px 0}
+.benefitValueLines{display:grid;gap:5px;padding:10px 12px;border-radius:13px;background:#fff6df;color:#5b4630;font-weight:800}
+.benefitValueLines span{display:flex;justify-content:space-between;gap:12px}
+.benefitChanges{margin:10px 0 0!important;color:#625a52!important;font-size:14px}
+.benefitApply{width:100%;min-height:52px;margin-top:12px;border:0;border-radius:14px;background:var(--r);color:#fff;font-weight:1000;font-size:16px}
 .benefitSaving{margin:12px 0 22px;padding:16px;border-radius:17px;background:#e5f4eb;color:#087348;font-weight:1000;font-size:20px}
 .benefitActions{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 .benefitActions button{min-height:64px;border-radius:18px;font-size:17px;font-weight:1000}
@@ -3032,14 +3040,15 @@ function confirmHalf(){state.modal=null;afterPizza()}function redoHalf(){state.l
 function skipTopping(){state.toppingChoice='skip';state.toppings={};state.step='side';render()}
 function finishTopping(){state.step='side';render()}
 function continueAfterSide(){if(needsDisposables()&&state.disposables===null){state.modal='disposables';render();return}state.step='drink';render()}
-function skipSide(){if(state.finalAddMode==='side'){state.finalAddMode=null;addCurrentOrderToReview();return}continueAfterSide()}
+function finishFinalAdd(){state.finalAddMode=null;if(maybePromptBetterBenefit())return;addCurrentOrderToReview()}
+function skipSide(){if(state.finalAddMode==='side'){finishFinalAdd();return}continueAfterSide()}
 function continueSetSide(){if(!setSideBaseComplete())return;if(!state.setSidePrompted){maybePromptSetSideExtra();return}continueAfterSide()}
 function skipSideExtra(){state.setSideExtraMode=false;continueAfterSide()}
 function continueAfterDrink(){if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}if(maybePromptBetterBenefit())return;openFinalUpsell()}
-function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompaniment';render();return}if(state.finalAddMode==='drink'){state.finalAddMode=null;addCurrentOrderToReview();return}continueAfterDrink()}
+function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompaniment';render();return}if(state.finalAddMode==='drink'){finishFinalAdd();return}continueAfterDrink()}
 function skipDrink(){routeAfterDrink()}
 function skipDrinkExtra(){state.setDrinkExtraMode=false;routeAfterDrink()}
-function finishAccompaniment(){if(state.finalAddMode==='drink'){state.finalAddMode=null;addCurrentOrderToReview();return}continueAfterDrink()}
+function finishAccompaniment(){if(state.finalAddMode==='drink'){finishFinalAdd();return}continueAfterDrink()}
 function activateSelectionFooter(event){if(!['Enter',' '].includes(event.key)||event.currentTarget.getAttribute('aria-disabled')==='true')return;event.preventDefault();event.currentTarget.click()}
 function selectionFooter(action,description,extraClass='',disabled=false){const inactive=disabled?' isDisabled':'';const interaction=disabled?'':` onclick="${action}" onkeydown="activateSelectionFooter(event)"`;return `<div class="selectionFooterSpacer" aria-hidden="true"></div><div class="selectionFooter"><div class="card skipCard selectionFooterCard ${extraClass}${inactive}" role="button" tabindex="${disabled?'-1':'0'}" aria-disabled="${disabled?'true':'false'}"${interaction}><h2>${t('nav.next')}</h2><p>${description}</p></div></div>`}
 function qcard(x,key){let q=state[key][x.id]||0,name=optionDisplayName(x,key==='extraDrinks'?[...DRINKS,...SAUCES]:SIDES);return `<div class="card sideMenuCard ${q?'active':''}" onclick="qty('${key}','${x.id}',1,9,99)">${q?`<span class="badge">${t('ui.common.count',{count:q})}</span>`:''}${itemPic(x,'🍽️')}<h3>${name}</h3><div class="price">${money(x.price)}</div><small class="v5TapAddHint">${t('ui.common.tapAdd')}</small><div class="qty"><button aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();qty('${key}','${x.id}',-1,9,99)">−</button><b>${q}</b></div></div>`}
@@ -3105,12 +3114,12 @@ function canNext(){return false}
 function nextStep(){
  if(state.step==='topping')state.step='side';
  else if(state.step==='side'){
-  if(state.finalAddMode==='side'){state.finalAddMode=null;addCurrentOrderToReview();return}
+  if(state.finalAddMode==='side'){finishFinalAdd();return}
   if(state.set&&!state.setSidePrompted){maybePromptSetSideExtra();return}
   if(needsDisposables()&&state.disposables===null){state.modal='disposables';render();return}
   state.step='drink';
  }else if(state.step==='drink'){
-  if(state.finalAddMode==='drink'){state.finalAddMode=null;addCurrentOrderToReview();return}
+  if(state.finalAddMode==='drink'){finishFinalAdd();return}
   if(state.set&&!state.setDrinkPrompted){maybePromptSetDrinkExtra();return}
   if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}
   if(maybePromptBetterBenefit())return;
@@ -3238,15 +3247,27 @@ function addAnotherSet(){preserveCurrentOrderForAdd();state.promo='set';state.st
 function addAnotherUpUp(){preserveCurrentOrderForAdd();state.promo='upup';state.size='F';state.step='mode';render()}
 function addAnotherSingle(){preserveCurrentOrderForAdd();state.step='promo';render()}
 function selectedItemCosts(map,master,filterFn){
- return Object.entries(map||{}).flatMap(([id,q])=>{const item=master.find(x=>x.id===id);if(!item||!filterFn(item))return[];return Array.from({length:Number(q)||0},()=>Number(item.price)||0)}).sort((a,b)=>b-a)
+ return Object.entries(map||{}).flatMap(([id,q])=>{const item=master.find(x=>x.id===id);if(!item||!filterFn(item))return[];return Array.from({length:Number(q)||0},()=>({id,price:Number(item.price)||0}))}).sort((a,b)=>b.price-a.price)
 }
-function remainingFeeAfterSetInclusions(n){
+function setInclusionPlan(n){
  const sideSlots=n===4?2:1;
  const eligibleSides=selectedItemCosts(state.extraSides,SIDES,x=>n===2?!!x.set2:!!x.set);
- const eligibleDrinks=selectedItemCosts(state.extraDrinks,DRINKS,x=>n===2?!!x.small:!!x.large);
- const includedSideValue=eligibleSides.slice(0,sideSlots).reduce((a,b)=>a+b,0);
- const includedDrinkValue=eligibleDrinks.slice(0,1).reduce((a,b)=>a+b,0);
- return Math.max(0,sideFee()-includedSideValue)+Math.max(0,drinkFee()-includedDrinkValue)
+ const sides=eligibleSides.slice(0,sideSlots);
+ const selectedLarge=selectedItemCosts(state.extraDrinks,DRINKS,x=>!!x.large)[0];
+ const selectedSmall=selectedItemCosts(state.extraDrinks,DRINKS,x=>!!x.small)[0];
+ let drink=null,upgradeValue=0;
+ if(n===2&&selectedSmall)drink={from:selectedSmall.id,to:selectedSmall.id};
+ if(n!==2&&selectedLarge)drink={from:selectedLarge.id,to:selectedLarge.id};
+ if(n!==2&&!selectedLarge&&selectedSmall){
+  const group=drinkGroups().find(x=>x.small===selectedSmall.id),large=group&&DRINKS.find(x=>x.id===group.large);
+  if(large){drink={from:selectedSmall.id,to:large.id};upgradeValue=Math.max(0,Number(large.price||0)-selectedSmall.price)}
+ }
+ const includedSideValue=sides.reduce((total,item)=>total+item.price,0);
+ const includedDrinkValue=drink?Number(DRINKS.find(item=>item.id===drink.from)?.price||0):0;
+ return {sides,drink,upgradeValue,remaining:Math.max(0,sideFee()-includedSideValue)+Math.max(0,drinkFee()-includedDrinkValue),missingSides:Math.max(0,sideSlots-sides.length),missingDrink:drink?0:1}
+}
+function remainingFeeAfterSetInclusions(n){
+ return setInclusionPlan(n).remaining
 }
 function benefitCandidatePrice(id){
  const p=po(state.left);if(!p)return Infinity;
@@ -3256,52 +3277,111 @@ function benefitCandidatePrice(id){
  if(id==='takeout'){
   if(state.orderType!=='takeout'||!['L','F'].includes(size))return Infinity;
   const product=(state.mode==='half'?((po(state.left)[size]+po(state.right)[size])/2):p[size])+half+crustFee()+tops;
-  return product-Math.round(product*(SETTINGS.PACK_DISCOUNT/100))+side+drink
+  return Math.round(product*(1-SETTINGS.PACK_DISCOUNT/100))+side+drink
  }
  if(id==='happy'){
   if(state.orderType!=='takeout'||size!=='R'||state.mode==='half')return Infinity;
   return SETTINGS.HAPPY_PRICE+tops+side+drink
  }
  if(id==='upup'){
-  if(!p.L||!p.F)return Infinity;
+  if(!p.L||!p.F||p.id==='P011'||['씬도우','크루아상'].includes(state.dough)||(state.mode==='half'&&(!po(state.right)?.L||!po(state.right)?.F)))return Infinity;
   const pizza=state.mode==='half'?((po(state.left).L+po(state.right).L)/2):p.L;
-  return pizza+half+tops+side+drink
+  const upupToppings=Object.entries(state.toppings).reduce((total,[toppingId,q])=>total+(TOPPINGS.find(x=>x.id===toppingId)?.price.F||0)*q,0);
+  return pizza+half+upupToppings+side+drink
  }
  if(id==='set'){
-  if(state.mode==='half')return Infinity;
+  if(p.cat==='THIN'||po(state.right)?.cat==='THIN'||['씬','크루아상'].includes(state.crust)||state.dough!=='오리지널')return Infinity;
   const n=size==='R'?2:size==='L'?3:4;
-  return (n===2?24000:n===3?33000:42000)+remainingFeeAfterSetInclusions(n)
+  return (n===2?24000:n===3?33000:42000)+half+crustFee()+tops+remainingFeeAfterSetInclusions(n)
  }
  return Infinity
 }
 function comparableBenefitIds(){
- // 같은 이용방법·피자 구성·사이즈를 유지하는 혜택만 비교합니다.
- // 세트는 포함 메뉴 구성이 다르므로 일반 주문 혜택과 교차 비교하지 않습니다.
- if(state.set)return [];
- const ids=['normal'];
+ if(state.set||!['normal','takeout'].includes(state.promo||'normal')||!state.left)return [];
+ const ids=[];
  if(state.orderType==='takeout'&&['L','F'].includes(effectiveSize()))ids.push('takeout');
- if(state.orderType==='takeout'&&effectiveSize()==='R'&&state.mode==='single')ids.push('happy');
+ ids.push('set','upup');
  return ids
 }
-function bestBenefitSuggestion(){
- const current=price().total;
- let best=null;
- for(const id of comparableBenefitIds()){
-  const v=benefitCandidatePrice(id);
-  if(Number.isFinite(v)&&v<current&&(!best||v<best.price))best={id,price:v,saving:current-v,currentPrice:current}
- }
- if(!best||best.id===(state.promo||'normal'))return null;
- return best
+function benefitRecommendationSignature(){
+ return JSON.stringify({orderType:state.orderType,promo:state.promo||'normal',size:state.size,mode:state.mode,dough:state.dough,crust:state.crust,left:state.left,right:state.right,toppings:state.toppings,extraSides:state.extraSides,extraDrinks:state.extraDrinks})
 }
-function maybePromptBetterBenefit(){return false}
-function keepCurrentBenefit(){state.modal=null;state.pendingBenefit=null;render()}
-function applySuggestedBenefit(){
- const b=state.pendingBenefit;if(!b){keepCurrentBenefit();return}
+function upupUpgradePlan(){
+ const currentSize=effectiveSize(),targetSize='F',targetCrust=['치즈롤','골드링','크루아상'].includes(state.crust)?state.crust:'치즈롤';
+ const pizzaAt=size=>state.mode==='half'?((Number(po(state.left)?.[size])||0)+(Number(po(state.right)?.[size])||0))/2:Number(po(state.left)?.[size])||0;
+ const crustAt=(name,size)=>Number(CRUSTS.find(x=>x.name===name)?.[size]||0);
+ const currentValue=pizzaAt(currentSize)+crustAt(state.crust,currentSize),targetValue=pizzaAt(targetSize)+crustAt(targetCrust,targetSize);
+ return {currentSize,targetSize,targetCrust,extraValue:Math.max(0,targetValue-currentValue)}
+}
+function benefitExtraValue(id){
+ if(id==='set')return setInclusionPlan(effectiveSize()==='R'?2:effectiveSize()==='L'?3:4).upgradeValue;
+ if(id==='upup')return upupUpgradePlan().extraValue;
+ return 0
+}
+function benefitChangeLines(id){
+ const lines=state.mode==='half'?[t('ui.recommendation.halfFeeIncluded',{amount:money(SETTINGS.HALF_EXTRA)})]:[];
+ if(id==='set'){
+  const n=effectiveSize()==='R'?2:effectiveSize()==='L'?3:4,plan=setInclusionPlan(n);
+  if(plan.drink&&plan.drink.from!==plan.drink.to)lines.push(t('ui.recommendation.drinkUpgrade',{from:optionDisplayName(DRINKS.find(x=>x.id===plan.drink.from)),to:optionDisplayName(DRINKS.find(x=>x.id===plan.drink.to))}));
+  if(plan.missingSides)lines.push(t('ui.recommendation.selectMissingSide',{count:plan.missingSides}));
+  if(plan.missingDrink)lines.push(t('ui.recommendation.selectMissingDrink'));
+  return lines
+ }
+ if(id==='upup'){
+  const plan=upupUpgradePlan();
+  if(plan.currentSize!==plan.targetSize||state.crust!==plan.targetCrust)lines.push(t('ui.recommendation.upupUpgrade',{size:customerSizeLabel(plan.targetSize),crust:customerCrustLabel(plan.targetCrust)}));
+  return lines
+ }
+ return lines
+}
+function benefitFinalPaymentComparison(currentProduct,candidateProduct,existingCart=cartTotal()){
+ return {currentPrice:existingCart+currentProduct,price:existingCart+candidateProduct,saving:currentProduct-candidateProduct}
+}
+function bestBenefitSuggestion(){
+ const currentProduct=price().total;
+ const suggestions=[];
+ for(const id of comparableBenefitIds()){
+  const candidateProduct=benefitCandidatePrice(id);
+  if(Number.isFinite(candidateProduct)&&candidateProduct<currentProduct&&id!==(state.promo||'normal')){
+   const comparison=benefitFinalPaymentComparison(currentProduct,candidateProduct);
+   const extraValue=benefitExtraValue(id);
+   suggestions.push({id,...comparison,extraValue,totalValue:comparison.saving+extraValue,changes:benefitChangeLines(id)})
+  }
+ }
+ return suggestions.sort((a,b)=>b.saving-a.saving)
+}
+function maybePromptBetterBenefit(){
+ const suggestions=bestBenefitSuggestion(),key=benefitRecommendationSignature();
+ if(!suggestions.length||state.benefitPromptedKeys.includes(key))return false;
+ state.benefitPromptedKeys.push(key);state.pendingBenefit=suggestions;state.modal='betterBenefit';render();return true
+}
+function keepCurrentBenefit(){state.modal=null;state.pendingBenefit=null;openFinalUpsell()}
+function decrementSelection(map,id){
+ const next={...(map||{})},qty=Number(next[id]||0);
+ if(qty>1)next[id]=qty-1;else delete next[id];
+ return next
+}
+function applySetInclusions(n){
+ const plan=setInclusionPlan(n);state.setSides={};state.setDrink=null;
+ plan.sides.forEach(item=>{state.extraSides=decrementSelection(state.extraSides,item.id);state.setSides[item.id]=(state.setSides[item.id]||0)+1});
+ if(plan.drink){state.extraDrinks=decrementSelection(state.extraDrinks,plan.drink.from);state.setDrink=plan.drink.to}
+ return plan
+}
+function applySuggestedBenefit(id){
+ const b=(state.pendingBenefit||[]).find(item=>item.id===id);if(!b){keepCurrentBenefit();return}
  state.promo=b.id;
- if(b.id==='set'){const s=effectiveSize();state.set=s==='R'?2:s==='L'?3:4;state.mode='single'}
- if(b.id==='upup'){state.size='F'}
- if(b.id==='happy'){state.size='R';state.crust='오리지널'}
- state.modal=null;state.pendingBenefit=null;render()
+ if(b.id==='set'){
+  const s=effectiveSize();state.set=s==='R'?2:s==='L'?3:4;
+  const plan=applySetInclusions(state.set);state.setSidePrompted=false;state.setDrinkPrompted=false;
+  state.modal=null;state.pendingBenefit=null;
+  if(plan.missingSides){state.step='side';render();return}
+  if(plan.missingDrink){state.step='drink';render();return}
+  addCurrentOrderToReview();return
+ }
+ if(b.id==='upup'){
+  state.size='F';if(!['치즈롤','골드링','크루아상'].includes(state.crust))state.crust='치즈롤';
+ }
+ state.modal=null;state.pendingBenefit=null;addCurrentOrderToReview()
 }
 function openFinalUpsell(){
  if(state.finalUpsellPrompted){state.finalAddMode=null;addCurrentOrderToReview();return}
@@ -3321,6 +3401,7 @@ function chooseFinalUpsell(type){
 
 function modalView(){
 if(state.modal==='finalUpsell')return `<div class="backdrop"><div class="finalUpsellModal"><div class="finalUpsellIcon">${uiIcon("cart")}</div><h2>${t('ui.modal.finalTitle')}</h2><p>${t('ui.modal.finalDesc')}</p><div class="finalUpsellGrid"><button class="finalNo" onclick="chooseFinalUpsell('none')">${t('ui.modal.noReview')}</button><button class="finalPizza" onclick="chooseFinalUpsell('pizza')">${uiIcon("pizza")} ${t('ui.modal.addPizza')}</button><button class="finalSide" onclick="chooseFinalUpsell('side')">${uiIcon("side")} ${t('ui.modal.addSide')}</button><button class="finalDrink" onclick="chooseFinalUpsell('drink')">${uiIcon("drink")} ${t('ui.modal.addDrink')}</button></div></div></div>`;
+if(state.modal==='betterBenefit'){const list=state.pendingBenefit||[],current=list[0]?.currentPrice||price().total;return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="betterBenefitTitle"><div class="benefitHelperIcon">${uiIcon("spark")}</div><h2 id="betterBenefitTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.currentSummary',{benefit:eventLabel(),amount:money(current)})}</p><div class="benefitSuggestionList">${list.map(b=>`<section class="benefitSuggestion"><h3>${t('ui.recommendation.available',{benefit:b.id==='set'?setOrderName(effectiveSize()==='R'?2:effectiveSize()==='L'?3:4):benefitName(b.id)})}</h3><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${eventLabel()}<br>${money(b.currentPrice)}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(b.price)}</div></div><div class="benefitValueLines"><span>${t('ui.recommendation.paymentSaving')} <b>${money(b.saving)}</b></span>${b.extraValue?`<span>${t('ui.recommendation.extraValue')} <b>${money(b.extraValue)}</b></span><span>${t('ui.recommendation.totalValue')} <b>${money(b.totalValue)}</b></span>`:''}</div>${b.changes.length?`<p class="benefitChanges">${b.changes.join('<br>')}</p>`:''}<button class="benefitApply" onclick="applySuggestedBenefit('${b.id}')">${t('ui.recommendation.apply')}</button></section>`).join('')}</div><div class="benefitActions"><button class="keepBenefit" onclick="keepCurrentBenefit()">${t('ui.recommendation.keep')}</button></div></div></div>`}
 
 if(state.modal==='setSideUpsell')return `<div class="backdrop"><div class="upsellModal">
  <div class="upsellIcon">${uiIcon("side")}</div>
