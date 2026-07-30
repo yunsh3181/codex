@@ -725,3 +725,206 @@ html[data-layout="phone"] body[data-step="crust"] .crustTextCard {
   min-height: 220px !important;
   padding: 24px 22px !important;
 }
+
+/* Mobile order selection: four actionable order types share one compact grid. */
+.mobileOrderTypeGrid {
+  display: none;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroChoiceGrid {
+  display: none !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard {
+  display: flex;
+  min-width: 0;
+  min-height: 104px;
+  padding: 10px 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px solid #087348;
+  border-radius: 15px;
+  background: #edf8f2;
+  color: var(--v10-green);
+  text-align: center;
+  touch-action: manipulation;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.takeout,
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.discountOrder {
+  border-color: var(--r);
+  background: #fff1f2;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.happy {
+  border-color: #dc6f00;
+  background: #fff5e8;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeIcon {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeIcon .uiIcon {
+  width: 24px;
+  height: 24px;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard strong {
+  max-width: 100%;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard > span:last-child {
+  max-width: 100%;
+  color: #3e4741;
+  font-size: 10px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .clickable {
+  display: none !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip {
+  grid-template-columns: minmax(0, 1fr) !important;
+  margin-top: 0 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .beerAd {
+  min-height: 54px !important;
+  padding: 7px 10px !important;
+}
+
+/* Option headings sit on white sections, so reuse the established dark green. */
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
+  max-width: 100%;
+  color: var(--v10-green) !important;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+/* Half-and-half indicator and pizza list stay compact above the fixed summary. */
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionIndicator {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionSlot {
+  display: grid;
+  min-width: 0;
+  min-height: 70px;
+  padding: 5px;
+  place-items: center;
+  gap: 3px;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--v10-green);
+  text-align: center;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionSlot.selected {
+  border-style: solid;
+  border-color: var(--g);
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionSlot .pic {
+  width: 100%;
+  height: 50px !important;
+  margin: 0;
+  background: #fff;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionSlot .pic img {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionSlot b {
+  max-width: 100%;
+  font-size: 10px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .halfSelectionPlus {
+  align-self: center;
+  color: var(--v10-green);
+  font-size: 23px;
+  font-weight: 1000;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard {
+  min-width: 0;
+  min-height: 0;
+  padding: 4px !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard[aria-pressed="true"] {
+  border-color: var(--r) !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard .imagePic {
+  width: 100%;
+  height: 58px !important;
+  margin-bottom: 4px;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard .imagePic img {
+  padding: 0 !important;
+  object-fit: contain !important;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard h3 {
+  margin: 2px 0;
+  font-size: 10px;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard :where(.price, .discount, .muted) {
+  font-size: 8px !important;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="pizza"] .stage {
+  padding-top: 8px !important;
+  padding-bottom: calc(var(--order-summary-height) + var(--safe-bottom) + 28px) !important;
+  overflow-x: hidden;
+}
