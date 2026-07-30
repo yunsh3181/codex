@@ -121,10 +121,14 @@ for(const name of ['Coca-Cola','Coca-Cola Zero','Sprite','Sprite Zero']){
 }
 for(const language of languages){
   context.window.PJ_I18N.setLanguage(language);
-  const localizedName=vm.runInContext("drinkName(DRINKS.find(x=>x.id==='D001'))",context);
+  const localizedName=vm.runInContext("t('drink.group.coke')",context);
   const localizedCard=vm.runInContext("drinkGroupCard(drinkGroups()[0])",context);
   assert.ok(localizedCard.includes(`<div class="v3DrinkName">${localizedName}</div>`),`${language} drink card renders the current data-backed name`);
   assert.ok(localizedCard.includes("qty('extraDrinks','D001',1,9,99)"),`${language} drink card retains the quantity handler`);
+  assert.ok(!localizedCard.includes('500ml')&&!localizedCard.includes('1.25L'),`${language} non-set card hides numeric volumes`);
+  assert.ok(localizedCard.includes(vm.runInContext("t('ui.drinkScreen.large')",context)),`${language} non-set card localizes Large`);
+  assert.ok(localizedCard.includes(vm.runInContext("t('ui.drinkScreen.small')",context)),`${language} non-set card localizes Small`);
+  assert.ok(localizedCard.indexOf("qty('extraDrinks','D002',1,9,99)")<localizedCard.indexOf("qty('extraDrinks','D001',1,9,99)"),`${language} renders Large above Small with the original product IDs`);
 }
 context.window.PJ_I18N.setLanguage('ko');
 vm.runInContext("DRINKS.push({id:'DX01',name:'아주 긴 계절 한정 스파클링 음료 이름',small:true,price:3100},{id:'DX02',name:'아주 긴 계절 한정 스파클링 음료 이름',price:5200})",context);
@@ -132,6 +136,9 @@ const fixtureCard=vm.runInContext("drinkGroupCard({key:'seasonalFixture',small:'
 assert.ok(fixtureCard.includes('<div class="v3DrinkName">아주 긴 계절 한정 스파클링 음료 이름</div>'),'an unclassified long drink name uses the same data-backed name element');
 assert.ok(fixtureCard.includes("qty('extraDrinks','DX01',1,9,99)"),'an unclassified drink retains the existing quantity handler');
 assert.ok(!fixtureCard.includes('undefined'),'an unclassified drink renders complete markup');
+const singleSizeCard=vm.runInContext("drinkGroupCard({key:'seasonalFixture',large:'DX02'})",context);
+assert.ok(singleSizeCard.includes("qty('extraDrinks','DX02',1,9,99)"),'a one-size drink renders its available size');
+assert.ok(!singleSizeCard.includes("qty('extraDrinks','DX01',1,9,99)"),'a one-size drink does not invent a missing size');
 vm.runInContext("DRINKS.splice(-2)",context);
 const lastSauceId=vm.runInContext('SAUCES[SAUCES.length-1].id',context);
 assert.ok(accompanimentSelection.includes(`qty('extraDrinks','${lastSauceId}',1,9,99)`),'last accompaniment card remains clickable before the spacer');
