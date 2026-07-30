@@ -52,7 +52,7 @@ test('reservation controls and selected value are kiosk-sized',()=>{
 
 const displaySource=html.slice(html.indexOf('function cartCatalogLines'),html.indexOf('function changeCartQty'));
 const catalog={
-  PIZZAS:[{id:'P1',name:'존스',L:29500},{id:'P2',name:'식스',L:27500}],
+  PIZZAS:[{id:'P1',name:'존스',L:29500},{id:'P2',name:'식스',L:27500},{id:'P3',name:'수퍼 파파스',L:28500}],
   CRUSTS:[{name:'오리지널',L:0},{name:'치즈롤',L:4000}],
   TOPPINGS:[{id:'T1',name:'양파',price:{L:1500}}],
   SIDES:[{id:'S1',name:'치킨',price:9900},{id:'S2',name:'코울슬로',price:2500}],
@@ -118,6 +118,49 @@ test('promotions never expose contradictory catalog pizza prices',()=>{
     assert.ok(model.categories.pizza.every(row=>row.included===false),promo);
     assert.ok(model.benefit,promo);
   }
+});
+
+test('takeout half pizza exposes the exact component and payment breakdown',()=>{
+  const {model}=displayModel(baseOrder({
+    promo:'takeout',
+    pizzaLeft:'P3',
+    pizzaRight:'P2',
+    toppings:{},
+    sides:{S1:1},
+    drinks:{D1:1,A1:1},
+    normalPrice:46000,
+    price:39400,
+    discount:6600,
+    discountLabel:'포장 20% 할인'
+  }));
+  assert.deepEqual(model.priceBreakdown,{
+    kind:'pizza',
+    size:'라지',
+    crust:'치즈롤',
+    base:28000,
+    crustFee:4000,
+    halfFee:1000,
+    toppingFee:0,
+    normal:33000,
+    discount:6600,
+    final:26400,
+    benefit:'포장 20% 할인'
+  });
+  assert.equal(model.priceBreakdown.final+model.categories.sides[0].amount+model.categories.drinks[0].amount+model.categories.accompaniment[0].amount,model.total);
+});
+
+test('whole, normal, UP & UP, happy hour, and set use stored discounts without duplicate extras',()=>{
+  const whole=displayModel(baseOrder({mode:'single',pizzaRight:null,crust:'오리지널',toppings:{},sides:{},drinks:{},normalPrice:29500,price:29500})).model.priceBreakdown;
+  assert.equal(whole.base,29500);
+  assert.equal(whole.halfFee,0);
+  assert.equal(whole.discount,0);
+  for(const [promo,normal,price,discount] of [['upup',35000,29500,5500],['happy',29500,15000,14500]]){
+    const pricing=displayModel(baseOrder({promo,mode:'single',pizzaRight:null,crust:'오리지널',toppings:{},sides:{},drinks:{},normalPrice:normal,price,discount})).model.priceBreakdown;
+    assert.equal(pricing.discount,discount,promo);
+    assert.equal(pricing.final,pricing.normal-discount,promo);
+  }
+  const set=displayModel(baseOrder({promo:'set',set:2,normalPrice:42000,price:35000,discount:7000,includedSides:{S2:1},includedDrinks:{D2:1}})).model.priceBreakdown;
+  assert.deepEqual(set,{kind:'set',normal:29000,discount:7000,final:22000,benefit:'set'});
 });
 
 test('order quantity and option quantity are multiplied exactly once',()=>{

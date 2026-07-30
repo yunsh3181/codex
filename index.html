@@ -979,6 +979,12 @@ body{
 .reviewPriceBreakdown .line{display:flex;justify-content:space-between;padding:7px 0}
 .reviewPriceBreakdown .discount{color:#c8102e;font-weight:1000}
 .reviewPriceBreakdown .final{font-size:22px;font-weight:1000;border-top:1px solid #dfceb7;margin-top:8px;padding-top:12px}
+.cartPizzaPriceBreakdown{display:grid;gap:7px;margin-top:16px;padding:14px;border-radius:14px;background:#fff7e9;border:1px solid #ead7bd}
+.cartPizzaPriceLine{display:flex;align-items:baseline;justify-content:space-between;gap:16px;min-width:0}
+.cartPizzaPriceLine span{min-width:0;overflow-wrap:anywhere}
+.cartPizzaPriceLine strong{flex:0 0 auto;white-space:nowrap}
+.cartPizzaPriceLine.discount{color:#c8102e}
+.cartPizzaPriceLine.final{margin-top:3px;padding-top:10px;border-top:1px solid #dfceb7;color:#c8102e;font-size:20px;font-weight:1000}
 .finalAddBanner{margin:0 0 18px;padding:15px;border-radius:16px;background:#fff0e8;color:#c8102e;border:1px solid #efcbbb;text-align:center;font-weight:1000}
 @media(max-width:560px){.finalUpsellGrid,.benefitCompare,.benefitActions{grid-template-columns:1fr}}
 
@@ -3229,6 +3235,28 @@ function buildCartDisplayModel(order){
  const perOrderExtras=[...toppings,...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
  const componentUnit=pizzaUnit+crustUnit+halfUnit+perOrderExtras;
  const storedUnit=Number(order.price)||0,discount=Number(order.discount)||0,normal=Number(order.normalPrice)||storedUnit+discount;
+ const toppingUnit=toppings.reduce((sum,line)=>sum+line.amount/qty,0);
+ const externalExtrasUnit=[...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
+ const pizzaNormalUnit=pizzaUnit+crustUnit+halfUnit+toppingUnit;
+ const priceBreakdown=left?(order.set?{
+  kind:'set',
+  normal:Math.max(0,normal-externalExtrasUnit)*qty,
+  discount:Math.max(0,discount)*qty,
+  final:Math.max(0,storedUnit-externalExtrasUnit)*qty,
+  benefit:order.discountLabel||benefitName('set')
+ }:{
+  kind:'pizza',
+  size:customerSizeLabel(size),
+  crust:customerCrustLabel(order.crust||'오리지널'),
+  base:pizzaUnit*qty,
+  crustFee:crustUnit*qty,
+  halfFee:halfUnit*qty,
+  toppingFee:toppingUnit*qty,
+  normal:pizzaNormalUnit*qty,
+  discount:Math.max(0,discount)*qty,
+  final:Math.max(0,pizzaNormalUnit-discount)*qty,
+  benefit:order.discountLabel||benefitName(order.promo||'normal')
+ }):null;
  const hasIncluded=includedSides.length>0||includedDrinks.length>0;
  const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&componentUnit===storedUnit;
  const pizza=[];
@@ -3242,6 +3270,7 @@ function buildCartDisplayModel(order){
    composition:t(order.mode==='half'?'cart.halfPizza':'cart.singlePizza')
   }:null,
   categories:{pizza,toppings,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
+  priceBreakdown,
   benefit:standard?'':(order.set?setOrderName(order.set):benefitName(order.promo||'normal')),
   componentTotal:componentUnit*qty,
   total:storedUnit*qty
@@ -3253,7 +3282,13 @@ function cartPizzaMetaHtml(meta){
 }
 function cartPizzaCategoryHtml(model){
  if(!model.categories.pizza.length)return '';
- return `<section class="cartCategory cartPizzaCategory"><h2>${t('ui.summary.pizza')}</h2>${cartPizzaMetaHtml(model.meta)}${model.categories.pizza.map(row=>`<div class="cartPizzaToppingLine"><b>${t('review.pizzaToppingLabel')} :</b><span>${row.name}×${row.qty}</span></div>`).join('')}</section>`
+ return `<section class="cartCategory cartPizzaCategory"><h2>${t('ui.summary.pizza')}</h2>${cartPizzaMetaHtml(model.meta)}${model.categories.pizza.map(row=>`<div class="cartPizzaToppingLine"><b>${t('review.pizzaToppingLabel')} :</b><span>${row.name}×${row.qty}</span></div>`).join('')}${cartPizzaPriceBreakdownHtml(model.priceBreakdown)}</section>`
+}
+function cartPizzaPriceBreakdownHtml(pricing){
+ if(!pricing)return '';
+ const line=(label,amount,className='')=>`<div class="cartPizzaPriceLine ${className}"><span>${label}</span><strong>${className==='discount'&&amount?'−':''}${money(amount)}</strong></div>`;
+ if(pricing.kind==='set')return `<div class="cartPizzaPriceBreakdown">${line(t('review.setNormalAmount'),pricing.normal)}${line(t('review.setDiscountAmount'),pricing.discount,'discount')}${line(t('review.setFinalAmount'),pricing.final,'final')}</div>`;
+ return `<div class="cartPizzaPriceBreakdown">${line(t('review.pizzaBaseAmount',{size:pricing.size}),pricing.base)}${pricing.crustFee?line(t('review.crustExtraAmount',{crust:pricing.crust}),pricing.crustFee):''}${pricing.halfFee?line(t('review.halfExtraAmount'),pricing.halfFee):''}${pricing.toppingFee?line(t('review.toppingExtraAmount'),pricing.toppingFee):''}${line(t('review.normalSubtotal'),pricing.normal)}${line(t('review.benefitDiscount',{benefit:pricing.benefit}),pricing.discount,'discount')}${line(t('review.pizzaFinalAmount'),pricing.final,'final')}</div>`
 }
 function cartCategoryHtml(title,rows,showUnitQty=false){
  if(!rows.length)return '';
