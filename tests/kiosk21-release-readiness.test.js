@@ -13,9 +13,9 @@ const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 test('release changes do not alter protected application sources', () => {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.2.16');
-  assert.equal(lock.version, '1.2.16');
-  assert.equal(lock.packages[''].version, '1.2.16');
+  assert.equal(pkg.version, '1.2.17');
+  assert.equal(lock.version, '1.2.17');
+  assert.equal(lock.packages[''].version, '1.2.17');
   assert.equal(sha256(html), '26efba43d25183f7d0a323b8c39b104c251506ee5eb532bbf849cc084773828d');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), '0654c98b7a96b4df6a53ac67fd96466d1ff1c7232934e23f58a9825735f615eb');
