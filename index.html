@@ -4066,6 +4066,30 @@ body[data-step="review"] .reviewDiscountBox strong{
   align-items:center;
   font-weight:900;
 }
+body[data-step="accompaniment"] .textQtyCard{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:repeat(3,auto);
+  align-items:center;
+  gap:4px 12px;
+  min-height:168px;
+  padding:16px;
+}
+body[data-step="accompaniment"] .textQtyCard h3,
+body[data-step="accompaniment"] .textQtyCard .price,
+body[data-step="accompaniment"] .textQtyCard .v5TapAddHint{grid-column:1;margin:0!important}
+body[data-step="accompaniment"] .textQtyCard .qty{
+  grid-column:2;
+  grid-row:1 / span 3;
+  grid-template-columns:44px minmax(44px,1fr)!important;
+  margin:0;
+}
+body[data-step="accompaniment"] .textQtyCard .qty button{
+  width:44px;
+  min-width:44px;
+  height:44px;
+  min-height:44px;
+}
 
 @media(max-width:560px){
   .darkSetCard{
@@ -4155,6 +4179,11 @@ body[data-step="review"] .reviewDiscountBox strong{
     min-height:150px!important;
     padding:13px 8px!important;
     border-radius:16px!important;
+  }
+  body[data-step="accompaniment"] .textQtyCard{
+    min-height:120px!important;
+    padding:10px 6px!important;
+    gap:3px 6px;
   }
   .drinkTextCard h3,
   .textQtyCard h3{

@@ -1326,8 +1326,8 @@ html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard {
   gap: 12px 24px;
   align-items: center;
   width: 100%;
-  min-height: 195px !important;
-  padding: 30px !important;
+  min-height: 156px !important;
+  padding: 24px !important;
 }
 
 html[data-layout="kiosk21"] body[data-step="accompaniment"] .textQtyCard:active {
