@@ -30,5 +30,5 @@ test('set selection change remains phone-scoped',()=>{
  const rules=css.split('}').filter(rule=>rule.includes('body[data-step="setChoice"]'));
  assert.ok(rules.length>=10);
  rules.forEach(rule=>assert.ok(rule.includes('html[data-layout="phone"]')));
- assert.ok(html.includes('styles/device-phone.css?v=order-review-single-screen-v5'));
+ assert.ok(html.includes('styles/device-phone.css?v=order-review-single-screen-v17'));
 });

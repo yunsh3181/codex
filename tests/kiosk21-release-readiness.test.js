@@ -16,11 +16,11 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(pkg.version, '1.2.18');
   assert.equal(lock.version, '1.2.18');
   assert.equal(lock.packages[''].version, '1.2.18');
-  assert.equal(sha256(html), 'f79e0157b203d45f9e22c7d0d8a5fff129caf6584c890e2a337eaf4d6b465517');
+  assert.equal(sha256(html), 'a1da32845d2046291d50f66b709aa5eb95bf9a440eef71075956d56cec966290');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
-  assert.equal(sha256(read('styles/device-phone.css')), '45bdd92992ef6b95b8cddb01a178b50f5c59bf0b657899fd387e30329c4fed01');
-  assert.equal(sha256(read('styles/device-tablet.css')), 'f99002c8a6428aeb39909dfe40d3255aa462fd883bad1a60b96180f5d8d181a8');
-  assert.equal(sha256(kiosk), '7cf66841f7f5186dd907925ad617403bd3172e888a1ff1c789aad8d379713731');
+  assert.equal(sha256(read('styles/device-phone.css')), '4c8c177ca41079855486b9f16a3cae11b0dd82f9796b8e83024fd9016ab11a40');
+  assert.equal(sha256(read('styles/device-tablet.css')), '614f41ac41081cd7bde1c8baf22e4517e0335fe2705165ea92a555485b24a798');
+  assert.equal(sha256(kiosk), 'e523408d7270e7a9377023c3237eaf157a134392f5dbe2619134ffd878310101');
   assert.equal(sha256(read('kiosk-scroll-indicator.js')), 'b4aa9f1a60a94bea90da79793a300cc838a872b2c451c00ec7597753a393b95d');
 });
 

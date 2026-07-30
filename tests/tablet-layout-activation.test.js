@@ -27,9 +27,9 @@ test('phone and default viewport matrices remain protected',()=>{
 });
 
 test('tablet stylesheet is runtime scoped and loaded after phone CSS',()=>{
- const link='<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v5">';
+ const link='<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">';
  assert.ok(html.includes(link));
- assert.ok(html.indexOf(link)>html.indexOf('<link rel="stylesheet" href="styles/device-phone.css?v=order-review-single-screen-v5">'));
+ assert.ok(html.indexOf(link)>html.indexOf('<link rel="stylesheet" href="styles/device-phone.css?v=order-review-single-screen-v17">'));
  const rules=css.replace(/\/\*[\s\S]*?\*\//g,'').split('}').map(rule=>rule.trim()).filter(Boolean);
  rules.filter(rule=>!rule.startsWith('@media')).forEach(rule=>{
   const selector=rule.split('{')[0];

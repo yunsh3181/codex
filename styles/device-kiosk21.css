@@ -1720,3 +1720,8 @@ html[data-layout="kiosk21"] body[data-step="review"] .reviewDiscountBox .final {
 html[data-layout="kiosk21"] body[data-step="review"] .reviewConfirmBtn {
   margin-top: 10px;
 }
+
+html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions button {
+  min-width: 44px;
+  min-height: 44px;
+}

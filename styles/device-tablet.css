@@ -699,7 +699,7 @@ html[data-layout="tablet"] .darkSetPhoto {
 
 /* Order review uses two columns so all pricing details remain above the fold. */
 html[data-layout="tablet"] body[data-step="review"] .stage {
-  padding: 12px 18px 14px !important;
+  padding: 8px 18px !important;
 }
 
 html[data-layout="tablet"] body[data-step="review"] :where(.title, .sub) {
@@ -736,7 +736,7 @@ html[data-layout="tablet"] body[data-step="review"] .cartCategory h2 {
 
 html[data-layout="tablet"] body[data-step="review"] .cartPizzaMeta {
   padding: 2px 0 5px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 html[data-layout="tablet"] body[data-step="review"] .cartPizzaToppingLine {
@@ -778,12 +778,13 @@ html[data-layout="tablet"] body[data-step="review"] .cartOrderActions {
 }
 
 html[data-layout="tablet"] body[data-step="review"] .cartOrderActions button {
-  min-height: 34px;
-  padding: 5px 11px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px 11px;
 }
 
 html[data-layout="tablet"] body[data-step="review"] .reviewAddMore {
-  margin: 7px 0;
+  margin: 5px 0;
   padding: 9px;
 }
 
@@ -797,8 +798,8 @@ html[data-layout="tablet"] body[data-step="review"] .reviewAddMoreGrid {
 }
 
 html[data-layout="tablet"] body[data-step="review"] .reviewAddMoreGrid button {
-  min-height: 36px;
-  padding: 5px;
+  min-height: 44px;
+  padding: 7px;
   font-size: 12px;
 }
 
@@ -833,7 +834,7 @@ html[data-layout="tablet"] body[data-step="review"] .reviewDiscountBox .final {
 }
 
 html[data-layout="tablet"] body[data-step="review"] .reviewConfirmBtn {
-  min-height: 44px;
+  min-height: 48px;
   margin-top: 7px;
   padding: 9px 12px;
   font-size: 17px;
