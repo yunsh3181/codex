@@ -6964,6 +6964,58 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
   }
 }
 </style>
+<style>
+/* Set recommendation labels: exact 120% type and stable card alignment. */
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetGrid .darkSetCard .darkSetBadge{
+  position:absolute!important;
+  left:0!important;
+  top:4.5px!important;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  width:62px;
+  max-width:62px;
+  height:64px;
+  overflow-wrap:anywhere;
+}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,.set-3) .darkSetBadge{
+  font-size:10.8px!important;
+}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetGrid .set-4 .darkSetBadge{
+  top:2.5px!important;
+}
+html[data-layout="tablet"] body[data-step="setChoice"] .darkSetGrid .darkSetCard{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+}
+html[data-layout="tablet"] body[data-step="setChoice"] .darkSetGrid .darkSetCard .darkSetBadge{
+  display:inline-flex!important;
+  align-self:center;
+  align-items:center;
+  justify-content:center;
+  min-height:35px;
+}
+html[data-layout="tablet"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,.set-3) .darkSetBadge{
+  font-size:16.8px!important;
+  line-height:1.2!important;
+}
+html[data-layout="tablet"] body[data-step="setChoice"] .darkSetGrid .set-4 .darkSetBadge{
+  margin-top:-2px;
+  margin-bottom:2px;
+}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid .darkSetCard .darkSetBadge{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,.set-3) .darkSetBadge{
+  font-size:26.4px!important;
+  line-height:1.2!important;
+}
+</style>
 <link rel="stylesheet" href="styles/device-phone.css?v=mobile-progress-compact-v2">
 <link rel="stylesheet" href="styles/device-tablet.css">
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=home-banner-layout">
