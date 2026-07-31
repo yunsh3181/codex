@@ -850,11 +850,13 @@ html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup > .sub {
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionReason {
   margin-top: 1px;
   line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionPrice {
   margin-top: 1px;
   line-height: 1.25;
+  letter-spacing: -0.4px;
 }
 
 /* Half-and-half indicator and pizza list stay compact above the fixed summary. */
@@ -1403,6 +1405,7 @@ html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderLi
 }
 
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderCard {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 0 3px;
   line-height: 1;
 }
