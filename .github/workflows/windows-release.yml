@@ -17,6 +17,8 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      ELECTRON_DISABLE_SANDBOX: "1"
     outputs:
       tag: ${{ steps.version.outputs.tag }}
     steps:
@@ -28,7 +30,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test
+      - run: npm test -- --test-concurrency=1
       - id: version
         shell: bash
         run: |
