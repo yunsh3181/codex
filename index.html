@@ -2530,7 +2530,7 @@ function navigateProgress(group){
  state.step=progressTarget(group);
  render();
 }
-function shell(c){return `${testModeBanner()}<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
+function shell(c){return `${testModeBanner()}<div class="head"><div class="brand"><img class="brandLogo" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><b class="brandName">${t('home.location')}</b><span class="reviewBrandTagline">${t('home.tagline')}</span></div><button class="langTopBtn" onclick="openLanguageSelect()">🌐 <span>${'LANGUAGE'}</span></button></div>${progress()}<div class="stage">${c}</div>`}
 function toppingVisual(name){
  const n=String(name||'');
  const icon=n.includes('치즈')?'🧀':n.includes('페퍼로니')?'🍕':n.includes('베이컨')||n.includes('햄')?'🥓':n.includes('버섯')?'🍄':n.includes('올리브')?'🫒':n.includes('양파')?'🧅':n.includes('피망')||n.includes('할라페뇨')?'🫑':n.includes('토마토')?'🍅':n.includes('옥수수')?'🌽':n.includes('파인애플')?'🍍':n.includes('감자')?'🥔':n.includes('닭')||n.includes('치킨')?'🍗':'🥩';
@@ -3160,7 +3160,7 @@ function nextStep(){
  render()
 }
 function prevStep(){if(state.step==='side'&&state.set&&state.setSideExtraMode){state.setSideExtraMode=false;state.setSidePrompted=false;render();return}if(state.step==='drink'&&state.set&&state.setDrinkExtraMode){state.setDrinkExtraMode=false;state.setDrinkPrompted=false;render();return}const standard=!state.set&&['normal','takeout'].includes(state.promo);const m={party:'home',area:'party',table:'area',timing:'home',reserve:'timing',promo:state.orderType==='dinein'?'table':'timing',setChoice:'promo',size:'promo',mode:(standard?'pizzaOptions':(state.set?'setChoice':'size')),pizzaOptions:state.bannerTakeout?'timing':'promo',pizza:state.promo==='happy'?'promo':(state.set===2?'setChoice':'mode'),crust:'pizza',topping:state.promo==='happy'?'pizza':(standard?'pizza':((state.size==='R'||po(state.left)?.cat==='THIN')?'pizza':'crust')),side:(state.left?'topping':'promo'),drink:'side',accompaniment:'drink',review:'promo',phone:'review',payment:'phone'};state.step=m[state.step]||'home';render()}
-function bar(){if(['home','done'].includes(state.step))return '';let cur=state.left?(state.mode==='half'&&state.right?pizzaName(po(state.left))+' / '+pizzaName(po(state.right)):pizzaName(po(state.left))):(currentHasItems()?t('cart.additionalOrder'):t('cart.notSelected'));let timing=state.orderType==='takeout'?(state.orderTiming==='reserve'?t('pickup.reserve')+' '+(state.reserveTime||t('cart.reservationTimeMissing')):t('pickup.now')):t('labels.orderType.dinein');let opts=[eventLabel(),timing,state.left?customerSizeLabel(effectiveSize()):'',customerDoughLabel(state.dough),customerCrustLabel(state.crust),sum(state.toppings)?t('cart.toppingCount',{count:sum(state.toppings)}):'',sum(state.extraSides)?t('cart.sideCount',{count:sum(state.extraSides)}):'',sum(state.extraDrinks)?t('cart.drinkCount',{count:sum(state.extraDrinks)}):''].filter(Boolean).join(' · ');return `<div class="cartbar"><div class="cartmain"><div class="carttitle">${cur}</div><div class="cartdetail">${opts}</div></div><span class="cartprice">${currentHasItems()?money(price().total):''}</span><button class="prev" onclick="reset();render()">${t('nav.home')}</button>${state.step!=='type'?`<button class="prev" onclick="prevStep()">${t('nav.previous')}</button>`:''}${canNext()?`<button class="next" onclick="nextStep()">${t('nav.next')}</button>`:''}</div>`}
+function bar(){if(['home','done'].includes(state.step))return '';const reviewOrder=state.step==='review'&&state.cartItems.length?allReviewOrders()[0]:null;const reviewDetail=reviewOrder?orderDetailData(reviewOrder):null;let cur=reviewDetail?reviewDetail.pizzaTitle+(state.cartItems.length>1?` +${state.cartItems.length-1}`:''):(state.left?(state.mode==='half'&&state.right?pizzaName(po(state.left))+' / '+pizzaName(po(state.right)):pizzaName(po(state.left))):(currentHasItems()?t('cart.additionalOrder'):t('cart.notSelected')));let timing=state.orderType==='takeout'?(state.orderTiming==='reserve'?t('pickup.reserve')+' '+(state.reserveTime||t('cart.reservationTimeMissing')):t('pickup.now')):t('labels.orderType.dinein');let opts=reviewDetail?[eventLabel(),timing,t('unit.quantity',{count:reviewDetail.qty})].filter(Boolean).join(' · '):[eventLabel(),timing,state.left?customerSizeLabel(effectiveSize()):'',customerDoughLabel(state.dough),customerCrustLabel(state.crust),sum(state.toppings)?t('cart.toppingCount',{count:sum(state.toppings)}):'',sum(state.extraSides)?t('cart.sideCount',{count:sum(state.extraSides)}):'',sum(state.extraDrinks)?t('cart.drinkCount',{count:sum(state.extraDrinks)}):''].filter(Boolean).join(' · ');const barTotal=reviewDetail?reviewTotals().final:(currentHasItems()?price().total:null);return `<div class="cartbar"><div class="cartmain"><div class="carttitle">${cur}</div><div class="cartdetail">${opts}</div></div><span class="cartprice">${barTotal===null?'':money(barTotal)}</span><button class="prev" onclick="reset();render()">${t('nav.home')}</button>${state.step!=='type'?`<button class="prev" onclick="prevStep()">${t('nav.previous')}</button>`:''}${canNext()?`<button class="next" onclick="nextStep()">${t('nav.next')}</button>`:''}</div>`}
 
 function setSideNeed(){return state.set===4?2:1}
 function setSideBaseComplete(){return !!state.set&&sum(state.setSides)===setSideNeed()}
@@ -3909,6 +3909,7 @@ body[data-step="drink"] .imagePic{display:flex!important;align-items:center!impo
 .languageGrid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:12px;width:min(860px,92vw)}
 .languageGrid button,.langTopBtn,.heroLangBtn{border:1px solid rgba(255,255,255,.28);border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-weight:1000;padding:13px 16px}
 .langTopBtn{margin-left:auto}
+.reviewBrandTagline{display:none}
 .heroLangBtn{position:absolute;right:28px;top:22px;z-index:3}
 .normalOrderGuide{display:block;margin-top:10px;color:#fff3c6;font-weight:1000;line-height:1.35}
 .heroChoice:not(.dinein) .heroBoxVisual{display:none}
@@ -7016,7 +7017,7 @@ html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,
   line-height:1.2!important;
 }
 </style>
-<link rel="stylesheet" href="styles/device-phone.css?v=mobile-progress-compact-v2">
-<link rel="stylesheet" href="styles/device-tablet.css">
-<link rel="stylesheet" href="styles/device-kiosk21.css?v=home-banner-layout">
+<link rel="stylesheet" href="styles/device-phone.css?v=order-review-windows-font-v19">
+<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">

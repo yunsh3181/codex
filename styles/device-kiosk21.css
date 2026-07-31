@@ -1674,3 +1674,54 @@ html[data-layout="kiosk21"] body[data-step="phone"] .keypad button:active {
     scroll-behavior: auto !important;
   }
 }
+
+/* Use the kiosk card width without changing its established typography. */
+html[data-layout="kiosk21"] body[data-step="review"] .stage {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 22px;
+  margin: 10px 0;
+  padding: 16px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .cartPizzaCategory,
+html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions {
+  grid-column: 1 / -1;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .cartPizzaPriceBreakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .reviewAddMore {
+  margin: 10px 0;
+  padding: 14px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .reviewDiscountBox {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+  margin-top: 10px;
+  padding: 12px 15px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .reviewDiscountBox .final {
+  grid-column: 1 / -1;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .reviewConfirmBtn {
+  margin-top: 10px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions button {
+  min-width: 44px;
+  min-height: 44px;
+}

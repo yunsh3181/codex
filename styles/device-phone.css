@@ -928,3 +928,423 @@ html[data-layout="phone"] body[data-step="pizza"] .stage {
   padding-bottom: calc(var(--order-summary-height) + var(--safe-bottom) + 28px) !important;
   overflow-x: hidden;
 }
+
+/* Keep every order-review detail visible while using the card's horizontal space. */
+html[data-layout="phone"] body[data-step="review"] .stage {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(112px, 1fr);
+  column-gap: 6px;
+  padding: 1px 8px !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .head {
+  height: 44px !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .brandLogo {
+  grid-row: 2;
+  width: 50px !important;
+  height: 22px !important;
+  max-width: 50px;
+  max-height: 22px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .brand {
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  display: grid;
+  width: 240px;
+  height: 43px;
+  padding: 0;
+  grid-template-rows: 10px 22px 9px;
+  row-gap: 1px;
+  place-items: center;
+  overflow: visible;
+}
+
+html[data-layout="phone"] body[data-step="review"] .brandName {
+  display: block !important;
+  grid-row: 1;
+  max-width: 240px;
+  margin: 0;
+  color: #fff;
+  font-size: 9px;
+  line-height: 10px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewBrandTagline {
+  display: block !important;
+  grid-row: 3;
+  max-width: 240px;
+  margin: 0;
+  color: #fff;
+  font-size: 8px;
+  line-height: 9px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] .langTopBtn {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  display: inline-flex;
+  width: 110px;
+  min-width: 110px;
+  height: 44px !important;
+  min-height: 44px;
+  padding: 3px 4px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 9px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] .langTopBtn span {
+  display: inline;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress {
+  top: 44px !important;
+  height: 40px;
+  min-height: 40px;
+  padding: 1px 4px !important;
+  align-items: center;
+  overflow: visible;
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress .progressStep {
+  min-height: 38px;
+  grid-template-rows: 18px auto;
+  font-size: 8px;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress .progressStep::before {
+  width: 18px;
+  height: 18px;
+  font-size: 8px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress .progressStep:not(:last-child)::after {
+  top: 8px;
+  left: calc(50% + 9px);
+  width: calc(100% - 18px);
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress .progressStep.completed .uiIcon {
+  top: 3px;
+  width: 12px;
+  height: 12px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .progress span {
+  padding: 2px 5px !important;
+  font-size: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.title, .sub) {
+  margin-bottom: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .title {
+  grid-column: 1;
+  font-size: 18px !important;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .sub {
+  grid-column: 2;
+  align-self: end;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewOrderList {
+  grid-column: 1 / -1;
+  gap: 2px;
+  margin-top: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewOrderCard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 7px;
+  margin: 0;
+  padding: 2px 7px;
+  border-radius: 12px;
+  letter-spacing: -0.4px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaCategory,
+html[data-layout="phone"] body[data-step="review"] .cartOrderActions {
+  grid-column: 1 / -1;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartCategory {
+  min-width: 0;
+  padding: 1px 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartCategory h2 {
+  margin: 0 0 2px;
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px 6px;
+  padding: 1px 0 2px;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta span::after {
+  display: none;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaToppingLine {
+  padding: 1px 0;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceBreakdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 7px;
+  margin-top: 1px;
+  padding: 4px 6px;
+  border-radius: 9px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine {
+  gap: 4px;
+  padding: 2px 0;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine.final {
+  margin-top: 0;
+  padding-top: 2px;
+  border-top-width: 1px;
+  font-size: 13px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartItemSummary {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 1px 4px;
+  padding: 1px 0;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartItemFlexibleSpace {
+  display: none;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartItemName {
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.cartBenefitRow, .cartOrderTotal) {
+  gap: 4px;
+  min-width: 0;
+  padding: 4px 0;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartOrderActions {
+  gap: 5px;
+  margin-top: 3px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartOrderActions button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 10px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-rows: repeat(2, auto);
+  column-gap: 5px;
+  align-items: center;
+  margin: 0;
+  padding: 2px 4px;
+  border-radius: 10px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore h2 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0 0 2px;
+  font-size: 12px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMoreGrid {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMoreGrid button {
+  min-height: 44px;
+  padding: 6px 3px;
+  border-width: 1px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore p {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox {
+  grid-column: 1;
+  grid-row: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 8px;
+  margin-top: 0;
+  padding: 3px 7px;
+  padding-block: 1px;
+  border-radius: 10px;
+  letter-spacing: -0.4px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .line {
+  gap: 4px;
+  padding: 1px 0;
+  font-size: 12px;
+  line-height: 1.05;
+}
+
+html[data-layout="phone"] body[data-step="review"] :is(
+  .cartPizzaPriceLine.discount > span,
+  .cartBenefitRow > span,
+  .cartBenefitRow > strong
+) {
+  line-height: 13px;
+  padding-bottom: 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"] :is(
+  .cartPizzaPriceLine.discount,
+  .cartBenefitRow
+) {
+  padding-block: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .totalDiscount {
+  margin-top: 0;
+  padding-top: 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .final {
+  grid-column: 1 / -1;
+  margin-top: 1px;
+  padding-top: 2px;
+  font-size: 14px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewConfirmBtn {
+  grid-column: 2;
+  grid-row: 5;
+  min-height: 44px;
+  margin-top: 1px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewConfirmNote {
+  position: fixed;
+  z-index: 39;
+  right: 0;
+  bottom: 44px;
+  left: 0;
+  margin: 0;
+  padding: 1px 4px 1px 108px;
+  background: #f3f5f2;
+  font-size: 9px;
+  line-height: 1;
+  text-align: center;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartbar {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 44px !important;
+  gap: 4px;
+  padding: 2px 4px !important;
+  background: #17231d;
+  box-shadow: 0 -2px 8px #0002;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.cartmain, .cartprice) {
+  display: block;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartmain {
+  flex: 1 1 100px;
+  min-width: 70px;
+  max-width: none !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.carttitle, .cartdetail) {
+  display: block;
+  font-size: 8px;
+  line-height: 1.05;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartprice {
+  flex: 0 0 auto;
+  font-size: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartbar button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px !important;
+  min-height: 44px;
+  padding: 2px !important;
+  font-size: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .networkStatus {
+  top: auto !important;
+  right: auto !important;
+  bottom: 44px !important;
+  left: 4px !important;
+  padding: 2px 5px !important;
+  font-size: 8px !important;
+}
