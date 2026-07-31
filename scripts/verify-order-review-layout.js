@@ -215,6 +215,12 @@ const measureScript = `
         .map(element => element.className || element.tagName),
       contentOverlapPx: cartbarRect ? Math.max(0, reviewContentBottom - cartbarRect.top) : 0,
       lastContent,
+      stageSections: stageChildren.map(element => ({
+        className: element.className,
+        top: element.getBoundingClientRect().top,
+        bottom: element.getBoundingClientRect().bottom,
+        height: element.getBoundingClientRect().height,
+      })),
       reviewSections: [...document.querySelectorAll('.reviewOrderCard > *')].map(element => ({
         className: element.className,
         height: element.getBoundingClientRect().height,

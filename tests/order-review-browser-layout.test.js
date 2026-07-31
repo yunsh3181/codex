@@ -89,6 +89,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
         lastContent: result.lastContent,
         orderRegion: result.orderRegion,
+        stageSections: result.stageSections,
         reviewSections: result.reviewSections,
       })}`
     );
