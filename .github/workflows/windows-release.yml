@@ -30,6 +30,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Wait for Electron binary to become executable
+        run: sleep 5
       - run: npm test -- --test-concurrency=1
       - id: version
         shell: bash
