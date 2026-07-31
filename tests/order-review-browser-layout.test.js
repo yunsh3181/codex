@@ -86,7 +86,11 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     assert.deepEqual(result.hiddenRequired, [], `${context}: required UI hidden`);
     assert.ok(
       result.contentOverlapPx <= 1,
-      `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify(result.lastContent)}`
+      `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
+        lastContent: result.lastContent,
+        orderRegion: result.orderRegion,
+        reviewSections: result.reviewSections,
+      })}`
     );
     assert.ok(result.minFontSize >= 12, `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);

@@ -215,6 +215,10 @@ const measureScript = `
         .map(element => element.className || element.tagName),
       contentOverlapPx: cartbarRect ? Math.max(0, reviewContentBottom - cartbarRect.top) : 0,
       lastContent,
+      reviewSections: [...document.querySelectorAll('.reviewOrderCard > *')].map(element => ({
+        className: element.className,
+        height: element.getBoundingClientRect().height,
+      })),
       reviewBrand: isPhoneReview ? {
         location: rect(locationRect),
         logo: rect(logoRect),
