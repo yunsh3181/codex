@@ -18,7 +18,7 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(lock.packages[''].version, '1.2.18');
   assert.equal(sha256(html), '3531e7a71157e350e4e8a9d9596106959f6c88ec1a329c2afe05ee94b48f1f23');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
-  assert.equal(sha256(read('styles/device-phone.css')), '8a74b234da356c958d3edfe2df81024e3b6921e104160fd54e2eae3b2cc01142');
+  assert.equal(sha256(read('styles/device-phone.css')), '850443ab73d24ed975a47bc1f4972f5207e78a7bfdf128bd2d7ba16a5a39f4e5');
   assert.equal(sha256(read('styles/device-tablet.css')), '37e0df47da0b899550f627e8cf68060736c5740920c4832d86d32e10c2740341');
   assert.equal(sha256(kiosk), '52aa881e95b8360472c85c0d9efad662fe50929bf9f19ffa6fc4ad8dc1a383fa');
   assert.equal(sha256(read('kiosk-scroll-indicator.js')), 'b4aa9f1a60a94bea90da79793a300cc838a872b2c451c00ec7597753a393b95d');

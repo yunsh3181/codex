@@ -1537,7 +1537,7 @@ html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewConfirm
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox {
   grid-column: 1 / -1;
   grid-row: 5;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: -11px;
 }
 
