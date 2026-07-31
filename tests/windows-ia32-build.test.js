@@ -21,8 +21,13 @@ test('Windows distributions retain x64 and add ia32 NSIS and portable targets', 
 });
 
 test('ia32 scripts and Windows artifact workflow are present', () => {
+  const workflow = fs.readFileSync(
+    path.join(root, '.github', 'workflows', 'windows-distribution.yml'),
+    'utf8'
+  );
   assert.equal(packageJson.scripts['dist:win:ia32'], 'electron-builder --win --ia32');
   assert.equal(packageJson.scripts['dist:win:ia32:dir'], 'electron-builder --win --ia32 --dir');
   assert.ok(fs.existsSync(path.join(root, '.github', 'workflows', 'windows-distribution.yml')));
+  assert.match(workflow, /npm test -- --test-concurrency=1/);
   assert.ok(fs.existsSync(path.join(root, 'scripts', 'verify-windows-pe.js')));
 });

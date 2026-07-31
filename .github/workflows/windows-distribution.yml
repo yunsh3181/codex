@@ -30,7 +30,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm test
+      - run: npm test -- --test-concurrency=1
       - run: npm run dist:win:ia32:dir
       - run: npm run dist:win:ia32
       - run: npm run verify:win:ia32

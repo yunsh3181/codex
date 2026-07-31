@@ -842,6 +842,11 @@ html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
   margin-bottom: 1px;
 }
 
+html[data-layout="phone"] body[data-step="pizzaOptions"] :where(.optionReason, .optionPrice) {
+  margin-top: 1px;
+  line-height: 1;
+}
+
 /* Half-and-half indicator and pizza list stay compact above the fixed summary. */
 html[data-layout="phone"] body[data-step="pizza"] .halfSelectionIndicator {
   display: grid;
