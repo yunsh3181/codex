@@ -983,6 +983,7 @@ html[data-layout="phone"] body[data-step="review"] .stage {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(104px, 1.3fr);
   column-gap: 6px;
+  margin-top: -8px;
   padding: 1px 8px !important;
 }
 
@@ -1401,7 +1402,6 @@ html[data-layout="phone"] body[data-step="review"] .networkStatus {
 /* Large reviews keep the approved base layout until measured content needs compression. */
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .stage {
   grid-template-columns: minmax(0, 3fr) minmax(104px, 1.3fr);
-  margin-top: -8px;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
