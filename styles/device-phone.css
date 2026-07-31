@@ -1106,13 +1106,13 @@ html[data-layout="phone"] body[data-step="review"] :where(.title, .sub) {
 }
 
 html[data-layout="phone"] body[data-step="review"] .title {
-  grid-column: 1;
+  grid-column: 1 / -1;
   font-size: 18px !important;
   line-height: 1.05;
 }
 
 html[data-layout="phone"] body[data-step="review"] .sub {
-  grid-column: 2;
+  grid-column: 1 / -1;
   align-self: end;
   font-size: 12px;
   line-height: 1.2;
