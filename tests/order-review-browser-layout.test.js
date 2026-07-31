@@ -6,6 +6,17 @@ const fs = require('node:fs');
 const os = require('node:os');
 
 const root = path.resolve(__dirname, '..');
+const retryDelay = new Int32Array(new SharedArrayBuffer(4));
+
+const spawnElectron = (command, args, options) => {
+  let run;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    run = spawnSync(command, args, options);
+    if (run.error?.code !== 'EBUSY') return run;
+    Atomics.wait(retryDelay, 0, 0, 500);
+  }
+  return run;
+};
 
 test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, t => {
   const electron = require('electron');
@@ -27,7 +38,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       args = [architecture, electron, ...args];
     }
   }
-  const run = spawnSync(command, args, {
+  const run = spawnElectron(command, args, {
     cwd: root,
     encoding: 'utf8',
     env: {
