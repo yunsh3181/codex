@@ -814,13 +814,32 @@ html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .beerAd {
   padding: 7px 10px !important;
 }
 
-/* Option headings sit on white sections, so reuse the established dark green. */
+/* Option headings sit on white sections and need maximum readable contrast. */
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
   max-width: 100%;
-  color: var(--v10-green) !important;
+  color: #111111 !important;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .stage {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionBtn {
+  min-height: 44px;
+  padding: 2px 4px;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection {
+  margin-bottom: 2px;
+  padding: 2px 6px;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
+  margin-bottom: 1px;
 }
 
 /* Half-and-half indicator and pizza list stay compact above the fixed summary. */
@@ -1347,4 +1366,144 @@ html[data-layout="phone"] body[data-step="review"] .networkStatus {
   left: 4px !important;
   padding: 2px 5px !important;
   font-size: 8px !important;
+}
+
+/* Large reviews keep the approved base layout until measured content needs compression. */
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .stage {
+  grid-template-columns: minmax(0, 3fr) minmax(104px, 1.3fr);
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact1 .reviewOrderList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact1 .reviewOrderCard {
+  padding: 2px 5px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderList {
+  grid-template-columns: repeat(var(--review-order-columns), minmax(0, 1fr));
+  gap: 1px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderCard {
+  padding: 0 3px;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 :where(
+  .cartPizzaMeta,
+  .cartPizzaToppingLine,
+  .cartPizzaPriceLine,
+  .cartItemSummary,
+  .cartBenefitRow,
+  .cartOrderTotal
+) {
+  font-size: 12px;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0;
+  padding: 1px 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine strong {
+  margin-left: 0;
+  line-height: 14px;
+  letter-spacing: -2.5px;
+  text-align: right;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 :where(
+  .cartPizzaMeta,
+  .cartPizzaToppingLine,
+  .cartCategory,
+  .cartItemSummary
+) {
+  padding-block: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartCategory h2 {
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartOrderTotal {
+  padding-block: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .title {
+  font-size: 16px !important;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartOrderActions {
+  margin-top: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 :where(
+  .reviewAddMore,
+  .reviewDiscountBox
+) {
+  padding-block: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewAddMoreGrid button {
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding-block: 2px;
+  font-size: 10px;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewAddMore {
+  grid-column: 1;
+  grid-row: 4;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 3px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewAddMore h2 {
+  font-size: 10px;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewAddMore p {
+  font-size: 8px;
+  line-height: 1;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewConfirmBtn {
+  grid-column: 2;
+  grid-row: 4;
+  height: 44px;
+  min-height: 44px;
+  padding-block: 2px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox {
+  grid-column: 1 / -1;
+  grid-row: 5;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: -11px;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox .final {
+  grid-column: auto;
+}
+
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox .line {
+  padding-block: 0;
+  line-height: 1;
+  letter-spacing: -0.8px;
 }

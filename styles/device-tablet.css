@@ -844,3 +844,91 @@ html[data-layout="tablet"] body[data-step="review"] .reviewConfirmNote {
   margin-top: 3px;
   font-size: 10px;
 }
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact1 .reviewOrderList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact1 .reviewOrderCard {
+  padding: 6px 9px;
+  font-size: 95%;
+  line-height: 1.12;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewOrderList {
+  gap: 3px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewOrderCard {
+  padding: 2px 6px;
+  font-size: 90%;
+  line-height: 1.05;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartCategory {
+  padding-block: 1px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartCategory h2 {
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartPizzaMeta,
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartPizzaToppingLine,
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartItemSummary {
+  padding-block: 0;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown {
+  margin-top: 1px;
+  padding: 2px 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine {
+  padding-block: 1px;
+  line-height: 13px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 :where(
+  .cartBenefitRow,
+  .cartOrderTotal
+) {
+  padding-block: 2px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .cartOrderActions {
+  margin-top: 0;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewAddMore {
+  margin-block: 1px;
+  padding: 3px 6px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewAddMore :where(h2, p) {
+  margin-block: 0;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewDiscountBox {
+  margin-top: 1px;
+  padding: 3px 7px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewDiscountBox .line {
+  padding-block: 1px;
+  line-height: 1;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewConfirmBtn {
+  margin-top: 2px;
+}
+
+html[data-layout="tablet"] body[data-step="review"].reviewCompact2 .reviewConfirmNote {
+  margin-top: 0;
+}
+
+html[data-layout="tablet"] body[data-step="pizzaOptions"] .stage {
+  padding-bottom: 0 !important;
+}

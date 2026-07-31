@@ -1725,3 +1725,28 @@ html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions button {
   min-width: 44px;
   min-height: 44px;
 }
+
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 .reviewOrderList {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 .reviewOrderCard {
+  padding: 10px 14px;
+  font-size: 95%;
+  line-height: 1.12;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderList {
+  gap: 6px;
+}
+
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderCard {
+  padding-block: 7px;
+  font-size: 90%;
+  line-height: 1.05;
+}
+
+html[data-layout="kiosk21"] body[data-step="pizzaOptions"] .stage {
+  padding-bottom: 0 !important;
+}
