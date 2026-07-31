@@ -1107,7 +1107,7 @@ html[data-layout="phone"] body[data-step="review"] :where(.title, .sub) {
 
 html[data-layout="phone"] body[data-step="review"] .title {
   grid-column: 1 / -1;
-  font-size: 18px !important;
+  font-size: 16px !important;
   line-height: 1.05;
 }
 
@@ -1129,7 +1129,7 @@ html[data-layout="phone"] body[data-step="review"] .reviewOrderCard {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 7px;
   margin: 0;
-  padding: 2px 7px;
+  padding: 0 3px;
   border-radius: 12px;
   letter-spacing: -0.4px;
 }
@@ -1154,7 +1154,7 @@ html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px 6px;
-  padding: 1px 0 2px;
+  padding: 0;
   font-size: 12px;
   line-height: 1.05;
 }
@@ -1164,7 +1164,7 @@ html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta span::after {
 }
 
 html[data-layout="phone"] body[data-step="review"] .cartPizzaToppingLine {
-  padding: 1px 0;
+  padding: 0;
   font-size: 12px;
   line-height: 1.05;
 }
@@ -1173,8 +1173,8 @@ html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceBreakdown {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0 7px;
-  margin-top: 1px;
-  padding: 4px 6px;
+  margin-top: 0;
+  padding: 0 2px;
   border-radius: 9px;
 }
 
@@ -1195,7 +1195,7 @@ html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine.final {
 html[data-layout="phone"] body[data-step="review"] .cartItemSummary {
   grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 1px 4px;
-  padding: 1px 0;
+  padding: 0;
   font-size: 12px;
   line-height: 1.05;
 }
@@ -1211,14 +1211,14 @@ html[data-layout="phone"] body[data-step="review"] .cartItemName {
 html[data-layout="phone"] body[data-step="review"] :where(.cartBenefitRow, .cartOrderTotal) {
   gap: 4px;
   min-width: 0;
-  padding: 4px 0;
+  padding: 0;
   font-size: 12px;
   line-height: 1.05;
 }
 
 html[data-layout="phone"] body[data-step="review"] .cartOrderActions {
   gap: 5px;
-  margin-top: 3px;
+  margin-top: 0;
 }
 
 html[data-layout="phone"] body[data-step="review"] .cartOrderActions button {
