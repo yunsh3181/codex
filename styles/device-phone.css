@@ -981,7 +981,7 @@ html[data-layout="phone"] body[data-step="pizza"] .stage {
 /* Keep every order-review detail visible while using the card's horizontal space. */
 html[data-layout="phone"] body[data-step="review"] .stage {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(112px, 1fr);
+  grid-template-columns: minmax(0, 3fr) minmax(104px, 1.3fr);
   column-gap: 6px;
   padding: 1px 8px !important;
 }
