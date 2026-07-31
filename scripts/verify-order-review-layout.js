@@ -7,6 +7,10 @@ const root = path.resolve(__dirname, '..');
 const captureScreenshots = process.argv.includes('--screenshots');
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
+const reportPath = process.env.ORDER_REVIEW_REPORT || null;
+const userDataPath = path.join(app.getPath('temp'), `order-review-layout-${process.pid}`);
+fs.mkdirSync(userDataPath, { recursive: true });
+app.setPath('userData', userDataPath);
 const viewports = [
   { name: '360x640', width: 360, height: 640 },
   { name: '390x844', width: 390, height: 844 },
@@ -22,17 +26,30 @@ const scenarios = [
   { name: 'set-4', promo: 'set', size: 'F', mode: 'single', set: 4, right: null },
   { name: 'upup', promo: 'upup', size: 'F', mode: 'single', set: null, right: null },
   { name: 'happy-hour', promo: 'happy', size: 'R', mode: 'single', set: null, right: null },
+  {
+    name: 'multi-pizza',
+    promo: 'normal',
+    size: 'L',
+    mode: 'single',
+    set: null,
+    right: null,
+    crust: '오리지널',
+    left: 'P003',
+    orderCount: 1,
+    quantity: 2,
+  },
+  {
+    name: 'max-categories',
+    promo: 'takeout',
+    size: 'L',
+    mode: 'single',
+    set: null,
+    right: null,
+    topping: true,
+    extras: true,
+    orderCount: 1,
+  },
 ];
-const richScenario = {
-  name: 'takeout-all-categories',
-  promo: 'takeout',
-  size: 'L',
-  mode: 'single',
-  set: null,
-  right: null,
-  topping: true,
-  extras: true,
-};
 
 app.commandLine.appendSwitch('headless');
 app.commandLine.appendSwitch('hide-scrollbars');
@@ -72,9 +89,9 @@ const fixtureScript = (locale, scenario) => `
       size: ${JSON.stringify(scenario.size)},
       mode: ${JSON.stringify(scenario.mode)},
       dough: '오리지널',
-      left: 'P001',
+      left: ${JSON.stringify(scenario.left || 'P001')},
       right: ${JSON.stringify(scenario.right)},
-      crust: '치즈롤',
+      crust: ${JSON.stringify(scenario.crust || '치즈롤')},
       toppingChoice: 'add',
       toppings: ${scenario.topping ? '{ T001: 1 }' : '{}'},
       extraSides: ${scenario.extras ? '{ S002: 1 }' : '{}'},
@@ -84,7 +101,11 @@ const fixtureScript = (locale, scenario) => `
       disposables: false,
       cartItems: []
     });
-    state.cartItems = [orderSnapshot()];
+    const snapshot = orderSnapshot();
+    state.cartItems = Array.from(
+      { length: ${JSON.stringify(scenario.orderCount || 1)} },
+      () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
+    );
     clearCurrentProduct();
     state.step = 'review';
     window.scrollTo(0, 0);
@@ -139,6 +160,7 @@ const measureScript = `
       scrollHeight: element.scrollHeight,
     }));
     const cartbarRect = document.querySelector('.cartbar')?.getBoundingClientRect();
+    const orderList = document.querySelector('.reviewOrderList');
     const brandRect = document.querySelector('.brand')?.getBoundingClientRect();
     const locationRect = document.querySelector('.brandName')?.getBoundingClientRect();
     const logoRect = document.querySelector('.brandLogo')?.getBoundingClientRect();
@@ -160,6 +182,13 @@ const measureScript = `
     const reviewContentBottom = lastContent.bottom;
     return {
       viewport: { width: innerWidth, height: innerHeight },
+      orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
+      orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
+      compressionStage: Number(document.body.dataset.reviewCompression || 0),
+      orderRegion: {
+        scrollHeight: orderList?.scrollHeight || 0,
+        clientHeight: orderList?.clientHeight || 0,
+      },
       scroll: { width: root.scrollWidth, height: root.scrollHeight },
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
       clipped: clipped.map(element => ({
@@ -186,6 +215,16 @@ const measureScript = `
         .map(element => element.className || element.tagName),
       contentOverlapPx: cartbarRect ? Math.max(0, reviewContentBottom - cartbarRect.top) : 0,
       lastContent,
+      stageSections: stageChildren.map(element => ({
+        className: element.className,
+        top: element.getBoundingClientRect().top,
+        bottom: element.getBoundingClientRect().bottom,
+        height: element.getBoundingClientRect().height,
+      })),
+      reviewSections: [...document.querySelectorAll('.reviewOrderCard > *')].map(element => ({
+        className: element.className,
+        height: element.getBoundingClientRect().height,
+      })),
       reviewBrand: isPhoneReview ? {
         location: rect(locationRect),
         logo: rect(logoRect),
@@ -245,19 +284,15 @@ app.whenReady().then(async () => {
     for (const locale of locales) {
       for (const scenario of scenarios) {
         await window.webContents.executeJavaScript(fixtureScript(locale, scenario), true);
+        await waitForPaint();
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
         results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement });
       }
     }
-    await window.webContents.executeJavaScript(fixtureScript('ko', richScenario), true);
-    results.push({
-      viewportName: viewport.name,
-      locale: 'ko',
-      scenario: richScenario.name,
-      ...await window.webContents.executeJavaScript(measureScript, true),
-    });
     if (captureScreenshots) {
-      await window.webContents.executeJavaScript(fixtureScript('ko', richScenario), true);
+      const captureScenario = scenarios.find(scenario => scenario.name === 'max-categories');
+      await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
+      await waitForPaint();
       await captureExact(window, viewport, 'after');
       if (beforeSha) {
         const baselineCss = ['phone', 'tablet', 'kiosk21']
@@ -285,7 +320,7 @@ app.whenReady().then(async () => {
   const report = {
     viewports,
     locales,
-    scenarios: [...scenarios.map(({ name }) => name), richScenario.name],
+    scenarios: scenarios.map(({ name }) => name),
     results,
   };
   if (captureScreenshots) {
@@ -294,7 +329,12 @@ app.whenReady().then(async () => {
       `${JSON.stringify(report, null, 2)}\n`
     );
   }
-  process.stdout.write(`ORDER_REVIEW_LAYOUT_RESULT=${JSON.stringify(report)}\n`);
+  if (reportPath) {
+    fs.writeFileSync(reportPath, `${JSON.stringify(report)}\n`);
+    process.stdout.write(`ORDER_REVIEW_LAYOUT_REPORT=${reportPath}\n`);
+  } else {
+    process.stdout.write(`ORDER_REVIEW_LAYOUT_RESULT=${JSON.stringify(report)}\n`);
+  }
   window.destroy();
   app.quit();
 }).catch(error => {

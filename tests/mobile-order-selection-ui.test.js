@@ -18,7 +18,7 @@ test('phone order selection exposes four complete cards in a two-column grid',()
 });
 
 test('pizza option headings reuse the existing dark green on phone',()=>{
-  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionSection > h2 \{[\s\S]*?color: var\(--v10-green\) !important/);
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionSection > h2 \{[\s\S]*?color: #111111 !important/);
   assert.doesNotMatch(phone,/body\[data-step="pizzaOptions"\] \.optionSection > h2 \{[^}]*color:\s*#fff/);
 });
 

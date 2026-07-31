@@ -1,0 +1,2266 @@
+{
+  "viewports": [
+    {
+      "name": "360x640",
+      "width": 360,
+      "height": 640
+    },
+    {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "768x1024",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "1080x1920",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "locales": [
+    "ko",
+    "en",
+    "ja",
+    "zh",
+    "vi",
+    "es"
+  ],
+  "results": [
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 502.234375,
+            "height": 382.234375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72001647949219,
+            "bottom": 504.9543914794922,
+            "height": 382.234375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 519.28125,
+            "height": 399.28125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72543334960938,
+            "bottom": 522.0066528320312,
+            "height": 399.2812194824219
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 543.78125,
+            "height": 423.78125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72278594970703,
+            "bottom": 546.504035949707,
+            "height": 423.78125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 507.234375,
+            "height": 387.234375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72218322753906,
+            "bottom": 509.95655822753906,
+            "height": 387.234375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 540.875,
+            "height": 420.875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.7215805053711,
+            "bottom": 543.596549987793,
+            "height": 420.8749694824219
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "360x640",
+      "before": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 546.453125,
+            "height": 426.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 360,
+          "height": 640
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 360,
+          "height": 640
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.71894073486328,
+            "bottom": 549.1720657348633,
+            "height": 426.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 504.046875,
+            "height": 384.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.71684265136719,
+            "bottom": 506.7637176513672,
+            "height": 384.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 521.09375,
+            "height": 401.09375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.71623992919922,
+            "bottom": 523.8099899291992,
+            "height": 401.09375
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 533.21875,
+            "height": 413.21875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72164154052734,
+            "bottom": 535.9404220581055,
+            "height": 413.2187805175781
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 509.046875,
+            "height": 389.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.72103881835938,
+            "bottom": 511.7679138183594,
+            "height": 389.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 526.953125,
+            "height": 406.953125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.7204360961914,
+            "bottom": 529.6735916137695,
+            "height": 406.9531555175781
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "390x844",
+      "before": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 120,
+            "bottom": 548.265625,
+            "height": 428.265625
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      },
+      "after": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          9.9,
+          9.9
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 390,
+          "height": 844
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 122.71984100341797,
+            "bottom": 550.985466003418,
+            "height": 428.265625
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "phone"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 186,
+            "bottom": 837.296875,
+            "height": 651.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 188.7213897705078,
+            "bottom": 840.0183258056641,
+            "height": 651.2969360351562
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 185,
+            "bottom": 830.296875,
+            "height": 645.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 187.72682189941406,
+            "bottom": 833.0236968994141,
+            "height": 645.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 189,
+            "bottom": 877.296875,
+            "height": 688.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 191.72021484375,
+            "bottom": 880.01708984375,
+            "height": 688.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 188,
+            "bottom": 862.296875,
+            "height": 674.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 190.7196044921875,
+            "bottom": 865.0164794921875,
+            "height": 674.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 185,
+            "bottom": 830.296875,
+            "height": 645.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 187.72500610351562,
+            "bottom": 833.0218811035156,
+            "height": 645.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "768x1024",
+      "before": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 185,
+            "bottom": 844.046875,
+            "height": 659.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      },
+      "after": {
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 768,
+          "height": 1024
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 187.71839904785156,
+            "bottom": 846.7652740478516,
+            "height": 659.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1049.453125,
+            "height": 833.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.72482299804688,
+            "bottom": 1052.1779479980469,
+            "height": 833.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1046.453125,
+            "height": 830.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.7182159423828,
+            "bottom": 1049.1712799072266,
+            "height": 830.4530639648438
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1077.453125,
+            "height": 861.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.71762084960938,
+            "bottom": 1080.1707458496094,
+            "height": 861.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1067.453125,
+            "height": 851.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.71701049804688,
+            "bottom": 1070.1701354980469,
+            "height": 851.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1046.453125,
+            "height": 830.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.722412109375,
+            "bottom": 1049.175537109375,
+            "height": 830.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    },
+    {
+      "viewportName": "1080x1920",
+      "before": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 216,
+            "bottom": 1046.453125,
+            "height": 830.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      },
+      "after": {
+        "viewport": {
+          "width": 1080,
+          "height": 1920
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1080,
+          "height": 1920
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 218.72183227539062,
+            "bottom": 1049.1749572753906,
+            "height": 830.453125
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "kiosk21"
+      }
+    }
+  ]
+}

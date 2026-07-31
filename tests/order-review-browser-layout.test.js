@@ -3,14 +3,27 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 
 const root = path.resolve(__dirname, '..');
+const retryDelay = new Int32Array(new SharedArrayBuffer(4));
+
+const spawnElectron = (command, args, options) => {
+  let run;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    run = spawnSync(command, args, options);
+    if (run.error?.code !== 'EBUSY') return run;
+    Atomics.wait(retryDelay, 0, 0, 500);
+  }
+  return run;
+};
 
 test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, t => {
   const electron = require('electron');
   assert.ok(fs.existsSync(electron), `Electron executable not found: ${electron}`);
   let command = electron;
   let args = ['scripts/verify-order-review-layout.js'];
+  const reportPath = path.join(os.tmpdir(), `order-review-layout-${process.pid}.json`);
   if (process.platform === 'darwin') {
     const binary = spawnSync('file', [electron], { encoding: 'utf8' }).stdout;
     const architecture = binary.includes('arm64') ? '-arm64' :
@@ -25,17 +38,22 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       args = [architecture, electron, ...args];
     }
   }
-  const run = spawnSync(command, args, {
+  const run = spawnElectron(command, args, {
     cwd: root,
     encoding: 'utf8',
-    env: { ...process.env, ELECTRON_DISABLE_SECURITY_WARNINGS: 'true' },
+    env: {
+      ...process.env,
+      ELECTRON_DISABLE_SECURITY_WARNINGS: 'true',
+      ORDER_REVIEW_REPORT: reportPath,
+    },
     timeout: 110_000,
+    maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
-  const marker = run.stdout.split('\n').find(line => line.startsWith('ORDER_REVIEW_LAYOUT_RESULT='));
-  assert.ok(marker, run.stdout);
-  const report = JSON.parse(marker.slice('ORDER_REVIEW_LAYOUT_RESULT='.length));
-  assert.equal(report.results.length, 4 * ((6 * 7) + 1));
+  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
+  assert.ok(fs.existsSync(reportPath), run.stdout);
+  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  fs.unlinkSync(reportPath);
+  assert.equal(report.results.length, 4 * 6 * 9);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -46,6 +64,13 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     );
     if (process.platform === 'win32' && result.layout !== 'phone') continue;
     assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+    if (['multi-pizza', 'max-categories'].includes(result.scenario)) {
+      if (result.scenario === 'multi-pizza') {
+        assert.equal(result.orderQuantity, 2, `${context}: order quantity`);
+      }
+    } else {
+      assert.equal(result.compressionStage, 0, `${context}: base order must remain uncompressed`);
+    }
     for (const metric of result.discountTextMetrics) {
       assert.ok(metric.fontSize >= 12, `${context}: ${metric.fontSize}px discount font`);
       assert.ok(
@@ -61,7 +86,12 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     assert.deepEqual(result.hiddenRequired, [], `${context}: required UI hidden`);
     assert.ok(
       result.contentOverlapPx <= 1,
-      `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify(result.lastContent)}`
+      `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
+        lastContent: result.lastContent,
+        orderRegion: result.orderRegion,
+        stageSections: result.stageSections,
+        reviewSections: result.reviewSections,
+      })}`
     );
     assert.ok(result.minFontSize >= 12, `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);
@@ -84,6 +114,14 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       assert.equal(result.nonPhoneTaglineHidden, true, `${context}: non-phone header changed`);
     }
   }
+  assert.ok(
+    report.results.some(result =>
+      result.layout === 'phone' &&
+      result.scenario === 'max-categories' &&
+      result.compressionStage >= 1
+    ),
+    'measured mobile multi-pizza review activates compression'
+  );
 });
 
 test('stored screenshots are raw viewport captures without forced resizing', () => {
