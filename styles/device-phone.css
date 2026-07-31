@@ -1438,18 +1438,19 @@ html[data-layout="phone"] body[data-step="review"].reviewCompact2 :where(
 }
 
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   margin-top: 0;
   padding: 0 2px;
 }
 
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine {
-  flex-direction: column;
-  align-items: stretch;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
 }
 
 html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine strong {
-  margin-left: 0;
+  margin-left: auto;
   line-height: 14px;
   letter-spacing: -2.5px;
   text-align: right;
