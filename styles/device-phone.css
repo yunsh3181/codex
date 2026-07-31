@@ -835,7 +835,7 @@ html[data-layout="phone"] body[data-step="pizzaOptions"] .optionBtn {
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection {
   margin-bottom: 2px;
-  padding: 2px 6px;
+  padding: 1px 6px;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {

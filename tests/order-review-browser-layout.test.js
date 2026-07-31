@@ -38,7 +38,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
   assert.ok(fs.existsSync(reportPath), run.stdout);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);

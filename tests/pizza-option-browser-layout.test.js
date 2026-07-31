@@ -38,7 +38,7 @@ test('pizza options pass real viewport, locale, badge, and typography checks', {
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
+  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
   assert.equal(report.results.length, 4 * 6);

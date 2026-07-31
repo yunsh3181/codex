@@ -8,6 +8,9 @@ const captureScreenshots = process.argv.includes('--screenshots');
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.ORDER_REVIEW_REPORT || null;
+const userDataPath = path.join(app.getPath('temp'), `order-review-layout-${process.pid}`);
+fs.mkdirSync(userDataPath, { recursive: true });
+app.setPath('userData', userDataPath);
 const viewports = [
   { name: '360x640', width: 360, height: 640 },
   { name: '390x844', width: 390, height: 844 },
