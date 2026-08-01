@@ -576,8 +576,7 @@ function compactNewOrderData(order){
  };
 }
 function newOrderCard(order){
- const data=compactNewOrderData(order),visual=adminStatusVisual(order);
- return `<article class="order-card new-order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 신규 주문 상세보기"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="new-order-lines"><div class="new-order-line new-order-primary"><span>${esc(data.phone)}</span><span>${esc(data.pizzas)}</span><span>${esc(data.sides)}</span><span>${esc(data.drinks)}</span></div><div class="new-order-line new-order-secondary"><span>${esc(data.orderType)}</span><span>${esc(data.seat)}</span><span>${esc(data.benefit)}</span><span>${esc(data.discount)}</span><span>${esc(data.payment)}</span></div><div class="actions">${adminOrderActions(order)}</div></div></article>`;
+ return mainOrderCard(order);
 }
 function orderOperationsHTML(order){
  const {original,discount,paid}=safeAmounts(order),split=splitPaymentSummary(order,paid);
@@ -595,16 +594,43 @@ function ordersForMainList(list){
 function adminStatusName(order){if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
 function adminStatusVisual(order){if(['payment_pending','new'].includes(order.status))return {className:'seat-ordering',icon:'🟡'};if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return {className:'seat-occupied',icon:'🔴'};if(order.orderType==='takeout'&&['accepted','paid','cooking','ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};if(['ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};return {className:'',icon:''}}
 function adminOrderActions(order){
+ const includeCall=arguments.length<2||arguments[1]!==false;
  const pending=['payment_pending','new'].includes(order.status),inProgress=['accepted','paid','cooking'].includes(order.status),done=['ready','completed'].includes(order.status),takeout=order.orderType==='takeout';
  const primary=pending?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:inProgress?`<button type="button" class="${takeout?'ready':'occupied-action'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">조리완료</button>`:'';
- return `${primary}${inProgress||done?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
+ return `${primary}${includeCall&&(inProgress||done)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
+}
+function mainOrderCard(order,{takeoutAcceptance=false}={}){
+ const takeout=order.orderType==='takeout',reservation=isReservationOrder(order),visual=adminStatusVisual(order);
+ const {original,discount,paid}=safeAmounts(order),phone=displayText(order.phone||order.phoneMasked);
+ const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
+ const seat=takeout?'-':displayText(orderSeatLabel(order));
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method);
+ const actions=takeoutAcceptance
+  ?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button>`
+  :adminOrderActions(order,false);
+ return `<article class="order-card main-order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기">
+ <header class="main-order-summary">
+  <div class="main-order-identity">${reservation?'<span class="main-reservation">예약</span>':''}<strong>${esc(adminOrderNumberLabel(order))}</strong><span class="main-order-type ${takeout?'takeout':'dinein'}">${takeout?'포장':'매장식사'}</span><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${esc(adminStatusName(order))}</span><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></div>
+  <div class="main-order-fact"><span>인원</span><strong>${party}</strong></div>
+  <div class="main-order-fact"><span>좌석</span><strong>${esc(seat)}</strong></div>
+  <div class="main-order-fact phone"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div>
+  <div class="main-order-fact paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
+ </header>
+ <div class="main-order-body">
+  <div class="main-order-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
+  <div class="main-order-operations">
+   <div class="main-payment-grid"><div><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
+   <button type="button" class="main-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+   ${actions?`<div class="actions main-order-actions">${actions}</div>`:''}
+  </div>
+ </div>
+ </article>`;
 }
 function takeoutItemCount(order){
  return Number(order.itemCount)||(order.items||[]).reduce((sum,item)=>sum+Math.max(1,Number(item.qty)||1),0);
 }
 function takeoutPendingCard(order){
- const visual=adminStatusVisual(order);
- return `<article class="order-card order-detail-trigger takeout-large ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 결제대기 주문 상세보기"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">포장 · 결제대기</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions takeout-accept-action"><button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button></div></div></div></article>`;
+ return mainOrderCard(order,{takeoutAcceptance:true});
 }
 function takeoutProgressAction(order){
  if(['accepted','paid','cooking'].includes(order.status))return {label:'조리완료',status:'ready',className:'ready'};
@@ -642,7 +668,7 @@ function render(){
  ].sort((a,b)=>dateValue(a.time)-dateValue(b.time));
  if(takeoutProcessing)takeoutProcessing.innerHTML=processingCards.length?processingCards.map(card=>card.html).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
  const filtered=ordersForMainList(orders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>{if(['payment_pending','new'].includes(order.status))return newOrderCard(order);const visual=adminStatusVisual(order);return `<article class="order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기"><header class="order-head"><div class="order-identity"><div class="order-no">${esc(adminOrderNumberLabel(order))}</div><span class="status-badge ${order.status} ${visual.className}">${visual.icon?`${visual.icon} `:''}${order.orderType==='takeout'?'포장 · ':''}${esc(adminStatusName(order))}</span></div><time>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</time></header><div class="order-card-body"><div class="order-menu">${orderMenuHTML(order)}</div><div class="order-operations">${orderOperationsHTML(order)}<div class="actions">${adminOrderActions(order)}</div></div></div></article>`}).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ orderList.innerHTML=filtered.length?filtered.map(order=>mainOrderCard(order)).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -765,25 +791,108 @@ function orderById(id){return orders.find(order=>String(order.id)===String(id))}
 function paymentStatusLabel(order){
  return displayText(order?.paymentStatus||order?.payment?.status,'저장 정보 없음');
 }
+function isReservationOrder(order){
+ const mode=String(order?.pickup?.mode||'').trim().toLowerCase();
+ return mode==='reserve'||(mode!=='now'&&Boolean(displayText(order?.pickup?.time,'')));
+}
+function storedLineAmount(entry){
+ for(const value of [entry?.total,entry?.amount,entry?.lineTotal]){
+  if(value!==null&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0)return Number(value);
+ }
+ return null;
+}
+function storedSelectionEntries(map,category,legacyMaster=[]){
+ return Object.entries(map||{}).flatMap(([id,value])=>{
+  const quantity=typeof value==='object'&&value!==null?Number(value.quantity??value.qty):Number(value);
+  if(!(quantity>0))return [];
+  const storedName=typeof value==='object'&&value!==null?value.name:'';
+  return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity,amount:storedLineAmount(value)}];
+ });
+}
+function combinedStoredEntries(entries){
+ const totals=new Map();
+ (entries||[]).forEach(entry=>{
+  const name=displayText(entry?.name,'');
+  if(!name)return;
+  const quantity=Math.max(1,Number(entry.quantity)||1),amount=storedLineAmount(entry);
+  const current=totals.get(name)||{name,quantity:0,amount:0,hasAmount:true};
+  current.quantity+=quantity;
+  if(amount===null)current.hasAmount=false;else current.amount+=amount;
+  totals.set(name,current);
+ });
+ return [...totals.values()].map(entry=>({...entry,amount:entry.hasAmount?entry.amount:null}));
+}
+function detailQuantityHTML(quantity){
+ const qty=Math.max(1,Number(quantity)||1);
+ return qty>1?` <span class="detail-menu-quantity">*${qty}</span>`:'';
+}
+function detailPriceHTML(amount){
+ return amount===null?'':`<strong class="detail-menu-price">${money(amount)}</strong>`;
+}
+function orderDetailMenuLine(entry,className='extra'){
+ return `<div class="detail-menu-line ${className}"><span class="detail-menu-name">${esc(entry.name)}${detailQuantityHTML(entry.quantity)}</span>${detailPriceHTML(entry.amount)}</div>`;
+}
+function orderDetailPizzaLine(item){
+ const toppings=combinedStoredEntries(storedSelectionEntries(item?.toppings,'toppings',TOPPINGS));
+ const toppingText=toppings.length?`<span class="detail-pizza-options"> + ${toppings.map(entry=>`${esc(entry.name)}${Number(entry.quantity)>1?Number(entry.quantity):''}`).join(' + ')}</span>`:'';
+ const quantity=Math.max(1,Number(item?.qty)||1);
+ const amount=storedLineAmount({total:item?.total});
+ return `<div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span>${toppingText}${detailQuantityHTML(quantity)}</span>${detailPriceHTML(amount)}</div>`;
+}
+function orderDetailMenuHTML(order){
+ const items=Array.isArray(order?.items)?order.items:[];
+ const sides=combinedStoredEntries(items.flatMap(item=>[
+  ...storedSelectionEntries(item?.includedSides,'sides',SIDES),
+  ...storedSelectionEntries(item?.sides,'sides',SIDES)
+ ]));
+ const extras=items.reduce((result,item)=>{
+  for(const map of [item?.includedDrinks,item?.drinks]){
+   Object.entries(map||{}).forEach(([id,value])=>{
+    const category=ORDER_CATALOG.sauces?.[id]?'sauces':'drinks';
+    result.push(...storedSelectionEntries({[id]:value},category,DRINKS));
+   });
+  }
+  return result;
+ },[]);
+ const otherLines=[...sides,...combinedStoredEntries(extras)];
+ return `<section class="detail-menu-section"><h4>피자</h4><div class="detail-menu-list">${items.map(orderDetailPizzaLine).join('')}${otherLines.map(entry=>orderDetailMenuLine(entry)).join('')}</div></section>`;
+}
+function orderDetailForkHTML(order){
+ const required=order?.disposables===true;
+ return `<div class="detail-fork-card"><span>일회용 포크</span><strong>${required?'O':'X'}</strong></div>`;
+}
 function renderOrderDetail(order,seatId=null){
  const takeout=order.orderType==='takeout';
- const seatLabel=takeout?'':displayText(orderSeatLabel(order));
- const reservation=order.pickup?.mode&&order.pickup.mode!=='now';
+ const seatLabel=takeout?'-':displayText(orderSeatLabel(order));
+ const reservation=isReservationOrder(order);
  const {original,discount,paid}=safeAmounts(order);
- return `<div class="order-detail-summary">
-  <div><span>주문번호</span><strong>${esc(adminOrderNumberLabel(order))}</strong></div>
-  <div><span>주문 시각</span><strong>${formatTime(order.createdAt||order.createdAtClient)}</strong></div>
-  <div><span>주문 유형</span><strong>${takeout?'포장':'먹고 가기'}</strong></div>
-  ${takeout?'':`<div><span>테이블</span><strong>${esc(seatLabel)}</strong></div>`}
-  <div><span>전화번호</span><strong>${esc(displayText(order.phone||order.phoneMasked))}</strong></div>
-  <div><span>예약 주문</span><strong>${reservation?'예약 주문':'바로 주문'}</strong></div>
-  ${reservation?`<div><span>예약 시각</span><strong>${esc(displayText(order.pickup?.time))}</strong></div>`:''}
-  <div><span>결제 상태</span><strong>${esc(paymentStatusLabel(order))}</strong></div>
-  <div><span>주문 상태</span><strong>${esc(adminStatusName(order))}</strong></div>
+ const phone=displayText(order.phone||order.phoneMasked);
+ const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
+ const completed=['ready','completed'].includes(order.status);
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method);
+ return `<div class="admin-detail-screen">
+ <div class="admin-detail-topbar">
+  <div class="detail-order-identity">${reservation?'<span class="detail-reservation">예약</span>':''}<strong>${esc(adminOrderNumberLabel(order))}</strong><span class="detail-order-type ${takeout?'takeout':'dinein'}">${takeout?'포장':'매장식사'}</span></div>
+  <div class="detail-top-card"><span>인원</span><strong>${party}</strong></div>
+  <div class="detail-top-card seat"><span>좌석</span><strong>${esc(seatLabel)}</strong></div>
+  <div class="detail-top-card phone"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div>
+  <div class="detail-top-card paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
+  <div class="detail-completion">${completed?'<strong><i></i>완료</strong>':''}<span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span></div>
  </div>
- <div class="order-detail-menu">${orderMenuHTML(order)}</div>
- <div class="admin-amounts"><div><span>정상금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment"><span>최종 결제금액</span><strong>${money(paid)}</strong></div></div>
- ${seatId?`<div class="order-detail-seat-actions"><button type="button" data-action="clear-seat" data-seat-id="${esc(seatId)}">이 테이블 빈자리로 변경</button></div>`:''}`;
+ <div class="admin-detail-body">
+  <div class="admin-detail-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
+  <div class="admin-detail-operations">
+   <div class="detail-payment-grid">
+    <div><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div>
+    <div><span>원 금액</span><strong>${money(original)}</strong></div>
+    <div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div>
+    <div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
+   </div>
+   <button type="button" class="detail-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+  </div>
+ </div>
+ ${seatId?`<div class="order-detail-seat-actions"><button type="button" data-action="clear-seat" data-seat-id="${esc(seatId)}">이 테이블 빈자리로 변경</button></div>`:''}
+ </div>`;
 }
 function showOrderDetail(order,seatId=null,trigger=null){
  if(!order||!orderDetailModal||!orderDetailContent)return false;
@@ -872,6 +981,14 @@ orderDetailModal?.addEventListener('click',async event=>{
  if(button.dataset.action==='select-seat-order'){
   const order=orderById(button.dataset.orderId);
   if(order){orderDetailContent.innerHTML=renderOrderDetail(order,orderDetailSourceSeatId);document.getElementById('orderDetailTitle').textContent=`${adminOrderNumberLabel(order)}번 · 먹고 가기`}
+  return;
+ }
+ if(button.dataset.action==='copy-phone'){
+  try{await navigator.clipboard.writeText(button.dataset.phone||'');showAdminMessage('연락처가 복사되었습니다.')}catch(error){showAdminMessage('연락처를 복사하지 못했습니다.',true)}
+  return;
+ }
+ if(button.dataset.action==='call-customer'){
+  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);
   return;
  }
  if(button.dataset.action==='clear-seat'){

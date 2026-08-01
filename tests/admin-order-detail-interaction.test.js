@@ -13,12 +13,19 @@ assert.strictEqual((html.match(/id="orderDetailModal"/g)||[]).length,1,'the shar
 assert.ok(admin.includes('function renderOrderDetail(order,seatId=null)'),'all entry points share the same detail renderer');
 assert.ok(admin.includes('function openOrderDetail(orderId,trigger=null)')&&admin.includes('function openSeatOrderDetail(seatId,trigger=null)'),'card and table entry points use shared detail opening');
 
-for(const renderer of ['takeoutPendingCard','takeoutProcessingCard']){
+for(const renderer of ['takeoutProcessingCard']){
  const start=admin.indexOf(`function ${renderer}(`);
  const source=start<0?'':admin.slice(start,admin.indexOf('\n}',start)+2);
  assert.ok(source.includes('order-detail-trigger')&&source.includes('data-order-id='),`${renderer} opens order detail`);
  assert.ok(source.includes('role="button"')&&source.includes('tabindex="0"'),`${renderer} is keyboard accessible`);
 }
+const pendingStart=admin.indexOf('function takeoutPendingCard(');
+const pendingSource=pendingStart<0?'':admin.slice(pendingStart,admin.indexOf('\n}',pendingStart)+2);
+const mainStart=admin.indexOf('function mainOrderCard(');
+const mainSource=mainStart<0?'':admin.slice(mainStart,admin.indexOf('\n}',mainStart)+2);
+assert.ok(pendingSource.includes('mainOrderCard(order,{takeoutAcceptance:true})'),'pending takeout uses the shared main order card');
+assert.ok(mainSource.includes('order-detail-trigger')&&mainSource.includes('data-order-id='),'shared main card opens order detail');
+assert.ok(mainSource.includes('role="button"')&&mainSource.includes('tabindex="0"'),'shared main card is keyboard accessible');
 assert.ok(admin.includes("if(!['Enter',' '].includes(event.key)"),'Enter and Space activate clickable order cards');
 assert.ok(admin.includes("event.key==='Escape'"),'Escape closes the shared order detail');
 assert.ok(admin.includes("if(event.target===orderDetailModal){closeOrderDetail();return}"),'backdrop closes detail consistently');
@@ -58,12 +65,14 @@ assert.deepStrictEqual(Array.from(seatContext.activeOrdersForSeat('papa-2'),orde
 assert.deepStrictEqual(Array.from(seatContext.activeOrdersForSeat('papa-bar4'),order=>order.id),['older'],'every table in a multi-table order resolves to the same order');
 assert.deepStrictEqual(Array.from(seatContext.activeOrdersForSeat('outdoor-4')),[],'an empty table resolves safely');
 
-for(const label of ['주문번호','주문 시각','주문 유형','전화번호','예약 주문','결제 상태','주문 상태','정상금액','할인금액','최종 결제금액'])assert.ok(admin.includes(label),`detail includes ${label}`);
-for(const label of ['피자','사이드메뉴','음료','곁들이','도우','크러스트','하프앤하프','토핑'])assert.ok(admin.includes(label),`detail supports ${label}`);
-assert.ok(admin.includes("takeout?'':`<div><span>테이블"),'takeout detail omits table while dine-in detail shows it');
+for(const label of ['예약','매장식사','포장','인원','좌석','연락처','복사','결제금액','완료','주문시간','피자','일회용 포크','결제수단','원 금액','할인금액','📣 고객 호출'])assert.ok(admin.includes(label),`detail includes ${label}`);
+assert.ok(admin.includes("const seatLabel=takeout?'-':displayText(orderSeatLabel(order))"),'takeout detail keeps the shared seat slot without inventing a table');
 assert.ok(admin.includes("event.preventDefault();event.stopPropagation()"),'nested actions stop detail-card propagation');
 assert.ok(admin.includes("if(!id||statusUpdateLocks.has(id))return false"),'status mutations retain duplicate protection');
 assert.ok(!admin.includes("collection('orders').where("),'detail access adds no new Firestore query or index requirement');
-assert.ok(css.includes('.order-detail-panel')&&css.includes('max-height:min(90vh,920px)')&&css.includes('overflow:auto'),'detail dialog stays within the viewport and scrolls internally');
+assert.ok(css.includes('width:min(1900px,calc(100vw - 20px))')&&css.includes('height:min(980px,calc(100vh - 20px))'),'detail dialog uses the available administrator viewport');
+assert.ok(css.includes('grid-template-columns:minmax(0,45fr) minmax(0,55fr)'),'detail body preserves the approved 45:55 split');
+assert.ok(css.includes('.detail-payment-grid')&&css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'payment summary keeps exactly four columns');
+assert.ok(css.includes('.detail-customer-call')&&css.includes('linear-gradient(100deg,#5f45c9,#834ce1,#6550c9)'),'customer call remains the large purple action');
 
 console.log('admin shared order detail, completed takeout visibility, action isolation, and dining table resolution passed');

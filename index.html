@@ -3583,6 +3583,7 @@ function buildMobileOrderPayload(){
   orderType:state.orderType||'unknown',partySize:state.partySize||null,
   seat:state.orderType==='dinein'?{zone:state.diningArea,tables:[...(state.selectedTables||[])]}:null,
   pickup:state.orderType==='takeout'?{time:state.reserveTime||null,mode:state.orderTiming||'now'}:null,
+  disposables:state.disposables===true,
   items,itemCount:items.reduce((n,x)=>n+(Number(x.qty)||1),0),normalAmount:reviewTotals().normal,discountAmount:reviewTotals().discount,totalAmount:finalTotal,total:finalTotal,
   benefit:state.promo||'normal',payment:{method:state.paymentMethod,methodName:paymentName(state.paymentMethod),splitCount:isSplitPayment()?state.splitCount:1,splitAmounts:isSplitPayment()?splitParts(finalTotal,state.splitCount):[finalTotal]},status:'payment_pending',
   recommendationEvents:[],
