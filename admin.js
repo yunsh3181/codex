@@ -596,7 +596,8 @@ function adminStatusVisual(order){if(['payment_pending','new'].includes(order.st
 function adminOrderActions(order){
  const includeCall=arguments.length<2||arguments[1]!==false;
  const pending=['payment_pending','new'].includes(order.status),inProgress=['accepted','paid','cooking'].includes(order.status),done=['ready','completed'].includes(order.status),takeout=order.orderType==='takeout';
- const primary=pending?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">접수</button>`:inProgress?`<button type="button" class="${takeout?'ready':'occupied-action'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">조리완료</button>`:'';
+ const reservation=typeof reservationTimeLabel==='function'?reservationTimeLabel(order):'';
+ const primary=pending?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">결제대기 · 주문 접수</button>${reservation?`<strong class="reservation-time">${esc(reservation)}</strong>`:''}</div>`:inProgress?`<button type="button" class="${takeout?'ready':'occupied-action'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed">조리완료</button>`:'';
  return `${primary}${includeCall&&(inProgress||done)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
 }
 function mainOrderCard(order,{takeoutAcceptance=false}={}){
@@ -605,8 +606,9 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const seat=takeout?'-':displayText(orderSeatLabel(order));
  const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method);
+ const reservationTime=reservationTimeLabel(order);
  const actions=takeoutAcceptance
-  ?`<button type="button" class="accept" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">주문접수</button>`
+  ?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">결제대기 · 주문 접수</button>${reservationTime?`<strong class="reservation-time">${esc(reservationTime)}</strong>`:''}</div>`
   :adminOrderActions(order,false);
  return `<article class="order-card main-order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기">
  <header class="main-order-summary">
@@ -795,6 +797,17 @@ function isReservationOrder(order){
  const mode=String(order?.pickup?.mode||'').trim().toLowerCase();
  return mode==='reserve'||(mode!=='now'&&Boolean(displayText(order?.pickup?.time,'')));
 }
+function reservationTimeLabel(order){
+ if(!isReservationOrder(order))return '';
+ const raw=order?.pickup?.time;
+ if(typeof raw==='string'){
+  const match=raw.trim().match(/^(?:[01]\d|2[0-3]):[0-5]\d(?:[:][0-5]\d)?$/);
+  if(match)return `${match[0].slice(0,5)} 예약`;
+ }
+ const value=raw?.toDate?raw.toDate():raw instanceof Date?raw:null;
+ if(value&&!Number.isNaN(value.getTime()))return `${String(value.getHours()).padStart(2,'0')}:${String(value.getMinutes()).padStart(2,'0')} 예약`;
+ return '';
+}
 function storedLineAmount(entry){
  for(const value of [entry?.total,entry?.amount,entry?.lineTotal]){
   if(value!==null&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0)return Number(value);
@@ -824,7 +837,7 @@ function combinedStoredEntries(entries){
 }
 function detailQuantityHTML(quantity){
  const qty=Math.max(1,Number(quantity)||1);
- return qty>1?` <span class="detail-menu-quantity">*${qty}</span>`:'';
+ return `<span class="detail-menu-quantity">×${qty}</span>`;
 }
 function detailPriceHTML(amount){
  return amount===null?'':`<strong class="detail-menu-price">${money(amount)}</strong>`;
@@ -834,10 +847,10 @@ function orderDetailMenuLine(entry,className='extra'){
 }
 function orderDetailPizzaLine(item){
  const toppings=combinedStoredEntries(storedSelectionEntries(item?.toppings,'toppings',TOPPINGS));
- const toppingText=toppings.length?`<span class="detail-pizza-options"> + ${toppings.map(entry=>`${esc(entry.name)}${Number(entry.quantity)>1?Number(entry.quantity):''}`).join(' + ')}</span>`:'';
+ const toppingText=toppings.length?`<span class="detail-pizza-options">${toppings.map(entry=>`<span>+ ${esc(entry.name)}${detailQuantityHTML(entry.quantity)}</span>`).join('')}</span>`:'';
  const quantity=Math.max(1,Number(item?.qty)||1);
  const amount=storedLineAmount({total:item?.total});
- return `<div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span>${toppingText}${detailQuantityHTML(quantity)}</span>${detailPriceHTML(amount)}</div>`;
+ return `<div class="detail-pizza-item"><div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span></span><span class="detail-line-end">${detailQuantityHTML(quantity)}${detailPriceHTML(amount)}</span></div>${toppingText}</div>`;
 }
 function orderDetailMenuHTML(order){
  const items=Array.isArray(order?.items)?order.items:[];
@@ -848,14 +861,17 @@ function orderDetailMenuHTML(order){
  const extras=items.reduce((result,item)=>{
   for(const map of [item?.includedDrinks,item?.drinks]){
    Object.entries(map||{}).forEach(([id,value])=>{
-    const category=ORDER_CATALOG.sauces?.[id]?'sauces':'drinks';
-    result.push(...storedSelectionEntries({[id]:value},category,DRINKS));
+    const category=ORDER_CATALOG.sauces?.[id]?'accompaniments':ORDER_CATALOG.drinks?.[id]?'drinks':'unknown';
+    const lookupCategory=category==='accompaniments'?'sauces':category;
+    result[category].push(...storedSelectionEntries({[id]:value},lookupCategory,DRINKS));
    });
   }
   return result;
- },[]);
- const otherLines=[...sides,...combinedStoredEntries(extras)];
- return `<section class="detail-menu-section"><h4>피자</h4><div class="detail-menu-list">${items.map(orderDetailPizzaLine).join('')}${otherLines.map(entry=>orderDetailMenuLine(entry)).join('')}</div></section>`;
+ },{drinks:[],accompaniments:[],unknown:[]});
+ const otherLines=[...sides,...combinedStoredEntries(extras.drinks),...combinedStoredEntries(extras.accompaniments),...combinedStoredEntries(extras.unknown)];
+ const pizzaSection=items.length?`<section class="detail-menu-section detail-pizza-section"><h4>피자</h4><div class="detail-menu-list">${items.map(orderDetailPizzaLine).join('')}</div></section>`:'';
+ const otherSection=otherLines.length?`<section class="detail-menu-section detail-other-section"><h4>사이드 / 음료 / 곁들이</h4><div class="detail-menu-list">${otherLines.map(entry=>orderDetailMenuLine(entry)).join('')}</div></section>`:'';
+ return `${pizzaSection}${otherSection}`;
 }
 function orderDetailForkHTML(order){
  const required=order?.disposables===true;

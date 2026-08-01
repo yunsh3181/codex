@@ -16,7 +16,7 @@ const statusNameSource=admin.match(/function adminStatusName\(order\)\{[^\n]+/)?
 assert.ok(statusNameSource&&!statusNameSource.includes('포장완료'),'accepted takeout orders are no longer labeled as already complete');
 for(const status of ['payment_pending','new']){
  const html=markup(status);
- assert.match(html,/data-status="accepted">접수<\/button>/,`${status} offers one accept action`);
+ assert.match(html,/class="accept payment-pending-action"[^>]*data-status="accepted">결제대기 · 주문 접수<\/button>/,`${status} offers one emphasized accept action`);
  assert.doesNotMatch(html,/data-status="completed"/,`${status} cannot complete directly`);
  assert.doesNotMatch(html,/data-action="call-customer"/,`${status} is not callable before acceptance`);
 }

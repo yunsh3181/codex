@@ -12,7 +12,7 @@ assert.ok(admin.includes("['accepted','paid','cooking','ready'].includes(order.s
 assert.ok(css.includes('.takeout-processing{display:grid;grid-template-columns:1fr'),'processing cards use one-column left rail');
 assert.ok(!html.includes('id="takeoutCooking"')&&!html.includes('id="takeoutReady"'),'processing cards are not split by status');
 for(const transition of [
- ["data-status=\"cooking\">주문접수"],
+ ["data-status=\"cooking\">결제대기 · 주문 접수"],
  ["label:'조리완료',status:'ready'"],
  ["label:'픽업완료',status:'completed'"]
 ])assert.ok(admin.includes(transition),`${transition} transition is configured`);

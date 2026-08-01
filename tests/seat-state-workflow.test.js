@@ -36,7 +36,7 @@ assert.ok(kiosk.includes('.tableCard.ordering,.tableCard.selected{background:#FF
 assert.ok(kiosk.includes('.tableCard.occupiedCard.occupied{background:#FDE7E7'),'kiosk occupied cards use the unified red');
 for(const label of ["available:'사용가능'","selected:'주문중'","occupied:'사용중'"])assert.ok(ko.includes(label),`Korean kiosk label ${label} uses the three-state wording`);
 
-assert.ok(admin.includes('data-status="accepted">접수</button>'),'pending takeout and dine-in orders share the explicit accept action');
+assert.ok(admin.includes('data-status="accepted">결제대기 · 주문 접수</button>'),'pending takeout and dine-in orders share the emphasized accept action');
 assert.ok(admin.includes('data-status="completed">조리완료</button>'),'accepted takeout and dine-in orders share the cooking-complete action');
 assert.ok(admin.includes("status:'occupied',heldBy:null,heldUntil:null"),'first dine-in click marks seats in use');
 assert.ok(admin.includes("status:'empty'"),'second dine-in click releases seats');
