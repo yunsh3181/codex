@@ -206,4 +206,20 @@ async function verifyConcurrentSequenceAllocation(){
   assert.strictEqual(documents.get('orders/o3').sequence,1,'next 09:00 KST business day resets to sequence 1');
 }
 
-verifyConcurrentSequenceAllocation().then(()=>console.log('canonical order catalog, ID-based admin detail, Firestore schema, and concurrent 09:00 Asia/Seoul sequence transaction passed')).catch(error=>{console.error(error);process.exitCode=1});
+async function verifyPublicDisplayBusinessDayBackfill(){
+  const match=adminSource.match(/let publicDisplayBusinessDayBackfill=null;[\s\S]*?\n}\n\nfunction scheduleBusinessDayRefresh/);
+  assert.ok(match,'public display business-day backfill source found');
+  const updates=[];
+  const docs=[
+    {id:'legacy',ref:{id:'legacy'},data:()=>({orderNumber:'P9999',displayStatus:'ready'})},
+    {id:'current',ref:{id:'current'},data:()=>({orderNumber:'P1234',displayStatus:'ready',businessDay:'2026-08-01'})}
+  ];
+  const batch={update(ref,data){updates.push({ref,data})},async commit(){}};
+  const context={Map,Promise,console,orderBusinessDayKey:order=>order?.businessDay||null,db:{collection(){return {async get(){return {docs}}}},batch(){return batch}}};
+  vm.createContext(context);
+  vm.runInContext(match[0].replace(/\nfunction scheduleBusinessDayRefresh[\s\S]*/,''),context,{filename:'public-display-business-day-backfill.js'});
+  await context.backfillPublicDisplayBusinessDays([{id:'legacy',businessDay:'2026-07-31'},{id:'current',businessDay:'2026-08-01'}]);
+  assert.deepStrictEqual(updates.map(update=>({id:update.ref.id,businessDay:update.data.businessDay})),[{id:'legacy',businessDay:'2026-07-31'}],'legacy public display receives its immutable source-order business day exactly once');
+}
+
+Promise.all([verifyConcurrentSequenceAllocation(),verifyPublicDisplayBusinessDayBackfill()]).then(()=>console.log('canonical order catalog, public display business-day backfill, Firestore schema, and concurrent 09:00 Asia/Seoul sequence transaction passed')).catch(error=>{console.error(error);process.exitCode=1});
