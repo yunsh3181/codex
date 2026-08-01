@@ -23,7 +23,7 @@ assert.ok(admin.includes("manualCustomerCallForm?.addEventListener('submit'")&&a
 assert.ok(admin.includes("db.runTransaction"),'registration uses a transaction');
 assert.ok(admin.includes("`${MANUAL_CALL_STORE_ID}_${orderNumber}`"),'store and number form the deterministic document id');
 assert.ok(admin.includes("db.collection('manualCustomerCalls')"),'admin uses the isolated manual collection');
-assert.ok(admin.includes("displayStatus:status")&&admin.includes("status==='ready'?1:0"),'order intake creates cooking while direct completion creates ready');
+assert.ok(admin.includes("displayStatus:status")&&admin.includes("businessDay:seoulBusinessDayKey()")&&admin.includes("status==='ready'?1:0"),'order intake creates cooking or ready with an immutable business day');
 assert.ok(admin.includes("ref.update({displayStatus:'ready',announceVersion:1"),'cooking advances to ready');
 assert.ok(admin.includes("if(status==='picked-up')await ref.delete()"),'pickup completion deletes the display document');
 assert.ok(!/createManualCustomerCall[\s\S]{0,2000}collection\('orders'\)/.test(admin),'manual creation does not access orders');
@@ -42,7 +42,7 @@ assert.ok(tv.includes('previousAnnounceVersions'),'TV deduplicates announcements
 assert.ok(tv.includes('speechQueue=speechQueue.then'),'announcements are queued');
 assert.ok(rules.includes('match /manualCustomerCalls/{callId}'),'manual collection has explicit rules');
 assert.ok(rules.includes("matches('^[0-9]{4}$')"),'rules require exactly four digits');
-assert.ok(rules.includes("request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','announceVersion','createdAt','updatedAt'])"),'rules restrict public fields');
+assert.ok(rules.includes("request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','announceVersion','createdAt','updatedAt'])"),'rules restrict public fields');
 assert.ok(rules.includes('allow create: if isAdmin()')&&rules.includes('allow delete: if isAdmin()'),'writes require admin');
 
 console.log('in-person takeout intake UI, lifecycle, isolation, TV, voice, and rules checks passed');

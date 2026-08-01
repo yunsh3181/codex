@@ -71,5 +71,5 @@ assert.ok(clearSource.includes("db.collection('seats').doc(id).set(seatReleasePa
 assert.ok(setStatusSource.includes("batch.set(db.collection('seats').doc(seatId),seatReleasePayload(),{merge:true})"),'automatic dine-in release reuses the same payload');
 assert.ok(!clearSource.includes("collection('orders')"),'seat clearing never changes an order');
 assert.ok(rules.includes('match /seats/{seatId}')&&rules.includes('allow create: if isAdmin();'),'existing admin-only seat mutation policy remains');
-assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','updatedAt'])"),'TV public data remains minimal');
+assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])"),'TV public data remains minimal');
 console.log('admin operations layout, exact seat map, status visuals, and safe seat clearing passed');

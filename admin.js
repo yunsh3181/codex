@@ -16,6 +16,7 @@ let businessDayRefreshTimer=null;
 let adminAuthenticated=false;
 let initialOrdersLoaded=false;
 let requestedSeatEntryHandled=false;
+let publicDisplayBusinessDayBackfill=null;
 
 function requestedAdminSeatId(){
  if(typeof URLSearchParams!=='function'||typeof location==='undefined')return '';
@@ -51,6 +52,23 @@ function refreshVisibleOrders(now=new Date()){
  assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
 }
 
+function backfillPublicDisplayBusinessDays(list){
+ if(publicDisplayBusinessDayBackfill)return publicDisplayBusinessDayBackfill;
+ publicDisplayBusinessDayBackfill=(async()=>{
+  const snapshot=await db.collection('publicOrderDisplays').get();
+  const ordersById=new Map((list||[]).map(order=>[String(order.id),order]));
+  const batch=db.batch();let updates=0;
+  snapshot.docs.forEach(doc=>{
+   if(doc.data().businessDay)return;
+   const businessDay=orderBusinessDayKey(ordersById.get(doc.id));
+   if(!businessDay)return;
+   batch.update(doc.ref,{businessDay});updates++;
+  });
+  if(updates)await batch.commit();
+ })().catch(error=>{publicDisplayBusinessDayBackfill=null;console.error('고객 TV 영업일 보정 실패',error)});
+ return publicDisplayBusinessDayBackfill;
+}
+
 function scheduleBusinessDayRefresh(){
  if(businessDayRefreshTimer)clearTimeout(businessDayRefreshTimer);
  const now=new Date();
@@ -76,6 +94,7 @@ function startRealtimeSubscriptions(){
    if(change.type==='added')added.push({id:change.doc.id,...change.doc.data()});
  });
  receivedOrders=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+ backfillPublicDisplayBusinessDays(receivedOrders);
  const now=new Date();
  refreshVisibleOrders(now);
  if(!initialLoad)notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)));
@@ -702,7 +721,7 @@ async function createManualCustomerCall(orderNumber,status,buttons=[]){
    const ref=db.collection('manualCustomerCalls').doc(id);
    const existing=await transaction.get(ref);
    if(existing.exists){const error=new Error(`${number}번은 이미 고객 화면에 표시 중입니다.`);error.code='manual-call/duplicate';throw error}
-   transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,businessDay:seoulBusinessDayKey(),announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
   showAdminMessage(`${number}번을 ${status==='ready'?'조리완료':'조리중'}에 등록했습니다.`);
   return true;
@@ -756,6 +775,7 @@ async function setStatus(id,status,button){
      orderNumber:String(order.customerNumber||order.orderNo||adminOrderNumberLabel(order)),
      displayStatus:status==='ready'?'ready':'cooking',
      storeId:String(order.storeId||'pangyo2-techno-valley'),
+     businessDay:orderBusinessDayKey(order)||seoulBusinessDayKey(),
      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
    }else{

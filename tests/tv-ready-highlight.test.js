@@ -10,6 +10,8 @@ const css=fs.readFileSync(path.join(root,'waiting-tv/waiting-tv.css'),'utf8');
 const subscriptions={};
 const intervals=[];
 let fakeNow=1700000000000;
+const NativeDate=Date;
+class FakeDate extends NativeDate{static now(){return fakeNow}}
 const elements=new Map();
 const element=id=>{
  if(!elements.has(id))elements.set(id,{innerHTML:'',textContent:'',className:'',classList:{toggle(){}},addEventListener(){}});
@@ -17,7 +19,7 @@ const element=id=>{
 };
 const context={
  console,
- Date:{now:()=>fakeNow},
+ Date:FakeDate,
  Map,
  Promise,
  SpeechSynthesisUtterance:class{},
@@ -25,7 +27,7 @@ const context={
  navigator:{onLine:true},
  localStorage:{getItem:()=>'false',setItem(){},removeItem(){}},
  window:{addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}},
- db:{collection(name){return {onSnapshot(next){subscriptions[name]=next}}}}
+ db:{collection(name){return {onSnapshot(options,next){subscriptions[name]=typeof options==='function'?options:next;return ()=>{}}}}}
 };
 vm.runInNewContext(source,context);
 

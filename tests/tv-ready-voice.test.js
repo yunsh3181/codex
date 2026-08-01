@@ -34,7 +34,7 @@ const context={
  },
  db:{collection(name){
   assert.ok(['publicOrderDisplays','manualCustomerCalls'].includes(name));
-  return {onSnapshot(next){subscriptions[name]=next}};
+  return {onSnapshot(options,next){subscriptions[name]=typeof options==='function'?options:next;return ()=>{}}};
  }}
 };
 context.window.SpeechSynthesisUtterance=Utterance;
@@ -44,7 +44,7 @@ vm.runInNewContext(source,context);
 
 const doc=(id,orderNumber,displayStatus)=>({
  id,
- data:()=>({orderNumber,displayStatus,updatedAt:{toMillis:()=>1}})
+ data:()=>({orderNumber,displayStatus,updatedAt:{toMillis:()=>Date.now()}})
 });
 const emit=(...docs)=>subscriptions.publicOrderDisplays({docs});
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
@@ -87,7 +87,7 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
  assert.strictEqual(spoken.length,3,'an order first observed as ready is not announced');
 
  const manualDoc=(id,orderNumber,displayStatus,announceVersion)=>({
-  id,data:()=>({orderNumber,displayStatus,announceVersion,updatedAt:{toMillis:()=>2}})
+  id,data:()=>({orderNumber,displayStatus,announceVersion,updatedAt:{toMillis:()=>Date.now()}})
  });
  subscriptions.manualCustomerCalls({docs:[manualDoc('existing','6666','ready',1)]});
  await flush();
