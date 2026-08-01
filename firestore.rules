@@ -66,6 +66,8 @@ service cloud.firestore {
         && validString(request.resource.data.storeId, 80)
         && request.resource.data.businessDay is string
         && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (resource == null || !resource.data.keys().hasAny(['businessDay'])
+          || request.resource.data.businessDay == resource.data.businessDay)
         && request.resource.data.updatedAt == request.time;
       allow delete: if isAdmin();
     }
