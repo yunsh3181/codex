@@ -45,9 +45,12 @@ assert.deepStrictEqual(['1:3','3:2','3:3','5:2','5:3'].filter(cell=>!occupiedCel
 for(const [zone,colors] of Object.entries({papa:['#eef6ff','#3b82f6','#1d4f91'],outdoor:['#edf9f0','#3b9b5f','#176b35'],annex:['#fff1f1','#dc4c52','#9f2028'],room:['#fff6e8','#ee9b2e','#9a5700']})){
  assert.ok(css.includes(`.seat-overview-card.seat-zone-${zone}{background:${colors[0]};border-color:${colors[1]};color:${colors[2]}}`),`${zone} retains its zone palette`);
 }
+assert.ok(css.includes('.seat-overview-card.empty,.seat-overview-card.held{background:#fff;border-color:#d1d5db;color:#1f2937}'),'unused dashboard seats override zone colors with the white neutral palette');
+assert.ok(css.includes('.seat-overview-card.occupied{background:#fff1f1;border-color:#ef4444;color:#7f1d1d}'),'occupied dashboard seats override zone colors with the red tint');
+assert.ok(css.includes('.seat-overview-card.occupied:is(button):hover{background:#fff1f1;border-color:#dc2626}'),'occupied hover preserves its red tint');
 assert.ok(admin.includes('class="seat-overview-card seat-zone-${seat.zone} ${status}"'),'zone and state classes are independently rendered');
 assert.ok(admin.includes('style="grid-row-start:${seat.row};grid-column-start:${seat.column}"'),'real seat cards receive explicit grid positions');
-assert.ok(!css.includes('.seat-overview-card.empty{')&&!css.includes('.seat-overview-card.occupied{')&&!css.includes('.seat-overview-card.held{'),'state classes do not override the whole card palette');
+assert.ok(css.indexOf('.seat-overview-card.empty,.seat-overview-card.held{')>css.indexOf('.seat-overview-card.seat-zone-room{'),'state colors override every zone palette');
 for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
 assert.ok(admin.includes("const action=status==='held'?'open-seat-order':'toggle-seat'"),'empty and occupied seats share the overview toggle action while held seats retain order detail');
 assert.ok(admin.includes('`<button type="button" ${attributes} data-action="${action}"'),'all overview seats render as accessible action buttons');

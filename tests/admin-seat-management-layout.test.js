@@ -68,7 +68,7 @@ test('empty, occupied, and held updates preserve card identity and order',()=>{
  assert.equal(mixed.find(card=>card.id==='outdoor-3').status,'held');
 });
 
-test('seat cards use fixed square geometry and the shared zone palette',()=>{
+test('seat cards use fixed square geometry and highlight only occupied state',()=>{
  for(const declaration of ['width:100%','height:auto','aspect-ratio:1/1','min-width:0','min-height:0','box-sizing:border-box']){
   assert.ok(css.includes(declaration),`contains ${declaration}`);
  }
@@ -81,6 +81,20 @@ test('seat cards use fixed square geometry and the shared zone palette',()=>{
   const [zone,background,border,color]=palette;
   assert.ok(css.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`));
  }
+ assert.ok(css.includes('.simple-seat.empty,.simple-seat.held{background:#fff;border-color:#d1d5db;color:#1f2937}'));
+ assert.ok(css.includes('.simple-seat.occupied{background:#fff1f1;border-color:#ef4444;color:#7f1d1d}'));
+ assert.ok(css.includes('.simple-seat.occupied:hover{background:#fff1f1;border-color:#dc2626}'));
+});
+
+test('state updates switch card classes without changing card order',()=>{
+ const available=cards(renderSeatManager({'papa-2':{status:'empty'}}));
+ const occupied=cards(renderSeatManager({'papa-2':{status:'occupied'}}));
+ const released=cards(renderSeatManager({'papa-2':{status:'empty'}}));
+ assert.deepEqual(occupied.map(card=>card.id),available.map(card=>card.id));
+ assert.deepEqual(released.map(card=>card.id),available.map(card=>card.id));
+ assert.equal(available.find(card=>card.id==='papa-2').status,'empty');
+ assert.equal(occupied.find(card=>card.id==='papa-2').status,'occupied');
+ assert.equal(released.find(card=>card.id==='papa-2').status,'empty');
 });
 
 test('desktop seat zones use compact 2/3-column grids with natural heights',()=>{
