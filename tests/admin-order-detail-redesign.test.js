@@ -14,7 +14,7 @@ const catalog={
  toppings:{T001:'양파',T002:'피망'},
  sides:{S001:'치킨스트립'},
  drinks:{D001:'코카-콜라 1.25L'},
- sauces:{}
+ sauces:{A001:'프레쉬 피클'}
 };
 const context={
  ORDER_CATALOG:catalog,
@@ -56,9 +56,12 @@ const reserved=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',ti
 assert.ok(reserved.includes('detail-reservation">예약</span>'),'reservation appears only from saved reservation data');
 assert.ok(reserved.includes('detail-order-type dinein">매장식사'),'dine-in uses the green-type class and actual label');
 assert.ok(reserved.includes('pizza-code-alpha">CH</span>14'),'alphabetic pizza code characters are isolated from numeric characters');
-assert.ok(reserved.includes('페퍼로니')&&reserved.includes(' + 양파 + 피망2'),'pizza name and saved topping quantities are rendered separately');
+assert.ok(reserved.includes('<span class="pizza-code">[<span class="pizza-code-alpha">CH</span>14]</span>'),'size brackets and digits remain outside the red alphabet span');
+assert.ok(reserved.includes('페퍼로니')&&reserved.includes('+ 양파')&&reserved.includes('+ 피망')&&reserved.includes('×2'),'pizza name and saved topping quantities are rendered separately');
+assert.ok(!reserved.includes('pizza-code-alpha">페퍼로니'),'product name alphabetic characters never enter the red size-code span');
 assert.ok(reserved.includes('치킨스트립')&&reserved.includes('9,900원'),'a stored side-line price is rendered without fabrication');
-assert.ok(reserved.includes('코카-콜라 1.25L')&&reserved.includes('*2')&&reserved.includes('2,500원'),'stored drink quantity and price remain aligned');
+assert.ok(reserved.includes('코카-콜라 1.25L')&&reserved.includes('×2')&&reserved.includes('2,500원'),'stored drink quantity and price remain aligned');
+assert.ok(reserved.includes('<h4>피자</h4>')&&reserved.includes('<h4>사이드 / 음료 / 곁들이</h4>'),'pizza and non-pizza products use separate groups');
 assert.ok(reserved.includes('<span>일회용 포크</span><strong>O</strong>'),'saved true fork choice renders O');
 assert.ok(reserved.includes('data-action="copy-phone"')&&reserved.includes('data-action="call-customer"'),'existing copy and customer-call actions stay connected');
 assert.ok(reserved.includes('<span>결제수단</span>')&&reserved.includes('<span>원 금액</span>')&&reserved.includes('<span>할인금액</span>'),'four-column payment data uses agreed labels');
@@ -74,5 +77,38 @@ assert.ok(takeout.includes('detail-order-type takeout">포장'),'takeout uses th
 const legacy=context.renderOrderDetail({...baseOrder,disposables:undefined,items:[{...baseOrder.items[0],sides:{S001:1},drinks:{D001:2}}]});
 const chickenLine=legacy.match(/<div class="detail-menu-line extra"><span class="detail-menu-name">치킨스트립[\s\S]*?<\/div>/)?.[0]||'';
 assert.ok(chickenLine&&!chickenLine.includes('detail-menu-price'),'legacy lines without stored prices do not invent or calculate a price');
+
+const mixedItems=[{
+ ...baseOrder.items[0],includedSides:{},sides:{S001:{quantity:1,total:9900}},
+ includedDrinks:{A001:{quantity:1,total:500}},drinks:{UNKNOWN:{name:'미분류 상품',quantity:1,total:700},D001:{quantity:1,total:2500}}
+}];
+const before=JSON.stringify(mixedItems);
+const mixed=context.orderDetailMenuHTML({...baseOrder,items:mixedItems});
+assert.ok(mixed.indexOf('치킨스트립')<mixed.indexOf('코카-콜라 1.25L'),'sides render before drinks');
+assert.ok(mixed.indexOf('코카-콜라 1.25L')<mixed.indexOf('프레쉬 피클'),'drinks render before accompaniments');
+assert.ok(mixed.indexOf('프레쉬 피클')<mixed.indexOf('미분류 상품'),'unknown products render last without omission');
+assert.strictEqual(JSON.stringify(mixedItems),before,'display sorting does not mutate the saved items array');
+
+assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'reserve',time:'16:30:45'}}),'16:30 예약','reservation time omits seconds');
+assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'now',time:'16:30'}}),'','immediate orders do not display reservation time');
+assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'reserve',time:'not-a-time'}}),'','invalid reservation time is safely hidden');
+
+const css=fs.readFileSync(path.join(root,'admin.css'),'utf8');
+assert.match(css,/\.order-detail-panel\{width:min\(840px,calc\(100vw - 32px\)\);height:auto;max-height:84vh/,'detail dialog has the compact desktop bounds');
+assert.match(css,/\.admin-detail-menu\{min-height:0;overflow-y:auto/,'only the menu region scrolls for long orders');
+assert.match(css,/\.payment-pending-action\{[^}]*min-height:58px/,'payment-pending action has primary sizing');
+assert.match(css,/\.main-customer-call\{align-self:flex-end;width:auto;min-width:150px;min-height:40px;[^}]*font-size:16px/,'desktop customer-call action keeps the smaller touch-safe size');
+assert.match(css,/@media\(max-width:560px\)\{[\s\S]*?\.main-customer-call\{width:auto;min-width:150px;min-height:42px;font-size:16px\}[\s\S]*?\}/,'mobile customer-call action stays smaller than payment pending');
+assert.doesNotMatch(css,/@media\(max-width:560px\)\{[\s\S]*?\.main-customer-call\{[^}]*min-height:58px[^}]*font-size:24px/,'mobile no longer restores the oversized customer-call action');
+for(const width of [360,390,560,768,1440]){
+ const customerHeight=width<=560?42:40,customerFont=16,pendingHeight=58,pendingFont=19;
+ assert.ok(pendingHeight>customerHeight&&pendingFont>customerFont,`${width}px keeps payment pending larger than customer call`);
+ assert.ok(customerHeight>=40,'customer call retains its minimum touch target');
+}
+assert.match(css,/\.admin-detail-menu\{[^}]*color:#07532f/,'order detail menu establishes the green default');
+assert.match(css,/\.admin-detail-menu \.detail-menu-section h4\{[^}]*color:#07532f/,'order detail group headings are green');
+assert.match(css,/\.admin-detail-menu \.detail-pizza-name,\.admin-detail-menu \.pizza-code,\.admin-detail-menu \.detail-menu-name,\.admin-detail-menu \.detail-menu-quantity,\.admin-detail-menu \.detail-menu-price\{color:#07532f\}/,'pizza names, size code, product names, quantities, and prices are green');
+assert.match(css,/\.admin-detail-menu \.pizza-code-alpha\{color:#d71920!important\}/,'only the size-code alphabet override is red');
+assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.reservation-time\{animation:none\}\}/,'reservation pulse honors reduced motion');
 
 console.log('admin full-screen order detail reservation, colors, prices, fork choice, copy, and call checks passed');
