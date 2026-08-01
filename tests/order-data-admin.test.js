@@ -161,6 +161,10 @@ const allowedKeys=rules.match(/request\.resource\.data\.keys\(\)\.hasOnly\(\[([\
 const returnBlock=html.match(/return \{\n  channel:'mobile'[\s\S]*?\n \}\n}\nasync function submitMobileOrder/)[0];
 assert.ok(!returnBlock.includes('discountBreakdown'),'mobile payload excludes fields rejected by Firestore rules');
 for(const key of ['items','itemCount','normalAmount','discountAmount','totalAmount','total','payment','benefit'])assert.ok(allowedKeys.includes(key),`${key} is allowed by Firestore rules`);
+assert.ok(allowedKeys.includes('disposables'),'the saved disposable-fork choice is allowed by Firestore rules');
+assert.ok(returnBlock.includes('disposables:state.disposables===true'),'the submitted order stores an explicit disposable-fork boolean');
+assert.ok(rules.includes("!request.resource.data.keys().hasAny(['disposables'])"),'legacy clients may omit the disposable-fork field during rollout');
+assert.ok(rules.includes('request.resource.data.disposables is bool'),'when present, Firestore requires a real disposable-fork boolean');
 for(const key of ['pizzaLeft','pizzaRight','crust','dough','toppings','sides','drinks','includedSides','includedDrinks','qty','discountAmount','total'])assert.ok(html.includes(`${key}:`),`order items retain ${key}`);
 
 async function verifyConcurrentSequenceAllocation(){

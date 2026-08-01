@@ -24,7 +24,7 @@ service cloud.firestore {
     function validOrderCreate() {
       return request.resource.data.keys().hasOnly([
         'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
-        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','orderType','partySize','seat','pickup',
+        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','orderType','partySize','seat','pickup','disposables',
         'items','itemCount','normalAmount','discountAmount','totalAmount','total','benefit','payment','status',
         'recommendationEvents','createdAt','createdAtClient','source'
       ])
@@ -33,6 +33,8 @@ service cloud.firestore {
         || request.resource.data.language in ['ko','en','es','ja','zh'])
       && request.resource.data.status == 'payment_pending'
       && request.resource.data.orderType in ['dinein','takeout']
+      && (!request.resource.data.keys().hasAny(['disposables'])
+        || request.resource.data.disposables is bool)
       && validString(request.resource.data.phone, 11)
       && request.resource.data.phone.matches('^010[0-9]{8}$')
       && validString(request.resource.data.phoneMasked, 20)

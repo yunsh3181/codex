@@ -42,11 +42,12 @@ test('discount totals always equal normal sales total minus payment',()=>{
  );
 });
 
-test('new admin orders use the required two-line full-detail layout',()=>{
- for(const token of ['compactNewOrderData','new-order-primary','new-order-secondary','order.phone||order.phoneMasked','combinedEntries','formatPizzaDisplayCode','adminPizzaName'])assert.ok(admin.includes(token),token);
- assert.match(admin,/filtered\.map\(order=>\{if\(\['payment_pending','new'\]\.includes\(order\.status\)\)return newOrderCard\(order\)/);
- assert.match(adminCss,/\.new-order-primary\{grid-template-columns:/);
- assert.match(adminCss,/\.new-order-secondary\{grid-template-columns:/);
+test('admin main orders use the unified summary, menu, payment, and call layout',()=>{
+ for(const token of ['mainOrderCard','main-order-summary','main-order-type','order.phone||order.phoneMasked','orderDetailMenuHTML(order)','orderDetailForkHTML(order)','main-payment-grid','main-customer-call'])assert.ok(admin.includes(token),token);
+ assert.match(admin,/filtered\.map\(order=>mainOrderCard\(order\)\)/);
+ assert.match(adminCss,/\.main-order-body\{display:grid;grid-template-columns:minmax\(0,45fr\) minmax\(0,55fr\)/);
+ assert.match(adminCss,/\.main-payment-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(adminCss,/\.main-customer-call\{[^}]*linear-gradient\(100deg,#5f45c9,#834ce1,#6550c9\)/);
 });
 
 test('admin seat overview toggles empty and occupied seats',()=>{
