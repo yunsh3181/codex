@@ -52,6 +52,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
   Set,orders:[order],db:{batch:()=>batch,collection:name=>({doc:id=>({name,id})})},
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
   orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
+  orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},
   callCustomer(orderNo,language){customerCalls.push({orderNo,language,commitSucceeded})},
   console:{error(...args){loggedErrors.push(args)}}
@@ -72,10 +73,11 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(acceptedTakeout.writes[0].data.status,'accepted','takeout acceptance never writes completed');
  assert.strictEqual(acceptedTakeout.seatWrites.length,0,'takeout acceptance does not touch seats');
 
- const readyTakeout=await exerciseStatus({id:'t2',status:'cooking',orderType:'takeout',seatIds:[],customerNumber:'P1234',language:'en'},'ready',{holdCommit:true});
+ const readyTakeout=await exerciseStatus({id:'t2',status:'cooking',orderType:'takeout',seatIds:[],customerNumber:'P1234',language:'en',businessDay:'2026-07-31'},'ready',{holdCommit:true});
  assert.strictEqual(readyTakeout.commits,1,'double-clicked takeout ready transition commits once');
  assert.strictEqual(readyTakeout.writes[0].data.status,'ready');
  assert.strictEqual(readyTakeout.seatWrites.length,0,'takeout ready transition does not touch seats');
+ assert.strictEqual(readyTakeout.displayWrites[0].data.businessDay,'2026-07-31','ready transition preserves the order business day instead of renewing it from updatedAt');
  assert.deepStrictEqual(readyTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'ready transition calls once, after commit, in the order language');
 
  const acceptedDineIn=await exerciseStatus({id:'d1',status:'payment_pending',orderType:'dinein',seatIds:['s1']},'accepted');

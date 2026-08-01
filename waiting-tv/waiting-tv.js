@@ -16,7 +16,8 @@ function seoulBusinessDayKey(value=Date.now()){
  if(Number(parts.hour)<9)businessDate.setUTCDate(businessDate.getUTCDate()-1);
  return businessDate.toISOString().slice(0,10);
 }
-const shouldDisplayOrder=(item,now=Date.now())=>VISIBLE_DISPLAY_STATUSES.has(item.displayStatus)&&seoulBusinessDayKey(item.updatedAt)===seoulBusinessDayKey(now);
+const displayBusinessDay=item=>typeof item.businessDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(item.businessDay)?item.businessDay:seoulBusinessDayKey(item.updatedAt);
+const shouldDisplayOrder=(item,now=Date.now())=>VISIBLE_DISPLAY_STATUSES.has(item.displayStatus)&&displayBusinessDay(item)===seoulBusinessDayKey(now);
 function millisecondsUntilNextBusinessDay(now=Date.now()){
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(now)).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
  const seoulAsUtc=Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(parts.hour),Number(parts.minute),Number(parts.second));

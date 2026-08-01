@@ -60,10 +60,14 @@ service cloud.firestore {
     match /publicOrderDisplays/{orderId} {
       allow read: if true;
       allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','updatedAt'])
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])
         && validString(request.resource.data.orderNumber, 32)
         && request.resource.data.displayStatus in ['cooking','ready']
         && validString(request.resource.data.storeId, 80)
+        && request.resource.data.businessDay is string
+        && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (resource == null || !resource.data.keys().hasAny(['businessDay'])
+          || request.resource.data.businessDay == resource.data.businessDay)
         && request.resource.data.updatedAt == request.time;
       allow delete: if isAdmin();
     }
@@ -71,18 +75,21 @@ service cloud.firestore {
     match /manualCustomerCalls/{callId} {
       allow read: if true;
       allow create: if isAdmin()
-        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','announceVersion','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','announceVersion','createdAt','updatedAt'])
         && request.resource.data.orderNumber is string
         && request.resource.data.orderNumber.matches('^[0-9]{4}$')
         && request.resource.data.displayStatus in ['cooking','ready']
         && validString(request.resource.data.storeId, 80)
+        && request.resource.data.businessDay is string
+        && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && request.resource.data.announceVersion == (request.resource.data.displayStatus == 'ready' ? 1 : 0)
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
       allow update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','announceVersion','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','announceVersion','createdAt','updatedAt'])
         && request.resource.data.orderNumber == resource.data.orderNumber
         && request.resource.data.storeId == resource.data.storeId
+        && request.resource.data.businessDay == resource.data.businessDay
         && request.resource.data.createdAt == resource.data.createdAt
         && resource.data.displayStatus == 'cooking'
         && request.resource.data.displayStatus == 'ready'

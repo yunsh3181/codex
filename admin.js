@@ -16,6 +16,14 @@ let businessDayRefreshTimer=null;
 let adminAuthenticated=false;
 let initialOrdersLoaded=false;
 let requestedSeatEntryHandled=false;
+let publicDisplayBusinessDayBackfill=null;
+
+function hasValidBusinessDay(value){
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+ const [year,month,day]=value.split('-').map(Number);
+ const date=new Date(Date.UTC(year,month-1,day));
+ return date.getUTCFullYear()===year&&date.getUTCMonth()===month-1&&date.getUTCDate()===day;
+}
 
 function requestedAdminSeatId(){
  if(typeof URLSearchParams!=='function'||typeof location==='undefined')return '';
@@ -51,6 +59,31 @@ function refreshVisibleOrders(now=new Date()){
  assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
 }
 
+function backfillPublicDisplayBusinessDays(list){
+ if(publicDisplayBusinessDayBackfill)return publicDisplayBusinessDayBackfill;
+ publicDisplayBusinessDayBackfill=(async()=>{
+  const snapshot=await db.collection('publicOrderDisplays').get();
+  const ordersById=new Map((list||[]).map(order=>[String(order.id),order]));
+  const candidates=new Map();
+  snapshot.docs.forEach(doc=>{
+   const savedBusinessDay=doc.data().businessDay;
+   if(hasValidBusinessDay(savedBusinessDay)||savedBusinessDay!=null&&savedBusinessDay!=='')return;
+   const businessDay=orderBusinessDayKey(ordersById.get(doc.id));
+   if(!hasValidBusinessDay(businessDay))return;
+   candidates.set(doc.id,{ref:doc.ref,businessDay});
+  });
+  const results=await Promise.allSettled(Array.from(candidates.values(),({ref,businessDay})=>db.runTransaction(async transaction=>{
+   const current=await transaction.get(ref);
+   if(!current.exists)return;
+   const savedBusinessDay=current.data().businessDay;
+   if(hasValidBusinessDay(savedBusinessDay)||savedBusinessDay!=null&&savedBusinessDay!=='')return;
+   transaction.update(ref,{businessDay,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  })));
+  if(results.some(result=>result.status==='rejected'))console.warn('일부 고객 TV 영업일 보정 건을 건너뛰었습니다.');
+ })().catch(error=>console.error('고객 TV 영업일 보정 실패',error)).finally(()=>{publicDisplayBusinessDayBackfill=null});
+ return publicDisplayBusinessDayBackfill;
+}
+
 function scheduleBusinessDayRefresh(){
  if(businessDayRefreshTimer)clearTimeout(businessDayRefreshTimer);
  const now=new Date();
@@ -76,6 +109,7 @@ function startRealtimeSubscriptions(){
    if(change.type==='added')added.push({id:change.doc.id,...change.doc.data()});
  });
  receivedOrders=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+ backfillPublicDisplayBusinessDays(receivedOrders);
  const now=new Date();
  refreshVisibleOrders(now);
  if(!initialLoad)notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)));
@@ -702,7 +736,7 @@ async function createManualCustomerCall(orderNumber,status,buttons=[]){
    const ref=db.collection('manualCustomerCalls').doc(id);
    const existing=await transaction.get(ref);
    if(existing.exists){const error=new Error(`${number}번은 이미 고객 화면에 표시 중입니다.`);error.code='manual-call/duplicate';throw error}
-   transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   transaction.set(ref,{orderNumber:number,displayStatus:status,storeId:MANUAL_CALL_STORE_ID,businessDay:seoulBusinessDayKey(),announceVersion:status==='ready'?1:0,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
   showAdminMessage(`${number}번을 ${status==='ready'?'조리완료':'조리중'}에 등록했습니다.`);
   return true;
@@ -747,17 +781,19 @@ async function setStatus(id,status,button){
   if(!order)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
   if((status==='accepted'&&order.orderType!=='takeout')||(status==='cooking'&&order.orderType==='takeout'))stopNewOrderRepeat();
   const seatIds=orderSeatIds(order);
+  const displayRef=order.orderType==='takeout'?db.collection('publicOrderDisplays').doc(id):null;
   const batch=db.batch();
   batch.update(db.collection('orders').doc(id),{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
   if(order.orderType==='takeout'){
-   const displayRef=db.collection('publicOrderDisplays').doc(id);
    if(['accepted','paid','cooking','ready'].includes(status)){
-    batch.set(displayRef,{
+    const businessDay=orderBusinessDayKey(order);
+    if(businessDay)batch.set(displayRef,{
      orderNumber:String(order.customerNumber||order.orderNo||adminOrderNumberLabel(order)),
      displayStatus:status==='ready'?'ready':'cooking',
      storeId:String(order.storeId||'pangyo2-techno-valley'),
+     businessDay,
      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
+    },{merge:true});
    }else{
     batch.delete(displayRef);
    }

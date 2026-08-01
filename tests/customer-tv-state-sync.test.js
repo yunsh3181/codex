@@ -43,7 +43,7 @@ const context={
 vm.runInNewContext(source,context);
 
 const timestamp=value=>({toMillis:()=>value});
-const doc=(id,orderNumber,displayStatus,updatedAt=now)=>({id,data:()=>({orderNumber,displayStatus,updatedAt:timestamp(updatedAt)})});
+const doc=(id,orderNumber,displayStatus,updatedAt=now,businessDay)=>({id,data:()=>({orderNumber,displayStatus,updatedAt:timestamp(updatedAt),...(businessDay?{businessDay}:{})})});
 const snapshot=(docs,{fromCache=false}={})=>({docs,size:docs.length,metadata:{fromCache}});
 const emit=(name,docs,options)=>subscriptions[name].at(-1)(snapshot(docs,options));
 const visibleKeys=id=>element(id).querySelectorAll('[data-order-key]').map(node=>node.dataset.orderKey);
@@ -74,8 +74,10 @@ assert.deepStrictEqual(visibleKeys('readyOrders'),['order:five-0','order:five-1'
 emit('publicOrderDisplays',[]);
 assert.deepStrictEqual(visibleKeys('readyOrders'),[],'empty snapshot removes every order node');
 
-emit('publicOrderDisplays',[doc('old','9999','cooking',Date.parse('2026-07-21T01:00:00.000Z'))]);
+emit('publicOrderDisplays',[doc('old','9999','cooking',now,'2026-07-21')]);
 assert.deepStrictEqual(visibleKeys('cookingOrders'),[],'previous business-day order is excluded');
+emit('publicOrderDisplays',[doc('updated-after-opening','9999','ready',now,'2026-07-21')]);
+assert.deepStrictEqual(visibleKeys('readyOrders'),[],'updatedAt after opening cannot renew an immutable previous business day');
 context.navigator.onLine=false;
 emit('publicOrderDisplays',[doc('old-cache','9998','ready',Date.parse('2026-07-21T01:00:00.000Z')),doc('completed-cache','9997','completed')],{fromCache:true});
 assert.deepStrictEqual(visibleKeys('readyOrders'),[],'offline cache excludes previous-day and completed documents');

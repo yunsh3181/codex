@@ -116,6 +116,7 @@ assert.ok(adminSource.includes('db.runTransaction(async transaction=>'),'sequenc
 assert.ok(adminSource.includes('Promise.all([transaction.get(orderRef),transaction.get(counterRef)])'),'transaction reads before writes');
 assert.ok(adminSource.includes('transaction.update(orderRef,{businessDay,sequence:next,dailySequence:next'),'sequence is persisted on the order');
 assert.ok(rules.includes("match /dailyStats/{document=**} { allow read, write: if isAdmin(); }"),'existing rules authorize authenticated admin counter writes');
+assert.ok(rules.includes("request.resource.data.businessDay == resource.data.businessDay"),'public display rules prevent an existing business day from being overwritten');
 
 const functionMatch=adminSource.match(/function seoulBusinessDayKey[\s\S]*?\n}\nconst sequenceAssignments/);
 assert.ok(functionMatch,'business day helper found');
@@ -206,4 +207,55 @@ async function verifyConcurrentSequenceAllocation(){
   assert.strictEqual(documents.get('orders/o3').sequence,1,'next 09:00 KST business day resets to sequence 1');
 }
 
-verifyConcurrentSequenceAllocation().then(()=>console.log('canonical order catalog, ID-based admin detail, Firestore schema, and concurrent 09:00 Asia/Seoul sequence transaction passed')).catch(error=>{console.error(error);process.exitCode=1});
+async function verifyPublicDisplayBusinessDayBackfill(){
+  const match=adminSource.match(/let publicDisplayBusinessDayBackfill=null;[\s\S]*?\n}\n\nfunction scheduleBusinessDayRefresh/);
+  assert.ok(match,'public display business-day backfill source found');
+  const documents=new Map([
+    ['legacy',{orderNumber:'P9999',displayStatus:'ready'}],
+    ['current',{orderNumber:'P1234',displayStatus:'ready',businessDay:'2026-08-01'}],
+    ['invalid-existing',{orderNumber:'P5555',displayStatus:'ready',businessDay:'suspect'}],
+    ['missing-source',{orderNumber:'P0001',displayStatus:'ready'}],
+    ['invalid-source-date',{orderNumber:'P0002',displayStatus:'ready'}]
+  ]);
+  const writes=new Map();
+  const ref=id=>({id});
+  const docs=['legacy','current','invalid-existing','missing-source','invalid-source-date','legacy'].map(id=>({id,ref:ref(id),data:()=>({...documents.get(id)})}));
+  let transactionQueue=Promise.resolve();
+  const db={
+    collection(){return {async get(){return {docs}}}},
+    runTransaction(work){
+      const run=transactionQueue.then(async()=>{
+        const pending=[];
+        await work({
+          async get(documentRef){const value=documents.get(documentRef.id);return {exists:value!==undefined,data:()=>({...value})}},
+          update(documentRef,value){pending.push(()=>{documents.set(documentRef.id,{...documents.get(documentRef.id),...value});writes.set(documentRef.id,(writes.get(documentRef.id)||0)+1)})}
+        });
+        pending.forEach(write=>write());
+      });
+      transactionQueue=run.catch(()=>{});
+      return run;
+    }
+  };
+  const context={Map,Promise,console,Date,Number,orderBusinessDayKey:order=>order?.businessDay||null,db,firebase:{firestore:{FieldValue:{serverTimestamp(){return 'server-time'}}}}};
+  vm.createContext(context);
+  vm.runInContext(match[0].replace(/\nfunction scheduleBusinessDayRefresh[\s\S]*/,''),context,{filename:'public-display-business-day-backfill.js'});
+  const sourceOrders=[{id:'legacy',businessDay:'2026-07-31'},{id:'current',businessDay:'2026-08-01'},{id:'invalid-existing',businessDay:'2026-08-01'},{id:'invalid-source-date',businessDay:'not-a-date'}];
+  await Promise.all([context.backfillPublicDisplayBusinessDays(sourceOrders),context.backfillPublicDisplayBusinessDays(sourceOrders)]);
+  assert.strictEqual(documents.get('legacy').businessDay,'2026-07-31','P9999-style document receives the source order business day without a number exception');
+  assert.strictEqual(writes.get('legacy'),1,'duplicate target in one snapshot is written at most once');
+  assert.strictEqual(writes.get('current'),undefined,'valid existing business day is not written');
+  assert.strictEqual(writes.get('invalid-existing'),undefined,'an existing suspect value is not automatically overwritten');
+  assert.strictEqual(writes.get('missing-source'),undefined,'missing source order is skipped');
+  assert.strictEqual(writes.get('invalid-source-date'),undefined,'invalid source date never falls back to today');
+  await context.backfillPublicDisplayBusinessDays(sourceOrders);
+  assert.strictEqual(writes.get('legacy'),1,'a repeated snapshot after backfill produces no additional write');
+  context.publicDisplayBusinessDayBackfill=null;
+  await context.backfillPublicDisplayBusinessDays(sourceOrders);
+  assert.strictEqual(writes.get('legacy'),1,'admin page reinitialization produces no additional write');
+  documents.set('legacy',{...documents.get('legacy'),displayStatus:'ready',updatedAt:'later'});
+  await context.backfillPublicDisplayBusinessDays(sourceOrders);
+  assert.strictEqual(documents.get('legacy').businessDay,'2026-07-31','status and updatedAt changes preserve the original business day');
+  assert.strictEqual(writes.get('legacy'),1,'status and updatedAt changes do not trigger another backfill write');
+}
+
+Promise.all([verifyConcurrentSequenceAllocation(),verifyPublicDisplayBusinessDayBackfill()]).then(()=>console.log('canonical order catalog, public display business-day backfill, Firestore schema, and concurrent 09:00 Asia/Seoul sequence transaction passed')).catch(error=>{console.error(error);process.exitCode=1});

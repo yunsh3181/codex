@@ -28,7 +28,7 @@ assert.ok(tvCSS.includes('.order-number{display:block;width:100%'),'each TV orde
 assert.ok(tvCSS.includes('overflow-x:hidden')&&tvCSS.includes('overflow-y:auto'),'long TV order lists scroll vertically without horizontal overflow');
 for(const forbidden of ['phone','menu','amount','payment','seat'])assert.ok(!tvJS.toLowerCase().includes(forbidden),`TV data code excludes ${forbidden}`);
 assert.ok(rules.includes('match /publicOrderDisplays/{orderId}'),'public display collection has explicit rules');
-assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','updatedAt'])"),'public writes allow only display-safe fields');
+assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])"),'public writes allow only display-safe fields');
 assert.ok(rules.includes('match /orders/{orderId}')&&rules.includes('allow read, update, delete: if isAdmin();'),'orders remain admin-readable only');
 const orderRule=rules.match(/match \/orders\/\{orderId\} \{[\s\S]*?\n    \}/)?.[0]||'';
 assert.ok(orderRule&&!orderRule.includes('allow read: if true'),'orders are never public');
