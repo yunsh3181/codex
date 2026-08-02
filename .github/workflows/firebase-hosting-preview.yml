@@ -33,7 +33,11 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        env:
+          ELECTRON_DISABLE_SANDBOX: "true"
+        run: |
+          node node_modules/electron/install.js
+          xvfb-run --auto-servernum npm test
 
       - name: Prepare Firebase Hosting files
         run: npm run build:hosting

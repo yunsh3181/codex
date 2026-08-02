@@ -23,6 +23,8 @@ test('Firebase Preview validation job has no OIDC or Google credentials', () => 
   assert.doesNotMatch(JSON.stringify(job), /google-github-actions\/auth/);
   assert.match(commandsFor('build_and_test'), /npm ci/);
   assert.match(commandsFor('build_and_test'), /npm test/);
+  assert.match(commandsFor('build_and_test'), /node node_modules\/electron\/install\.js/);
+  assert.match(commandsFor('build_and_test'), /xvfb-run --auto-servernum npm test/);
   assert.match(commandsFor('build_and_test'), /npm run build:hosting/);
   assert.match(commandsFor('build_and_test'), /npm run test:hosting/);
 });
