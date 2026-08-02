@@ -49,10 +49,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: firebase-hosting-preview-${{ github.run_id }}
-          path: |
-            .firebase-hosting/
-            .firebaserc
-            firebase.json
+          path: .firebase-hosting/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
@@ -92,6 +89,33 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: firebase-hosting-preview-${{ github.run_id }}
+          path: .firebase-hosting
+
+      - name: Validate downloaded static artifact
+        run: |
+          test "$(find . -mindepth 1 -maxdepth 1 -print | wc -l)" -eq 1
+          test -d .firebase-hosting
+          test -z "$(find .firebase-hosting -type l -print -quit)"
+          test -z "$(find .firebase-hosting ! -type f ! -type d -print -quit)"
+          test -f .firebase-hosting/index.html
+          test -f .firebase-hosting/admin/index.html
+          test -f .firebase-hosting/admin.css
+          test -f .firebase-hosting/admin.js
+          test -z "$(find .firebase-hosting -type f \( -name firebase.json -o -name .firebaserc -o -name firestore.rules -o -name package.json \) -print -quit)"
+
+      - name: Create hook-free Firebase Preview config
+        env:
+          CONFIG_PATH: ${{ runner.temp }}/firebase-preview.json
+        run: |
+          cat > "$CONFIG_PATH" <<'JSON'
+          {
+            "hosting": {
+              "site": "papajohns-kiosk",
+              "public": ".firebase-hosting",
+              "ignore": ["**/.*", "**/node_modules/**"]
+            }
+          }
+          JSON
 
       - name: Install pinned Firebase CLI
         run: npm install --global firebase-tools@15.24.0 --ignore-scripts
@@ -105,9 +129,11 @@ jobs:
       - name: Deploy preview channel without changing Authentication domains
         env:
           CHANNEL_ID: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('manual-{0}', github.run_id) }}
+          CONFIG_PATH: ${{ runner.temp }}/firebase-preview.json
         run: >-
           firebase hosting:channel:deploy
           "$CHANNEL_ID"
           --expires 7d
           --no-authorized-domains
           --project papajohns-kiosk
+          --config "$CONFIG_PATH"

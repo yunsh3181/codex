@@ -11,6 +11,7 @@ const workflowPath = path.join(root, '.github', 'workflows', 'firebase-hosting-p
 const workflow = YAML.parse(fs.readFileSync(workflowPath, 'utf8'));
 
 const stepsFor = (jobName) => workflow.jobs[jobName].steps;
+const stepNamed = (jobName, name) => stepsFor(jobName).find((step) => step.name === name);
 const commandsFor = (jobName) => stepsFor(jobName)
   .filter((step) => typeof step.run === 'string')
   .map((step) => step.run)
@@ -27,6 +28,10 @@ test('Firebase Preview validation job has no OIDC or Google credentials', () => 
   assert.match(commandsFor('build_and_test'), /xvfb-run --auto-servernum npm test/);
   assert.match(commandsFor('build_and_test'), /npm run build:hosting/);
   assert.match(commandsFor('build_and_test'), /npm run test:hosting/);
+
+  const upload = stepNamed('build_and_test', 'Upload verified Firebase Hosting artifact');
+  assert.equal(upload.with.path, '.firebase-hosting/');
+  assert.doesNotMatch(upload.with.path, /(?:^|\/)firebase\.json|\.firebaserc/);
 });
 
 test('Firebase Preview deploy job is gated and only consumes the verified artifact', () => {
@@ -41,6 +46,33 @@ test('Firebase Preview deploy job is gated and only consumes the verified artifa
   assert.equal(uses.some((value) => value.startsWith('actions/checkout@')), false);
   assert.equal(uses.some((value) => value.startsWith('google-github-actions/auth@')), true);
 
+  const download = stepNamed('deploy_preview', 'Download verified Firebase Hosting artifact');
+  assert.equal(download.with.path, '.firebase-hosting');
+
+  const validation = stepNamed('deploy_preview', 'Validate downloaded static artifact');
+  assert.match(validation.run, /find \.firebase-hosting -type l/);
+  assert.match(validation.run, /index\.html/);
+  assert.match(validation.run, /admin\/index\.html/);
+  for (const forbidden of ['firebase.json', '.firebaserc', 'firestore.rules', 'package.json']) {
+    assert.match(validation.run, new RegExp(forbidden.replace('.', '\\.')));
+  }
+
+  const configStep = stepNamed('deploy_preview', 'Create hook-free Firebase Preview config');
+  const configMatch = configStep.run.match(/<<'JSON'\n([\s\S]*?)\nJSON/);
+  assert.ok(configMatch, 'Preview config JSON heredoc is missing');
+  const previewConfig = JSON.parse(configMatch[1]);
+  assert.deepEqual(previewConfig, {
+    hosting: {
+      site: 'papajohns-kiosk',
+      public: '.firebase-hosting',
+      ignore: ['**/.*', '**/node_modules/**'],
+    },
+  });
+
+  const authIndex = stepsFor('deploy_preview').findIndex((step) => step.name === 'Authenticate to Google Cloud');
+  assert.ok(stepsFor('deploy_preview').indexOf(validation) < authIndex);
+  assert.ok(stepsFor('deploy_preview').indexOf(configStep) < authIndex);
+
   const commands = commandsFor('deploy_preview');
   assert.doesNotMatch(commands, /npm (ci|test|run\s+(?:build:hosting|test:hosting))/);
   assert.match(commands, /firebase-tools@15\.24\.0/);
@@ -48,6 +80,7 @@ test('Firebase Preview deploy job is gated and only consumes the verified artifa
   assert.match(commands, /--no-authorized-domains/);
   assert.match(commands, /--expires 7d/);
   assert.match(commands, /--project papajohns-kiosk/);
+  assert.match(commands, /--config "\$CONFIG_PATH"/);
   assert.doesNotMatch(commands, /firebase deploy(?:\s|$)/);
 });
 
