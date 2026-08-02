@@ -1,5 +1,6 @@
 node_modules/
 dist/
 release/
+.firebase-hosting/
 *.log
 .DS_Store
