@@ -67,9 +67,12 @@ npm run serve:hosting
 `Firebase Hosting preview` workflow가 담당한다. 장기 키 없이 배포하기 위해 GitHub
 Actions Workload Identity Federation을 먼저 구성하고 저장소 변수
 `GCP_WORKLOAD_IDENTITY_PROVIDER`와 `GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT`를 설정해야
-한다. 배포 서비스 계정에는 기존 프로젝트의 Hosting Preview 배포에 필요한 최소
-권한만 부여한다. workflow는 Authentication authorized domains를 변경하지 않도록
-`--no-authorized-domains`를 항상 사용한다.
+한다. workflow의 일반 job은 테스트와 Hosting 산출물 검증만 수행하고, 검증된
+산출물을 artifact로 전달한다. OIDC 권한은 `firebase-hosting-preview` Environment
+승인을 통과한 배포 job에만 있으며, 이 job은 소스를 checkout하거나 프로젝트의 npm
+스크립트를 실행하지 않는다. 배포 서비스 계정에는 기존 프로젝트의 Hosting Preview
+배포에 필요한 최소 권한만 부여한다. workflow는 Authentication authorized domains를
+변경하지 않도록 `--no-authorized-domains`를 항상 사용한다.
 
 운영 live 배포는 이번 구성에서 자동화하지 않는다. 추후 DNS 전환 승인을 받은 뒤
 검증된 동일 산출물에 대해 `firebase deploy --only hosting:papajohns-kiosk`를 별도로

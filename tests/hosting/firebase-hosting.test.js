@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '..', '..');
 const hostingRoot = path.join(root, '.firebase-hosting');
 const firebaseConfig = JSON.parse(fs.readFileSync(path.join(root, 'firebase.json'), 'utf8'));
 const rc = JSON.parse(fs.readFileSync(path.join(root, '.firebaserc'), 'utf8'));
