@@ -105,7 +105,7 @@ jobs:
 
       - name: Create hook-free Firebase Preview config
         env:
-          CONFIG_PATH: ${{ runner.temp }}/firebase-preview.json
+          CONFIG_PATH: ${{ github.workspace }}/firebase-preview.json
         run: |
           cat > "$CONFIG_PATH" <<'JSON'
           {
@@ -129,7 +129,7 @@ jobs:
       - name: Deploy preview channel without changing Authentication domains
         env:
           CHANNEL_ID: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('manual-{0}', github.run_id) }}
-          CONFIG_PATH: ${{ runner.temp }}/firebase-preview.json
+          CONFIG_PATH: ${{ github.workspace }}/firebase-preview.json
         run: >-
           firebase hosting:channel:deploy
           "$CHANNEL_ID"

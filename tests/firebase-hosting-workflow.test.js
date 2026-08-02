@@ -58,6 +58,12 @@ test('Firebase Preview deploy job is gated and only consumes the verified artifa
   }
 
   const configStep = stepNamed('deploy_preview', 'Create hook-free Firebase Preview config');
+  const deployStep = stepNamed('deploy_preview', 'Deploy preview channel without changing Authentication domains');
+  const expectedConfigPath = '${{ github.workspace }}/firebase-preview.json';
+  assert.equal(configStep.env.CONFIG_PATH, expectedConfigPath);
+  assert.equal(deployStep.env.CONFIG_PATH, expectedConfigPath);
+  assert.equal(configStep.env.CONFIG_PATH, deployStep.env.CONFIG_PATH);
+  assert.doesNotMatch(configStep.env.CONFIG_PATH, /runner\.temp/);
   const configMatch = configStep.run.match(/<<'JSON'\n([\s\S]*?)\nJSON/);
   assert.ok(configMatch, 'Preview config JSON heredoc is missing');
   const previewConfig = JSON.parse(configMatch[1]);
@@ -68,6 +74,11 @@ test('Firebase Preview deploy job is gated and only consumes the verified artifa
       ignore: ['**/.*', '**/node_modules/**'],
     },
   });
+  const localConfigPath = configStep.env.CONFIG_PATH.replace('${{ github.workspace }}', root);
+  assert.equal(
+    path.resolve(path.dirname(localConfigPath), previewConfig.hosting.public),
+    path.join(root, '.firebase-hosting')
+  );
 
   const authIndex = stepsFor('deploy_preview').findIndex((step) => step.name === 'Authenticate to Google Cloud');
   assert.ok(stepsFor('deploy_preview').indexOf(validation) < authIndex);
