@@ -1,4 +1,13 @@
 {
+  "hosting": {
+    "site": "papajohns-kiosk",
+    "public": ".firebase-hosting",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
   "firestore": {
     "rules": "firestore.rules"
   },

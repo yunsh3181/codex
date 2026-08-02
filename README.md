@@ -48,6 +48,41 @@ npm run desktop:build:win
 
 실제 운영에서는 Firebase Authentication 관리자 권한, App Check, 예산 알림과 사용량 알림을 함께 적용하는 것을 권장합니다. 웹 API Key 자체가 보안 경계는 아니며 실제 접근 제어는 Firestore Rules와 Authentication이 담당합니다.
 
+### Firebase Hosting 병행 검증
+
+현재 운영 호스팅은 GitHub Pages이며 `order.papabottle.com`도 계속 GitHub Pages를
+가리킨다. Firebase 프로젝트와 Hosting site ID는 모두 `papajohns-kiosk`이고,
+Firebase Hosting은 DNS 전환 전까지 Preview Channel에서만 병행 검증한다.
+
+```bash
+npm ci
+npm test
+npm run build:hosting
+npm run test:hosting
+npm run serve:hosting
+```
+
+로컬 Hosting은 기본적으로 `http://127.0.0.1:5000/`과
+`http://127.0.0.1:5000/admin/`에서 확인한다. Preview 배포는 Pull Request의
+`Firebase Hosting preview` workflow가 담당한다. 장기 키 없이 배포하기 위해 GitHub
+Actions Workload Identity Federation을 먼저 구성하고 저장소 변수
+`GCP_WORKLOAD_IDENTITY_PROVIDER`와 `GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT`를 설정해야
+한다. workflow의 일반 job은 테스트와 Hosting 산출물 검증만 수행하고, 검증된
+산출물을 artifact로 전달한다. OIDC 권한은 `firebase-hosting-preview` Environment
+승인을 통과한 배포 job에만 있으며, 이 job은 소스를 checkout하거나 프로젝트의 npm
+스크립트를 실행하지 않는다. 배포 서비스 계정에는 기존 프로젝트의 Hosting Preview
+배포에 필요한 최소 권한만 부여한다. workflow는 Authentication authorized domains를
+변경하지 않도록 `--no-authorized-domains`를 항상 사용한다.
+
+운영 live 배포는 이번 구성에서 자동화하지 않는다. 추후 DNS 전환 승인을 받은 뒤
+검증된 동일 산출물에 대해 `firebase deploy --only hosting:papajohns-kiosk`를 별도로
+실행한다. DNS 전환 전에는 GitHub Pages 운영을 위해 저장소를 Private로 바꾸지
+않으며, Windows Release와 자동 업데이트 문제는 별도 작업으로 다룬다.
+
+롤백은 Preview Channel을 만료시키거나 삭제하고 이 Hosting 구성 커밋을 되돌리면
+된다. GitHub Pages workflow와 `CNAME`은 이 병행 구성에서 변경하지 않으므로 현재
+운영 사이트에는 영향이 없다.
+
 ## 보안 주의사항
 
 - 운영 환경에서 공개 읽기·쓰기 테스트 규칙을 사용하지 않습니다.

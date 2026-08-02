@@ -6,6 +6,9 @@
   "author": "PapaJohn's Pangyo 2nd Techno Valley",
   "main": "desktop/main.js",
   "scripts": {
+    "build:hosting": "node scripts/prepare-firebase-hosting.js",
+    "serve:hosting": "npm run build:hosting && firebase emulators:start --only hosting",
+    "test:hosting": "node --test tests/hosting/*.test.js",
     "test": "node --test tests/*.test.js",
     "test:order-review-layout": "electron scripts/verify-order-review-layout.js",
     "test:pizza-option-layout": "electron scripts/verify-pizza-option-layout.js",
@@ -26,7 +29,8 @@
     "electron-builder": "26.15.6",
     "firebase": "10.12.5",
     "firebase-admin": "^14.2.0",
-    "firebase-tools": "^15.24.0"
+    "firebase-tools": "^15.24.0",
+    "yaml": "2.9.0"
   },
   "build": {
     "appId": "kr.co.papajohns.kiosk",

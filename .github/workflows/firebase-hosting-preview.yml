@@ -1,0 +1,139 @@
+name: Firebase Hosting preview
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firebase-hosting-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      deploy_enabled: ${{ steps.deployment-eligibility.outputs.enabled }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        env:
+          ELECTRON_DISABLE_SANDBOX: "true"
+        run: |
+          node node_modules/electron/install.js
+          xvfb-run --auto-servernum npm test
+
+      - name: Prepare Firebase Hosting files
+        run: npm run build:hosting
+
+      - name: Verify Firebase Hosting files
+        run: npm run test:hosting
+
+      - name: Upload verified Firebase Hosting artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: firebase-hosting-preview-${{ github.run_id }}
+          path: .firebase-hosting/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Check preview deployment eligibility
+        id: deployment-eligibility
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          CURRENT_REPOSITORY: ${{ github.repository }}
+          WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          DEPLOY_SERVICE_ACCOUNT: ${{ vars.GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" && "$HEAD_REPOSITORY" != "$CURRENT_REPOSITORY" ]]; then
+            echo "::notice::Firebase Preview deployment is skipped for fork pull requests."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          elif [[ -z "$WORKLOAD_IDENTITY_PROVIDER" || -z "$DEPLOY_SERVICE_ACCOUNT" ]]; then
+            echo "::notice::Firebase Preview deployment is skipped because GCP_WORKLOAD_IDENTITY_PROVIDER or GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT is not configured."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy_preview:
+    if: >-
+      needs.build_and_test.outputs.deploy_enabled == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: firebase-hosting-preview
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download verified Firebase Hosting artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: firebase-hosting-preview-${{ github.run_id }}
+          path: .firebase-hosting
+
+      - name: Validate downloaded static artifact
+        run: |
+          test "$(find . -mindepth 1 -maxdepth 1 -print | wc -l)" -eq 1
+          test -d .firebase-hosting
+          test -z "$(find .firebase-hosting -type l -print -quit)"
+          test -z "$(find .firebase-hosting ! -type f ! -type d -print -quit)"
+          test -f .firebase-hosting/index.html
+          test -f .firebase-hosting/admin/index.html
+          test -f .firebase-hosting/admin.css
+          test -f .firebase-hosting/admin.js
+          test -z "$(find .firebase-hosting -type f \( -name firebase.json -o -name .firebaserc -o -name firestore.rules -o -name package.json \) -print -quit)"
+
+      - name: Create hook-free Firebase Preview config
+        env:
+          CONFIG_PATH: ${{ github.workspace }}/firebase-preview.json
+        run: |
+          cat > "$CONFIG_PATH" <<'JSON'
+          {
+            "hosting": {
+              "site": "papajohns-kiosk",
+              "public": ".firebase-hosting",
+              "ignore": ["**/.*", "**/node_modules/**"]
+            }
+          }
+          JSON
+
+      - name: Install pinned Firebase CLI
+        run: npm install --global firebase-tools@15.24.0 --ignore-scripts
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Deploy preview channel without changing Authentication domains
+        env:
+          CHANNEL_ID: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || format('manual-{0}', github.run_id) }}
+          CONFIG_PATH: ${{ github.workspace }}/firebase-preview.json
+        run: >-
+          firebase hosting:channel:deploy
+          "$CHANNEL_ID"
+          --expires 7d
+          --no-authorized-domains
+          --project papajohns-kiosk
+          --config "$CONFIG_PATH"
