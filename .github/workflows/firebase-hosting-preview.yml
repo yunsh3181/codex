@@ -60,11 +60,18 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
           CURRENT_REPOSITORY: ${{ github.repository }}
+          PREVIEW_DEPLOY_ENABLED: ${{ vars.FIREBASE_HOSTING_PREVIEW_DEPLOY_ENABLED }}
           WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           DEPLOY_SERVICE_ACCOUNT: ${{ vars.GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT }}
         run: |
-          if [[ "$EVENT_NAME" == "pull_request" && "$HEAD_REPOSITORY" != "$CURRENT_REPOSITORY" ]]; then
+          if [[ "$EVENT_NAME" != "pull_request" && "$EVENT_NAME" != "workflow_dispatch" ]]; then
+            echo "::notice::Firebase Preview deployment is skipped because the event is not pull_request or workflow_dispatch."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$EVENT_NAME" == "pull_request" && "$HEAD_REPOSITORY" != "$CURRENT_REPOSITORY" ]]; then
             echo "::notice::Firebase Preview deployment is skipped for fork pull requests."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          elif [[ "$PREVIEW_DEPLOY_ENABLED" != "true" ]]; then
+            echo "::notice::Firebase Preview deployment is skipped because FIREBASE_HOSTING_PREVIEW_DEPLOY_ENABLED is not exactly true."
             echo "enabled=false" >> "$GITHUB_OUTPUT"
           elif [[ -z "$WORKLOAD_IDENTITY_PROVIDER" || -z "$DEPLOY_SERVICE_ACCOUNT" ]]; then
             echo "::notice::Firebase Preview deployment is skipped because GCP_WORKLOAD_IDENTITY_PROVIDER or GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT is not configured."

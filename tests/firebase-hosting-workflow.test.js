@@ -95,6 +95,79 @@ test('Firebase Preview deploy job is gated and only consumes the verified artifa
   assert.doesNotMatch(commands, /firebase deploy(?:\s|$)/);
 });
 
+test('Firebase Preview deploy eligibility requires an explicit lowercase true enable gate', () => {
+  const eligibility = stepNamed('build_and_test', 'Check preview deployment eligibility');
+  assert.equal(
+    eligibility.env.PREVIEW_DEPLOY_ENABLED,
+    '${{ vars.FIREBASE_HOSTING_PREVIEW_DEPLOY_ENABLED }}'
+  );
+  assert.equal(
+    eligibility.env.WORKLOAD_IDENTITY_PROVIDER,
+    '${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+  );
+  assert.equal(
+    eligibility.env.DEPLOY_SERVICE_ACCOUNT,
+    '${{ vars.GCP_FIREBASE_DEPLOY_SERVICE_ACCOUNT }}'
+  );
+
+  assert.match(eligibility.run, /\"\$PREVIEW_DEPLOY_ENABLED\" != \"true\"/);
+  assert.match(eligibility.run, /FIREBASE_HOSTING_PREVIEW_DEPLOY_ENABLED is not exactly true/);
+  assert.match(eligibility.run, /\"\$EVENT_NAME\" != \"pull_request\"/);
+  assert.match(eligibility.run, /\"\$EVENT_NAME\" != \"workflow_dispatch\"/);
+  assert.match(eligibility.run, /\"\$HEAD_REPOSITORY\" != \"\$CURRENT_REPOSITORY\"/);
+  assert.match(eligibility.run, /-z \"\$WORKLOAD_IDENTITY_PROVIDER\"/);
+  assert.match(eligibility.run, /-z \"\$DEPLOY_SERVICE_ACCOUNT\"/);
+
+  const falseIndex = eligibility.run.indexOf('enabled=false');
+  const trueIndex = eligibility.run.indexOf('enabled=true');
+  assert.ok(falseIndex >= 0 && trueIndex > falseIndex);
+  assert.match(workflow.jobs.deploy_preview.if, /needs\.build_and_test\.outputs\.deploy_enabled == 'true'/);
+
+  const isEligible = ({ event, headRepository, currentRepository, enabled, provider, serviceAccount }) =>
+    ['pull_request', 'workflow_dispatch'].includes(event) &&
+    (event !== 'pull_request' || headRepository === currentRepository) &&
+    enabled === 'true' &&
+    provider !== '' &&
+    serviceAccount !== '';
+  const valid = {
+    event: 'pull_request',
+    headRepository: 'yunsh3181/codex',
+    currentRepository: 'yunsh3181/codex',
+    enabled: 'true',
+    provider: 'provider',
+    serviceAccount: 'service-account',
+  };
+  assert.equal(isEligible({ ...valid, enabled: undefined }), false);
+  assert.equal(isEligible({ ...valid, enabled: '' }), false);
+  assert.equal(isEligible({ ...valid, enabled: 'false' }), false);
+  assert.equal(isEligible({ ...valid, enabled: 'True' }), false);
+  assert.equal(isEligible({ ...valid, provider: '' }), false);
+  assert.equal(isEligible({ ...valid, serviceAccount: '' }), false);
+  assert.equal(isEligible({ ...valid, headRepository: 'fork/codex' }), false);
+  assert.equal(isEligible({ ...valid, event: 'push' }), false);
+  assert.equal(isEligible(valid), true);
+  assert.equal(isEligible({ ...valid, event: 'workflow_dispatch', headRepository: '' }), true);
+});
+
+test('Firebase Preview disabled state skips the OIDC and deployment job before Environment entry', () => {
+  const job = workflow.jobs.deploy_preview;
+  assert.equal(job.environment, 'firebase-hosting-preview');
+  assert.equal(job.permissions['id-token'], 'write');
+  assert.match(job.if, /deploy_enabled == 'true'/);
+
+  const eligibility = stepNamed('build_and_test', 'Check preview deployment eligibility');
+  const disabledBranch = eligibility.run.match(
+    /elif \[\[ \"\$PREVIEW_DEPLOY_ENABLED\" != \"true\" \]\]; then([\s\S]*?)elif/
+  );
+  assert.ok(disabledBranch, 'Preview disabled eligibility branch is missing');
+  assert.match(disabledBranch[1], /enabled=false/);
+  assert.doesNotMatch(disabledBranch[1], /google-github-actions\/auth|firebase hosting:channel:deploy/);
+
+  assert.doesNotMatch(JSON.stringify(workflow.jobs.build_and_test), /id-token/);
+  assert.doesNotMatch(JSON.stringify(workflow.jobs.build_and_test), /google-github-actions\/auth/);
+  assert.doesNotMatch(commandsFor('build_and_test'), /hosting:channel:deploy/);
+});
+
 test('Hosting tests are separated and run after the Hosting build', () => {
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.equal(packageJson.scripts.test, 'node --test tests/*.test.js');
