@@ -124,11 +124,14 @@ test('Firebase live deployment validates only the verified static artifact befor
 test('Firebase live deployment is fixed to the project and exact Hosting site', () => {
   const deploy = stepNamed('deploy_live', 'Deploy only the Firebase Hosting live site');
   assert.match(deploy.run, /^firebase deploy\s/m);
-  assert.match(deploy.run, /--only hosting:papajohns-kiosk/);
+  assert.match(deploy.run, /--only hosting(?:\s|$)/);
+  assert.doesNotMatch(deploy.run, /--only hosting:papajohns-kiosk/);
+  assert.doesNotMatch(deploy.run, /hosting:/);
+  assert.doesNotMatch(deploy.run, /\.firebaserc/);
   assert.match(deploy.run, /--project papajohns-kiosk/);
   assert.match(deploy.run, /--config "\$CONFIG_PATH"/);
   assert.match(deploy.run, /--non-interactive/);
-  assert.doesNotMatch(deploy.run, /--only (?!hosting:papajohns-kiosk)/);
+  assert.doesNotMatch(deploy.run, /--only (?:firestore|functions|database|storage)/);
 });
 
 test('Missing live identity variables safely skip the deploy job', () => {

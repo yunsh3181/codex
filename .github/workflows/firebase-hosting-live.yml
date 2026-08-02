@@ -178,7 +178,7 @@ jobs:
           CONFIG_PATH: ${{ github.workspace }}/firebase-live.json
         run: >-
           firebase deploy
-          --only hosting:papajohns-kiosk
+          --only hosting
           --project papajohns-kiosk
           --config "$CONFIG_PATH"
           --non-interactive
