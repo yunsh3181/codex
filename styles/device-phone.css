@@ -855,17 +855,17 @@ html[data-layout="phone"] body[data-step="timing"] .timingChoice {
 }
 
 html[data-layout="phone"] body[data-step="timing"] .timingNow {
-  border-color: #c65200 !important;
-  background: #fff0df !important;
+  border-color: #055c39 !important;
+  background: #087348 !important;
 }
 
 html[data-layout="phone"] body[data-step="timing"] .timingReserve {
-  border-color: #176b87 !important;
-  background: #e8f5f9 !important;
+  border-color: #9f0d26 !important;
+  background: #c8102e !important;
 }
 
 html[data-layout="phone"] body[data-step="timing"] .timingChoice :where(h2, p) {
-  color: inherit !important;
+  color: #ffffff !important;
 }
 
 html[data-layout="phone"] body[data-step="timing"] .timingChoiceCheck {
@@ -1151,15 +1151,19 @@ html[data-layout="phone"] body[data-step="pizza"] .halfSelectionPlus {
   font-weight: 1000;
 }
 
-html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuGrid {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 5px !important;
+html[data-layout="phone"] body[data-step="pizza"] .grid.pizzaMenuGrid.pizzaMenuGrid.pizzaMenuGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px 7px !important;
+  align-items: stretch;
 }
 
 html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard {
   min-width: 0;
-  min-height: 0;
-  padding: 4px !important;
+  min-height: 158px !important;
+  padding: 6px !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard[aria-pressed="true"] {
@@ -1168,8 +1172,11 @@ html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard[aria-pressed="t
 
 html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard .imagePic {
   width: 100%;
-  height: 58px !important;
-  margin-bottom: 4px;
+  height: auto !important;
+  aspect-ratio: 1.12 / 1;
+  margin-bottom: 6px;
+  flex: 0 0 auto;
+  overflow: hidden;
 }
 
 html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard .imagePic img {
@@ -1178,16 +1185,21 @@ html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard .imagePic img {
 }
 
 html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard h3 {
-  margin: 2px 0;
-  font-size: 10px;
-  line-height: 1.18;
+  display: -webkit-box;
+  min-height: 2.4em !important;
+  margin: 2px 0 5px !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
   overflow-wrap: anywhere;
   word-break: keep-all;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard :where(.price, .discount, .muted) {
-  font-size: 8px !important;
-  line-height: 1.2;
+html[data-layout="phone"] body[data-step="pizza"] .pizzaMenuCard.pizzaMenuCard :where(.price, .discount, .muted) {
+  font-size: 10px !important;
+  line-height: 1.25;
   white-space: normal;
   overflow-wrap: anywhere;
 }
@@ -1781,17 +1793,21 @@ html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .c
   min-height: 164px !important;
   padding: 18px 10px !important;
   border-width: 3px !important;
-  color: #17211c !important;
+  color: #ffffff !important;
 }
 
 html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice.timingNow {
-  border-color: #c65200 !important;
-  background: #fff0df !important;
+  border-color: #055c39 !important;
+  background: #087348 !important;
 }
 
 html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice.timingReserve {
-  border-color: #176b87 !important;
-  background: #e8f5f9 !important;
+  border-color: #9f0d26 !important;
+  background: #c8102e !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice :where(h2, h2 .uiIcon, p) {
+  color: #ffffff !important;
 }
 
 html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage .darkBenefitGrid {

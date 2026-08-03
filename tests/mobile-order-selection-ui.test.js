@@ -36,9 +36,12 @@ test('half selection indicator always renders two independently updating slots',
   assert.match(phone,/\.halfSelectionSlot \.pic img \{[\s\S]*?object-fit: contain !important/);
 });
 
-test('single and half pizza menus share a four-column phone grid without clipping',()=>{
-  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuGrid \{[\s\S]*?grid-template-columns: repeat\(4, minmax\(0, 1fr\)\) !important/);
-  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard \{[\s\S]*?min-width: 0/);
+test('all pizza paths share a readable three-column phone grid without clipping',()=>{
+  assert.match(phone,/body\[data-step="pizza"\] \.grid\.pizzaMenuGrid\.pizzaMenuGrid\.pizzaMenuGrid \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\) !important;[\s\S]*?gap: 8px 7px !important/);
+  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard \{[\s\S]*?min-width: 0;[\s\S]*?min-height: 158px !important;[\s\S]*?overflow: hidden/);
+  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard \.imagePic \{[\s\S]*?aspect-ratio: 1\.12 \/ 1/);
+  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard h3 \{[\s\S]*?font-size: 12px !important;[\s\S]*?-webkit-line-clamp: 2/);
+  assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard\.pizzaMenuCard :where\(\.price, \.discount, \.muted\) \{[\s\S]*?font-size: 10px !important/);
   assert.match(phone,/body\[data-step="pizza"\] \.pizzaMenuCard \.imagePic img \{[\s\S]*?object-fit: contain !important/);
   assert.match(html,/class="card pizzaMenuCard" aria-pressed="\$\{selected\}"/);
   assert.match(html,/function pickPizza\(id\)\{if\(state\.mode==='single'\)/);

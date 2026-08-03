@@ -23,8 +23,9 @@ test('pickup timing cards expose distinct visual and non-color selection states'
   assert.match(html,/class="card timingChoice timingNow" aria-pressed=/);
   assert.match(html,/class="card timingChoice timingReserve" aria-pressed=/);
   assert.match(html,/class="timingChoiceCheck"/);
-  assert.match(phone,/\.timingNow \{[\s\S]*?background: #fff0df/);
-  assert.match(phone,/\.timingReserve \{[\s\S]*?background: #e8f5f9/);
+  assert.match(phone,/\.timingNow \{[\s\S]*?background: #087348/);
+  assert.match(phone,/\.timingReserve \{[\s\S]*?background: #c8102e/);
+  assert.match(phone,/\.timingChoice :where\(h2, p\) \{[\s\S]*?color: #ffffff/);
   assert.match(phone,/\[aria-pressed="true"\][\s\S]*?\.timingChoiceCheck/);
 });
 
