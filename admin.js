@@ -367,6 +367,11 @@ function orderNumberLabel(value){
 function spokenOrderNumber(value){
  return orderNumberLabel(value)
 }
+const KOREAN_DIGIT_SPEECH=Object.freeze({'0':'공','1':'일','2':'이','3':'삼','4':'사','5':'오','6':'육','7':'칠','8':'팔','9':'구'});
+function spokenKoreanOrderNumber(value){
+ const digits=String(spokenOrderNumber(value)??'').match(/\d/g);
+ return digits?digits.map(digit=>KOREAN_DIGIT_SPEECH[digit]).join(', '):''
+}
 function adminOrderNumberLabel(order){
  const stored=order?.customerNumber||order?.orderNo;
  if(stored)return orderNumberLabel(stored);
@@ -588,6 +593,12 @@ function splitPaymentDetail(order,paid=safeAmounts(order).paid){
  const parts=split.groups.length===1?`${money(split.groups[0].amount)} × ${split.count}인`:split.amounts.map(money).join(' + ');
  return `${money(split.total)} · ${parts}`;
 }
+function mealTicketHighlightHTML(order,paid=safeAmounts(order).paid){
+ const split=splitPaymentSummary(order,paid);
+ if(!split)return '';
+ const detail=split.groups.length===1?`${money(split.groups[0].amount)} × ${split.count}인`:split.amounts.map(money).join(' + ');
+ return `<div class="meal-ticket-highlight"><strong>식권대장 ${money(split.total)}</strong><span>${esc(detail)}</span></div>`
+}
 function orderMenuHTML(order){
  const items=Array.isArray(order.items)?order.items:[];
  const sides=items.flatMap(item=>[...selectionEntries(item.includedSides,'sides',SIDES),...selectionEntries(item.sides,'sides',SIDES)]);
@@ -670,7 +681,7 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  const {original,discount,paid}=safeAmounts(order),phone=displayText(order.phone||order.phoneMasked);
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const seat=takeout?'-':displayText(orderSeatLabel(order));
- const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),splitDetail=splitPaymentDetail(order,paid);
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),mealTicketHighlight=mealTicketHighlightHTML(order,paid);
  const reservationTime=reservationTimeLabel(order);
  const actions=takeoutAcceptance
   ?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">결제대기 · 주문 접수</button>${reservationTime?`<strong class="reservation-time">${esc(reservationTime)}</strong>`:''}</div>`
@@ -686,8 +697,9 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  <div class="main-order-body">
   <div class="main-order-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
   <div class="main-order-operations">
-   <div class="main-payment-grid"><div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong>${splitDetail?`<small>${esc(splitDetail)}</small>`:''}</div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
+   <div class="main-payment-grid"><div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
    <button type="button" class="main-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+   ${mealTicketHighlight}
    ${actions?`<div class="actions main-order-actions">${actions}</div>`:''}
   </div>
  </div>
@@ -963,7 +975,7 @@ function renderOrderDetail(order,seatId=null){
  const phone=displayText(order.phone||order.phoneMasked);
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const completed=['ready','completed'].includes(order.status);
- const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),splitDetail=splitPaymentDetail(order,paid);
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),mealTicketHighlight=mealTicketHighlightHTML(order,paid);
  return `<div class="admin-detail-screen">
  <div class="admin-detail-topbar">
   <div class="detail-order-identity">${reservation?'<span class="detail-reservation">예약</span>':''}<strong>${esc(adminOrderNumberLabel(order))}</strong><span class="detail-order-type ${takeout?'takeout':'dinein'}">${takeout?'포장':'매장식사'}</span></div>
@@ -977,12 +989,13 @@ function renderOrderDetail(order,seatId=null){
   <div class="admin-detail-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
   <div class="admin-detail-operations">
    <div class="detail-payment-grid">
-    <div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong>${splitDetail?`<small>${esc(splitDetail)}</small>`:''}</div>
+    <div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div>
     <div><span>원 금액</span><strong>${money(original)}</strong></div>
     <div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div>
     <div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
    </div>
    <button type="button" class="detail-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+   ${mealTicketHighlight}
   </div>
  </div>
  ${seatId?`<div class="order-detail-seat-actions"><button type="button" data-action="clear-seat" data-seat-id="${esc(seatId)}">이 테이블 빈자리로 변경</button></div>`:''}
@@ -1187,6 +1200,20 @@ async function playPreset(forcePreset){
  [[660,0,.22],[880,.22,.30],[1040,.48,.30]].forEach(x=>tone(...x,.36,'sine'));
 }
 let speechQueue=Promise.resolve();
+const ADMIN_KOREAN_VOICE_PRIORITY=['Microsoft SunHi','Microsoft Heami','Microsoft Seoyeon','SunHi','Heami','Seoyeon'];
+let adminKoreanVoice=null;
+function selectAdminKoreanVoice(voices=window.speechSynthesis?.getVoices?.()||[]){
+ const korean=voices.filter(voice=>/^ko(?:[-_]KR)?$/i.test(String(voice?.lang||'')));
+ adminKoreanVoice=ADMIN_KOREAN_VOICE_PRIORITY.map(name=>korean.find(voice=>String(voice.name||'').toLowerCase().includes(name.toLowerCase()))).find(Boolean)
+  ||korean.find(voice=>/^ko[-_]KR$/i.test(String(voice.lang||''))&&voice.localService!==false)
+  ||korean.find(voice=>/^ko[-_]KR$/i.test(String(voice.lang||'')))
+  ||korean[0]
+  ||voices.find(voice=>voice?.default)
+  ||null;
+ return adminKoreanVoice
+}
+selectAdminKoreanVoice();
+window.speechSynthesis?.addEventListener?.('voiceschanged',()=>selectAdminKoreanVoice());
 function speakText(text){
  return new Promise(resolve=>{
   if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
@@ -1209,8 +1236,10 @@ function customerCallLanguage(language){
 function customerCallSpeech(orderNo,language){
  const normalized=customerCallLanguage(language);
  const number=spokenOrderNumber(orderNo);
+ const koreanNumber=spokenKoreanOrderNumber(orderNo);
+ if(!String(number).match(/\d/)||!koreanNumber)return null;
  const speech={
-  ko:{lang:'ko-KR',text:`${number}번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
+  ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님. 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
   en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
   es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
   ja:{lang:'ja-JP',text:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
@@ -1222,7 +1251,10 @@ function speakCustomerCall(orderNo,language){
  return new Promise(resolve=>{
   if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
   const speech=customerCallSpeech(orderNo,language);
+  if(!speech){resolve();return}
   const utterance=PJSpeech.createSpeechUtterance(speech.text,{lang:speech.lang});
+  if(speech.lang==='ko-KR'&&adminKoreanVoice)utterance.voice=adminKoreanVoice;
+  if(speech.lang==='ko-KR')console.info('[Admin customer call voice]',{name:utterance.voice?.name||'browser default',lang:utterance.voice?.lang||utterance.lang,localService:utterance.voice?.localService??null,rate:utterance.rate,pitch:utterance.pitch,volume:utterance.volume});
   utterance.onend=resolve;utterance.onerror=resolve;
   window.speechSynthesis.speak(utterance);
  });
