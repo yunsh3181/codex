@@ -68,9 +68,9 @@ assert.ok(reserved.includes('data-action="copy-phone"')&&reserved.includes('data
 assert.ok(reserved.includes('<span>결제수단</span>')&&reserved.includes('<span>원 금액</span>')&&reserved.includes('<span>할인금액</span>'),'four-column payment data uses agreed labels');
 
 const splitDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
-assert.ok(splitDetail.includes('40,000원 · 10,000원 × 4인'),'equal meal-ticket split is visible in stored-order detail');
+assert.ok(splitDetail.includes('meal-ticket-highlight')&&splitDetail.includes('식권대장 40,000원')&&splitDetail.includes('10,000원 × 4인'),'equal meal-ticket split is emphasized below the detail call button');
 const splitMain=context.newOrderCard({...baseOrder,id:'split-main',status:'payment_pending',totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
-assert.ok(splitMain.includes('40,000원 · 10,000원 × 4인'),'new-order card shows the split from its first render');
+assert.ok(splitMain.includes('meal-ticket-highlight')&&splitMain.includes('식권대장 40,000원')&&splitMain.includes('10,000원 × 4인'),'new-order card emphasizes the split below the call button from its first render');
 const unevenDetail=context.renderOrderDetail({...baseOrder,totalAmount:28000,total:28000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:3,splitAmounts:[10000,10000,8000]}});
 assert.ok(unevenDetail.includes('10,000원 + 10,000원 + 8,000원'),'unequal meal-ticket split preserves the stored payment amounts');
 const singleDetail=context.renderOrderDetail({...baseOrder,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:1,splitAmounts:[55400]}});
@@ -78,8 +78,8 @@ assert.ok(!singleDetail.includes('× 1인'),'single meal-ticket payment keeps th
 const cardDetail=context.renderOrderDetail({...baseOrder,payment:{method:'card',methodName:'신용카드',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(!cardDetail.includes('10,000원 × 4인'),'card payments never show meal-ticket split detail');
 const mixedKnownDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{methodName:'복합결제',methods:[{method:'meal_ticket',methodName:'식권대장',amount:28000,splitCount:3,splitAmounts:[10000,10000,8000]},{method:'card',methodName:'신용카드',amount:12000}]}});
-assert.ok(mixedKnownDetail.includes('28,000원 · 10,000원 + 10,000원 + 8,000원'),'mixed payment displays only the explicit meal-ticket entry');
-assert.ok(!mixedKnownDetail.includes('40,000원 · 10,000원'),'mixed payment never labels the whole paid amount as meal-ticket money');
+assert.ok(mixedKnownDetail.includes('식권대장 28,000원')&&mixedKnownDetail.includes('10,000원 + 10,000원 + 8,000원'),'mixed payment displays only the explicit meal-ticket entry');
+assert.ok(!mixedKnownDetail.includes('식권대장 40,000원'),'mixed payment never labels the whole paid amount as meal-ticket money');
 const mixedUnknownDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{methodName:'복합결제',methods:[{method:'meal_ticket'},{method:'card'}],splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(!mixedUnknownDetail.includes('10,000원 × 4인')&&!mixedUnknownDetail.includes('NaN')&&!mixedUnknownDetail.includes('undefined'),'ambiguous mixed legacy payment hides unsafe split detail');
 

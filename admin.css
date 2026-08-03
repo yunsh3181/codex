@@ -398,6 +398,8 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .reservation-time{display:block;padding:8px 12px;border:2px solid #ef4444;border-radius:10px;background:#fff4d8;color:#9f1239;font-size:18px;font-weight:1000;text-align:center;animation:reservation-pulse 1.5s ease-in-out infinite}
 @keyframes reservation-pulse{0%,100%{border-color:#ef4444;background:#fff4d8;box-shadow:0 0 0 rgba(239,68,68,0);transform:scale(1)}50%{border-color:#f59e0b;background:#fff9bd;box-shadow:0 0 14px rgba(245,158,11,.45);transform:scale(1.015)}}
 .main-customer-call{align-self:flex-end;width:auto;min-width:150px;min-height:40px;border-radius:10px;padding:8px 15px;font-size:16px;box-shadow:0 4px 9px rgba(95,69,201,.16)}
+.meal-ticket-highlight{display:flex;min-width:0;flex-wrap:wrap;align-items:baseline;gap:4px 9px;margin-top:2px;color:#c8102e;font-weight:1000;line-height:1.25;overflow-wrap:anywhere}
+.meal-ticket-highlight strong{font-size:22px}.meal-ticket-highlight span{font-size:19px}
 @media(prefers-reduced-motion:reduce){.reservation-time{animation:none}}
 @media(max-width:1500px){
  .main-order-summary{grid-template-columns:minmax(290px,1.55fr) minmax(82px,.45fr) minmax(110px,.65fr) minmax(195px,1.1fr) minmax(135px,.75fr)}
@@ -456,6 +458,7 @@ button{font:inherit}.admin-header{position:sticky;top:0;z-index:20;display:flex;
 .detail-payment-grid span{font-size:11px}
 .detail-payment-grid strong,.detail-payment-grid .paid strong{margin-top:5px;font-size:17px}
 .detail-customer-call{min-height:52px;border-radius:13px;font-size:20px}
+.admin-detail-operations .meal-ticket-highlight{margin-top:8px}.admin-detail-operations .meal-ticket-highlight strong{font-size:22px}.admin-detail-operations .meal-ticket-highlight span{font-size:19px}
 @media(max-width:700px){
  .order-detail-modal{padding:8px}.order-detail-panel{width:calc(100vw - 16px);max-height:92vh}.admin-detail-screen{max-height:92vh}
  .admin-detail-topbar{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-order-identity{grid-column:1/-1}.detail-top-card.phone{grid-column:auto}
