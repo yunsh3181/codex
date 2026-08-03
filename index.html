@@ -1527,6 +1527,7 @@ button,a,[role="button"],.card,.tableCard,.areaCard,.darkBenefitCard,.darkSetCar
   .heroFeatureIcon .uiIcon{width:20px!important;height:20px!important}
 }
 
+.tableCard.occupiedCard.reserved{background:#f3e8ff!important;border-color:#8b5cf6!important;color:#581c87!important;cursor:not-allowed}.tableCard.occupiedCard.reserved h2,.tableCard.occupiedCard.reserved .status{color:#6d28d9!important}.reservedReason{display:block;margin-top:7px;color:#6d28d9;font-size:12px;font-weight:900}.seatReservationConflictModal p{font-size:18px;line-height:1.65}
 </style><script>
 /* v16 메뉴 데이터: 엑셀 명세 기반. 가격/품절/노출 변경은 이 파일에서 관리 */
 window.KIOSK_DATA = {
@@ -2224,6 +2225,7 @@ function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/im
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
 const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
 const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
+let seatReservationConflictActive=false;let seatOrderCommitStarted=false;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
  const version=typeof value==='string'?value.trim():'';
@@ -2247,6 +2249,8 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
 function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
+function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 
 function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
 function isTestModeEnabled(){return kioskTestModeController?.isEnabled()===true}
@@ -2589,6 +2593,7 @@ function render(){
  main.classList.remove('pageSwap');
  if(state.step!=='phone')void main.offsetWidth;
  main.innerHTML=view();
+ main.querySelectorAll?.('.tableCard.reserved').forEach(card=>{card.setAttribute('aria-disabled','true');card.setAttribute('role','button');card.setAttribute('tabindex','-1');card.setAttribute('aria-label',`${card.querySelector('h2')?.textContent?.trim()||''} ${t('ui.seatReservation.disabled')}`);if(!card.querySelector('.reservedReason'))card.insertAdjacentHTML('beforeend',`<span class="reservedReason">${t('ui.seatReservation.disabled')}</span>`)});
  applyAdaptiveCardSizing();
  if(state.step!=='phone')main.classList.add('pageSwap');
  document.getElementById('cart').innerHTML=bar();
@@ -2774,10 +2779,10 @@ let seatIdleTimer=null;let lastSeatLeaseRefresh=0;
 function seatDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d}
 function seatElapsed(v){const d=seatDate(v);if(!d)return '';const m=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));return m<60?t('ui.seatExtra.elapsedMinutes',{count:m}):t('ui.seatExtra.elapsedHours',{hours:Math.floor(m/60),minutes:m%60})}
 function seatLeaseExpired(doc){const until=seatDate(doc?.heldUntil);return doc?.status==='held'&&until&&until.getTime()<=Date.now()&&!doc?.orderId}
-function seatIsUnavailable(doc){return doc?.status==='occupied'||(doc?.status==='held'&&!seatLeaseExpired(doc))}
+function seatIsUnavailable(doc){return doc?.status==='reserved'||doc?.status==='occupied'||(doc?.status==='held'&&!seatLeaseExpired(doc))}
 function getAreaTables(area){
  const n=state.partySize||0;
- let tables=(DINING_TABLES[area]||[]).map(t=>{const d=mobileSeatDocs[t.id]||{};const occupied=seatIsUnavailable(d);return {...t,occupied,seatStatus:d.status==='occupied'?'occupied':d.status==='held'?'ordering':'available',elapsed:occupied?seatElapsed(d.occupiedAt||d.heldAt):'',queueCount:mobileWaitlist.filter(w=>w.seatId===t.id&&w.status==='waiting').length}});
+ let tables=(DINING_TABLES[area]||[]).map(t=>{const d=mobileSeatDocs[t.id]||{};const occupied=seatIsUnavailable(d);return {...t,occupied,seatStatus:d.status==='reserved'?'reserved':d.status==='occupied'?'occupied':d.status==='held'?'ordering':'available',elapsed:occupied&&d.status!=='reserved'?seatElapsed(d.occupiedAt||d.heldAt):'',queueCount:mobileWaitlist.filter(w=>w.seatId===t.id&&w.status==='waiting').length}});
  if(n<=2&&area==='papa')tables=tables.filter(t=>['papa-2','papa-bar4'].includes(t.id));
  if(n<=2&&area==='annex')tables=tables.filter(t=>['annex-1','annex-4'].includes(t.id));
  if(n>=3&&n<=4&&area==='papa')tables=tables.filter(t=>t.id==='papa-bar4');
@@ -2848,11 +2853,11 @@ function areaRuleText(){
  return t('seat.rule.outdoorOnly',{count:needed});
 }
 const SEAT_AREA_LABEL_KEYS={papa:'seat.area.papaZone',annex:'seat.area.annex',room:'seat.area.privateRoom',outdoor:'seat.area.outdoor'};
-const SEAT_STATUS_LABEL_KEYS={available:'seat.status.available',selected:'seat.status.selected',ordering:'seat.status.selected',occupied:'seat.status.occupied',unavailable:'seat.status.unavailable'};
-const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴'};
+const SEAT_STATUS_LABEL_KEYS={available:'seat.status.available',selected:'seat.status.selected',ordering:'seat.status.selected',occupied:'seat.status.occupied',reserved:'seat.status.reserved',unavailable:'seat.status.unavailable'};
+const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴',reserved:'🟣'};
 const SEAT_TYPE_LABEL_KEYS={twoPerson:'seat.type.twoPerson',barTable:'seat.type.barTable',room:'seat.type.room',outdoorTable:'seat.type.outdoorTable'};
 function seatAreaName(id){return t(SEAT_AREA_LABEL_KEYS[id]||SEAT_AREA_LABEL_KEYS.papa)}
-function seatStatusLabel(status){return t(SEAT_STATUS_LABEL_KEYS[status]||SEAT_STATUS_LABEL_KEYS.unavailable)}
+function seatStatusLabel(status){return status==='reserved'?t('ui.seatReservation.status'):t(SEAT_STATUS_LABEL_KEYS[status]||SEAT_STATUS_LABEL_KEYS.unavailable)}
 function seatStatusIcon(status){return SEAT_STATUS_ICONS[status]||'🟢'}
 function seatTableName(table){if(table.name==='커플석')return t(SEAT_TYPE_LABEL_KEYS.twoPerson);if(table.name==='4인 바테이블')return t(SEAT_TYPE_LABEL_KEYS.barTable);const match=String(table.name||'').match(/^(\d+)번 테이블$/);return match?t('ui.seatExtra.tableNumber',{number:match[1]}):table.name}
 function seatTableLabel(table){if(table.label==='파파존 2인 테이블')return t('ui.table.papaTwo');if(table.label==='파파존 바 테이블')return t('ui.table.papaBar');if(table.label==='야외존')return t(SEAT_TYPE_LABEL_KEYS.outdoorTable);if(table.label==='보틀룸존')return t(SEAT_TYPE_LABEL_KEYS.room);if(table.label==='보틀존')return seatAreaName('annex');return table.label}
@@ -3502,6 +3507,7 @@ function chooseFinalUpsell(type){
 }
 
 function modalView(){
+if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='happyRecommendation')return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="happyRecommendationTitle"><div class="benefitHelperIcon">${uiIcon("clock")}</div><h2 id="happyRecommendationTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.available',{benefit:benefitName('happy')})}</p><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${benefitName('takeout')}<br>${t('ui.sizeScreen.discountUnavailable')}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(SETTINGS.HAPPY_PRICE)}</div></div><div class="benefitActions"><button class="benefitApply" onclick="changeToHappyHour()">${t('ui.recommendation.apply')}</button><button class="keepBenefit" onclick="keepTakeoutRegular()">${t('ui.recommendation.keep')}</button></div></div></div>`;
 if(state.modal==='finalUpsell')return `<div class="backdrop"><div class="finalUpsellModal"><div class="finalUpsellIcon">${uiIcon("cart")}</div><h2>${t('ui.modal.finalTitle')}</h2><p>${t('ui.modal.finalDesc')}</p><div class="finalUpsellGrid"><button class="finalNo" onclick="chooseFinalUpsell('none')">${t('ui.modal.noReview')}</button><button class="finalPizza" onclick="chooseFinalUpsell('pizza')">${uiIcon("pizza")} ${t('ui.modal.addPizza')}</button><button class="finalSide" onclick="chooseFinalUpsell('side')">${uiIcon("side")} ${t('ui.modal.addSide')}</button><button class="finalDrink" onclick="chooseFinalUpsell('drink')">${uiIcon("drink")} ${t('ui.modal.addDrink')}</button></div></div></div>`;
 if(state.modal==='betterBenefit'){const list=state.pendingBenefit||[],current=list[0]?.currentPrice||price().total;return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="betterBenefitTitle"><div class="benefitHelperIcon">${uiIcon("spark")}</div><h2 id="betterBenefitTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.currentSummary',{benefit:eventLabel(),amount:money(current)})}</p><div class="benefitSuggestionList">${list.map(b=>`<section class="benefitSuggestion"><h3>${t('ui.recommendation.available',{benefit:b.id==='set'?setOrderName(effectiveSize()==='R'?2:effectiveSize()==='L'?3:4):benefitName(b.id)})}</h3><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${eventLabel()}<br>${money(b.currentPrice)}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(b.price)}</div></div><div class="benefitValueLines"><span>${t('ui.recommendation.paymentSaving')} <b>${money(b.saving)}</b></span>${b.extraValue?`<span>${t('ui.recommendation.extraValue')} <b>${money(b.extraValue)}</b></span><span>${t('ui.recommendation.totalValue')} <b>${money(b.totalValue)}</b></span>`:''}</div>${b.changes.length?`<p class="benefitChanges">${b.changes.join('<br>')}</p>`:''}<button class="benefitApply" onclick="applySuggestedBenefit('${b.id}')">${t('ui.recommendation.apply')}</button></section>`).join('')}</div><div class="benefitActions"><button class="keepBenefit" onclick="keepCurrentBenefit()">${t('ui.recommendation.keep')}</button></div></div></div>`}
@@ -3610,14 +3616,17 @@ async function submitMobileOrder(){
  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
  const orderRef=db.collection('orders').doc();
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
+ seatOrderCommitStarted=true;
  await db.runTransaction(async transaction=>{
   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
   if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
+  if(seatSnapshots.some(snapshot=>snapshot.exists&&snapshot.data().status==='reserved')){const error=new Error('SEAT_RESERVED');error.code='SEAT_RESERVED';throw error}
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
   transaction.set(orderRef,payload);
   seatRefs.forEach(ref=>transaction.set(ref,{status:'held',heldBy:null,heldUntil:null,partySize:state.partySize||null,orderNo:state.orderNo,orderId:orderRef.id,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}));
  });
  state.firebaseOrderId=orderRef.id;
+ seatOrderCommitStarted=false;
  clearTimeout(seatIdleTimer);
  return orderRef.id
 }
@@ -3644,6 +3653,8 @@ async function complete(event){
   setTimeout(()=>{reset();render()},5000)
  }catch(error){
   console.error(error);
+  seatOrderCommitStarted=false;
+  if(error?.code==='SEAT_RESERVED'||error?.message==='SEAT_RESERVED'){showSeatReservationConflict();return}
   alert(t('ui.payment.saveFailedConnection')+'\n'+error.message);
   if(errorBox)errorBox.textContent=error.message||t('ui.payment.saveFailed');if(button){button.disabled=false;button.textContent=t('ui.payment.submit')}
  }
@@ -3679,7 +3690,7 @@ document.addEventListener('keydown',function(event){
 },true);
 
 db.collection('seats').onSnapshot(
- snap=>{mobileSeatDocs={};snap.forEach(d=>mobileSeatDocs[d.id]=d.data());if(['area','table'].includes(state.step))render()},
+ snap=>{mobileSeatDocs={};snap.forEach(d=>mobileSeatDocs[d.id]=d.data());const selectedReserved=state.orderType==='dinein'&&!state.firebaseOrderId&&state.selectedTables.some(id=>mobileSeatDocs[id]?.status==='reserved');if(selectedReserved&&!seatOrderCommitStarted)showSeatReservationConflict();else if(['area','table'].includes(state.step))render()},
  error=>console.error('Firestore seats subscription failed',error)
 );
 db.collection('waitlist').onSnapshot(

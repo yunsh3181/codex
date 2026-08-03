@@ -45,8 +45,10 @@ function createSeatManager(initialStatus='empty'){
  };
  const seatSnapshot={forEach(callback){callback({id:'papa-2',data:()=>({status:initialStatus})})}};
  const emptySnapshot={docs:[]};
- const db={collection(name){return {
-  doc(id){return {async set(payload,options){writes.push({name,id,payload,options})}}},
+ const db={
+ runTransaction:async callback=>callback({get:async ref=>({exists:true,data:()=>({status:initialStatus})}),set(ref,payload,options){writes.push({name:'seats',id:ref.id,payload,options})}}),
+ collection(name){return {
+  doc(id){return {id,async set(payload,options){writes.push({name,id,payload,options})}}},
   onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}
  }}};
  const context={
@@ -70,15 +72,15 @@ function createSeatManager(initialStatus='empty'){
 
 function clickTarget(seatId,tag='button',insideSeatAdmin=true){
  const card={dataset:{seatId},insideSeatAdmin};
- return tag==='button'?{closest(){return card}}:{closest(selector){assert.equal(selector,'[data-seat-id]');return card}};
+ return {closest(selector){if(selector==='[data-reserve-seat],[data-cancel-reservation]')return null;if(selector==='[data-seat-id]')return card;return null}};
 }
 
 test('seat cards use safe data attributes without inline JavaScript',()=>{
  const manager=createSeatManager();
- assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat empty" data-seat-id="papa-2">/);
+ assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat empty" data-seat-id="papa-2"\s*>/);
  assert.doesNotMatch(manager.elements.seatAdmin.innerHTML,/\sonclick=/);
  assert.doesNotMatch(source,/jsArg|onclick="manageSeat/);
- assert.match(html,/seats\.js\?v=43\.7\.1\.4/);
+ assert.match(html,/seats\.js\?v=43\.10\.0/);
 });
 
 test('delegated seat clicks handle cards and their nested content exactly once',()=>{
@@ -187,4 +189,24 @@ test('occupied seat can be cleared through the existing updateSeat path',async()
  assert.equal(manager.writes[0].id,'papa-2');
  assert.equal(manager.writes[0].payload.status,'empty');
  assert.equal(manager.writes[0].options.merge,true);
+});
+
+test('empty seats can be reserved transactionally and show a cancel action',async()=>{
+ const manager=createSeatManager('empty');
+ assert.match(manager.elements.seatAdmin.innerHTML,/data-reserve-seat="papa-2"[^>]*>예약<\/button>/);
+ await manager.context.reserveSeat('papa-2');
+ assert.equal(manager.writes.length,1);
+ assert.equal(manager.writes[0].payload.status,'reserved');
+ assert.equal(manager.writes[0].payload.reservedAt,'SERVER_TIMESTAMP');
+});
+
+test('reserved seats cannot open occupancy and can return to empty after confirmation',async()=>{
+ const manager=createSeatManager('reserved');
+ assert.match(manager.elements.seatAdmin.innerHTML,/예약 취소<\/button>/);
+ await manager.context.manageSeat('papa-2');
+ assert.equal(manager.dialog.open,false);
+ manager.context.confirm=()=>true;
+ await manager.context.cancelSeatReservation('papa-2');
+ assert.equal(manager.writes[0].payload.status,'empty');
+ assert.equal(manager.writes[0].payload.reservedAt,null);
 });

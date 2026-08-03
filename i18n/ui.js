@@ -116,6 +116,16 @@ window.PJ_UI_I18N={
   }
 };
 
+const SEAT_RESERVATION_I18N={
+  ko:{status:'예약',disabled:'예약된 좌석입니다',title:'좌석 예약 안내',conflict:'선택하신 좌석은 예약 완료되었습니다. 다른 좌석을 선택해 주세요.'},
+  en:{status:'Reserved',disabled:'This seat is reserved',title:'Seat reservation notice',conflict:'Your selected seat has been reserved. Please choose another seat.'},
+  ja:{status:'予約',disabled:'予約済みの座席です',title:'座席予約のお知らせ',conflict:'選択した座席は予約済みです。別の座席を選択してください。'},
+  zh:{status:'已预订',disabled:'该座位已预订',title:'座位预订提示',conflict:'您选择的座位已被预订。请选择其他座位。'},
+  vi:{status:'Đã đặt',disabled:'Ghế này đã được đặt',title:'Thông báo đặt ghế',conflict:'Ghế bạn chọn đã được đặt. Vui lòng chọn ghế khác.'},
+  es:{status:'Reservado',disabled:'Este asiento está reservado',title:'Aviso de reserva',conflict:'El asiento seleccionado ha sido reservado. Elige otro asiento.'}
+};
+Object.entries(SEAT_RESERVATION_I18N).forEach(([language,reservation])=>{window.PJ_UI_I18N[language].seatReservation=reservation});
+
 const BENEFIT_RECOMMENDATION_I18N={
   ko:{title:'더 저렴한 혜택이 있어요',currentSummary:'현재 {benefit} 최종 결제금액은 {amount}입니다.',available:'{benefit} 적용 가능',currentBenefit:'현재 선택 혜택',afterBenefit:'추천 적용 후 최종 결제금액',paymentSaving:'실제 결제 절감',extraValue:'추가 제공·상향 가치',totalValue:'전체 혜택 가치',halfFeeIncluded:'반반 추가금 {amount}이 포함된 금액입니다.',drinkUpgrade:'{from}이(가) {to}(으)로 상향됩니다.',selectMissingSide:'세트에 필요한 사이드 {count}개만 추가로 선택해 주세요.',selectMissingDrink:'세트에 필요한 음료만 추가로 선택해 주세요.',upupUpgrade:'{size}와 {crust} 구성으로 상향됩니다.',apply:'추천 혜택 적용',keep:'현재 주문 유지'},
   en:{title:'A better-priced benefit is available',currentSummary:'Your current {benefit} final payment is {amount}.',available:'{benefit} available',currentBenefit:'Current benefit',afterBenefit:'Final payment after recommendation',paymentSaving:'Payment saving',extraValue:'Added or upgraded value',totalValue:'Total benefit value',halfFeeIncluded:'The {amount} half-and-half fee is included.',drinkUpgrade:'{from} will be upgraded to {to}.',selectMissingSide:'Select only the {count} missing set side item(s).',selectMissingDrink:'Select only the missing set drink.',upupUpgrade:'Upgraded to {size} with {crust}.',apply:'Apply recommended benefit',keep:'Keep current order'},
