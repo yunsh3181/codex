@@ -145,3 +145,30 @@ test('stored screenshots are raw viewport captures without forced resizing', () 
     }
   }
 });
+
+test('repository measurement artifact is aggregate-only while failures retain detailed context', () => {
+  const aggregate = JSON.parse(fs.readFileSync(
+    path.join(root, 'artifacts', 'order-review-layout-measurements.json'),
+    'utf8'
+  ));
+  assert.equal('results' in aggregate, false);
+  assert.equal(aggregate.totalCombinations, 4 * 6 * 10);
+  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '768x1024', '1080x1920']);
+  assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
+  assert.equal(aggregate.overlapCount, 0);
+  assert.equal(aggregate.clippedTextCount, 0);
+  assert.equal(aggregate.maxHorizontalOverflow, 0);
+  assert.ok(aggregate.minimumBottomSafetyGap >= 44);
+  for (const locale of aggregate.locales) {
+    assert.ok(aggregate.scrollHeightByLocale[locale].min > 0, locale);
+    assert.ok(
+      aggregate.scrollHeightByLocale[locale].max >= aggregate.scrollHeightByLocale[locale].min,
+      locale
+    );
+  }
+  const source = fs.readFileSync(path.join(root, 'scripts', 'verify-order-review-layout.js'), 'utf8');
+  assert.match(source, /ORDER_REVIEW_REPORT/);
+  assert.match(source, /results,/);
+  const testSource = fs.readFileSync(__filename, 'utf8');
+  assert.match(testSource, /const context = `\$\{result\.viewportName\}\/\$\{result\.locale\}\/\$\{result\.scenario\}`/);
+});

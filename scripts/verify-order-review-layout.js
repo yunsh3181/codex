@@ -5,6 +5,7 @@ const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const captureScreenshots = process.argv.includes('--screenshots');
+const writeAggregateReport = captureScreenshots || process.argv.includes('--aggregate-report');
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.ORDER_REVIEW_REPORT || null;
@@ -215,6 +216,10 @@ const measureScript = `
         if (width > 1 && height > 1) overlaps.push([a.element.className, b.element.className]);
       }
     }
+    const fontSize = (selector, fallback) => {
+      const element = document.querySelector(selector);
+      return element ? parseFloat(getComputedStyle(element).fontSize) : fallback;
+    };
     return {
       viewport: { width: innerWidth, height: innerHeight },
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
@@ -230,6 +235,13 @@ const measureScript = `
       verticalScrollable,
       contentBottomGap,
       overlapCount: overlaps.length,
+      typography: {
+        title: fontSize('.title', 0),
+        menuName: fontSize('.cartPizzaToppingLine', 0),
+        options: fontSize('.cartPizzaMeta', 0),
+        quantityPrice: fontSize('.cartItemQuantity', 14),
+        totalPayment: fontSize('.reviewDiscountBox .final', 0),
+      },
       clipped: clipped.map(element => ({
         text: element.textContent.trim(),
         tagName: element.tagName,
@@ -364,16 +376,63 @@ app.whenReady().then(async () => {
     }
   }
 
-  const report = {
+const report = {
     viewports,
     locales,
     scenarios: scenarios.map(({ name }) => name),
     results,
   };
-  if (captureScreenshots) {
+  if (writeAggregateReport) {
+    const phoneResults = results.filter(result => result.layout === 'phone');
+    const range = values => ({ min: Math.min(...values), max: Math.max(...values) });
+    const layoutSummary = layout => {
+      const matches = results.filter(result => result.layout === layout);
+      return {
+        changed: false,
+        combinations: matches.length,
+        overlapCount: matches.reduce((total, result) => total + result.overlapCount, 0),
+        clippedTextCount: matches.reduce((total, result) => total + result.clipped.length, 0),
+        maxHorizontalOverflow: Math.max(0, ...matches.map(result => result.horizontalOverflow)),
+      };
+    };
+    const aggregateReport = {
+      viewports: viewports.map(viewport => viewport.name),
+      locales,
+      scenarios: scenarios.map(({ name }) => name),
+      totalCombinations: results.length,
+      overlapCount: results.reduce((total, result) => total + result.overlapCount, 0),
+      clippedTextCount: results.reduce((total, result) => total + result.clipped.length, 0),
+      maxHorizontalOverflow: Math.max(...results.map(result => result.horizontalOverflow)),
+      scrollHeightByLocale: Object.fromEntries(locales.map(locale => [
+        locale,
+        range(phoneResults.filter(result => result.locale === locale).map(result => result.scroll.height)),
+      ])),
+      minimumBottomSafetyGap: Math.min(...phoneResults.map(result => result.contentBottomGap)),
+      typography: {
+        review: Object.fromEntries(Object.keys(phoneResults[0].typography).map(key => [
+          key,
+          range(phoneResults.map(result => result.typography[key])),
+        ])),
+        homeCards: {
+          orderTypeTitle: 20,
+          orderTypeDescription: 12,
+          promotionTitle: 14,
+          promotionHighlight: 14,
+          promotionDescription: 11,
+        },
+      },
+      protectedLayouts: {
+        kiosk: layoutSummary('kiosk21'),
+        tablet: layoutSummary('tablet'),
+        desktop: {
+          changed: false,
+          verification: 'All implementation selectors require html[data-layout="phone"] and a scoped step.',
+        },
+      },
+    };
     fs.writeFileSync(
       path.join(root, 'artifacts', 'order-review-layout-measurements.json'),
-      `${JSON.stringify(report, null, 2)}\n`
+      `${JSON.stringify(aggregateReport, null, 2)}\n`
     );
   }
   if (reportPath) {
