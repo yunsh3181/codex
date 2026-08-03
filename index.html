@@ -2259,7 +2259,7 @@ function bottleAvailability(now=new Date()){return bottlePolicy.getBottleSeatAva
 function bottleReason(a=bottleAvailability()){return bottleCopy()[{'before-open':'before','after-close':'after',weekend:'weekend',holiday:'holiday','unsupported-year':'unsupported','invalid-date':'unsupported'}[a.reason]||'unsupported']}
 function selectedBottleSeat(){return state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))}
 function showBottleHoursConflict(){if(bottleHoursConflictActive||seatReservationConflictActive||state.firebaseOrderId||seatOrderCommitStarted)return;bottleHoursConflictActive=true;state.modal='bottleHoursConflict';render()}
-async function confirmBottleHoursConflict(){const ids=[...state.selectedTables];bottleHoursConflictActive=false;await releaseSeats(ids);reset();seatOrderCommitStarted=false;render()}
+function confirmBottleHoursConflict(){bottleHoursConflictActive=false;reset();seatOrderCommitStarted=false;render()}
 function checkBottleHoursBoundary(){if(selectedBottleSeat()&&!bottleAvailability().available)showBottleHoursConflict();else if(['area','table'].includes(state.step))render();scheduleBottlePolicyBoundary()}
 function scheduleBottlePolicyBoundary(){if(typeof setTimeout!=='function')return;if(typeof clearTimeout==='function')clearTimeout(bottlePolicyTimer);bottlePolicyTimer=setTimeout(checkBottleHoursBoundary,bottlePolicy.millisecondsUntilNextBoundary()+25)}
 

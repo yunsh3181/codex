@@ -4,13 +4,20 @@
  const BOTTLE_SEAT_IDS=Object.freeze(['annex-1','annex-2','annex-3','annex-4','room-1','room-2','room-3']);
  const BOTTLE_ROOM_IDS=Object.freeze(['room-1','room-2','room-3']);
  const BOTTLE_SEAT_ID_SET=new Set(BOTTLE_SEAT_IDS),BOTTLE_ROOM_ID_SET=new Set(BOTTLE_ROOM_IDS);
- const DATA_METADATA=Object.freeze({supportedStartYear:SUPPORTED_START_YEAR,supportedEndYear:SUPPORTED_END_YEAR,source:'우주항공청 관보 월력요항 및 한국천문연구원 달력자료',sourceUrl:'https://astro.kasi.re.kr/life/post/almanac',lastVerified:'2026-08-03',temporaryHolidayOverrides:'HOLIDAY_OVERRIDES'});
+ const YEAR_SOURCES=Object.freeze({
+  2026:Object.freeze({sourceType:'official',source:'우주항공청 2026년 월력요항(2026년 노동절·제헌절 공휴일 지정 반영)',url:'https://astro.kasi.re.kr/life/post/almanac'}),
+  2027:Object.freeze({sourceType:'official',source:'우주항공청 2027년 월력요항',url:'https://www.kasa.go.kr/prog/plcyBrf/brief/kor/sub01_01_04/view.do?plcyBrfNo=431'}),
+  2028:Object.freeze({sourceType:'provisional',source:'한국천문연구원 2028년 사전 달력자료 V1.0a',url:'https://astro.kasi.re.kr/life/post/calendardata'}),
+  2029:Object.freeze({sourceType:'provisional',source:'관공서 공휴일 규정과 한국천문연구원 음양력 계산 기반',url:'https://astro.kasi.re.kr/life/post/calendardata'}),
+  2030:Object.freeze({sourceType:'provisional',source:'관공서 공휴일 규정과 한국천문연구원 음양력 계산 기반',url:'https://astro.kasi.re.kr/life/post/calendardata'})
+ });
+ const DATA_METADATA=Object.freeze({supportedStartYear:SUPPORTED_START_YEAR,supportedEndYear:SUPPORTED_END_YEAR,lastVerified:'2026-08-03',yearSources:YEAR_SOURCES,temporaryHolidayOverrides:'HOLIDAY_OVERRIDES',overrideProcedure:'정부 임시공휴일 발표 후 HOLIDAY_OVERRIDES에 YYYY-MM-DD를 추가하고 테스트·출처·검증일을 갱신한다.'});
  const HOLIDAYS=Object.freeze({
-  2026:['01-01','02-16','02-17','02-18','03-01','03-02','05-05','05-24','05-25','06-03','06-06','08-15','08-17','09-24','09-25','09-26','10-03','10-05','10-09','12-25'],
-  2027:['01-01','02-06','02-07','02-08','02-09','03-01','05-05','05-13','06-06','08-15','08-16','09-14','09-15','09-16','10-03','10-04','10-09','10-11','12-25','12-27'],
-  2028:['01-01','01-26','01-27','01-28','03-01','04-12','05-02','05-05','06-06','08-15','10-02','10-03','10-04','10-05','10-09','12-25'],
-  2029:['01-01','02-12','02-13','02-14','03-01','05-05','05-07','05-20','05-21','06-06','08-15','09-21','09-22','09-23','09-24','10-03','10-09','12-25'],
-  2030:['01-01','02-02','02-03','02-04','02-05','03-01','05-05','05-06','05-09','06-05','06-06','08-15','09-11','09-12','09-13','10-03','10-09','12-25']
+  2026:['01-01','02-16','02-17','02-18','03-01','03-02','05-01','05-05','05-24','05-25','06-03','06-06','07-17','08-15','08-17','09-24','09-25','09-26','10-03','10-05','10-09','12-25'],
+  2027:['01-01','02-06','02-07','02-08','02-09','03-01','05-01','05-03','05-05','05-13','06-06','07-17','07-19','08-15','08-16','09-14','09-15','09-16','10-03','10-04','10-09','10-11','12-25','12-27'],
+  2028:['01-01','01-26','01-27','01-28','03-01','04-12','05-01','05-02','05-05','06-06','07-17','08-15','10-02','10-03','10-04','10-05','10-09','12-25'],
+  2029:['01-01','02-12','02-13','02-14','03-01','05-01','05-05','05-07','05-20','05-21','06-06','07-17','08-15','09-21','09-22','09-23','09-24','10-03','10-09','12-25'],
+  2030:['01-01','02-02','02-03','02-04','02-05','03-01','05-01','05-05','05-06','05-09','06-05','06-06','07-17','08-15','09-11','09-12','09-13','10-03','10-09','12-25']
  });
  // 정부가 별도로 지정하는 임시공휴일은 이 목록에 YYYY-MM-DD로 추가한다.
  const HOLIDAY_OVERRIDES=Object.freeze([]);
@@ -42,5 +49,5 @@
   return Math.max(1,(target-seconds)*1000-date.getMilliseconds()+25)
  }
  function holidayCounts(){return Object.fromEntries(Object.entries(HOLIDAYS).map(([year,days])=>[year,new Set(days).size]))}
- return {TIME_ZONE,SUPPORTED_START_YEAR,SUPPORTED_END_YEAR,BOTTLE_SEAT_IDS,BOTTLE_ROOM_IDS,DATA_METADATA,HOLIDAYS,HOLIDAY_OVERRIDES,isBottleSeat,isBottleRoom,getSeoulDateParts,getSeoulDateKey,isWeekendInSeoul,getKoreanHolidayInfo,isKoreanPublicHoliday,getBottleSeatAvailability,isBottleSeatOperatingTime,millisecondsUntilNextBoundary,holidayCounts}
+ return {TIME_ZONE,SUPPORTED_START_YEAR,SUPPORTED_END_YEAR,BOTTLE_SEAT_IDS,BOTTLE_ROOM_IDS,DATA_METADATA,YEAR_SOURCES,HOLIDAYS,HOLIDAY_OVERRIDES,isBottleSeat,isBottleRoom,getSeoulDateParts,getSeoulDateKey,isWeekendInSeoul,getKoreanHolidayInfo,isKoreanPublicHoliday,getBottleSeatAvailability,isBottleSeatOperatingTime,millisecondsUntilNextBoundary,holidayCounts}
 });

@@ -36,9 +36,10 @@ async function transitionReservation(id,from,to){
    const canReserve=to==='reserved'&&(current==='empty'||(current==='held'&&!saved.orderId));
    const canCancel=to==='empty'&&current==='reserved';
    if((from==='reservable'&&!canReserve)||(from==='reserved'&&!canCancel))throw new Error('SEAT_STATUS_CHANGED');
+   if(to==='reserved'&&!bottleActionAllowed(id))throw new Error('BOTTLE_HOURS_CLOSED');
    transaction.set(ref,{status:to,zone:seat.zone,name:seat.name,capacity:seat.capacity,reservedAt:to==='reserved'?firebase.firestore.FieldValue.serverTimestamp():null,reservedBy:to==='reserved'?'admin':null,...(to==='reserved'?{heldBy:null,heldAt:null,heldUntil:null,partySize:null}:{}),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
   });
- }catch(error){alert(error?.message==='SEAT_STATUS_CHANGED'?'좌석 상태가 변경되었습니다. 최신 상태를 확인해 주세요.':'좌석 상태를 저장하지 못했습니다. 다시 시도해 주세요.')}
+ }catch(error){alert(error?.message==='BOTTLE_HOURS_CLOSED'?'운영시간 외에는 예약할 수 없습니다.':error?.message==='SEAT_STATUS_CHANGED'?'좌석 상태가 변경되었습니다. 최신 상태를 확인해 주세요.':'좌석 상태를 저장하지 못했습니다. 다시 시도해 주세요.')}
  finally{pendingSeatActions.delete(id);render()}
 }
 function reserveSeat(id){const base=master.find(item=>item.id===id);if(!base||!bottleActionAllowed(id))return;const seat=seatData(base);if(!['empty','held'].includes(seat.status)||seat.orderId)return;if(seat.status==='held'&&!confirm('현재 고객이 주문 중인 좌석입니다. 예약하면 고객의 진행 중인 주문이 초기화됩니다. 예약하시겠습니까?'))return;return transitionReservation(id,'reservable','reserved')}
@@ -47,7 +48,7 @@ function reservationForm(s){const existing=docs[s.id]||{};const dt=toDate(existi
 function occupancyDialog(){return document.getElementById('seatOccupancyDialog')}
 function closeOccupancyDialog(){pendingOccupancySeatId=null;occupancyDialog()?.close()}
 function requestManualOccupancy(id){if(!bottleActionAllowed(id))return;pendingOccupancySeatId=id;occupancyDialog()?.showModal()}
-async function confirmManualOccupancy(){const id=pendingOccupancySeatId;if(!id)return;closeOccupancyDialog();await updateSeat(id,'occupied')}
+async function confirmManualOccupancy(){const id=pendingOccupancySeatId;if(!id)return;closeOccupancyDialog();if(!bottleActionAllowed(id)){alert('운영시간 외에는 사용중으로 변경할 수 없습니다.');return}await updateSeat(id,'occupied')}
 function occupiedSeatDialog(){return document.getElementById('occupiedSeatDialog')}
 function closeOccupiedSeatDialog(){pendingOccupiedSeatId=null;occupiedSeatDialog()?.close()}
 function requestOccupiedSeatAction(id){pendingOccupiedSeatId=id;occupiedSeatDialog()?.showModal()}
