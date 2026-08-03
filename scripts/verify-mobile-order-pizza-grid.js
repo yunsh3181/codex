@@ -6,7 +6,7 @@ const { execFileSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const outputDir = process.env.MOBILE_PIZZA_GRID_OUTPUT || path.join(app.getPath('temp'), 'mobile-pizza-grid');
 const reportPath = process.env.MOBILE_PIZZA_GRID_REPORT || path.join(outputDir, 'measurements.json');
-const beforeSha = process.env.MOBILE_PIZZA_GRID_BEFORE || 'origin/main';
+const beforeSha = process.env.MOBILE_PIZZA_GRID_BEFORE || null;
 const capture = process.argv.includes('--screenshots');
 const userDataPath = path.join(app.getPath('temp'), `mobile-pizza-grid-${process.pid}`);
 fs.mkdirSync(outputDir, { recursive: true });
@@ -117,6 +117,23 @@ const baselineDocument = () => {
   );
 };
 
+const baselineComparison = beforeSha
+  ? { requested: true, ref: beforeSha, performed: false, reason: null }
+  : { requested: false, ref: null, performed: false, reason: 'baseline ref not requested' };
+
+const prepareBaseline = baselinePath => {
+  if (!beforeSha) return false;
+  try {
+    execFileSync('git', ['cat-file', '-e', `${beforeSha}:index.html`], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['cat-file', '-e', `${beforeSha}:styles/device-phone.css`], { cwd: root, stdio: 'ignore' });
+  } catch {
+    throw new Error(`Requested baseline ref is unavailable: ${beforeSha}`);
+  }
+  fs.writeFileSync(baselinePath, baselineDocument());
+  baselineComparison.performed = true;
+  return true;
+};
+
 app.whenReady().then(async () => {
   const window = new BrowserWindow({
     show: false, frame: false, useContentSize: true,
@@ -126,7 +143,7 @@ app.whenReady().then(async () => {
   const results = [];
   const localeResults = [];
   const baselinePath = path.join(app.getPath('temp'), `mobile-pizza-grid-baseline-${process.pid}.html`);
-  fs.writeFileSync(baselinePath, baselineDocument());
+  const hasBaseline = prepareBaseline(baselinePath);
   for (const viewport of viewports) {
     window.setContentSize(viewport.width, viewport.height);
     await window.loadFile(path.join(root, 'index.html'));
@@ -134,11 +151,14 @@ app.whenReady().then(async () => {
     await waitForPaint();
     const timingAfter = await window.webContents.executeJavaScript(measureTiming, true);
     if (capture && viewport.name === '390x844') await captureExact(window, viewport, 'timing-after');
-    await window.loadFile(baselinePath);
-    await window.webContents.executeJavaScript(timingFixture, true);
-    await waitForPaint();
-    const timingBefore = await window.webContents.executeJavaScript(measureTiming, true);
-    if (capture && viewport.name === '390x844') await captureExact(window, viewport, 'timing-before');
+    let timingBefore = null;
+    if (hasBaseline) {
+      await window.loadFile(baselinePath);
+      await window.webContents.executeJavaScript(timingFixture, true);
+      await waitForPaint();
+      timingBefore = await window.webContents.executeJavaScript(measureTiming, true);
+      if (capture && viewport.name === '390x844') await captureExact(window, viewport, 'timing-before');
+    }
     results.push({ viewport: viewport.name, scenario: 'timing', before: timingBefore, after: timingAfter });
     for (const scenario of scenarios) {
       await window.loadFile(path.join(root, 'index.html'));
@@ -159,12 +179,15 @@ app.whenReady().then(async () => {
         await waitForPaint();
         await captureExact(window, viewport, 'normal-17-bottom-after');
       }
-      await window.loadFile(baselinePath);
-      await window.webContents.executeJavaScript(fixture(scenario), true);
-      await waitForPaint();
-      const before = await window.webContents.executeJavaScript(measurePizza, true);
-      if (capture && ((viewport.name === '390x844' && scenario.name === 'normal') || (viewport.name === '1080x1920' && scenario.name === 'normal'))) {
-        await captureExact(window, viewport, `${scenario.name}-before`);
+      let before = null;
+      if (hasBaseline) {
+        await window.loadFile(baselinePath);
+        await window.webContents.executeJavaScript(fixture(scenario), true);
+        await waitForPaint();
+        before = await window.webContents.executeJavaScript(measurePizza, true);
+        if (capture && ((viewport.name === '390x844' && scenario.name === 'normal') || (viewport.name === '1080x1920' && scenario.name === 'normal'))) {
+          await captureExact(window, viewport, `${scenario.name}-before`);
+        }
       }
       results.push({ viewport: viewport.name, scenario: scenario.name, before, after });
     }
@@ -178,8 +201,8 @@ app.whenReady().then(async () => {
       localeResults.push({ locale, scenario: scenario.name, measurement: await window.webContents.executeJavaScript(measurePizza, true) });
     }
   }
-  fs.writeFileSync(reportPath, `${JSON.stringify({ beforeSha, viewports, scenarios, locales, results, localeResults }, null, 2)}\n`);
-  fs.unlinkSync(baselinePath);
+  fs.writeFileSync(reportPath, `${JSON.stringify({ baselineComparison, viewports, scenarios, locales, results, localeResults }, null, 2)}\n`);
+  if (hasBaseline) fs.unlinkSync(baselinePath);
   window.destroy();
   app.quit();
 }).catch(error => {

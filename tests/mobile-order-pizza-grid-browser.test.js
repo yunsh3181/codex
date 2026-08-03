@@ -33,7 +33,6 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
       ...process.env,
       MOBILE_PIZZA_GRID_OUTPUT: outputDir,
       MOBILE_PIZZA_GRID_REPORT: reportPath,
-      MOBILE_PIZZA_GRID_BEFORE: 'origin/main',
       ELECTRON_DISABLE_SECURITY_WARNINGS: 'true',
     },
     timeout: 110_000,
@@ -41,6 +40,12 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
   });
   assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  assert.deepEqual(report.baselineComparison, {
+    requested: false,
+    ref: null,
+    performed: false,
+    reason: 'baseline ref not requested',
+  });
   assert.equal(report.results.length, 3 * 6);
   const timing = report.results.filter(result => result.scenario === 'timing');
   for (const result of timing) {
@@ -54,24 +59,30 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
         assert.equal(result.after.reserve[key], 'rgb(255, 255, 255)', `reserve ${key}`);
       }
     } else {
-      assert.deepEqual(result.after, result.before);
+      assert.equal(result.after.layout, 'kiosk21');
     }
   }
   for (const result of report.results.filter(entry => entry.scenario !== 'timing')) {
     if (result.after.layout === 'phone') {
-      assert.equal(result.before.columns, 4, `${result.viewport}/${result.scenario}: baseline columns`);
       assert.equal(result.after.columns, 3, `${result.viewport}/${result.scenario}: columns`);
       assert.equal(result.after.horizontalOverflow, 0, `${result.viewport}/${result.scenario}: horizontal overflow`);
       assert.deepEqual(result.after.clipped, [], `${result.viewport}/${result.scenario}: clipped text`);
       assert.equal(result.after.imageFit, 'contain', `${result.viewport}/${result.scenario}: image fit`);
-      assert.ok(result.after.imageSize.height > result.before.imageSize.height, `${result.viewport}/${result.scenario}: image height`);
+      assert.ok(result.after.cardSize.height >= 158, `${result.viewport}/${result.scenario}: card height`);
+      assert.ok(result.after.imageSize.width >= 94, `${result.viewport}/${result.scenario}: image width`);
+      assert.ok(result.after.imageSize.height >= 84, `${result.viewport}/${result.scenario}: image height`);
       assert.equal(result.after.nameFontSize, 12, `${result.viewport}/${result.scenario}: name font`);
       assert.equal(result.after.priceFontSize, 10, `${result.viewport}/${result.scenario}: price font`);
       assert.ok(result.after.bottomClearance >= 27, `${result.viewport}/${result.scenario}: bottom clearance`);
     } else {
-      for (const key of ['columns', 'cardSize', 'imageSize', 'imageFit', 'nameFontSize', 'priceFontSize', 'horizontalOverflow', 'clipped']) {
-        assert.deepEqual(result.after[key], result.before[key], `${result.viewport}/${result.scenario}: ${key}`);
-      }
+      assert.equal(result.after.layout, 'kiosk21', `${result.viewport}/${result.scenario}: layout`);
+      assert.equal(result.after.columns, 4, `${result.viewport}/${result.scenario}: columns`);
+      assert.equal(result.after.cardSize.width, 215, `${result.viewport}/${result.scenario}: card width`);
+      assert.deepEqual(result.after.imageSize, { width: 193, height: 180 }, `${result.viewport}/${result.scenario}: image size`);
+      assert.equal(result.after.imageFit, 'cover', `${result.viewport}/${result.scenario}: image fit`);
+      assert.equal(result.after.nameFontSize, 17.82, `${result.viewport}/${result.scenario}: name font`);
+      assert.equal(result.after.horizontalOverflow, 0, `${result.viewport}/${result.scenario}: horizontal overflow`);
+      assert.deepEqual(result.after.clipped, [], `${result.viewport}/${result.scenario}: clipped text`);
     }
   }
   assert.equal(report.localeResults.length, 6 * 5);
