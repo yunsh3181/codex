@@ -800,18 +800,196 @@ html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard > span:las
   word-break: keep-all;
 }
 
-html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .clickable {
-  display: none !important;
-}
-
 html[data-layout="phone"] body[data-step="home"] .heroPromoStrip {
-  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
   margin-top: 0 !important;
 }
 
-html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .beerAd {
-  min-height: 54px !important;
-  padding: 7px 10px !important;
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo {
+  display: flex !important;
+  width: 100%;
+  height: 104px !important;
+  min-height: 104px !important;
+  padding: 8px 5px !important;
+  gap: 3px !important;
+  border: 1px solid #c65f00 !important;
+  border-radius: 13px !important;
+  background: #d86f00 !important;
+  box-shadow: 0 3px 8px rgba(71, 38, 5, .18) !important;
+  color: #fff !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(h3, strong, p, .takeoutSizeNote, .takeoutDiscount) {
+  color: #fff !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+  font-size: 12px !important;
+  line-height: 1.1 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(strong, .takeoutDiscount) {
+  padding: 2px 4px !important;
+  font-size: 12px !important;
+  line-height: 1.15 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(p, .takeoutSizeNote) {
+  font-size: 9px !important;
+  line-height: 1.2 !important;
+}
+
+/* Make the two pickup-time choices identifiable before their copy is read. */
+html[data-layout="phone"] body[data-step="timing"] .timingChoiceGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice {
+  position: relative;
+  min-height: 164px !important;
+  padding: 18px 10px !important;
+  border-width: 3px !important;
+  color: #17211c !important;
+  box-shadow: 0 6px 16px rgba(24, 37, 30, .12) !important;
+  transition: background-color .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingNow {
+  border-color: #c65200 !important;
+  background: #fff0df !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingReserve {
+  border-color: #176b87 !important;
+  background: #e8f5f9 !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice :where(h2, p) {
+  color: inherit !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoiceCheck {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  font-weight: 1000;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice:is(:active, :focus-visible, [aria-pressed="true"]) {
+  border-width: 4px !important;
+  box-shadow: 0 0 0 3px rgba(247, 207, 43, .5), 0 9px 20px rgba(24, 37, 30, .2) !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice:is(:active, :focus-visible, [aria-pressed="true"]) .timingChoiceCheck {
+  opacity: 1;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice:disabled {
+  border-color: #8b9490 !important;
+  background: #e5e8e6 !important;
+  box-shadow: none !important;
+  opacity: .62;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .timingChoice:hover:not(:disabled) {
+  filter: saturate(1.12);
+  box-shadow: 0 9px 20px rgba(24, 37, 30, .2) !important;
+}
+
+/* Five benefits occupy a stable 3-column, two-row phone grid. */
+html[data-layout="phone"] body[data-step="promo"] .stage {
+  padding-top: 8px !important;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitTitle {
+  margin-bottom: 2px !important;
+  font-size: clamp(23px, 7vw, 30px) !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitSub {
+  margin-bottom: 7px !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitCard {
+  width: 100%;
+  min-width: 0;
+  min-height: 150px !important;
+  height: 150px !important;
+  padding: 10px 5px 8px !important;
+  gap: 4px !important;
+  border-radius: 13px !important;
+  justify-content: center !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitIcon {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 auto !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitCard h2 {
+  min-height: 2.35em;
+  margin: 0 !important;
+  display: grid;
+  place-items: center;
+  font-size: clamp(13px, 3.8vw, 16px) !important;
+  line-height: 1.15 !important;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitCard p {
+  min-height: 2.5em !important;
+  margin: 0 !important;
+  font-size: clamp(8px, 2.35vw, 10px) !important;
+  line-height: 1.2 !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitPill {
+  max-width: 100%;
+  padding: 4px 5px !important;
+  font-size: clamp(8px, 2.35vw, 10px) !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] :where(.bestRibbon, .normalOrderGuide) {
+  font-size: 8px !important;
+  line-height: 1.1 !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .normalOrderGuide {
+  position: absolute;
+  right: 3px;
+  bottom: 4px;
+  left: 3px;
+  margin: 0 !important;
+  text-align: center;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitNote {
+  margin-top: 6px !important;
+  padding: 6px 8px !important;
+  font-size: 10px !important;
+  line-height: 1.2 !important;
 }
 
 /* Option headings sit on white sections and need maximum readable contrast. */
@@ -1549,4 +1727,40 @@ html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscoun
   padding-block: 0;
   line-height: 1;
   letter-spacing: -0.8px;
+}
+
+/* Initial-order refinements stay last so legacy single-column card rules cannot win. */
+html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice {
+  min-height: 164px !important;
+  padding: 18px 10px !important;
+  border-width: 3px !important;
+  color: #17211c !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice.timingNow {
+  border-color: #c65200 !important;
+  background: #fff0df !important;
+}
+
+html[data-layout="phone"] body[data-step="timing"] .grid.two.timingChoiceGrid .card.timingChoice.timingReserve {
+  border-color: #176b87 !important;
+  background: #e8f5f9 !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage .darkBenefitGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage .darkBenefitGrid .darkBenefitCard {
+  min-height: 150px !important;
+  height: 150px !important;
+  padding: 10px 5px 8px !important;
+  gap: 4px !important;
+  overflow: hidden !important;
 }
