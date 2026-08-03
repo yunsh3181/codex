@@ -547,14 +547,31 @@ function safeAmounts(order){
  const discount=Math.max(0,original-paid);
  return {original,discount,paid};
 }
-function mealTicketPayment(order){
+function paymentMethodIsMealTicket(payment){
+ return [payment?.method,payment?.methodName].some(value=>String(value||'').trim().toLowerCase().replace(/[\s_-]+/g,'')==='mealticket'||String(value||'').includes('식권대장'));
+}
+function mealTicketPaymentSource(order,paid){
  const payment=order?.payment||{};
- const candidates=[payment.method,payment.methodName,...(Array.isArray(payment.methods)?payment.methods.flatMap(value=>[value?.method,value?.methodName]):[])];
- return candidates.some(value=>String(value||'').trim().toLowerCase().replace(/[\s_-]+/g,'')==='mealticket'||String(value||'').includes('식권대장'));
+ const methods=Array.isArray(payment.methods)?payment.methods:[];
+ if(methods.length>1){
+  const tickets=methods.filter(value=>value&&typeof value==='object'&&paymentMethodIsMealTicket(value));
+  if(tickets.length!==1)return null;
+  const ticket=tickets[0];
+  const explicit=[ticket.total,ticket.amount,ticket.paidAmount,ticket.totalAmount].find(value=>value!==null&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0);
+  const stored=Array.isArray(ticket.splitAmounts)?ticket.splitAmounts.map(Number):[];
+  if(stored.some(value=>!Number.isFinite(value)||value<0))return null;
+  const storedTotal=stored.length>1?stored.reduce((sum,value)=>sum+value,0):null;
+  if(explicit===undefined&&storedTotal===null)return null;
+  if(explicit!==undefined&&storedTotal!==null&&Number(explicit)!==storedTotal)return null;
+  return {payment:ticket,paid:explicit===undefined?storedTotal:Number(explicit)};
+ }
+ return paymentMethodIsMealTicket(payment)?{payment,paid}:null;
 }
 function splitPaymentSummary(order,paid=safeAmounts(order).paid){
- if(!mealTicketPayment(order))return null;
- const payment=order?.payment||{};
+ const source=mealTicketPaymentSource(order,paid);
+ if(!source)return null;
+ const {payment}=source;
+ paid=source.paid;
  const stored=Array.isArray(payment.splitAmounts)?payment.splitAmounts.map(Number).filter(value=>Number.isFinite(value)&&value>=0):[];
  const requested=Number(payment.splitCount);
  const count=Number.isInteger(requested)&&requested>1?requested:stored.length>1?stored.length:0;

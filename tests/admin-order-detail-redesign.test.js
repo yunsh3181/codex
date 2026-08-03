@@ -77,6 +77,11 @@ const singleDetail=context.renderOrderDetail({...baseOrder,payment:{method:'meal
 assert.ok(!singleDetail.includes('× 1인'),'single meal-ticket payment keeps the existing total-only display');
 const cardDetail=context.renderOrderDetail({...baseOrder,payment:{method:'card',methodName:'신용카드',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(!cardDetail.includes('10,000원 × 4인'),'card payments never show meal-ticket split detail');
+const mixedKnownDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{methodName:'복합결제',methods:[{method:'meal_ticket',methodName:'식권대장',amount:28000,splitCount:3,splitAmounts:[10000,10000,8000]},{method:'card',methodName:'신용카드',amount:12000}]}});
+assert.ok(mixedKnownDetail.includes('28,000원 · 10,000원 + 10,000원 + 8,000원'),'mixed payment displays only the explicit meal-ticket entry');
+assert.ok(!mixedKnownDetail.includes('40,000원 · 10,000원'),'mixed payment never labels the whole paid amount as meal-ticket money');
+const mixedUnknownDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{methodName:'복합결제',methods:[{method:'meal_ticket'},{method:'card'}],splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
+assert.ok(!mixedUnknownDetail.includes('10,000원 × 4인')&&!mixedUnknownDetail.includes('NaN')&&!mixedUnknownDetail.includes('undefined'),'ambiguous mixed legacy payment hides unsafe split detail');
 
 const normal=context.renderOrderDetail({...baseOrder,status:'cooking',pickup:{mode:'now',time:null},disposables:false});
 assert.ok(!normal.includes('detail-reservation">예약</span>'),'normal orders remove the reservation label and its space');
