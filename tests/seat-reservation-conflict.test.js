@@ -10,10 +10,12 @@ const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
 
 test('reserved is a first-class manager state with conditional transactions',()=>{
  assert.match(manager,/statusNames=\{[^}]*reserved:'예약'/);
- assert.match(manager,/transitionReservation\(id,'empty','reserved'\)/);
+ assert.match(manager,/transitionReservation\(id,'reservable','reserved'\)/);
  assert.match(manager,/transitionReservation\(id,'reserved','empty'\)/);
  assert.match(manager,/db\.runTransaction/);
- assert.match(manager,/normalizedSeatStatus\(saved\.status\)!==from/);
+ assert.match(manager,/const current=saved\.status==null\?'empty':saved\.status/);
+ assert.match(manager,/current==='held'&&!saved\.orderId/);
+ for(const field of ['heldBy:null','heldAt:null','heldUntil:null','partySize:null'])assert.match(manager,new RegExp(field));
 });
 
 test('reserved customer seats are visible and cannot be selected',()=>{

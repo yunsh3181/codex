@@ -9,7 +9,8 @@ const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'seat/index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 
-function createSeatManager(initialStatus='empty'){
+function createSeatManager(initial='empty',dbOverride=null){
+ const initialData=typeof initial==='string'?{status:initial}:{...initial};
  const writes=[];
  const listeners={};
  const dialog={
@@ -43,16 +44,16 @@ function createSeatManager(initialStatus='empty'){
   seatOccupancyDialog:dialog,
   occupiedSeatDialog:occupiedDialog
  };
- const seatSnapshot={forEach(callback){callback({id:'papa-2',data:()=>({status:initialStatus})})}};
+ const seatSnapshot={forEach(callback){callback({id:'papa-2',data:()=>({...initialData})})}};
  const emptySnapshot={docs:[]};
  const db={
- runTransaction:async callback=>callback({get:async ref=>({exists:true,data:()=>({status:initialStatus})}),set(ref,payload,options){writes.push({name:'seats',id:ref.id,payload,options})}}),
+ runTransaction:async callback=>callback({get:async ref=>({exists:true,data:()=>({...initialData})}),set(ref,payload,options){writes.push({name:'seats',id:ref.id,payload,options});Object.assign(initialData,payload)}}),
  collection(name){return {
   doc(id){return {id,async set(payload,options){writes.push({name,id,payload,options})}}},
   onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}
  }}};
  const context={
-  console,db,
+  console,db:dbOverride||db,
   document:{
    body:{classList:{add(){}}},
    getElementById(id){return elements[id]},
@@ -209,4 +210,43 @@ test('reserved seats cannot open occupancy and can return to empty after confirm
  await manager.context.cancelSeatReservation('papa-2');
  assert.equal(manager.writes[0].payload.status,'empty');
  assert.equal(manager.writes[0].payload.reservedAt,null);
+});
+
+test('held seat without orderId warns before reservation and clears its lease',async()=>{
+ const manager=createSeatManager({status:'held',heldBy:'customer-1',heldAt:'OLD',heldUntil:'LATER',partySize:2});
+ assert.match(manager.elements.seatAdmin.innerHTML,/class="seat-reservation-action warning"[^>]*>⚠ 주문중 좌석 예약<\/button>/);
+ let message='';manager.context.confirm=value=>(message=value,true);
+ await manager.context.reserveSeat('papa-2');
+ assert.equal(message,'현재 고객이 주문 중인 좌석입니다. 예약하면 고객의 진행 중인 주문이 초기화됩니다. 예약하시겠습니까?');
+ assert.deepEqual(
+  {status:manager.writes[0].payload.status,heldBy:manager.writes[0].payload.heldBy,heldAt:manager.writes[0].payload.heldAt,heldUntil:manager.writes[0].payload.heldUntil,partySize:manager.writes[0].payload.partySize},
+  {status:'reserved',heldBy:null,heldAt:null,heldUntil:null,partySize:null}
+ );
+});
+
+test('cancelling the held-seat warning performs no write',async()=>{
+ const manager=createSeatManager({status:'held',heldBy:'customer-1'});
+ manager.context.confirm=()=>false;
+ await manager.context.reserveSeat('papa-2');
+ assert.equal(manager.writes.length,0);
+});
+
+test('held seats with orderId, occupied, reserved, and unknown states cannot be reserved',async()=>{
+ for(const initial of [{status:'held',orderId:'order-1'},{status:'occupied'},{status:'reserved'},{status:'mystery'}]){
+  const manager=createSeatManager(initial);
+  assert.doesNotMatch(manager.elements.seatAdmin.innerHTML,/data-reserve-seat="papa-2"/);
+  await manager.context.reserveSeat('papa-2');
+  assert.equal(manager.writes.length,0);
+ }
+});
+
+test('two concurrent admin reservation transactions allow exactly one winner',async()=>{
+ const shared={status:'held',heldBy:'customer-1',writes:0};let locked=Promise.resolve();
+ const sharedDb={collection(name){return {doc(id){return {id}},onSnapshot(success){if(name==='seats')success({forEach(callback){callback({id:'papa-2',data:()=>({status:'held',heldBy:'customer-1'})})}});else success({docs:[]})}}},runTransaction(callback){const run=locked.then(async()=>{let pending=null;await callback({get:async()=>({exists:true,data:()=>({...shared})}),set(ref,payload){pending=payload}});if(pending){Object.assign(shared,pending);shared.writes+=1}});locked=run.catch(()=>{});return run}};
+ const first=createSeatManager({status:'held',heldBy:'customer-1'},sharedDb),second=createSeatManager({status:'held',heldBy:'customer-1'},sharedDb);
+ first.context.confirm=second.context.confirm=()=>true;
+ await Promise.all([first.context.reserveSeat('papa-2'),second.context.reserveSeat('papa-2')]);
+ assert.equal(shared.writes,1);
+ assert.equal(shared.status,'reserved');
+ assert.equal(shared.heldBy,null);
 });

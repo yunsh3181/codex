@@ -24,7 +24,7 @@ assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'
 
 assert.strictEqual([...seats.matchAll(/const statusNames=\{([^}]+)\}/g)].length,1,'seat manager has one canonical status map');
 for(const label of ['빈자리','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
-assert.ok(seats.includes("function normalizedSeatStatus(status){return ['held','occupied','reserved'].includes(status)?status:'empty'}"),'legacy statuses normalize to the reservation-aware state model');
+assert.ok(seats.includes("function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}"),'missing and unknown statuses use distinct safe fallbacks');
 for(const [zone,background,border,color] of [['papa','#eef6ff','#3b82f6','#1d4f91'],['outdoor','#edf9f0','#3b9b5f','#176b35'],['annex','#fff1f1','#dc4c52','#9f2028'],['room','#fff6e8','#ee9b2e','#9a5700']])assert.ok(seatCss.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`),`${zone} keeps its zone palette`);
 assert.ok(seatCss.includes('.simple-seat.held em i{background:#d97706}'),'ordering seats use an orange status dot');
 assert.ok(seatCss.includes('.simple-seat.occupied em i{background:#c62828}'),'in-use seats use a red status dot');
