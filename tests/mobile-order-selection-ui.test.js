@@ -7,13 +7,18 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const phone=fs.readFileSync(path.join(root,'styles/device-phone.css'),'utf8');
 
-test('phone order selection exposes four complete cards in a two-column grid',()=>{
-  assert.match(html,/class="mobileOrderTypeGrid"/);
-  for(const handler of ['startDineIn()','startTakeout()','startHappyHourBanner()','startTakeoutDiscountBanner()']){
-    assert.ok(html.includes(`onclick="${handler}"`),handler);
-  }
+test('phone home renders exactly two order-type cards without duplicate benefit cards',()=>{
+  const grid=html.match(/<div class="mobileOrderTypeGrid">([\s\S]*?)<\/div>\s*<div class="heroPromoStrip">/)?.[1]||'';
+  assert.equal((grid.match(/class="mobileOrderTypeCard/g)||[]).length,2);
+  for(const handler of ['startDineIn()','startTakeout()'])assert.ok(grid.includes(`onclick="${handler}"`),handler);
+  for(const handler of ['startHappyHourBanner()','startTakeoutDiscountBanner()'])assert.ok(!grid.includes(`onclick="${handler}"`),handler);
   assert.match(phone,/body\[data-step="home"\] \.mobileOrderTypeGrid \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(phone,/\.mobileOrderTypeCard \{[\s\S]*?min-height: 104px;[\s\S]*?touch-action: manipulation/);
+  assert.match(phone,/\.mobileOrderTypeCard\.dinein \{[\s\S]*?background: #087348 !important/);
+  assert.match(phone,/\.mobileOrderTypeCard\.takeout \{[\s\S]*?background: #c8102e !important/);
+  assert.match(phone,/\.mobileOrderTypeCard :where\(\.mobileOrderTypeIcon, strong, span\) \{[\s\S]*?color: #ffffff !important/);
+  assert.match(phone,/\.heroTop > \.heroLangBtn \{[\s\S]*?background: #ffffff !important;[\s\S]*?color: #111111 !important/);
+  assert.match(phone,/\.heroTop > \.heroLangBtn span \{[\s\S]*?color: #111111 !important/);
   assert.doesNotMatch(phone,/\.mobileOrderTypeCard[^{]*\{[^}]*(?:display:\s*none|text-overflow:\s*ellipsis)/);
 });
 
