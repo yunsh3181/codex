@@ -9,9 +9,9 @@ const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'seat/index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 
-function createSeatManager(initial='empty',dbOverride=null){
+function createSeatManager(initial='empty',dbOverride=null,options={}){
  const initialData=typeof initial==='string'?{status:initial}:{...initial};
- const writes=[];
+ const writes=[],alerts=[];
  const listeners={};
  const dialog={
   open:false,
@@ -47,7 +47,7 @@ function createSeatManager(initial='empty',dbOverride=null){
  const seatSnapshot={forEach(callback){callback({id:'papa-2',data:()=>({...initialData})})}};
  const emptySnapshot={docs:[]};
  const db={
- runTransaction:async callback=>callback({get:async ref=>({exists:true,data:()=>({...initialData})}),set(ref,payload,options){writes.push({name:'seats',id:ref.id,payload,options});Object.assign(initialData,payload)}}),
+ runTransaction:async callback=>{options.beforeTransaction?.();return callback({get:async ref=>({exists:true,data:()=>({...initialData})}),set(ref,payload,writeOptions){writes.push({name:'seats',id:ref.id,payload,options:writeOptions});Object.assign(initialData,payload)}})},
  collection(name){return {
   doc(id){return {id,async set(payload,options){writes.push({name,id,payload,options})}}},
   onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}
@@ -59,7 +59,7 @@ function createSeatManager(initial='empty',dbOverride=null){
    getElementById(id){return elements[id]},
    querySelector(selector){return buttons[selector]||null}
   },
-  window:{top:null},location:{replace(){},assign(url){context.assignedUrl=url}},encodeURIComponent,alert(){},confirm(){return false},prompt(){return null},
+  window:{top:null,PJ_BOTTLE_SEAT_POLICY:{SUPPORTED_END_YEAR:2030,isBottleSeat:id=>String(id).startsWith('annex-')||String(id).startsWith('room-'),getBottleSeatAvailability:()=>({available:options.available!==false,reason:options.available===false?'after-close':'open'}),millisecondsUntilNextBoundary:()=>86400000}},location:{replace(){},assign(url){context.assignedUrl=url}},encodeURIComponent,alert(message){alerts.push(message)},confirm(){return false},prompt(){return null},
   setInterval(){},
   firebase:{
    auth(){return {onAuthStateChanged(callback){callback({getIdTokenResult:async()=>({claims:{admin:true}})})},signOut:async()=>{}}},
@@ -68,7 +68,7 @@ function createSeatManager(initial='empty',dbOverride=null){
  };
  context.window.top=context.window;
  vm.runInNewContext(source,context);
- return {context,dialog,occupiedDialog,elements,listeners,writes};
+ return {context,dialog,occupiedDialog,elements,listeners,writes,alerts,initialData};
 }
 
 function clickTarget(seatId,tag='button',insideSeatAdmin=true){
@@ -238,6 +238,32 @@ test('held seats with orderId, occupied, reserved, and unknown states cannot be 
   await manager.context.reserveSeat('papa-2');
   assert.equal(manager.writes.length,0);
  }
+});
+
+test('bottle reservation rechecks hours inside transaction while cancellation remains allowed',async()=>{
+ const boundary={available:true,beforeTransaction(){this.available=false}};
+ const manager=createSeatManager('empty',null,boundary);
+ await manager.context.reserveSeat('annex-1');
+ assert.equal(manager.writes.length,0);
+ assert.equal(manager.initialData.status,'empty');
+ assert.deepEqual(manager.alerts,['운영시간 외에는 예약할 수 없습니다.']);
+ const heldBoundary={available:true,beforeTransaction(){this.available=false}};
+ const held=createSeatManager({status:'held',heldBy:'customer-1'},null,heldBoundary);held.context.confirm=()=>true;
+ await held.context.reserveSeat('annex-1');
+ assert.equal(held.writes.length,0);assert.equal(held.initialData.status,'held');
+ const cancellation=createSeatManager('reserved',null,{available:false});cancellation.context.confirm=()=>true;
+ await cancellation.context.cancelSeatReservation('annex-1');
+ assert.equal(cancellation.writes.length,1);assert.equal(cancellation.writes[0].payload.status,'empty');
+});
+
+test('bottle manual occupancy rechecks hours on confirm while existing occupied release remains allowed',async()=>{
+ const boundary={available:true};const manager=createSeatManager('empty',null,boundary);
+ await manager.context.manageSeat('annex-1');assert.equal(manager.dialog.open,true);
+ boundary.available=false;await manager.listeners['confirm:click']();
+ assert.equal(manager.dialog.open,false);assert.equal(manager.writes.length,0);assert.equal(manager.initialData.status,'empty');
+ assert.deepEqual(manager.alerts,['운영시간 외에는 사용중으로 변경할 수 없습니다.']);
+ const occupied=createSeatManager('occupied',null,{available:false});vm.runInContext("docs['annex-1']={status:'occupied'};render()",occupied.context);await occupied.context.manageSeat('annex-1');await occupied.listeners['occupied-clear:click']();
+ assert.equal(occupied.writes.length,1);assert.equal(occupied.writes[0].payload.status,'empty');
 });
 
 test('two concurrent admin reservation transactions allow exactly one winner',async()=>{
