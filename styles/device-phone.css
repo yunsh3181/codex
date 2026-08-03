@@ -1891,3 +1891,327 @@ html[data-layout="phone"] body[data-step="home"] .heroTop > .heroLangBtn span {
   color: #111111 !important;
   text-shadow: none !important;
 }
+
+/* Phone review is a natural-height document. Keep the fixed navigation clear of
+ * the final content and never compress long orders into miniature columns. */
+html[data-layout="phone"] body[data-step="review"] {
+  min-height: 100dvh;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+html[data-layout="phone"] body[data-step="review"] .stage,
+html[data-layout="phone"] body[data-step="review"].reviewCompact1 .stage,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .stage {
+  display: block !important;
+  width: 100%;
+  min-height: 0 !important;
+  padding: 16px 12px calc(92px + var(--safe-bottom)) !important;
+  overflow: visible !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .title,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .title {
+  margin: 0 0 6px;
+  font-size: 24px !important;
+  line-height: 1.3 !important;
+}
+
+html[data-layout="phone"] body[data-step="review"] .sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewOrderList,
+html[data-layout="phone"] body[data-step="review"].reviewCompact1 .reviewOrderList,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderList {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px !important;
+  margin: 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewOrderCard,
+html[data-layout="phone"] body[data-step="review"].reviewCompact1 .reviewOrderCard,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewOrderCard {
+  display: block;
+  height: auto;
+  margin: 0;
+  padding: 14px !important;
+  border-radius: 14px;
+  letter-spacing: normal;
+  line-height: 1.35 !important;
+  overflow: visible;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartCategory {
+  padding: 10px 0;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartCategory + .cartCategory {
+  border-top: 1px solid var(--line);
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartCategory h2 {
+  margin: 0 0 7px;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 12px;
+  padding: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaMeta span {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaToppingLine {
+  align-items: flex-start;
+  padding: 4px 0 9px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceBreakdown,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f6f8f6;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 4px 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine strong {
+  min-width: 72px;
+  margin-left: 0;
+  letter-spacing: normal !important;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartPizzaPriceLine.final {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #b9c1ba;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartItemSummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(72px, auto);
+  gap: 8px;
+  align-items: start;
+  padding: 5px 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartItemName {
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.cartItemQuantity, .cartItemPrice) {
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.cartBenefitRow, .cartOrderTotal) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] :where(.cartBenefitRow, .cartOrderTotal) strong {
+  min-width: 72px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartOrderTotal {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 2px solid #222;
+  font-size: 18px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartOrderActions {
+  display: grid;
+  grid-template-columns: 52px 52px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .cartOrderActions button {
+  min-width: 0;
+  min-height: 46px;
+  padding: 8px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore {
+  display: block;
+  margin: 14px 0 0;
+  padding: 14px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMoreGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMoreGrid button {
+  min-width: 0;
+  min-height: 46px;
+  padding: 7px 4px;
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewAddMore p {
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox {
+  display: block;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #d9dfda;
+  border-radius: 14px;
+  letter-spacing: normal;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .line,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewDiscountBox .line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .line strong {
+  min-width: 86px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewDiscountBox .final {
+  margin-top: 6px;
+  padding-top: 12px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewConfirmBtn,
+html[data-layout="phone"] body[data-step="review"].reviewCompact2 .reviewConfirmBtn {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 14px;
+  padding: 12px;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+html[data-layout="phone"] body[data-step="review"] .reviewConfirmNote {
+  position: static;
+  margin: 8px 0 0;
+  padding: 0;
+  background: transparent;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Use existing home-card height more efficiently for larger, clearer copy. */
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard {
+  gap: 7px !important;
+  padding: 12px 8px !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeIcon,
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeIcon .uiIcon {
+  width: 28px;
+  height: 28px;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard strong {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard > span:last-child {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo {
+  gap: 4px !important;
+  padding: 10px 5px !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+  margin: 0;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(strong, .takeoutDiscount) {
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(p, .takeoutSizeNote) {
+  margin-block: 2px;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}

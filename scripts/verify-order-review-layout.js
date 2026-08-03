@@ -49,6 +49,20 @@ const scenarios = [
     extras: true,
     orderCount: 1,
   },
+  {
+    name: 'long-complex-order',
+    promo: 'takeout',
+    size: 'L',
+    mode: 'half',
+    set: null,
+    right: 'P002',
+    crust: '치즈롤',
+    left: 'P003',
+    topping: true,
+    extras: true,
+    orderCount: 4,
+    quantity: 2,
+  },
 ];
 
 app.commandLine.appendSwitch('headless');
@@ -103,7 +117,9 @@ const fixtureScript = (locale, scenario) => `
     });
     const snapshot = orderSnapshot();
     state.cartItems = Array.from(
-      { length: ${JSON.stringify(scenario.orderCount || 1)} },
+      { length: document.documentElement.dataset.layout === 'phone'
+        ? ${JSON.stringify(scenario.orderCount || 1)}
+        : 1 },
       () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
     );
     clearCurrentProduct();
@@ -180,6 +196,25 @@ const measureScript = `
       .map(element => ({ className: element.className, bottom: element.getBoundingClientRect().bottom }))
       .sort((left, right) => right.bottom - left.bottom)[0];
     const reviewContentBottom = lastContent.bottom;
+    const stage = document.querySelector('.stage');
+    const stagePaddingBottom = parseFloat(getComputedStyle(stage).paddingBottom) || 0;
+    const horizontalOverflow = Math.max(0, root.scrollWidth - innerWidth);
+    const verticalScrollable = root.scrollHeight > innerHeight + 1;
+    const contentBottomGap = cartbarRect ? stagePaddingBottom - cartbarRect.height : stagePaddingBottom;
+    const visibleCoreRects = coreTextTargets
+      .filter(element => getComputedStyle(element).display !== 'none')
+      .map(element => ({ element, rect: element.getBoundingClientRect() }))
+      .filter(({ rect }) => rect.width > 0 && rect.height > 0);
+    const overlaps = [];
+    for (let left = 0; left < visibleCoreRects.length; left += 1) {
+      for (let right = left + 1; right < visibleCoreRects.length; right += 1) {
+        const a = visibleCoreRects[left], b = visibleCoreRects[right];
+        if (a.element.contains(b.element) || b.element.contains(a.element)) continue;
+        const width = Math.min(a.rect.right, b.rect.right) - Math.max(a.rect.left, b.rect.left);
+        const height = Math.min(a.rect.bottom, b.rect.bottom) - Math.max(a.rect.top, b.rect.top);
+        if (width > 1 && height > 1) overlaps.push([a.element.className, b.element.className]);
+      }
+    }
     return {
       viewport: { width: innerWidth, height: innerHeight },
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
@@ -191,6 +226,10 @@ const measureScript = `
       },
       scroll: { width: root.scrollWidth, height: root.scrollHeight },
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
+      horizontalOverflow,
+      verticalScrollable,
+      contentBottomGap,
+      overlapCount: overlaps.length,
       clipped: clipped.map(element => ({
         text: element.textContent.trim(),
         tagName: element.tagName,
@@ -290,10 +329,18 @@ app.whenReady().then(async () => {
       }
     }
     if (captureScreenshots) {
-      const captureScenario = scenarios.find(scenario => scenario.name === 'max-categories');
+      const captureScenario = scenarios.find(scenario => scenario.name === 'long-complex-order');
       await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
       await waitForPaint();
       await captureExact(window, viewport, 'after');
+      if (viewport.width <= 390) {
+        await window.webContents.executeJavaScript('window.scrollTo(0, document.documentElement.scrollHeight)', true);
+        await captureExact(window, viewport, 'after-bottom');
+        await window.webContents.executeJavaScript("state.step='home'; render(); window.scrollTo(0, 0)", true);
+        await captureExact(window, viewport, 'home-after');
+        await window.webContents.executeJavaScript(fixtureScript('es', captureScenario), true);
+        await captureExact(window, viewport, 'es-after');
+      }
       if (beforeSha) {
         const baselineCss = ['phone', 'tablet', 'kiosk21']
           .map(device => execFileSync(
