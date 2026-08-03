@@ -1000,52 +1000,96 @@ html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .stage {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup {
-  margin-top: -8px;
+  margin: 0;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionBtn {
-  min-height: 44px;
-  padding: 2px 4px;
-  line-height: 1;
+  min-height: 72px;
+  padding: 11px 7px;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionContinue {
-  min-height: 44px;
-  line-height: 1;
+  min-height: 48px;
+  padding: 11px 10px;
+  font-size: 18px;
+  line-height: 1.2;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection {
-  margin-bottom: 0;
-  padding: 0 6px;
+  margin-bottom: 7px;
+  padding: 9px 10px 10px;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
-  margin-bottom: 0;
+  margin-bottom: 7px;
+  font-size: 18px;
+  line-height: 1.25;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup > .title,
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup > .sub {
-  margin-bottom: 0;
-  line-height: 1;
+  line-height: 1.25;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup > .title {
+  margin-bottom: 3px;
+  font-size: 27px;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSetup > .sub {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .noPizzaCard {
+  width: 100%;
+  margin-bottom: 7px;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionReason {
-  display: inline;
-  margin: 0 0 0 2px;
-  line-height: 1;
-  letter-spacing: -0.5px;
+  display: block;
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionPrice {
-  display: inline;
-  margin: 0 0 0 2px;
+  display: block;
+  margin: 4px 0 0;
+  font-size: 11px;
   line-height: 1.25;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.2px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionBtn.active {
+  border-width: 3px;
+  box-shadow: 0 0 0 3px rgba(215, 25, 32, .14);
+}
+
+html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSelectedBadge {
+  top: 4px;
+  right: 4px;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.15;
 }
 
 /* Half-and-half indicator and pizza list stay compact above the fixed summary. */
