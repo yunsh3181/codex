@@ -24,7 +24,7 @@ assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'
 
 assert.strictEqual([...seats.matchAll(/const statusNames=\{([^}]+)\}/g)].length,1,'seat manager has one canonical status map');
 for(const label of ['빈자리','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
-assert.ok(seats.includes("function normalizedSeatStatus(status){return status==='held'?'held':status==='occupied'?'occupied':'empty'}"),'legacy statuses normalize to the three-state model');
+assert.ok(seats.includes("function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}"),'missing and unknown statuses use distinct safe fallbacks');
 for(const [zone,background,border,color] of [['papa','#eef6ff','#3b82f6','#1d4f91'],['outdoor','#edf9f0','#3b9b5f','#176b35'],['annex','#fff1f1','#dc4c52','#9f2028'],['room','#fff6e8','#ee9b2e','#9a5700']])assert.ok(seatCss.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`),`${zone} keeps its zone palette`);
 assert.ok(seatCss.includes('.simple-seat.held em i{background:#d97706}'),'ordering seats use an orange status dot');
 assert.ok(seatCss.includes('.simple-seat.occupied em i{background:#c62828}'),'in-use seats use a red status dot');
@@ -32,7 +32,7 @@ assert.ok(seatCss.includes('.simple-seat.empty,.simple-seat.held{background:#fff
 assert.ok(seatCss.includes('.simple-seat.occupied{background:#fff1f1;border-color:#ef4444;color:#7f1d1d}'),'occupied seat manager cards override zone colors with the red tint');
 for(const icon of ['🟢','🟡','🔴'])assert.ok(seats.includes(icon),`${icon} is shown in the seat manager`);
 assert.ok(seatCss.includes('transition:background-color 180ms ease'),'seat cards use a restrained 180ms transition');
-assert.ok(kiosk.includes("const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴'}"),'kiosk uses the same status icons');
+assert.ok(kiosk.includes("const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴',reserved:'🟣'}"),'kiosk uses the reservation-aware status icons');
 assert.ok(kiosk.includes('.tableCard.available,.tableCard:not(.selected):not(.occupiedCard){background:#E8F7EC'),'kiosk available cards use the unified green');
 assert.ok(kiosk.includes('.tableCard.ordering,.tableCard.selected{background:#FFF4D6'),'kiosk ordering cards use the unified yellow');
 assert.ok(kiosk.includes('.tableCard.occupiedCard.occupied{background:#FDE7E7'),'kiosk occupied cards use the unified red');
