@@ -2,13 +2,14 @@ const { app, BrowserWindow, nativeImage } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { runElectronVerification } = require('./electron-verification-lifecycle');
 
 const root = path.resolve(__dirname, '..');
 const outputDir = process.env.MOBILE_PIZZA_GRID_OUTPUT || path.join(app.getPath('temp'), 'mobile-pizza-grid');
 const reportPath = process.env.MOBILE_PIZZA_GRID_REPORT || path.join(outputDir, 'measurements.json');
 const beforeSha = process.env.MOBILE_PIZZA_GRID_BEFORE || null;
 const capture = process.argv.includes('--screenshots');
-const userDataPath = path.join(app.getPath('temp'), `mobile-pizza-grid-${process.pid}`);
+const userDataPath = process.env.ELECTRON_VERIFICATION_USER_DATA || path.join(app.getPath('temp'), `mobile-pizza-grid-${process.pid}`);
 fs.mkdirSync(outputDir, { recursive: true });
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
@@ -134,15 +135,15 @@ const prepareBaseline = baselinePath => {
   return true;
 };
 
-app.whenReady().then(async () => {
-  const window = new BrowserWindow({
+runElectronVerification({ app }, async lifecycle => {
+  const window = lifecycle.trackWindow(new BrowserWindow({
     show: false, frame: false, useContentSize: true,
     webPreferences: { contextIsolation: true, offscreen: true, sandbox: true },
-  });
-  window.webContents.debugger.attach('1.3');
+  }));
+  lifecycle.attachDebugger();
   const results = [];
   const localeResults = [];
-  const baselinePath = path.join(app.getPath('temp'), `mobile-pizza-grid-baseline-${process.pid}.html`);
+  const baselinePath = path.join(userDataPath, `mobile-pizza-grid-baseline-${process.pid}.html`);
   const hasBaseline = prepareBaseline(baselinePath);
   for (const viewport of viewports) {
     window.setContentSize(viewport.width, viewport.height);
@@ -203,9 +204,4 @@ app.whenReady().then(async () => {
   }
   fs.writeFileSync(reportPath, `${JSON.stringify({ baselineComparison, viewports, scenarios, locales, results, localeResults }, null, 2)}\n`);
   if (hasBaseline) fs.unlinkSync(baselinePath);
-  window.destroy();
-  app.quit();
-}).catch(error => {
-  console.error(error);
-  app.exit(1);
 });

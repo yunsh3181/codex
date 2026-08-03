@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 
@@ -25,20 +26,26 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
     }
   }
   const outputDir = path.join(os.tmpdir(), `mobile-order-pizza-grid-test-${process.pid}`);
+  const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'mobile-pizza-grid-profile-'));
+  t.after(() => fs.rmSync(outputDir, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(userDataPath, { recursive: true, force: true }));
   const reportPath = path.join(outputDir, 'measurements.json');
-  const run = spawnSync(command, args, {
+  const run = spawnElectronSync(command, args, {
     cwd: root,
     encoding: 'utf8',
     env: {
       ...process.env,
       MOBILE_PIZZA_GRID_OUTPUT: outputDir,
       MOBILE_PIZZA_GRID_REPORT: reportPath,
+      ELECTRON_VERIFICATION_USER_DATA: userDataPath,
       ELECTRON_DISABLE_SECURITY_WARNINGS: 'true',
     },
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
+  assert.equal(run.status, 0, electronResultDetails(run));
+  assert.equal(run.signal, null, electronResultDetails(run));
+  assert.equal(run.error, undefined, electronResultDetails(run));
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   assert.deepEqual(report.baselineComparison, {
     requested: false,
