@@ -2201,6 +2201,7 @@ try{
 <script src="i18n/ui.js?v=50"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
+<script src="bottle-seat-policy.js?v=1"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
 <script>window.PJ_KIOSK_DIAGNOSTICS?.record('remote-module-check',{source:'index.html:remote-module-check'})</script>
 <script src="test-mode-remote-channel.js?v=1"></script>
@@ -2225,7 +2226,7 @@ function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/im
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
 const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
 const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
-let seatReservationConflictActive=false;let seatOrderCommitStarted=false;
+let seatReservationConflictActive=false;let bottleHoursConflictActive=false;let seatOrderCommitStarted=false;let bottlePolicyTimer=null;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
  const version=typeof value==='string'?value.trim():'';
@@ -2251,6 +2252,16 @@ function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.
 function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
+const BOTTLE_COPY={ko:{before:'오전 11시부터 이용 가능',after:'오늘 운영 종료',weekend:'주말 이용 불가',holiday:'공휴일 이용 불가',unsupported:'현재 이용할 수 없습니다',conflict:'보틀석과 보틀룸 이용시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},en:{before:'Available from 11:00 AM',after:'Closed for today',weekend:'Unavailable on weekends',holiday:'Unavailable on public holidays',unsupported:'Currently unavailable',conflict:'Bottle seating hours have ended. Please choose another seat.'},ja:{before:'午前11時から利用可能',after:'本日の営業終了',weekend:'週末は利用不可',holiday:'祝日は利用不可',unsupported:'現在利用できません',conflict:'ボトル席・ルームの利用時間が終了しました。他の席を選択してください。'},zh:{before:'上午11点起可用',after:'今日营业已结束',weekend:'周末不可用',holiday:'节假日不可用',unsupported:'当前不可用',conflict:'瓶座和包间的使用时间已结束。请选择其他座位。'},vi:{before:'Có thể dùng từ 11:00',after:'Đã hết giờ hôm nay',weekend:'Không phục vụ cuối tuần',holiday:'Không phục vụ ngày lễ',unsupported:'Hiện không khả dụng',conflict:'Đã hết giờ sử dụng khu PapaBottle và ROOM. Vui lòng chọn chỗ khác.'},es:{before:'Disponible desde las 11:00',after:'Cerrado por hoy',weekend:'No disponible los fines de semana',holiday:'No disponible en festivos',unsupported:'No disponible actualmente',conflict:'El horario de PapaBottle y ROOM ha terminado. Elige otro asiento.'}};
+const bottlePolicy=window.PJ_BOTTLE_SEAT_POLICY||{isBottleSeat:()=>false,getBottleSeatAvailability:()=>({available:true,reason:'open',supported:true}),millisecondsUntilNextBoundary:()=>86400000};
+function bottleCopy(){return BOTTLE_COPY[window.PJ_I18N?.currentLanguage?.()]||BOTTLE_COPY.ko}
+function bottleAvailability(now=new Date()){return bottlePolicy.getBottleSeatAvailability(now)}
+function bottleReason(a=bottleAvailability()){return bottleCopy()[{'before-open':'before','after-close':'after',weekend:'weekend',holiday:'holiday','unsupported-year':'unsupported','invalid-date':'unsupported'}[a.reason]||'unsupported']}
+function selectedBottleSeat(){return state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))}
+function showBottleHoursConflict(){if(bottleHoursConflictActive||seatReservationConflictActive||state.firebaseOrderId||seatOrderCommitStarted)return;bottleHoursConflictActive=true;state.modal='bottleHoursConflict';render()}
+async function confirmBottleHoursConflict(){const ids=[...state.selectedTables];bottleHoursConflictActive=false;await releaseSeats(ids);reset();seatOrderCommitStarted=false;render()}
+function checkBottleHoursBoundary(){if(selectedBottleSeat()&&!bottleAvailability().available)showBottleHoursConflict();else if(['area','table'].includes(state.step))render();scheduleBottlePolicyBoundary()}
+function scheduleBottlePolicyBoundary(){if(typeof setTimeout!=='function')return;if(typeof clearTimeout==='function')clearTimeout(bottlePolicyTimer);bottlePolicyTimer=setTimeout(checkBottleHoursBoundary,bottlePolicy.millisecondsUntilNextBoundary()+25)}
 
 function isBusinessOpen(){return window.PJ_BUSINESS_HOURS?window.PJ_BUSINESS_HOURS.isOpen():true}
 function isTestModeEnabled(){return kioskTestModeController?.isEnabled()===true}
@@ -2822,6 +2833,7 @@ function areaHoursText(area){
 }
 function areaSchedulePolicy(area){
  if(isTestModeEnabled())return {allowed:true,reason:t('seat.reason.availableNow'),alcoholOnly:false};
+ if(area==='annex'||area==='room'){const availability=bottleAvailability();return {allowed:availability.available,reason:availability.available?t('seat.reason.weekdayAvailable'):bottleReason(availability),alcoholOnly:false}}
  const {day,minutes}=seoulClock();
  const weekday=!['Sat','Sun'].includes(day);
  if(area==='papa'||area==='outdoor'){
@@ -2950,9 +2962,11 @@ function selectArea(id){
 }
 async function claimSeat(id){
  if(isTestModeEnabled())return;
+ if(bottlePolicy.isBottleSeat(id)&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}
  const ref=db.collection('seats').doc(id),now=Date.now();
  await db.runTransaction(async transaction=>{
   const snapshot=await transaction.get(ref),saved=snapshot.exists?snapshot.data():{};
+  if(bottlePolicy.isBottleSeat(id)&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}
   if(seatIsUnavailable(saved)&&saved.heldBy!==seatClientId)throw new Error('SEAT_UNAVAILABLE');
   transaction.set(ref,{status:'held',heldBy:seatClientId,heldAt:saved.heldAt||firebase.firestore.FieldValue.serverTimestamp(),heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
  });
@@ -2977,6 +2991,7 @@ function armSeatIdleTimer(){
 async function toggleTable(id){
  const table=getAreaTables(state.diningArea).find(t=>t.id===id);
  if(!table||table.occupied)return;
+ if(bottlePolicy.isBottleSeat(id)&&!bottleAvailability().available){alert(bottleReason());return}
  const needed=requiredTableCount();
  if(state.selectedTables.includes(id)){
    await releaseSeats([id]);
@@ -2986,7 +3001,7 @@ async function toggleTable(id){
      if(needed===1){const previous=[...state.selectedTables];await claimSeat(id);state.selectedTables=[id];await releaseSeats(previous)}
      else return alert(t('ui.seatExtra.maxTables',{count:needed}))
    }else{
-    try{await claimSeat(id);state.selectedTables=[...state.selectedTables,id]}catch(error){alert(t('seat.currentUnavailable'));return}
+    try{await claimSeat(id);state.selectedTables=[...state.selectedTables,id]}catch(error){alert(error?.code==='BOTTLE_HOURS_CLOSED'?bottleReason():t('seat.currentUnavailable'));return}
    }
  }
  armSeatIdleTimer();render()
@@ -2997,6 +3012,7 @@ function selectedSeatCount(){
 }
 function confirmTables(){
  if(!tableSelectionValid())return;
+ if(selectedBottleSeat()&&!bottleAvailability().available){showBottleHoursConflict();return}
  state.step='promo';render()
 }
 
@@ -3508,6 +3524,7 @@ function chooseFinalUpsell(type){
 
 function modalView(){
 if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
+if(state.modal==='bottleHoursConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true"><h2>${bottleReason()}</h2><p>${bottleCopy().conflict}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmBottleHoursConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='happyRecommendation')return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="happyRecommendationTitle"><div class="benefitHelperIcon">${uiIcon("clock")}</div><h2 id="happyRecommendationTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.available',{benefit:benefitName('happy')})}</p><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${benefitName('takeout')}<br>${t('ui.sizeScreen.discountUnavailable')}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(SETTINGS.HAPPY_PRICE)}</div></div><div class="benefitActions"><button class="benefitApply" onclick="changeToHappyHour()">${t('ui.recommendation.apply')}</button><button class="keepBenefit" onclick="keepTakeoutRegular()">${t('ui.recommendation.keep')}</button></div></div></div>`;
 if(state.modal==='finalUpsell')return `<div class="backdrop"><div class="finalUpsellModal"><div class="finalUpsellIcon">${uiIcon("cart")}</div><h2>${t('ui.modal.finalTitle')}</h2><p>${t('ui.modal.finalDesc')}</p><div class="finalUpsellGrid"><button class="finalNo" onclick="chooseFinalUpsell('none')">${t('ui.modal.noReview')}</button><button class="finalPizza" onclick="chooseFinalUpsell('pizza')">${uiIcon("pizza")} ${t('ui.modal.addPizza')}</button><button class="finalSide" onclick="chooseFinalUpsell('side')">${uiIcon("side")} ${t('ui.modal.addSide')}</button><button class="finalDrink" onclick="chooseFinalUpsell('drink')">${uiIcon("drink")} ${t('ui.modal.addDrink')}</button></div></div></div>`;
 if(state.modal==='betterBenefit'){const list=state.pendingBenefit||[],current=list[0]?.currentPrice||price().total;return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="betterBenefitTitle"><div class="benefitHelperIcon">${uiIcon("spark")}</div><h2 id="betterBenefitTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.currentSummary',{benefit:eventLabel(),amount:money(current)})}</p><div class="benefitSuggestionList">${list.map(b=>`<section class="benefitSuggestion"><h3>${t('ui.recommendation.available',{benefit:b.id==='set'?setOrderName(effectiveSize()==='R'?2:effectiveSize()==='L'?3:4):benefitName(b.id)})}</h3><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${eventLabel()}<br>${money(b.currentPrice)}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(b.price)}</div></div><div class="benefitValueLines"><span>${t('ui.recommendation.paymentSaving')} <b>${money(b.saving)}</b></span>${b.extraValue?`<span>${t('ui.recommendation.extraValue')} <b>${money(b.extraValue)}</b></span><span>${t('ui.recommendation.totalValue')} <b>${money(b.totalValue)}</b></span>`:''}</div>${b.changes.length?`<p class="benefitChanges">${b.changes.join('<br>')}</p>`:''}<button class="benefitApply" onclick="applySuggestedBenefit('${b.id}')">${t('ui.recommendation.apply')}</button></section>`).join('')}</div><div class="benefitActions"><button class="keepBenefit" onclick="keepCurrentBenefit()">${t('ui.recommendation.keep')}</button></div></div></div>`}
@@ -3606,6 +3623,7 @@ function buildMobileOrderPayload(){
 }
 async function submitMobileOrder(){
  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
+ if(selectedBottleSeat()&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}
  if(!window.PJ_NETWORK.isOnline())throw new Error(t('ui.payment.saveFailedConnection'));
  const payload=buildMobileOrderPayload();
  if(!['dinein','takeout'].includes(payload.orderType))throw new Error(t('ui.payment.invalidOrderType'));
@@ -3618,7 +3636,8 @@ async function submitMobileOrder(){
  const seatRefs=state.orderType==='dinein'?state.selectedTables.map(id=>db.collection('seats').doc(id)):[];
  seatOrderCommitStarted=true;
  await db.runTransaction(async transaction=>{
-  const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
+ const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
+  if(state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}
   if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
   if(seatSnapshots.some(snapshot=>snapshot.exists&&snapshot.data().status==='reserved')){const error=new Error('SEAT_RESERVED');error.code='SEAT_RESERVED';throw error}
   if(seatSnapshots.some(snapshot=>!snapshot.exists||snapshot.data().status!=='held'||snapshot.data().heldBy!==seatClientId))throw new Error(t('seat.currentUnavailable'));
@@ -3655,6 +3674,7 @@ async function complete(event){
   console.error(error);
   seatOrderCommitStarted=false;
   if(error?.code==='SEAT_RESERVED'||error?.message==='SEAT_RESERVED'){showSeatReservationConflict();return}
+  if(error?.code==='BOTTLE_HOURS_CLOSED'||error?.message==='BOTTLE_HOURS_CLOSED'){showBottleHoursConflict();return}
   alert(t('ui.payment.saveFailedConnection')+'\n'+error.message);
   if(errorBox)errorBox.textContent=error.message||t('ui.payment.saveFailed');if(button){button.disabled=false;button.textContent=t('ui.payment.submit')}
  }
@@ -3690,16 +3710,18 @@ document.addEventListener('keydown',function(event){
 },true);
 
 db.collection('seats').onSnapshot(
- snap=>{mobileSeatDocs={};snap.forEach(d=>mobileSeatDocs[d.id]=d.data());const selectedReserved=state.orderType==='dinein'&&!state.firebaseOrderId&&state.selectedTables.some(id=>mobileSeatDocs[id]?.status==='reserved');if(selectedReserved&&!seatOrderCommitStarted)showSeatReservationConflict();else if(['area','table'].includes(state.step))render()},
+ snap=>{mobileSeatDocs={};snap.forEach(d=>mobileSeatDocs[d.id]=d.data());const selectedReserved=state.orderType==='dinein'&&!state.firebaseOrderId&&state.selectedTables.some(id=>mobileSeatDocs[id]?.status==='reserved');if(selectedReserved&&!seatOrderCommitStarted)showSeatReservationConflict();else if(selectedBottleSeat()&&!bottleAvailability().available)showBottleHoursConflict();else if(['area','table'].includes(state.step))render()},
  error=>console.error('Firestore seats subscription failed',error)
 );
 db.collection('waitlist').onSnapshot(
  snap=>{mobileWaitlist=snap.docs.map(d=>({id:d.id,...d.data()}));if(state.step==='table')render()},
  error=>console.error('Firestore waitlist subscription failed',error)
 );
-mobileSeatTimer=setInterval(()=>{if(isOrderingAllowed()&&state.step==='table')render()},30000);
+scheduleBottlePolicyBoundary();
+window.addEventListener?.('focus',checkBottleHoursBoundary);
+document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)checkBottleHoursBoundary()});
 ['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
-window.addEventListener('pagehide',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
+window.addEventListener('pagehide',()=>{clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();
 window.__PJ_BOOT_OK=true;

@@ -1,0 +1,4 @@
+.simple-seat.outside-hours{background:#e5e7eb!important;border-color:#9ca3af!important;color:#4b5563!important;box-shadow:none!important}
+.simple-seat.outside-hours:hover{background:#e5e7eb!important;border-color:#9ca3af!important}
+.outside-hours-badge{display:block;margin-top:5px;padding:3px 5px;border-radius:6px;background:#4b5563;color:#fff;font-size:10px;font-weight:900;line-height:1.2}
+.seat-summary .policy-renewal{background:#fff7ed;color:#c2410c}
