@@ -35,6 +35,14 @@ test('selected and disabled states remain visible without changing their behavio
   assert.match(html,/\$\{halfDisabled\?'disabled':''\} onclick="selectPizzaMode\('half'\)"/);
 });
 
+test('phone pizza option cards use available height without shrinking text',()=>{
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionBtn \{[\s\S]*?min-height: 72px;[\s\S]*?padding: 11px 7px;[\s\S]*?font-size: 16px;/);
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionSection \{[\s\S]*?margin-bottom: 7px;[\s\S]*?padding: 9px 10px 10px;/);
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionSection > h2 \{[\s\S]*?font-size: 18px;/);
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionReason \{[\s\S]*?font-size: 12px;[\s\S]*?word-break: keep-all;/);
+  assert.match(phone,/body\[data-step="pizzaOptions"\] \.optionBtn\.active \{[\s\S]*?border-width: 3px;[\s\S]*?box-shadow:/);
+});
+
 test('three and four person sets use compact equal composition cards with visible prices',()=>{
   assert.match(html,/class="setOptionCombined setOptionCombined-\$\{state\.set\}"/);
   assert.match(html,/modeMainLabel[^>]*>\$\{t\('ui\.pizzaOptions\.whole'\)\}<\/span><span class="modeBasePrice">\$\{money\(0\)\}/);

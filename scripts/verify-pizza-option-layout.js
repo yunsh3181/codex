@@ -8,6 +8,10 @@ const captureScreenshots = process.argv.includes('--screenshots');
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.PIZZA_OPTION_REPORT || null;
+const screenshotDir = process.env.PIZZA_OPTION_SCREENSHOT_DIR || path.join(root, 'artifacts');
+const promo = process.env.PIZZA_OPTION_PROMO || 'normal';
+if (!['normal', 'takeout'].includes(promo)) throw new Error(`Unsupported promo: ${promo}`);
+if (captureScreenshots) fs.mkdirSync(screenshotDir, { recursive: true });
 const userDataPath = path.join(app.getPath('temp'), `pizza-option-layout-${process.pid}`);
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
@@ -26,10 +30,27 @@ app.commandLine.appendSwitch('force-device-scale-factor', '1');
 const waitForPaint = () => new Promise(resolve => setTimeout(resolve, 120));
 const fixtureScript = locale => `
   (() => {
+    window.__pizzaOptionConsoleMessages = [];
+    if (!window.__pizzaOptionConsoleCaptureInstalled) {
+      window.__pizzaOptionConsoleCaptureInstalled = true;
+      for (const level of ['warn', 'error']) {
+        const original = console[level].bind(console);
+        console[level] = (...args) => {
+          window.__pizzaOptionConsoleMessages.push({ level, text: args.map(String).join(' ') });
+          original(...args);
+        };
+      }
+      addEventListener('error', event => {
+        window.__pizzaOptionConsoleMessages.push({ level: 'error', text: String(event.message) });
+      });
+      addEventListener('unhandledrejection', event => {
+        window.__pizzaOptionConsoleMessages.push({ level: 'error', text: String(event.reason) });
+      });
+    }
     window.PJ_I18N.setLanguage(${JSON.stringify(locale)});
     Object.assign(state, {
       step: 'pizzaOptions',
-      promo: 'normal',
+      promo: ${JSON.stringify(promo)},
       set: null,
       size: 'L',
       dough: '오리지널',
@@ -61,6 +82,13 @@ const measureScript = `
       locale: window.PJ_I18N.currentLanguage(),
       headingColors: headings.map(element => getComputedStyle(element).color),
       guidanceFontSizes: reasons.map(element => parseFloat(getComputedStyle(element).fontSize)),
+      optionCardHeights: [...document.querySelectorAll('.optionSection .optionBtn')]
+        .map(element => element.getBoundingClientRect().height),
+      optionFontSizes: [...document.querySelectorAll('.optionSection .optionBtn')]
+        .map(element => parseFloat(getComputedStyle(element).fontSize)),
+      headingFontSizes: headings.map(element => parseFloat(getComputedStyle(element).fontSize)),
+      priceFontSizes: [...document.querySelectorAll('.optionPrice')]
+        .map(element => parseFloat(getComputedStyle(element).fontSize)),
       badgeCount: badges.length,
       activeCount: document.querySelectorAll('.optionSection .optionBtn.active').length,
       disabledBadgeCount: document.querySelectorAll('.optionBtn:disabled .optionSelectedBadge').length,
@@ -88,6 +116,7 @@ const measureScript = `
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
       contentOverlapPx: Math.max(0, setupRect.bottom - cartbarRect.top),
       layout: root.dataset.layout,
+      consoleMessages: [...(window.__pizzaOptionConsoleMessages || [])],
     };
   })()
 `;
@@ -107,7 +136,7 @@ const captureExact = async (window, viewport, prefix) => {
     );
   }
   fs.writeFileSync(
-    path.join(root, 'artifacts', `pizza-option-${prefix}-${viewport.name}.png`),
+    path.join(screenshotDir, `pizza-option-${prefix}-${viewport.name}.png`),
     image.toPNG()
   );
 };
@@ -125,6 +154,7 @@ app.whenReady().then(async () => {
     },
   });
   const results = [];
+  const visualComparisons = [];
   window.webContents.debugger.attach('1.3');
   for (const viewport of viewports) {
     window.setContentSize(viewport.width, viewport.height);
@@ -143,33 +173,44 @@ app.whenReady().then(async () => {
     }
     if (captureScreenshots) {
       await window.webContents.executeJavaScript(fixtureScript('ko'), true);
+      const currentMeasurement = await window.webContents.executeJavaScript(measureScript, true);
       await captureExact(window, viewport, 'after');
       if (beforeSha) {
         const baseline = execFileSync('git', ['show', `${beforeSha}:index.html`], {
           cwd: root,
           encoding: 'utf8',
         });
+        const baselinePhoneCss = execFileSync(
+          'git',
+          ['show', `${beforeSha}:styles/device-phone.css`],
+          { cwd: root, encoding: 'utf8' }
+        );
         const baselinePath = path.join(
           app.getPath('temp'),
           `pizza-option-baseline-${process.pid}.html`
         );
         const baseHref = `file://${root.replace(/\\/g, '/')}/`;
-        fs.writeFileSync(
-          baselinePath,
-          baseline.replace('<head>', `<head><base href="${baseHref}">`)
-        );
+        const baselineDocument = baseline
+          .replace('<head>', `<head><base href="${baseHref}">`)
+          .replace(
+            /<link rel="stylesheet" href="styles\/device-phone\.css[^>]*>/,
+            `<style>${baselinePhoneCss}</style>`
+          );
+        fs.writeFileSync(baselinePath, baselineDocument);
         await window.loadFile(baselinePath);
         await window.webContents.executeJavaScript(fixtureScript('ko'), true);
+        const baselineMeasurement = await window.webContents.executeJavaScript(measureScript, true);
         await captureExact(window, viewport, 'before');
+        visualComparisons.push({ viewportName: viewport.name, baselineMeasurement, currentMeasurement });
         fs.unlinkSync(baselinePath);
         await window.loadFile(path.join(root, 'index.html'));
       }
     }
   }
-  const report = { viewports, locales, results };
+  const report = { promo, viewports, locales, results, visualComparisons };
   if (captureScreenshots) {
     fs.writeFileSync(
-      path.join(root, 'artifacts', 'pizza-option-layout-measurements.json'),
+      path.join(screenshotDir, 'pizza-option-layout-measurements.json'),
       `${JSON.stringify(report, null, 2)}\n`
     );
   }
