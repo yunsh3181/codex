@@ -105,6 +105,8 @@
         <label class="setting-row"><span>알림음</span><select id="soundPreset"><option value="papa">파파존스 기본</option><option value="pos">POS 스타일</option><option value="cafe">카페 스타일</option><option value="voice">음성 안내만</option><option value="custom">사용자 MP3</option></select></label>
         <label class="setting-row"><span>음량 <b id="volumeValue">80%</b></span><input id="soundVolume" type="range" min="0" max="100" step="5" value="80"></label>
         <label class="setting-row toggle-row"><span>음성 안내</span><input id="voiceEnabled" type="checkbox" checked></label>
+        <label class="setting-row voice-setting"><span>안내 음성</span><select id="adminVoiceSelect" aria-describedby="adminVoiceStatus"></select><small id="adminVoiceStatus">한국어 음성을 불러오는 중입니다…</small><small>현재 음성: <b id="adminVoiceCurrent">브라우저 기본 음성</b></small></label>
+        <button id="adminVoicePreview" class="secondary-button voice-preview-button" type="button">▶ 안내 음성 미리 듣기</button>
         <label class="setting-row"><span>사용자 MP3</span><input id="customSoundFile" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"><small id="customSoundName">선택된 파일 없음</small></label>
         <div class="settings-actions"><button id="previewSound" class="secondary-button">▶ 미리 듣기</button><button id="saveSoundSettings" class="primary-button">설정 저장</button></div>
         <p class="settings-note">브라우저 보안상 관리자 화면을 연 뒤 한 번은 ‘알림음 켜기’를 눌러야 소리가 재생됩니다.</p>
@@ -154,7 +156,7 @@
   <script src="../speech.js?v=1"></script>
   <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../test-mode-remote-channel.js?v=1"></script>
-  <script src="../admin.js?v=45.0.0"></script>
+  <script src="../admin.js?v=46.0.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>
