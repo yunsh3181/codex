@@ -4,20 +4,9 @@ const fs = require('node:fs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
+const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
-const retryDelay = new Int32Array(new SharedArrayBuffer(4));
-
-const spawnElectron = (command, args, options) => {
-  let run;
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    run = spawnSync(command, args, options);
-    if (run.error?.code !== 'EBUSY') return run;
-    Atomics.wait(retryDelay, 0, 0, 500);
-  }
-  return run;
-};
-
 test('pizza options pass real viewport, locale, badge, and typography checks', { timeout: 120_000 }, t => {
   const electron = require('electron');
   assert.ok(fs.existsSync(electron), `Electron executable not found: ${electron}`);
@@ -38,18 +27,24 @@ test('pizza options pass real viewport, locale, badge, and typography checks', {
     }
   }
   const reportPath = path.join(os.tmpdir(), `pizza-option-layout-${process.pid}.json`);
-  const run = spawnElectron(command, args, {
+  const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'pizza-option-profile-'));
+  t.after(() => fs.rmSync(reportPath, { force: true }));
+  t.after(() => fs.rmSync(userDataPath, { recursive: true, force: true }));
+  const run = spawnElectronSync(command, args, {
     cwd: root,
     encoding: 'utf8',
     env: {
       ...process.env,
       ELECTRON_DISABLE_SECURITY_WARNINGS: 'true',
       PIZZA_OPTION_REPORT: reportPath,
+      ELECTRON_VERIFICATION_USER_DATA: userDataPath,
     },
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
+  assert.equal(run.status, 0, electronResultDetails(run));
+  assert.equal(run.signal, null, electronResultDetails(run));
+  assert.equal(run.error, undefined, electronResultDetails(run));
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
   assert.equal(report.results.length, 4 * 6);

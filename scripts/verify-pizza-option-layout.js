@@ -2,6 +2,7 @@ const { app, BrowserWindow, nativeImage } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { runElectronVerification } = require('./electron-verification-lifecycle');
 
 const root = path.resolve(__dirname, '..');
 const captureScreenshots = process.argv.includes('--screenshots');
@@ -12,7 +13,7 @@ const screenshotDir = process.env.PIZZA_OPTION_SCREENSHOT_DIR || path.join(root,
 const promo = process.env.PIZZA_OPTION_PROMO || 'normal';
 if (!['normal', 'takeout'].includes(promo)) throw new Error(`Unsupported promo: ${promo}`);
 if (captureScreenshots) fs.mkdirSync(screenshotDir, { recursive: true });
-const userDataPath = path.join(app.getPath('temp'), `pizza-option-layout-${process.pid}`);
+const userDataPath = process.env.ELECTRON_VERIFICATION_USER_DATA || path.join(app.getPath('temp'), `pizza-option-layout-${process.pid}`);
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
 const viewports = [
@@ -141,8 +142,8 @@ const captureExact = async (window, viewport, prefix) => {
   );
 };
 
-app.whenReady().then(async () => {
-  const window = new BrowserWindow({
+runElectronVerification({ app }, async lifecycle => {
+  const window = lifecycle.trackWindow(new BrowserWindow({
     show: false,
     frame: false,
     skipTaskbar: true,
@@ -152,10 +153,10 @@ app.whenReady().then(async () => {
       offscreen: true,
       sandbox: true,
     },
-  });
+  }));
   const results = [];
   const visualComparisons = [];
-  window.webContents.debugger.attach('1.3');
+  lifecycle.attachDebugger();
   for (const viewport of viewports) {
     window.setContentSize(viewport.width, viewport.height);
     await window.loadFile(path.join(root, 'index.html'));
@@ -185,10 +186,7 @@ app.whenReady().then(async () => {
           ['show', `${beforeSha}:styles/device-phone.css`],
           { cwd: root, encoding: 'utf8' }
         );
-        const baselinePath = path.join(
-          app.getPath('temp'),
-          `pizza-option-baseline-${process.pid}.html`
-        );
+        const baselinePath = path.join(userDataPath, `pizza-option-baseline-${process.pid}.html`);
         const baseHref = `file://${root.replace(/\\/g, '/')}/`;
         const baselineDocument = baseline
           .replace('<head>', `<head><base href="${baseHref}">`)
@@ -220,9 +218,4 @@ app.whenReady().then(async () => {
   } else {
     process.stdout.write(`PIZZA_OPTION_LAYOUT_RESULT=${JSON.stringify(report)}\n`);
   }
-  window.destroy();
-  app.quit();
-}).catch(error => {
-  console.error(error);
-  app.exit(1);
 });

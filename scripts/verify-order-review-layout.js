@@ -2,6 +2,7 @@ const { app, BrowserWindow, nativeImage } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { runElectronVerification } = require('./electron-verification-lifecycle');
 
 const root = path.resolve(__dirname, '..');
 const captureScreenshots = process.argv.includes('--screenshots');
@@ -9,7 +10,7 @@ const writeAggregateReport = captureScreenshots || process.argv.includes('--aggr
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.ORDER_REVIEW_REPORT || null;
-const userDataPath = path.join(app.getPath('temp'), `order-review-layout-${process.pid}`);
+const userDataPath = process.env.ELECTRON_VERIFICATION_USER_DATA || path.join(app.getPath('temp'), `order-review-layout-${process.pid}`);
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
 const viewports = [
@@ -314,8 +315,8 @@ const measureScript = `
   })()
 `;
 
-app.whenReady().then(async () => {
-  const window = new BrowserWindow({
+runElectronVerification({ app }, async lifecycle => {
+  const window = lifecycle.trackWindow(new BrowserWindow({
     show: false,
     frame: false,
     skipTaskbar: true,
@@ -325,9 +326,9 @@ app.whenReady().then(async () => {
       offscreen: true,
       sandbox: true,
     },
-  });
+  }));
   const results = [];
-  window.webContents.debugger.attach('1.3');
+  lifecycle.attachDebugger();
 
   for (const viewport of viewports) {
     window.setContentSize(viewport.width, viewport.height);
@@ -441,9 +442,4 @@ const report = {
   } else {
     process.stdout.write(`ORDER_REVIEW_LAYOUT_RESULT=${JSON.stringify(report)}\n`);
   }
-  window.destroy();
-  app.quit();
-}).catch(error => {
-  console.error(error);
-  app.exit(1);
 });

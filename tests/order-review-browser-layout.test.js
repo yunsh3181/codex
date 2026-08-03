@@ -2,28 +2,20 @@ const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
+const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
 const fs = require('node:fs');
 const os = require('node:os');
 
 const root = path.resolve(__dirname, '..');
-const retryDelay = new Int32Array(new SharedArrayBuffer(4));
-
-const spawnElectron = (command, args, options) => {
-  let run;
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    run = spawnSync(command, args, options);
-    if (run.error?.code !== 'EBUSY') return run;
-    Atomics.wait(retryDelay, 0, 0, 500);
-  }
-  return run;
-};
-
 test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, t => {
   const electron = require('electron');
   assert.ok(fs.existsSync(electron), `Electron executable not found: ${electron}`);
   let command = electron;
   let args = ['scripts/verify-order-review-layout.js'];
   const reportPath = path.join(os.tmpdir(), `order-review-layout-${process.pid}.json`);
+  const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'order-review-profile-'));
+  t.after(() => fs.rmSync(reportPath, { force: true }));
+  t.after(() => fs.rmSync(userDataPath, { recursive: true, force: true }));
   if (process.platform === 'darwin') {
     const binary = spawnSync('file', [electron], { encoding: 'utf8' }).stdout;
     const architecture = binary.includes('arm64') ? '-arm64' :
@@ -38,18 +30,21 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       args = [architecture, electron, ...args];
     }
   }
-  const run = spawnElectron(command, args, {
+  const run = spawnElectronSync(command, args, {
     cwd: root,
     encoding: 'utf8',
     env: {
       ...process.env,
       ELECTRON_DISABLE_SECURITY_WARNINGS: 'true',
       ORDER_REVIEW_REPORT: reportPath,
+      ELECTRON_VERIFICATION_USER_DATA: userDataPath,
     },
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, `${run.error || ''}\n${run.stdout || ''}\n${run.stderr || ''}`);
+  assert.equal(run.status, 0, electronResultDetails(run));
+  assert.equal(run.signal, null, electronResultDetails(run));
+  assert.equal(run.error, undefined, electronResultDetails(run));
   assert.ok(fs.existsSync(reportPath), run.stdout);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
@@ -74,7 +69,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     } else {
       assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
     }
-    if (['multi-pizza', 'max-categories'].includes(result.scenario)) {
+    if (['multi-pizza', 'max-categories', 'long-complex-order'].includes(result.scenario)) {
       if (result.scenario === 'multi-pizza') {
         assert.equal(result.orderQuantity, 2, `${context}: order quantity`);
       }
