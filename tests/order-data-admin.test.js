@@ -99,15 +99,17 @@ assert.ok(paymentHelperMatch,'safe amount and split-payment helpers found');
 const paymentContext={Number,Math,Array};
 vm.createContext(paymentContext);
 vm.runInContext(paymentHelperMatch[0].replace(/\nfunction orderMenuHTML[\s\S]*/,''),paymentContext);
-for(const [paid,count,expected] of [[76100,5,[15220,15220,15220,15220,15220]],[31000,3,[10333,10333,10334]],[26000,2,[13000,13000]]]){
- const summary=paymentContext.splitPaymentSummary({payment:{splitCount:count}},paid);
+for(const [paid,count,expected] of [[76100,5,[15220,15220,15220,15220,15220]],[26000,2,[13000,13000]]]){
+ const summary=paymentContext.splitPaymentSummary({payment:{method:'meal_ticket',splitCount:count}},paid);
  assert.deepStrictEqual(Array.from(summary.amounts),expected,`${paid} is split exactly across ${count} people`);
  assert.strictEqual(summary.total,paid,'split amount sum matches paid amount');
 }
-const storedSplit=paymentContext.splitPaymentSummary({payment:{splitCount:5,splitAmounts:[15000,15000,15000,15000,16100]}},76100);
+const storedSplit=paymentContext.splitPaymentSummary({payment:{method:'meal_ticket',splitCount:5,splitAmounts:[15000,15000,15000,15000,16100]}},76100);
 assert.deepStrictEqual(Array.from(storedSplit.amounts),[15000,15000,15000,15000,16100],'stored splitAmounts take priority');
-assert.strictEqual(paymentContext.splitPaymentSummary({payment:{splitCount:1}},31000),null,'split count 1 is hidden');
-assert.strictEqual(paymentContext.splitPaymentSummary({payment:{splitCount:0}},31000),null,'invalid split count is hidden');
+assert.strictEqual(paymentContext.splitPaymentSummary({payment:{method:'meal_ticket',splitCount:1}},31000),null,'split count 1 is hidden');
+assert.strictEqual(paymentContext.splitPaymentSummary({payment:{method:'meal_ticket',splitCount:0}},31000),null,'invalid split count is hidden');
+assert.strictEqual(paymentContext.splitPaymentSummary({payment:{method:'card',splitCount:4,splitAmounts:[10000,10000,10000,10000]}},40000),null,'non-meal-ticket split metadata is hidden');
+assert.strictEqual(paymentContext.splitPaymentSummary({payment:{method:'meal_ticket',splitCount:3}},10000),null,'non-divisible legacy totals are not presented as equal splits');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(paymentContext.safeAmounts({total:31000,discountAmount:-100}))),{original:31000,discount:0,paid:31000},'negative discounts are clamped and amounts stay finite');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(paymentContext.safeAmounts({originalAmount:'bad',total:undefined}))),{original:0,discount:0,paid:0},'missing and invalid amounts safely fall back to zero');
 

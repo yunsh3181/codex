@@ -547,15 +547,29 @@ function safeAmounts(order){
  const discount=Math.max(0,original-paid);
  return {original,discount,paid};
 }
+function mealTicketPayment(order){
+ const payment=order?.payment||{};
+ const candidates=[payment.method,payment.methodName,...(Array.isArray(payment.methods)?payment.methods.flatMap(value=>[value?.method,value?.methodName]):[])];
+ return candidates.some(value=>String(value||'').trim().toLowerCase().replace(/[\s_-]+/g,'')==='mealticket'||String(value||'').includes('식권대장'));
+}
 function splitPaymentSummary(order,paid=safeAmounts(order).paid){
- const stored=Array.isArray(order?.payment?.splitAmounts)?order.payment.splitAmounts.map(Number).filter(value=>Number.isFinite(value)&&value>=0):[];
- const requested=Number(order?.payment?.splitCount);
+ if(!mealTicketPayment(order))return null;
+ const payment=order?.payment||{};
+ const stored=Array.isArray(payment.splitAmounts)?payment.splitAmounts.map(Number).filter(value=>Number.isFinite(value)&&value>=0):[];
+ const requested=Number(payment.splitCount);
  const count=Number.isInteger(requested)&&requested>1?requested:stored.length>1?stored.length:0;
  if(count<2)return null;
- const amounts=stored.length>1?stored:Array.from({length:count},(_,index)=>Math.floor(paid/count)+(index>=count-paid%count?1:0));
+ const amounts=stored.length===count?stored:Number.isFinite(paid)&&paid>=0&&paid%count===0?Array(count).fill(paid/count):[];
+ if(amounts.length!==count)return null;
  const groups=[];
  amounts.forEach(amount=>{const found=groups.find(group=>group.amount===amount);if(found)found.count++;else groups.push({amount,count:1})});
  return {count,amounts,groups,total:amounts.reduce((sum,value)=>sum+value,0),matchesPaid:amounts.reduce((sum,value)=>sum+value,0)===paid};
+}
+function splitPaymentDetail(order,paid=safeAmounts(order).paid){
+ const split=splitPaymentSummary(order,paid);
+ if(!split)return '';
+ const parts=split.groups.length===1?`${money(split.groups[0].amount)} × ${split.count}인`:split.amounts.map(money).join(' + ');
+ return `${money(split.total)} · ${parts}`;
 }
 function orderMenuHTML(order){
  const items=Array.isArray(order.items)?order.items:[];
@@ -639,7 +653,7 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  const {original,discount,paid}=safeAmounts(order),phone=displayText(order.phone||order.phoneMasked);
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const seat=takeout?'-':displayText(orderSeatLabel(order));
- const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method);
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),splitDetail=splitPaymentDetail(order,paid);
  const reservationTime=reservationTimeLabel(order);
  const actions=takeoutAcceptance
   ?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">결제대기 · 주문 접수</button>${reservationTime?`<strong class="reservation-time">${esc(reservationTime)}</strong>`:''}</div>`
@@ -655,7 +669,7 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  <div class="main-order-body">
   <div class="main-order-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
   <div class="main-order-operations">
-   <div class="main-payment-grid"><div><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
+   <div class="main-payment-grid"><div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong>${splitDetail?`<small>${esc(splitDetail)}</small>`:''}</div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
    <button type="button" class="main-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
    ${actions?`<div class="actions main-order-actions">${actions}</div>`:''}
   </div>
@@ -850,12 +864,22 @@ function storedLineAmount(entry){
  }
  return null;
 }
-function storedSelectionEntries(map,category,legacyMaster=[]){
+function safeDisplayQuantity(value){
+ const quantity=Number(value);
+ return Number.isInteger(quantity)&&quantity>0?quantity:1;
+}
+function catalogUnitPrice(id,legacyMaster=[]){
+ const price=legacyMaster.find(entry=>entry?.id===id)?.price;
+ return Number.isFinite(Number(price))&&Number(price)>=0?Number(price):null;
+}
+function storedSelectionEntries(map,category,legacyMaster=[],{included=false,parentQuantity=1}={}){
  return Object.entries(map||{}).flatMap(([id,value])=>{
   const quantity=typeof value==='object'&&value!==null?Number(value.quantity??value.qty):Number(value);
   if(!(quantity>0))return [];
   const storedName=typeof value==='object'&&value!==null?value.name:'';
-  return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity,amount:storedLineAmount(value)}];
+  const storedAmount=storedLineAmount(value),unitPrice=typeof value==='object'&&value!==null?storedLineAmount({amount:value.unitPrice??value.price}):catalogUnitPrice(id,legacyMaster);
+  const amount=included?0:storedAmount??(unitPrice===null?null:unitPrice*quantity*safeDisplayQuantity(parentQuantity));
+  return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity,amount}];
  });
 }
 function combinedStoredEntries(entries){
@@ -872,34 +896,35 @@ function combinedStoredEntries(entries){
  return [...totals.values()].map(entry=>({...entry,amount:entry.hasAmount?entry.amount:null}));
 }
 function detailQuantityHTML(quantity){
- const qty=Math.max(1,Number(quantity)||1);
+ const qty=safeDisplayQuantity(quantity);
  return `<span class="detail-menu-quantity">×${qty}</span>`;
 }
 function detailPriceHTML(amount){
  return amount===null?'':`<strong class="detail-menu-price">${money(amount)}</strong>`;
 }
 function orderDetailMenuLine(entry,className='extra'){
- return `<div class="detail-menu-line ${className}"><span class="detail-menu-name">${esc(entry.name)}${detailQuantityHTML(entry.quantity)}</span>${detailPriceHTML(entry.amount)}</div>`;
+ return `<div class="detail-menu-line ${className}"><span class="detail-menu-name">${esc(entry.name)}</span>${detailQuantityHTML(entry.quantity)}${detailPriceHTML(entry.amount)}</div>`;
 }
 function orderDetailPizzaLine(item){
- const toppings=combinedStoredEntries(storedSelectionEntries(item?.toppings,'toppings',TOPPINGS));
- const toppingText=toppings.length?`<span class="detail-pizza-options">${toppings.map(entry=>`<span>+ ${esc(entry.name)}${detailQuantityHTML(entry.quantity)}</span>`).join('')}</span>`:'';
- const quantity=Math.max(1,Number(item?.qty)||1);
- const amount=storedLineAmount({total:item?.total});
- return `<div class="detail-pizza-item"><div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span></span><span class="detail-line-end">${detailQuantityHTML(quantity)}${detailPriceHTML(amount)}</span></div>${toppingText}</div>`;
+ const quantity=safeDisplayQuantity(item?.qty);
+ const toppings=combinedStoredEntries(storedSelectionEntries(item?.toppings,'toppings',TOPPINGS,{parentQuantity:quantity}));
+ const toppingText=toppings.length?`<span class="detail-pizza-options">${toppings.map(entry=>orderDetailMenuLine({...entry,name:`+ ${entry.name}`} ,'option')).join('')}</span>`:'';
+ const amount=storedLineAmount(item)??(()=>{const unit=storedLineAmount({amount:item?.unitPrice??item?.price});return unit===null?null:unit*quantity})();
+ return `<div class="detail-pizza-item"><div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span></span>${detailQuantityHTML(quantity)}${detailPriceHTML(amount)}</div>${toppingText}</div>`;
 }
 function orderDetailMenuHTML(order){
  const items=Array.isArray(order?.items)?order.items:[];
  const sides=combinedStoredEntries(items.flatMap(item=>[
-  ...storedSelectionEntries(item?.includedSides,'sides',SIDES),
-  ...storedSelectionEntries(item?.sides,'sides',SIDES)
+  ...storedSelectionEntries(item?.includedSides,'sides',SIDES,{included:true,parentQuantity:item?.qty}),
+  ...storedSelectionEntries(item?.sides,'sides',SIDES,{parentQuantity:item?.qty})
  ]));
  const extras=items.reduce((result,item)=>{
   for(const map of [item?.includedDrinks,item?.drinks]){
    Object.entries(map||{}).forEach(([id,value])=>{
     const category=ORDER_CATALOG.sauces?.[id]?'accompaniments':ORDER_CATALOG.drinks?.[id]?'drinks':'unknown';
     const lookupCategory=category==='accompaniments'?'sauces':category;
-    result[category].push(...storedSelectionEntries({[id]:value},lookupCategory,DRINKS));
+    const included=map===item?.includedDrinks;
+    result[category].push(...storedSelectionEntries({[id]:value},lookupCategory,DRINKS,{included,parentQuantity:item?.qty}));
    });
   }
   return result;
@@ -921,7 +946,7 @@ function renderOrderDetail(order,seatId=null){
  const phone=displayText(order.phone||order.phoneMasked);
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const completed=['ready','completed'].includes(order.status);
- const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method);
+ const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),splitDetail=splitPaymentDetail(order,paid);
  return `<div class="admin-detail-screen">
  <div class="admin-detail-topbar">
   <div class="detail-order-identity">${reservation?'<span class="detail-reservation">예약</span>':''}<strong>${esc(adminOrderNumberLabel(order))}</strong><span class="detail-order-type ${takeout?'takeout':'dinein'}">${takeout?'포장':'매장식사'}</span></div>
@@ -935,7 +960,7 @@ function renderOrderDetail(order,seatId=null){
   <div class="admin-detail-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
   <div class="admin-detail-operations">
    <div class="detail-payment-grid">
-    <div><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div>
+    <div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong>${splitDetail?`<small>${esc(splitDetail)}</small>`:''}</div>
     <div><span>원 금액</span><strong>${money(original)}</strong></div>
     <div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div>
     <div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div>

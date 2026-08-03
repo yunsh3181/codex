@@ -19,10 +19,11 @@ const catalog={
 const context={
  ORDER_CATALOG:catalog,
  PIZZAS:[{id:'P001',name:'페퍼로니'}],
- TOPPINGS:[{id:'T001',name:'양파'},{id:'T002',name:'피망'}],
- SIDES:[{id:'S001',name:'치킨스트립'}],
- DRINKS:[{id:'D001',name:'코카-콜라 1.25L'}],
+ TOPPINGS:[{id:'T001',name:'양파',price:1500},{id:'T002',name:'피망',price:1500}],
+ SIDES:[{id:'S001',name:'치킨스트립',price:9900}],
+ DRINKS:[{id:'D001',name:'코카-콜라 1.25L',price:1250}],
  PJCommon:{legacyChannel:()=> 'mobile'},
+ statusNames:{completed:'완료',payment_pending:'결제대기'},
  displayText(value,fallback='-'){
   if(typeof value==='string'||typeof value==='number')return String(value).trim()||fallback;
   return fallback;
@@ -66,6 +67,17 @@ assert.ok(reserved.includes('<span>일회용 포크</span><strong>O</strong>'),'
 assert.ok(reserved.includes('data-action="copy-phone"')&&reserved.includes('data-action="call-customer"'),'existing copy and customer-call actions stay connected');
 assert.ok(reserved.includes('<span>결제수단</span>')&&reserved.includes('<span>원 금액</span>')&&reserved.includes('<span>할인금액</span>'),'four-column payment data uses agreed labels');
 
+const splitDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
+assert.ok(splitDetail.includes('40,000원 · 10,000원 × 4인'),'equal meal-ticket split is visible in stored-order detail');
+const splitMain=context.newOrderCard({...baseOrder,id:'split-main',status:'payment_pending',totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
+assert.ok(splitMain.includes('40,000원 · 10,000원 × 4인'),'new-order card shows the split from its first render');
+const unevenDetail=context.renderOrderDetail({...baseOrder,totalAmount:28000,total:28000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:3,splitAmounts:[10000,10000,8000]}});
+assert.ok(unevenDetail.includes('10,000원 + 10,000원 + 8,000원'),'unequal meal-ticket split preserves the stored payment amounts');
+const singleDetail=context.renderOrderDetail({...baseOrder,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:1,splitAmounts:[55400]}});
+assert.ok(!singleDetail.includes('× 1인'),'single meal-ticket payment keeps the existing total-only display');
+const cardDetail=context.renderOrderDetail({...baseOrder,payment:{method:'card',methodName:'신용카드',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
+assert.ok(!cardDetail.includes('10,000원 × 4인'),'card payments never show meal-ticket split detail');
+
 const normal=context.renderOrderDetail({...baseOrder,status:'cooking',pickup:{mode:'now',time:null},disposables:false});
 assert.ok(!normal.includes('detail-reservation">예약</span>'),'normal orders remove the reservation label and its space');
 assert.ok(normal.includes('<span>일회용 포크</span><strong>X</strong>'),'saved false fork choice renders X');
@@ -76,7 +88,8 @@ assert.ok(takeout.includes('detail-order-type takeout">포장'),'takeout uses th
 
 const legacy=context.renderOrderDetail({...baseOrder,disposables:undefined,items:[{...baseOrder.items[0],sides:{S001:1},drinks:{D001:2}}]});
 const chickenLine=legacy.match(/<div class="detail-menu-line extra"><span class="detail-menu-name">치킨스트립[\s\S]*?<\/div>/)?.[0]||'';
-assert.ok(chickenLine&&!chickenLine.includes('detail-menu-price'),'legacy lines without stored prices do not invent or calculate a price');
+assert.ok(chickenLine&&chickenLine.includes('×1')&&chickenLine.includes('9,900원'),'legacy numeric quantities use the catalog unit price safely');
+assert.ok(legacy.includes('코카-콜라 1.25L</span><span class="detail-menu-quantity">×2</span><strong class="detail-menu-price">2,500원'),'legacy drink quantity multiplies the catalog unit price once');
 
 const mixedItems=[{
  ...baseOrder.items[0],includedSides:{},sides:{S001:{quantity:1,total:9900}},
@@ -106,7 +119,7 @@ for(const width of [360,390,560,768,1440]){
  assert.ok(customerHeight>=40,'customer call retains its minimum touch target');
 }
 assert.match(css,/\.admin-detail-menu\{[^}]*color:#07532f/,'order detail menu establishes the green default');
-assert.match(css,/\.admin-detail-menu \.detail-menu-section h4\{[^}]*color:#07532f/,'order detail group headings are green');
+assert.match(css,/\.admin-detail-menu \.detail-menu-section h4\{[^}]*color:#6f2da8/,'order detail group headings are purple');
 assert.match(css,/\.admin-detail-menu \.detail-pizza-name,\.admin-detail-menu \.pizza-code,\.admin-detail-menu \.detail-menu-name,\.admin-detail-menu \.detail-menu-quantity,\.admin-detail-menu \.detail-menu-price\{color:#07532f\}/,'pizza names, size code, product names, quantities, and prices are green');
 assert.match(css,/\.admin-detail-menu \.pizza-code-alpha\{color:#d71920!important\}/,'only the size-code alphabet override is red');
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.reservation-time\{animation:none\}\}/,'reservation pulse honors reduced motion');
