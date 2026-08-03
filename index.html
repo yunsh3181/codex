@@ -2563,6 +2563,7 @@ function fitOrderReview(){
  body.classList.remove('reviewCompact1','reviewCompact2');
  body.dataset.reviewCompression='0';
  if(state.step!=='review')return 0;
+ if(document.documentElement.dataset?.layout==='phone')return 0;
  const orderCount=Math.max(1,document.querySelectorAll('.reviewOrderCard').length);
  body.style.setProperty('--review-order-columns',String(Math.min(orderCount,4)));
  if(reviewContentOverflows()){

@@ -53,7 +53,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
   assert.ok(fs.existsSync(reportPath), run.stdout);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 4 * 6 * 9);
+  assert.equal(report.results.length, 4 * 6 * 10);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -63,7 +63,17 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       `${context}: viewport`
     );
     if (process.platform === 'win32' && result.layout !== 'phone') continue;
-    assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+    assert.equal(result.horizontalOverflow, 0, `${context}: ${JSON.stringify(result.scroll)}`);
+    assert.equal(result.overlapCount, 0, `${context}: text overlap`);
+    if (result.layout === 'phone') {
+      assert.equal(result.compressionStage, 0, `${context}: phone review must not compress`);
+      assert.ok(result.contentBottomGap >= 44, `${context}: ${result.contentBottomGap}px bottom gap`);
+      if (['max-categories', 'long-complex-order'].includes(result.scenario)) {
+        assert.equal(result.verticalScrollable, true, `${context}: long review must scroll`);
+      }
+    } else {
+      assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+    }
     if (['multi-pizza', 'max-categories'].includes(result.scenario)) {
       if (result.scenario === 'multi-pizza') {
         assert.equal(result.orderQuantity, 2, `${context}: order quantity`);
@@ -84,15 +94,17 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     }
     assert.deepEqual(result.clipped, [], `${context}: clipped`);
     assert.deepEqual(result.hiddenRequired, [], `${context}: required UI hidden`);
-    assert.ok(
-      result.contentOverlapPx <= 1,
-      `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
-        lastContent: result.lastContent,
-        orderRegion: result.orderRegion,
-        stageSections: result.stageSections,
-        reviewSections: result.reviewSections,
-      })}`
-    );
+    if (result.layout !== 'phone') {
+      assert.ok(
+        result.contentOverlapPx <= 1,
+        `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
+          lastContent: result.lastContent,
+          orderRegion: result.orderRegion,
+          stageSections: result.stageSections,
+          reviewSections: result.reviewSections,
+        })}`
+      );
+    }
     assert.ok(result.minFontSize >= 12, `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);
     assert.ok(result.minTouchHeight >= 44, `${context}: ${result.minTouchHeight}px touch height`);
@@ -114,14 +126,9 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       assert.equal(result.nonPhoneTaglineHidden, true, `${context}: non-phone header changed`);
     }
   }
-  assert.ok(
-    report.results.some(result =>
-      result.layout === 'phone' &&
-      result.scenario === 'max-categories' &&
-      result.compressionStage >= 1
-    ),
-    'measured mobile multi-pizza review activates compression'
-  );
+  assert.ok(report.results.some(result =>
+    result.layout === 'phone' && result.scenario === 'long-complex-order' && result.verticalScrollable
+  ), 'measured mobile complex review uses natural page scrolling');
 });
 
 test('stored screenshots are raw viewport captures without forced resizing', () => {
@@ -137,4 +144,31 @@ test('stored screenshots are raw viewport captures without forced resizing', () 
       assert.equal(png.readUInt32BE(20), height, `${prefix} ${height} height`);
     }
   }
+});
+
+test('repository measurement artifact is aggregate-only while failures retain detailed context', () => {
+  const aggregate = JSON.parse(fs.readFileSync(
+    path.join(root, 'artifacts', 'order-review-layout-measurements.json'),
+    'utf8'
+  ));
+  assert.equal('results' in aggregate, false);
+  assert.equal(aggregate.totalCombinations, 4 * 6 * 10);
+  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '768x1024', '1080x1920']);
+  assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
+  assert.equal(aggregate.overlapCount, 0);
+  assert.equal(aggregate.clippedTextCount, 0);
+  assert.equal(aggregate.maxHorizontalOverflow, 0);
+  assert.ok(aggregate.minimumBottomSafetyGap >= 44);
+  for (const locale of aggregate.locales) {
+    assert.ok(aggregate.scrollHeightByLocale[locale].min > 0, locale);
+    assert.ok(
+      aggregate.scrollHeightByLocale[locale].max >= aggregate.scrollHeightByLocale[locale].min,
+      locale
+    );
+  }
+  const source = fs.readFileSync(path.join(root, 'scripts', 'verify-order-review-layout.js'), 'utf8');
+  assert.match(source, /ORDER_REVIEW_REPORT/);
+  assert.match(source, /results,/);
+  const testSource = fs.readFileSync(__filename, 'utf8');
+  assert.match(testSource, /const context = `\$\{result\.viewportName\}\/\$\{result\.locale\}\/\$\{result\.scenario\}`/);
 });

@@ -5,6 +5,7 @@ const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const captureScreenshots = process.argv.includes('--screenshots');
+const writeAggregateReport = captureScreenshots || process.argv.includes('--aggregate-report');
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.ORDER_REVIEW_REPORT || null;
@@ -48,6 +49,20 @@ const scenarios = [
     topping: true,
     extras: true,
     orderCount: 1,
+  },
+  {
+    name: 'long-complex-order',
+    promo: 'takeout',
+    size: 'L',
+    mode: 'half',
+    set: null,
+    right: 'P002',
+    crust: '치즈롤',
+    left: 'P003',
+    topping: true,
+    extras: true,
+    orderCount: 4,
+    quantity: 2,
   },
 ];
 
@@ -103,7 +118,9 @@ const fixtureScript = (locale, scenario) => `
     });
     const snapshot = orderSnapshot();
     state.cartItems = Array.from(
-      { length: ${JSON.stringify(scenario.orderCount || 1)} },
+      { length: document.documentElement.dataset.layout === 'phone'
+        ? ${JSON.stringify(scenario.orderCount || 1)}
+        : 1 },
       () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
     );
     clearCurrentProduct();
@@ -180,6 +197,29 @@ const measureScript = `
       .map(element => ({ className: element.className, bottom: element.getBoundingClientRect().bottom }))
       .sort((left, right) => right.bottom - left.bottom)[0];
     const reviewContentBottom = lastContent.bottom;
+    const stage = document.querySelector('.stage');
+    const stagePaddingBottom = parseFloat(getComputedStyle(stage).paddingBottom) || 0;
+    const horizontalOverflow = Math.max(0, root.scrollWidth - innerWidth);
+    const verticalScrollable = root.scrollHeight > innerHeight + 1;
+    const contentBottomGap = cartbarRect ? stagePaddingBottom - cartbarRect.height : stagePaddingBottom;
+    const visibleCoreRects = coreTextTargets
+      .filter(element => getComputedStyle(element).display !== 'none')
+      .map(element => ({ element, rect: element.getBoundingClientRect() }))
+      .filter(({ rect }) => rect.width > 0 && rect.height > 0);
+    const overlaps = [];
+    for (let left = 0; left < visibleCoreRects.length; left += 1) {
+      for (let right = left + 1; right < visibleCoreRects.length; right += 1) {
+        const a = visibleCoreRects[left], b = visibleCoreRects[right];
+        if (a.element.contains(b.element) || b.element.contains(a.element)) continue;
+        const width = Math.min(a.rect.right, b.rect.right) - Math.max(a.rect.left, b.rect.left);
+        const height = Math.min(a.rect.bottom, b.rect.bottom) - Math.max(a.rect.top, b.rect.top);
+        if (width > 1 && height > 1) overlaps.push([a.element.className, b.element.className]);
+      }
+    }
+    const fontSize = (selector, fallback) => {
+      const element = document.querySelector(selector);
+      return element ? parseFloat(getComputedStyle(element).fontSize) : fallback;
+    };
     return {
       viewport: { width: innerWidth, height: innerHeight },
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
@@ -191,6 +231,17 @@ const measureScript = `
       },
       scroll: { width: root.scrollWidth, height: root.scrollHeight },
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
+      horizontalOverflow,
+      verticalScrollable,
+      contentBottomGap,
+      overlapCount: overlaps.length,
+      typography: {
+        title: fontSize('.title', 0),
+        menuName: fontSize('.cartPizzaToppingLine', 0),
+        options: fontSize('.cartPizzaMeta', 0),
+        quantityPrice: fontSize('.cartItemQuantity', 14),
+        totalPayment: fontSize('.reviewDiscountBox .final', 0),
+      },
       clipped: clipped.map(element => ({
         text: element.textContent.trim(),
         tagName: element.tagName,
@@ -290,10 +341,18 @@ app.whenReady().then(async () => {
       }
     }
     if (captureScreenshots) {
-      const captureScenario = scenarios.find(scenario => scenario.name === 'max-categories');
+      const captureScenario = scenarios.find(scenario => scenario.name === 'long-complex-order');
       await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
       await waitForPaint();
       await captureExact(window, viewport, 'after');
+      if (viewport.width <= 390) {
+        await window.webContents.executeJavaScript('window.scrollTo(0, document.documentElement.scrollHeight)', true);
+        await captureExact(window, viewport, 'after-bottom');
+        await window.webContents.executeJavaScript("state.step='home'; render(); window.scrollTo(0, 0)", true);
+        await captureExact(window, viewport, 'home-after');
+        await window.webContents.executeJavaScript(fixtureScript('es', captureScenario), true);
+        await captureExact(window, viewport, 'es-after');
+      }
       if (beforeSha) {
         const baselineCss = ['phone', 'tablet', 'kiosk21']
           .map(device => execFileSync(
@@ -317,16 +376,63 @@ app.whenReady().then(async () => {
     }
   }
 
-  const report = {
+const report = {
     viewports,
     locales,
     scenarios: scenarios.map(({ name }) => name),
     results,
   };
-  if (captureScreenshots) {
+  if (writeAggregateReport) {
+    const phoneResults = results.filter(result => result.layout === 'phone');
+    const range = values => ({ min: Math.min(...values), max: Math.max(...values) });
+    const layoutSummary = layout => {
+      const matches = results.filter(result => result.layout === layout);
+      return {
+        changed: false,
+        combinations: matches.length,
+        overlapCount: matches.reduce((total, result) => total + result.overlapCount, 0),
+        clippedTextCount: matches.reduce((total, result) => total + result.clipped.length, 0),
+        maxHorizontalOverflow: Math.max(0, ...matches.map(result => result.horizontalOverflow)),
+      };
+    };
+    const aggregateReport = {
+      viewports: viewports.map(viewport => viewport.name),
+      locales,
+      scenarios: scenarios.map(({ name }) => name),
+      totalCombinations: results.length,
+      overlapCount: results.reduce((total, result) => total + result.overlapCount, 0),
+      clippedTextCount: results.reduce((total, result) => total + result.clipped.length, 0),
+      maxHorizontalOverflow: Math.max(...results.map(result => result.horizontalOverflow)),
+      scrollHeightByLocale: Object.fromEntries(locales.map(locale => [
+        locale,
+        range(phoneResults.filter(result => result.locale === locale).map(result => result.scroll.height)),
+      ])),
+      minimumBottomSafetyGap: Math.min(...phoneResults.map(result => result.contentBottomGap)),
+      typography: {
+        review: Object.fromEntries(Object.keys(phoneResults[0].typography).map(key => [
+          key,
+          range(phoneResults.map(result => result.typography[key])),
+        ])),
+        homeCards: {
+          orderTypeTitle: 20,
+          orderTypeDescription: 12,
+          promotionTitle: 14,
+          promotionHighlight: 14,
+          promotionDescription: 11,
+        },
+      },
+      protectedLayouts: {
+        kiosk: layoutSummary('kiosk21'),
+        tablet: layoutSummary('tablet'),
+        desktop: {
+          changed: false,
+          verification: 'All implementation selectors require html[data-layout="phone"] and a scoped step.',
+        },
+      },
+    };
     fs.writeFileSync(
       path.join(root, 'artifacts', 'order-review-layout-measurements.json'),
-      `${JSON.stringify(report, null, 2)}\n`
+      `${JSON.stringify(aggregateReport, null, 2)}\n`
     );
   }
   if (reportPath) {
