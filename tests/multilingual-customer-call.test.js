@@ -49,20 +49,20 @@ assert.ok(helperSource,'customer call speech helpers exist');
 const spoken=[];
 const voices=[{lang:'en-GB',name:'English'},{lang:'es-MX',name:'Spanish'},{lang:'ko-KR',name:'Korean'},{lang:'ja-JP',name:'Japanese'},{lang:'zh-CN',name:'Chinese'}];
 function Utterance(text){this.text=text}
-const context={String,Promise,console:{info(){}},adminKoreanVoice:null,PJSpeech:{createSpeechUtterance(text,{lang='ko-KR'}={}){const utterance=new Utterance(text);utterance.lang=lang;utterance.rate=.92;utterance.pitch=1.05;utterance.volume=1;utterance.voice=voices.find(candidate=>candidate.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));return utterance}},spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d{4}$)/,''),soundEnabled:true,settings:{voice:true},speechQueue:Promise.resolve(),window:{speechSynthesis:{speak(utterance){spoken.push(utterance);utterance.onend()}}}};
+const context={String,Number,Object,Promise,console:{info(){}},adminKoreanVoice:null,ADMIN_CALL_SPEECH_SETTINGS:{rate:.94,pitch:1.08,volume:1},selectAdminKoreanVoice(){},PJSpeech:{createSpeechUtterance(text,{lang='ko-KR'}={}){const utterance=new Utterance(text);utterance.lang=lang;utterance.rate=.92;utterance.pitch=1.05;utterance.volume=1;utterance.voice=voices.find(candidate=>candidate.lang.toLowerCase().startsWith(lang.split('-')[0].toLowerCase()));return utterance}},spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d{4}$)/,''),soundEnabled:true,settings:{voice:true},speechQueue:Promise.resolve(),window:{speechSynthesis:{getVoices:()=>voices,cancel(){},speak(utterance){spoken.push(utterance);utterance.onend()}}}};
 vm.createContext(context);
 vm.runInContext(helperSource,context);
 for(const [language,expected] of [['ko','ko'],['ko-KR','ko'],['en','en'],['en-US','en'],['es','es'],['es-ES','es'],['ja','ja'],['ja-JP','ja'],['JA-jp','ja'],['zh','zh'],['zh-CN','zh'],['zh-Hans','zh'],['zh-Hans-CN','zh'],['ZH_hans_cn','zh'],[undefined,'ko'],[null,'ko'],['','ko'],['vi','ko'],['fr','ko'],['de','ko'],['unknown','ko'],['zh-TW','ko'],['zh-HK','ko'],['zh-Hant','ko'],['zh-Hant-TW','ko']])assert.strictEqual(context.customerCallLanguage(language),expected);
 const cases=[
  ['P1234','en','Customer number 1234, your order is ready. Please come to the counter.','en-US','en-GB'],
  ['D5678','es','Cliente número 5678, su pedido está listo. Por favor, acérquese al mostrador.','es-ES','es-MX'],
- ['P9012','ko','구, 공, 일, 이 번 고객님. 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
- ['P3456',undefined,'삼, 사, 오, 육 번 고객님. 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR'],
+ ['P9012','ko','구천십이 번 고객님.','ko-KR','ko-KR'],
+ ['P3456',undefined,'삼천사백오십육 번 고객님.','ko-KR','ko-KR'],
  ['P1234','ja','お客様番号1234番、ご注文の商品ができあがりました。カウンターまでお越しください。','ja-JP','ja-JP'],
  ['D2345','ja-JP','お客様番号2345番、ご注文の商品ができあがりました。カウンターまでお越しください。','ja-JP','ja-JP'],
  ['P3456','zh','号码为3456的顾客，您的餐品已经准备好了，请到柜台取餐。','zh-CN','zh-CN'],
  ['D4567','zh-CN','号码为4567的顾客，您的餐品已经准备好了，请到柜台取餐。','zh-CN','zh-CN'],
- ['D7890','zh-TW','칠, 팔, 구, 공 번 고객님. 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.','ko-KR','ko-KR']
+ ['D7890','zh-TW','칠천팔백구십 번 고객님.','ko-KR','ko-KR']
 ];
 (async()=>{
  for(const [number,language,text,lang,voiceLang] of cases){
@@ -71,7 +71,7 @@ const cases=[
   assert.strictEqual(utterance.text,text);
   assert.strictEqual(utterance.lang,lang);
   assert.strictEqual(utterance.voice.lang,voiceLang);
-  assert.deepStrictEqual([utterance.rate,utterance.pitch,utterance.volume],[.92,1.05,1]);
+  assert.deepStrictEqual([utterance.rate,utterance.pitch,utterance.volume],[.94,1.08,1]);
  }
  assert.ok(admin.includes("order.customerNumber||order.orderNo||''"),'customerNumber remains ahead of orderNo');
  assert.ok(admin.includes('data-order-language="${esc(order.language||\'\')}"'),'call button preserves the Firestore order language');

@@ -367,10 +367,19 @@ function orderNumberLabel(value){
 function spokenOrderNumber(value){
  return orderNumberLabel(value)
 }
-const KOREAN_DIGIT_SPEECH=Object.freeze({'0':'공','1':'일','2':'이','3':'삼','4':'사','5':'오','6':'육','7':'칠','8':'팔','9':'구'});
+const KOREAN_DIGIT_SPEECH=Object.freeze(['영','일','이','삼','사','오','육','칠','팔','구']);
 function spokenKoreanOrderNumber(value){
- const digits=String(spokenOrderNumber(value)??'').match(/\d/g);
- return digits?digits.map(digit=>KOREAN_DIGIT_SPEECH[digit]).join(', '):''
+ if(value==null||value==='')return '';
+ const raw=String(value).trim().replace(/^[PD](?=\s*[\d,\s]+$)/i,'').replace(/[,\s]/g,'');
+ if(!/^\d+$/.test(raw))return '';
+ const number=Number(raw);
+ if(!Number.isInteger(number)||number<0||number>9999)return '';
+ if(number===0)return KOREAN_DIGIT_SPEECH[0];
+ const units=['천','백','십',''];
+ return String(number).padStart(4,'0').split('').map((digit,index)=>{
+  const amount=Number(digit);if(!amount)return '';
+  return `${amount===1&&index<3?'':KOREAN_DIGIT_SPEECH[amount]}${units[index]}`
+ }).join('')
 }
 function adminOrderNumberLabel(order){
  const stored=order?.customerNumber||order?.orderNo;
@@ -1200,20 +1209,50 @@ async function playPreset(forcePreset){
  [[660,0,.22],[880,.22,.30],[1040,.48,.30]].forEach(x=>tone(...x,.36,'sine'));
 }
 let speechQueue=Promise.resolve();
-const ADMIN_KOREAN_VOICE_PRIORITY=['Microsoft SunHi','Microsoft Heami','Microsoft Seoyeon','SunHi','Heami','Seoyeon'];
+const ADMIN_KOREAN_VOICE_PRIORITY=[/sunhi|선희/i,/heami|혜미/i,/seoyeon|서연/i,/natural|online|neural/i,/korean|한국/i];
+const ADMIN_VOICE_STORAGE_KEY='pjAdminCustomerCallVoice';
+const ADMIN_CALL_SPEECH_SETTINGS=Object.freeze({rate:.94,pitch:1.08,volume:1});
+const adminVoiceSelect=document.getElementById('adminVoiceSelect');
+const adminVoiceCurrent=document.getElementById('adminVoiceCurrent');
+const adminVoiceStatus=document.getElementById('adminVoiceStatus');
+const adminVoicePreview=document.getElementById('adminVoicePreview');
 let adminKoreanVoice=null;
+let adminVoiceRetryTimer=null;
+let adminVoiceRetryCount=0;
+function adminVoiceKey(voice){return [voice?.name||'',voice?.lang||'',voice?.localService===true?'local':'remote'].join('|')}
+function uniqueAdminVoices(voices){
+ const byNameLanguage=new Map();
+ voices.forEach(voice=>{const key=`${String(voice?.name||'').toLowerCase()}|${String(voice?.lang||'').toLowerCase()}`,current=byNameLanguage.get(key);if(!current||voice?.localService===true&&current?.localService!==true)byNameLanguage.set(key,voice)});
+ return [...byNameLanguage.values()]
+}
+function storedAdminVoice(){try{return JSON.parse(localStorage.getItem(ADMIN_VOICE_STORAGE_KEY)||'null')}catch(e){return null}}
 function selectAdminKoreanVoice(voices=window.speechSynthesis?.getVoices?.()||[]){
- const korean=voices.filter(voice=>/^ko(?:[-_]KR)?$/i.test(String(voice?.lang||'')));
- adminKoreanVoice=ADMIN_KOREAN_VOICE_PRIORITY.map(name=>korean.find(voice=>String(voice.name||'').toLowerCase().includes(name.toLowerCase()))).find(Boolean)
-  ||korean.find(voice=>/^ko[-_]KR$/i.test(String(voice.lang||''))&&voice.localService!==false)
-  ||korean.find(voice=>/^ko[-_]KR$/i.test(String(voice.lang||'')))
-  ||korean[0]
-  ||voices.find(voice=>voice?.default)
-  ||null;
+ const available=uniqueAdminVoices(voices),korean=available.filter(voice=>/^ko(?:[-_]KR)?$/i.test(String(voice?.lang||''))),stored=storedAdminVoice();
+ adminKoreanVoice=available.find(voice=>voice.name===stored?.name&&voice.lang===stored?.lang)
+  ||ADMIN_KOREAN_VOICE_PRIORITY.map(pattern=>korean.find(voice=>pattern.test(String(voice.name||'')))).find(Boolean)
+  ||korean.find(voice=>voice.localService===true)||korean[0]||available.find(voice=>voice.default)||null;
  return adminKoreanVoice
 }
-selectAdminKoreanVoice();
-window.speechSynthesis?.addEventListener?.('voiceschanged',()=>selectAdminKoreanVoice());
+function renderAdminVoiceOptions(voices=window.speechSynthesis?.getVoices?.()||[]){
+ const available=uniqueAdminVoices(voices),korean=available.filter(voice=>/^ko(?:[-_]KR)?$/i.test(String(voice?.lang||''))),shown=korean.length?korean:available;
+ selectAdminKoreanVoice(available);
+ adminVoiceSelect.replaceChildren();
+ shown.forEach(voice=>{const option=document.createElement('option');option.value=adminVoiceKey(voice);option.textContent=`${voice.name} · ${voice.lang}${voice.localService?' · 기기':' · 온라인'}`;option.selected=voice===adminKoreanVoice;adminVoiceSelect.append(option)});
+ adminVoiceSelect.disabled=!shown.length;
+ adminVoiceStatus.textContent=!shown.length?'한국어 음성을 불러오는 중입니다…':korean.length?`한국어 음성 ${korean.length}개 사용 가능`:'한국어 음성을 찾을 수 없음 · 대체 음성을 표시합니다.';
+ adminVoiceCurrent.textContent=adminKoreanVoice?.name||'브라우저 기본 음성';
+ return shown
+}
+function refreshAdminVoices(){
+ const voices=window.speechSynthesis?.getVoices?.()||[];renderAdminVoiceOptions(voices);
+ if(voices.length){if(adminVoiceRetryTimer)clearTimeout(adminVoiceRetryTimer);adminVoiceRetryTimer=null;return voices}
+ if(!adminVoiceRetryTimer&&adminVoiceRetryCount<3)adminVoiceRetryTimer=setTimeout(()=>{adminVoiceRetryTimer=null;adminVoiceRetryCount++;refreshAdminVoices()},[250,750,1500][adminVoiceRetryCount]);
+ return voices
+}
+function voiceBySelection(){return uniqueAdminVoices(window.speechSynthesis?.getVoices?.()||[]).find(voice=>adminVoiceKey(voice)===adminVoiceSelect.value)||selectAdminKoreanVoice()}
+adminVoiceSelect.addEventListener('change',()=>{adminKoreanVoice=voiceBySelection();if(adminKoreanVoice)localStorage.setItem(ADMIN_VOICE_STORAGE_KEY,JSON.stringify({name:adminKoreanVoice.name,lang:adminKoreanVoice.lang}));adminVoiceCurrent.textContent=adminKoreanVoice?.name||'브라우저 기본 음성'});
+window.speechSynthesis?.addEventListener?.('voiceschanged',refreshAdminVoices);
+refreshAdminVoices();
 function speakText(text){
  return new Promise(resolve=>{
   if(!soundEnabled||!settings.voice||!('speechSynthesis'in window)){resolve();return}
@@ -1239,7 +1278,7 @@ function customerCallSpeech(orderNo,language){
  const koreanNumber=spokenKoreanOrderNumber(orderNo);
  if(!String(number).match(/\d/)||!koreanNumber)return null;
  const speech={
-  ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님. 주문하신 메뉴가 준비되었습니다. 카운터로 와주시기 바랍니다.`},
+  ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님.`},
   en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
   es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
   ja:{lang:'ja-JP',text:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
@@ -1253,13 +1292,17 @@ function speakCustomerCall(orderNo,language){
   const speech=customerCallSpeech(orderNo,language);
   if(!speech){resolve();return}
   const utterance=PJSpeech.createSpeechUtterance(speech.text,{lang:speech.lang});
+  selectAdminKoreanVoice(window.speechSynthesis.getVoices?.()||[]);
   if(speech.lang==='ko-KR'&&adminKoreanVoice)utterance.voice=adminKoreanVoice;
-  if(speech.lang==='ko-KR')console.info('[Admin customer call voice]',{name:utterance.voice?.name||'browser default',lang:utterance.voice?.lang||utterance.lang,localService:utterance.voice?.localService??null,rate:utterance.rate,pitch:utterance.pitch,volume:utterance.volume});
+  Object.assign(utterance,ADMIN_CALL_SPEECH_SETTINGS);
+  if(speech.lang==='ko-KR')console.info('[Admin customer call voice]',{voiceName:utterance.voice?.name||'browser default',lang:utterance.voice?.lang||utterance.lang,localService:utterance.voice?.localService??null,rate:utterance.rate,pitch:utterance.pitch,orderNumber:spokenOrderNumber(orderNo),spokenText:speech.text});
   utterance.onend=resolve;utterance.onerror=resolve;
+  window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
  });
 }
 function enqueueCustomerCall(orderNo,language){speechQueue=speechQueue.then(()=>speakCustomerCall(orderNo,language)).catch(()=>{});return speechQueue}
+adminVoicePreview.addEventListener('click',()=>enqueueCustomerCall('3181','ko'));
 
 let announcementQueue=Promise.resolve();
 function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
