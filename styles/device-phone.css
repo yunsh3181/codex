@@ -759,15 +759,9 @@ html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard {
   touch-action: manipulation;
 }
 
-html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.takeout,
-html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.discountOrder {
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.takeout {
   border-color: var(--r);
   background: #fff1f2;
-}
-
-html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard.happy {
-  border-color: #dc6f00;
-  background: #fff5e8;
 }
 
 html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeIcon {
@@ -822,6 +816,10 @@ html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo {
 
 html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :where(h3, strong, p, .takeoutSizeNote, .takeoutDiscount) {
   color: #fff !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip :where(.happyHours, .takeoutDiscount, .beerAd strong) {
+  color: #111111 !important;
 }
 
 html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
@@ -1763,4 +1761,73 @@ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage .darkBenefitG
   padding: 10px 5px 8px !important;
   gap: 4px !important;
   overflow: hidden !important;
+}
+
+/* Keep the white highlight pills readable over the shared orange banners. */
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo .happyHours,
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo .takeoutDiscount,
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo.beerAd strong {
+  color: #111111 !important;
+}
+
+/* Fill the phone home viewport without introducing page scroll. */
+html[data-layout="phone"] body[data-step="home"] .darkHero {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  gap: 12px !important;
+  padding-top: calc(18px + env(safe-area-inset-top)) !important;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+  overflow: hidden !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid {
+  margin-top: 10px !important;
+  gap: 10px !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard,
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo {
+  height: clamp(138px, calc((100dvh - 190px) / 2), 260px) !important;
+  min-height: 0 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard {
+  padding: 16px 10px !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(20, 39, 29, .22) !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard.dinein {
+  border-color: #045c38 !important;
+  background: #087348 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard.takeout {
+  border-color: #980f24 !important;
+  background: #c8102e !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeGrid .mobileOrderTypeCard :where(.mobileOrderTypeIcon, strong, span) {
+  color: #ffffff !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip {
+  gap: 8px !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo {
+  padding: 12px 6px !important;
+  gap: 5px !important;
+}
+
+/* The home language control must remain readable independently of card colors. */
+html[data-layout="phone"] body[data-step="home"] .heroTop > .heroLangBtn {
+  border-color: #d6d9d7 !important;
+  background: #ffffff !important;
+  color: #111111 !important;
+}
+
+html[data-layout="phone"] body[data-step="home"] .heroTop > .heroLangBtn span {
+  color: #111111 !important;
+  text-shadow: none !important;
 }
