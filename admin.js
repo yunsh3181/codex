@@ -609,7 +609,7 @@ function mealTicketHighlightHTML(order,paid=safeAmounts(order).paid){
  return `<div class="meal-ticket-highlight"><strong>식권대장 ${money(split.total)}</strong><span>${esc(detail)}</span></div>`
 }
 function storedPizzaBenefitLabel(promo,set,orderType){
- if(promo==='upup')return '업앤업';
+ if(promo==='upup')return 'UP&UP';
  if(promo==='happy')return '해피아워';
  if(promo==='takeout')return '포장 20%';
  if(promo==='set'&&[2,3,4].includes(set))return `${set}인 세트`;
@@ -919,6 +919,25 @@ function reservationTimeLabel(order){
  if(value&&!Number.isNaN(value.getTime()))return `${String(value.getHours()).padStart(2,'0')}:${String(value.getMinutes()).padStart(2,'0')} 예약`;
  return '';
 }
+function reservationDetailValue(order){
+ if(!isReservationOrder(order))return '';
+ const raw=order?.pickup?.time;
+ if(typeof raw==='string'){
+  const time=raw.trim().match(/^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/);
+  if(time){
+   const hour=Number(time[1]);
+   return `${hour<12?'오전':'오후'} ${hour%12||12}:${time[2]}`;
+  }
+ }
+ const value=raw?.toDate?raw.toDate():raw instanceof Date?raw:null;
+ if(!value||Number.isNaN(value.getTime()))return '';
+ const parts=new Intl.DateTimeFormat('ko-KR',{
+  timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',
+  hour:'numeric',minute:'2-digit',hour12:true
+ }).formatToParts(value).reduce((result,part)=>(result[part.type]=part.value,result),{});
+ if(!parts.year||!parts.month||!parts.day||!parts.dayPeriod||!parts.hour||!parts.minute)return '';
+ return `${parts.year}. ${parts.month}. ${parts.day}. ${parts.dayPeriod} ${parts.hour}:${parts.minute}`;
+}
 function storedLineAmount(entry){
  for(const value of [entry?.total,entry?.amount,entry?.lineTotal]){
   if(value!==null&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0)return Number(value);
@@ -1007,6 +1026,7 @@ function renderOrderDetail(order,seatId=null){
  const phone=displayText(order.phone||order.phoneMasked);
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const completed=['ready','completed'].includes(order.status);
+ const reservationValue=reservationDetailValue(order);
  const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),mealTicketHighlight=mealTicketHighlightHTML(order,paid);
  return `<div class="admin-detail-screen">
  <div class="admin-detail-topbar">
@@ -1015,6 +1035,7 @@ function renderOrderDetail(order,seatId=null){
   <div class="detail-top-card seat"><span>좌석</span><strong>${esc(seatLabel)}</strong></div>
   <div class="detail-top-card phone"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div>
   <div class="detail-top-card paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
+  ${reservationValue?`<div class="detail-reservation-time"><span>예약주문</span><strong><small>예약시간</small>${esc(reservationValue)}</strong></div>`:''}
   <div class="detail-completion">${completed?'<strong><i></i>완료</strong>':''}<span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span></div>
  </div>
  <div class="admin-detail-body">
