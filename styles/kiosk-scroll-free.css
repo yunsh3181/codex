@@ -45,7 +45,7 @@ body[data-step="pizza"] .pizzaMenuCard h3 {
 
 body[data-step="pizza"] .pizzaMenuCard .price {
   margin-top: 5px !important;
-  font-size: clamp(15px, 1.5vw, 19px) !important;
+  font-size: clamp(15px, 1.75vw, 21px) !important;
   line-height: 1.1 !important;
 }
 

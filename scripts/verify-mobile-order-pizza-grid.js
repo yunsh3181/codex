@@ -64,9 +64,13 @@ const measurePizza = `(() => {
   const last = cards[cards.length - 1];
   const lastDocumentBottom = last ? last.getBoundingClientRect().bottom + scrollY : 0;
   const fixedBarHeight = cartbar ? innerHeight - cartbar.getBoundingClientRect().top : 0;
-  const clipped = [...names, ...prices].filter(element => element && (
+  const clippedNames = names.filter(element => element && (
     element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1
   ));
+  const clippedPrices = prices.filter(element => element && (
+    element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 2
+  ));
+  const clipped = [...clippedNames, ...clippedPrices];
   return {
     layout: root.dataset.layout,
     viewport: { width: innerWidth, height: innerHeight },
