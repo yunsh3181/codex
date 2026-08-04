@@ -253,6 +253,16 @@ test('business hours never add an installation blocker', () => {
   assert.deepEqual(installBlockers(idleOperationalState()), []);
 });
 
+test('update guidance matches the business-open installation behavior', () => {
+  const fakeDocument = { createElement: tag => new FakeNode(tag), createTextNode: text => new FakeNode('#text', text) };
+  const rootNode = new FakeNode('div');
+  renderPanelContent(fakeDocument, rootNode, normalizeUpdaterState({ status: 'downloaded', version: '1.2.22' }));
+  assert.match(rootNode.textContent, /영업 중에도 업데이트할 수 있습니다\. 진행 중인 주문·결제·저장·프린터 작업이 없을 때 재시작 후 설치됩니다\./);
+  const docs = read('docs/windows-auto-update.md');
+  assert.match(docs, /administrator may update while the store is open/);
+  assert.doesNotMatch(docs, /blocked while the store is open|Outside business hours/);
+});
+
 test('business-hours update check, download, install, and restart remain available', async () => {
   const operationalState = {
     ...idleOperationalState(),

@@ -43,7 +43,7 @@ test('numeric keypad is an even three-column grid with 72px touch targets', () =
 test('payment keeps the existing selector and uses wide two-column geometry', () => {
   assert.match(kiosk, /body\[data-step="payment"\] \.paymentGrid[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(kiosk, /@media \(max-width: 760px\)[\s\S]*?body\[data-step="payment"\] \.paymentGrid[\s\S]*?minmax\(0, 1fr\)/);
-  assert.match(html, /class="paymentCard \$\{state\.paymentMethod===method\?'active':''\}"/);
+  assert.match(html, /class="paymentCard payment-method-\$\{method\} \$\{state\.paymentMethod===method\?'active':''\}" data-payment-method="\$\{method\}"/);
   assert.match(html, /class="next paymentSubmitBtn"[^>]*\$\{validPayment\(\)\?'':'disabled'\}/);
 });
 

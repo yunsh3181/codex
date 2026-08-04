@@ -31,7 +31,7 @@ test('checkout totals wrap descriptions while keeping prices right aligned', () 
 });
 
 test('payment preserves existing card state and submit control markup', () => {
-  assert.match(html, /class="paymentCard \$\{state\.paymentMethod===method\?'active':''\}"/);
+  assert.match(html, /class="paymentCard payment-method-\$\{method\} \$\{state\.paymentMethod===method\?'active':''\}" data-payment-method="\$\{method\}"/);
   assert.match(html, /class="next paymentSubmitBtn"[^>]*\$\{validPayment\(\)\?'':'disabled'\}/);
   assert.ok(phoneCss.includes('[data-step="payment"]>.paymentGrid') === false);
   assert.ok(phoneCss.includes('.paymentGrid{grid-template-columns:minmax(0,1fr);'));

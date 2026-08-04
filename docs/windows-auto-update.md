@@ -28,8 +28,8 @@ application does not contain a GitHub token.
 - The installed NSIS application checks after 15 seconds and every 6 hours.
 - Downloads run in the background and failures do not block ordering.
 - Press `Ctrl+Alt+Shift+U` to open the administrator-only update panel.
-- Restart installation is blocked while the store is open or an order, payment,
-  Firestore save, or printer task is active.
+- The administrator may update while the store is open. Restart installation is
+  blocked only while an order, payment, Firestore save, or printer task is active.
 - The application selects `latest-ia32.yml` or `latest-x64.yml` from its runtime
   architecture. It never falls back to the other architecture.
 - Closing the panel defers the downloaded update. On a later launch it remains
@@ -43,7 +43,7 @@ After two updater-capable releases exist:
 2. Keep its settings and kiosk data, then publish the higher version.
 3. Confirm background download from `latest-ia32.yml`.
 4. Confirm that restart remains blocked during every operational busy state.
-5. Outside business hours with no busy state, approve restart and verify the
+5. With the store open and no busy state, approve restart and verify the
    displayed application version increased while settings and data remain.
 6. Repeat on x64 using `latest-x64.yml`.
 

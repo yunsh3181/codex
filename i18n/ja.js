@@ -23,7 +23,7 @@ window.PJ_I18N_LOCALES.ja={
     pizza:{'P001':{name:'Super Papa\'s'},'P002':{name:'John\'s Favorite'},'P003':{name:'All Meat'},'P004':{name:'Spicy Chicken Ranch'},'P005':{name:'Irish Potato'},'P006':{name:'Chicken BBQ'},'P007':{name:'Ham Mushroom Six Cheese'},'P008':{name:'Premium Grilled Bulgogi'},'P009':{name:'Six Cheese'},'P010':{name:'Spicy Italian'},'P011':{name:'THIN Shrimp Alfredo'},'P012':{name:'Margherita'},'P013':{name:'Pepperoni'},'P014':{name:'Hawaiian'},'P015':{name:'Garden Special'},noPizzaTitle:'選択なし',noPizzaStrong:'ピザなしで注文',noPizzaDesc:'サイドメニューとドリンクだけでも注文できます。'},
     nav:{home:'最初へ',previous:'戻る',next:'次へ'},
     phone:{title:'電話番号を入力してください',subtitle:'010は固定です。残り8桁を入力してください。',clear:'すべて削除',orderNumber:'注文番号（電話番号下4桁）:',invalid:'電話番号の下8桁を正しく入力してください。',next:'決済方法を選択'},
-    done:{title:'注文を受け付けました',orderLabel:'注文番号・電話番号下4桁',paymentRequired:'カウンターで{payment}にてお支払いください',paymentGuide:'お支払い完了後、ピザの調理を開始します。',reserveTime:'予約時間 {time}',guide:'注文番号をご確認のうえ、カウンターまでお越しください。',home:'最初へ'}
+    done:{title:'注文を受け付けました',orderLabel:'注文番号・電話番号下4桁',paymentRequired:'カウンターで{payment}にてお支払いください',paymentMethodPhrase:{cash:'現金',card:'クレジットカード',meal_ticket:'食券台帳',bizle:'ゼロペイ'},paymentGuide:'お支払い完了後、ピザの調理を開始します。',reserveTime:'予約時間 {time}',guide:'注文番号をご確認のうえ、カウンターまでお越しください。',home:'最初へ'}
   };
 window.PJ_I18N_LOCALES.ja.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.ja.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
