@@ -25,7 +25,7 @@ test('mobile review keeps item names, quantities, and prices visible', () => {
   assert.match(phone, /\.cartItemName\s*\{[\s\S]*?overflow-wrap:\s*anywhere/);
   assert.match(
     phone,
-    /:is\([\s\S]*?\.cartPizzaPriceLine\.discount > span,[\s\S]*?\.cartBenefitRow > span,[\s\S]*?\.cartBenefitRow > strong[\s\S]*?\)\s*\{[\s\S]*?line-height:\s*15px;[\s\S]*?padding-bottom:\s*2px;/
+    /:is\([\s\S]*?\.cartPizzaPriceLine\.discount > span,[\s\S]*?\.cartBenefitRow > span,[\s\S]*?\.cartBenefitRow > strong[\s\S]*?\)\s*\{[\s\S]*?line-height:\s*16px;[\s\S]*?padding-bottom:\s*2px;/
   );
   assert.match(
     phone,

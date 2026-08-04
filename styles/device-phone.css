@@ -1528,7 +1528,7 @@ html[data-layout="phone"] body[data-step="review"] :is(
   .cartBenefitRow > span,
   .cartBenefitRow > strong
 ) {
-  line-height: 15px;
+  line-height: 16px;
   padding-bottom: 2px;
 }
 
