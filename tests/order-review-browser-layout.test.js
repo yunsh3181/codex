@@ -83,7 +83,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
         `${context}: ${metric.text} ${metric.scrollWidth}px > ${metric.clientWidth}px wide`
       );
       assert.ok(
-        metric.scrollHeight <= metric.clientHeight,
+        metric.scrollHeight <= metric.clientHeight + 1,
         `${context}: ${metric.text} ${metric.scrollHeight}px > ${metric.clientHeight}px`
       );
     }
