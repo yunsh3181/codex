@@ -608,6 +608,29 @@ function mealTicketHighlightHTML(order,paid=safeAmounts(order).paid){
  const detail=split.groups.length===1?`${money(split.groups[0].amount)} × ${split.count}인`:split.amounts.map(money).join(' + ');
  return `<div class="meal-ticket-highlight"><strong>식권대장 ${money(split.total)}</strong><span>${esc(detail)}</span></div>`
 }
+function storedPizzaBenefitLabel(promo,set,orderType){
+ if(promo==='upup')return '업앤업';
+ if(promo==='happy')return '해피아워';
+ if(promo==='takeout')return '포장 20%';
+ if(promo==='set'&&[2,3,4].includes(set))return `${set}인 세트`;
+ if(promo==='normal'&&orderType==='takeout')return '포장';
+ return '';
+}
+function orderPizzaBenefitLabels(order){
+ const pizzas=(Array.isArray(order?.items)?order.items:[]).filter(item=>item&&(item.pizza||item.pizzaLeft||item.pizzaRight));
+ const hasItemBenefitData=pizzas.some(item=>typeof item?.promo==='string'&&item.promo.length>0);
+ const sources=hasItemBenefitData?pizzas:[{promo:order?.promo??order?.benefit,set:order?.set}];
+ const labels=[];
+ for(const source of sources){
+  const label=storedPizzaBenefitLabel(source?.promo,source?.set,order?.orderType);
+  if(label&&!labels.includes(label))labels.push(label);
+ }
+ return labels;
+}
+function pizzaSectionHeadingHTML(order){
+ const benefits=orderPizzaBenefitLabels(order);
+ return `<div class="pizza-section-heading"><h4>피자</h4>${benefits.length?`<span>${esc(benefits.join(' + '))}</span>`:''}</div>`;
+}
 function orderMenuHTML(order){
  const items=Array.isArray(order.items)?order.items:[];
  const sides=items.flatMap(item=>[...selectionEntries(item.includedSides,'sides',SIDES),...selectionEntries(item.sides,'sides',SIDES)]);
@@ -618,7 +641,7 @@ function orderMenuHTML(order){
   }
   return result;
  },{drinks:[],sauces:[]});
- return `${items.length?`<section><h4>피자</h4><div class="detail-items">${items.map(itemHTML).join('')}</div></section>`:'<p class="empty-items">저장된 피자 정보가 없습니다.</p>'}${sides.length?`<section><h4>사이드메뉴</h4>${itemListHTML(sides)}</section>`:''}${extras.drinks.length?`<section><h4>음료</h4>${itemListHTML(extras.drinks)}</section>`:''}${extras.sauces.length?`<section><h4>곁들이</h4>${itemListHTML(extras.sauces)}</section>`:''}`;
+ return `${items.length?`<section>${pizzaSectionHeadingHTML(order)}<div class="detail-items">${items.map(itemHTML).join('')}</div></section>`:'<p class="empty-items">저장된 피자 정보가 없습니다.</p>'}${sides.length?`<section><h4>사이드메뉴</h4>${itemListHTML(sides)}</section>`:''}${extras.drinks.length?`<section><h4>음료</h4>${itemListHTML(extras.drinks)}</section>`:''}${extras.sauces.length?`<section><h4>곁들이</h4>${itemListHTML(extras.sauces)}</section>`:''}`;
 }
 function combinedEntries(entries){
  const totals=new Map();
@@ -968,7 +991,7 @@ function orderDetailMenuHTML(order){
   return result;
  },{drinks:[],accompaniments:[],unknown:[]});
  const otherLines=[...sides,...combinedStoredEntries(extras.drinks),...combinedStoredEntries(extras.accompaniments),...combinedStoredEntries(extras.unknown)];
- const pizzaSection=items.length?`<section class="detail-menu-section detail-pizza-section"><h4>피자</h4><div class="detail-menu-list">${items.map(orderDetailPizzaLine).join('')}</div></section>`:'';
+ const pizzaSection=items.length?`<section class="detail-menu-section detail-pizza-section">${pizzaSectionHeadingHTML(order)}<div class="detail-menu-list">${items.map(orderDetailPizzaLine).join('')}</div></section>`:'';
  const otherSection=otherLines.length?`<section class="detail-menu-section detail-other-section"><h4>사이드 / 음료 / 곁들이</h4><div class="detail-menu-list">${otherLines.map(entry=>orderDetailMenuLine(entry)).join('')}</div></section>`:'';
  return `${pizzaSection}${otherSection}`;
 }

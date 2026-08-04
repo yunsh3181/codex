@@ -39,7 +39,7 @@ test('tablet payment uses two wide columns and one compact column without changi
   assert.match(tablet, /body\[data-step="payment"\] \.paymentGrid[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(tablet, /@media \(max-width: 680px\)[\s\S]*?body\[data-step="payment"\] \.paymentGrid[\s\S]*?minmax\(0, 1fr\)/);
   assert.match(tablet, /\.paymentSubmitBtn[\s\S]*?min-height: 56px/);
-  assert.match(html, /class="paymentCard \$\{state\.paymentMethod===method\?'active':''\}"/);
+  assert.match(html, /class="paymentCard payment-method-\$\{method\} \$\{state\.paymentMethod===method\?'active':''\}" data-payment-method="\$\{method\}"/);
   assert.match(html, /class="next paymentSubmitBtn"[^>]*\$\{validPayment\(\)\?'':'disabled'\}/);
 });
 

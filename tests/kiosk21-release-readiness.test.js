@@ -16,7 +16,7 @@ test('release changes do not alter protected application sources', () => {
   assert.equal(pkg.version, '1.2.21');
   assert.equal(lock.version, '1.2.21');
   assert.equal(lock.packages[''].version, '1.2.21');
-  assert.equal(sha256(html), 'edb74640daf89d286a7ad4a3d55f0874de5ae3a1a4a0770b546ac8169d55e8fb');
+  assert.equal(sha256(html), 'c70b5ece4c383a5bf4607bc46eb77afebbf8e577e806251fa6728e2aad797d43');
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
   assert.equal(sha256(read('styles/device-phone.css')), 'a50d3a03d0e0b3ab1e039c6f380d7aea0b608ddeeb449b837447c20fbf0f11a8');
   assert.equal(sha256(read('styles/device-tablet.css')), '37e0df47da0b899550f627e8cf68060736c5740920c4832d86d32e10c2740341');

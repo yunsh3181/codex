@@ -71,6 +71,7 @@ const splitDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,tota
 assert.ok(splitDetail.includes('meal-ticket-highlight')&&splitDetail.includes('식권대장 40,000원')&&splitDetail.includes('10,000원 × 4인'),'equal meal-ticket split is emphasized below the detail call button');
 const splitMain=context.newOrderCard({...baseOrder,id:'split-main',status:'payment_pending',totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(splitMain.includes('meal-ticket-highlight')&&splitMain.includes('식권대장 40,000원')&&splitMain.includes('10,000원 × 4인'),'new-order card emphasizes the split below the call button from its first render');
+assert.ok(splitMain.includes('<span>일회용 포크</span><strong>O</strong>'),'the Firestore fixture keeps the customer true selection as O on the admin main card');
 const unevenDetail=context.renderOrderDetail({...baseOrder,totalAmount:28000,total:28000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:3,splitAmounts:[10000,10000,8000]}});
 assert.ok(unevenDetail.includes('10,000원 + 10,000원 + 8,000원'),'unequal meal-ticket split preserves the stored payment amounts');
 const singleDetail=context.renderOrderDetail({...baseOrder,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:1,splitAmounts:[55400]}});
@@ -82,6 +83,18 @@ assert.ok(mixedKnownDetail.includes('식권대장 28,000원')&&mixedKnownDetail.
 assert.ok(!mixedKnownDetail.includes('식권대장 40,000원'),'mixed payment never labels the whole paid amount as meal-ticket money');
 const mixedUnknownDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,total:40000,payment:{methodName:'복합결제',methods:[{method:'meal_ticket'},{method:'card'}],splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(!mixedUnknownDetail.includes('10,000원 × 4인')&&!mixedUnknownDetail.includes('NaN')&&!mixedUnknownDetail.includes('undefined'),'ambiguous mixed legacy payment hides unsafe split detail');
+
+const benefitItems=[
+ {...baseOrder.items[0],promo:'upup',set:null},
+ {...baseOrder.items[0],promo:'set',set:3},
+ {...baseOrder.items[0],promo:'upup',set:null},
+ {...baseOrder.items[0],promo:'set',set:4}
+];
+const benefitOrder={...baseOrder,items:benefitItems,promo:'happy'};
+assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels(benefitOrder)),['업앤업','3인 세트','4인 세트'],'item benefits preserve first-seen order and remove duplicates without mixing order promo');
+for(const markup of [context.newOrderCard({...benefitOrder,id:'benefits'}),context.renderOrderDetail(benefitOrder)])assert.ok(markup.includes('업앤업 + 3인 세트 + 4인 세트'),'main and detail render the same combined pizza heading');
+assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels({...baseOrder,items:[{...baseOrder.items[0],promo:'set',set:'3'}]})),[],'unverified string set data is safely omitted');
+assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels({...baseOrder,items:[{...baseOrder.items[0]}],promo:'happy'})),['해피아워'],'order benefit is used only when every pizza lacks item benefit data');
 
 const normal=context.renderOrderDetail({...baseOrder,status:'cooking',pickup:{mode:'now',time:null},disposables:false});
 assert.ok(!normal.includes('detail-reservation">예약</span>'),'normal orders remove the reservation label and its space');

@@ -155,7 +155,7 @@
     install.dataset.updaterAction = 'install';
     install.disabled = !value.downloaded || value.installing;
     panel.appendChild(actions);
-    const guide = appendTextElement(document, panel, 'p', '설치는 영업 종료 상태이며 주문·결제·저장·프린터 작업이 없을 때만 시작됩니다.');
+    const guide = appendTextElement(document, panel, 'p', '영업 중에도 업데이트할 수 있습니다. 진행 중인 주문·결제·저장·프린터 작업이 없을 때 재시작 후 설치됩니다.');
     guide.className = 'kioskUpdaterGuide';
 
     backdrop.appendChild(panel);
