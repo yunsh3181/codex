@@ -618,7 +618,7 @@ function storedPizzaBenefitLabel(promo,set,orderType){
 }
 function orderPizzaBenefitLabels(order){
  const pizzas=(Array.isArray(order?.items)?order.items:[]).filter(item=>item&&(item.pizza||item.pizzaLeft||item.pizzaRight));
- const hasItemBenefitData=pizzas.some(item=>Object.prototype.hasOwnProperty.call(item,'promo')||Object.prototype.hasOwnProperty.call(item,'set'));
+ const hasItemBenefitData=pizzas.some(item=>typeof item?.promo==='string'&&item.promo.length>0);
  const sources=hasItemBenefitData?pizzas:[{promo:order?.promo??order?.benefit,set:order?.set}];
  const labels=[];
  for(const source of sources){

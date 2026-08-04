@@ -23,5 +23,5 @@ test('Korean payment guidance owns the exact particles while all six locales def
  assert.doesNotMatch(locales.ko,/현금로|식권대장로/);
  for(const [locale,source] of Object.entries(locales))for(const method of ['cash','card','meal_ticket','bizle'])assert.match(source,new RegExp(`${method}:'`),`${locale} defines ${method}`);
  assert.match(html,/paymentGuidanceName\(state\.paymentMethod\)/);
- assert.match(html,/function paymentGuidanceName\(v\)\{return t\(`done\.paymentMethodPhrase\.\$\{v\}`\)\|\|paymentName\(v\)\}/);
+ assert.match(html,/function paymentGuidanceName\(v\)\{const key=`done\.paymentMethodPhrase\.\$\{v\}`,translated=t\(key\);return translated===key\?paymentName\(v\):translated\}/);
 });

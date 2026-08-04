@@ -3556,7 +3556,7 @@ function validPayment(){return Boolean(state.paymentMethod)&&(!isSplitPayment()|
 function splitParts(total,count){const base=Math.floor(total/count),rem=total-base*count;return Array.from({length:count},(_,i)=>base+(i===count-1?rem:0))}
 function splitPaymentHTML(total){const parts=splitParts(total,state.splitCount),base=Math.floor(total/state.splitCount);return `<div class="splitBox"><div><b>${t('ui.payment.splitPeople')}</b></div><div class="splitCounter"><button type="button" aria-label="${t('ui.payment.decrease')}" ${state.splitCount<=1?'disabled':''} onclick="setSplitCount(state.splitCount-1)">−</button><div class="splitCountView">${t('ui.payment.people',{count:state.splitCount})}</div><button type="button" aria-label="${t('ui.payment.increase')}" ${state.splitCount>=20?'disabled':''} onclick="setSplitCount(state.splitCount+1)">＋</button></div><div class="splitSummary"><div><span>${t('ui.payment.total')}</span><strong>${money(total)}</strong></div><div><span>${t('ui.payment.perPerson')}</span><strong>${money(base)}</strong></div></div>${total%state.splitCount?`<div class="notice">${t('ui.payment.remainder',{amount:money(total%state.splitCount)})}</div>`:''}<div class="splitAmounts">${parts.map((v,i)=>`<div><span>${t('ui.payment.ordinal',{count:i+1})}</span><strong>${money(v)}</strong></div>`).join('')}</div></div>`}
 function paymentName(v){return label('payment',v,'-')}
-function paymentGuidanceName(v){return t(`done.paymentMethodPhrase.${v}`)||paymentName(v)}
+function paymentGuidanceName(v){const key=`done.paymentMethodPhrase.${v}`,translated=t(key);return translated===key?paymentName(v):translated}
 function myQueueEntries(){let ids=[];try{ids=JSON.parse(localStorage.getItem('pj_waitlist_ids')||'[]')}catch(e){}return mobileWaitlist.filter(w=>ids.includes(w.id)&&w.status==='waiting')}
 function myQueueHTML(){const rows=myQueueEntries();return rows.length?`<div class="notice"><b>${t('ui.seatExtra.myQueue')}</b>${rows.map(w=>`<div>${seatTableName({name:w.seatName||w.seatId})} · ${t('ui.seatExtra.queuePosition',{count:queuePosition(w)})} <button class="cancelQueueBtn" onclick="cancelWaitlist('${w.id}')">${t('ui.common.cancel')}</button></div>`).join('')}</div>`:''}
 function queuePosition(w){return mobileWaitlist.filter(x=>x.seatId===w.seatId&&x.status==='waiting'&&queueMillis(x)<=queueMillis(w)).length}
@@ -7094,15 +7094,13 @@ html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,
   font-size:26.4px!important;
   line-height:1.2!important;
 }
-</style>
-<link rel="stylesheet" href="styles/device-phone.css?v=order-review-windows-font-v19">
-<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
-<link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
-<link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
-<style>
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"],
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active{
   background:#03C75A!important;
   color:#07150f!important;
 }
 </style>
+<link rel="stylesheet" href="styles/device-phone.css?v=order-review-windows-font-v19">
+<link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
+<link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
+<link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
