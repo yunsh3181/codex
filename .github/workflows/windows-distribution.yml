@@ -6,6 +6,10 @@ on:
     paths:
       - ".github/workflows/windows-distribution.yml"
       - "desktop/**"
+      - "styles/**"
+      - "scripts/verify-*-layout.js"
+      - "scripts/verify-mobile-order-pizza-grid.js"
+      - "tests/**"
       - "scripts/verify-windows-pe.js"
       - "package.json"
       - "package-lock.json"
@@ -30,7 +34,38 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm test -- --test-concurrency=1
+      - name: Run test suite
+        id: tests
+        continue-on-error: true
+        run: npm test -- --test-concurrency=1
+
+      - name: Capture Windows layout diagnostics
+        if: steps.tests.outcome == 'failure'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/windows-layout | Out-Null
+          $env:MOBILE_PIZZA_GRID_OUTPUT = "artifacts/windows-layout/mobile-pizza-grid"
+          $env:MOBILE_PIZZA_GRID_REPORT = "artifacts/windows-layout/mobile-pizza-grid.json"
+          & node_modules/.bin/electron.cmd scripts/verify-mobile-order-pizza-grid.js --screenshots
+          $env:PIZZA_OPTION_REPORT = "artifacts/windows-layout/pizza-options.json"
+          $env:PIZZA_OPTION_SCREENSHOT_DIR = "artifacts/windows-layout/pizza-options"
+          & node_modules/.bin/electron.cmd scripts/verify-pizza-option-layout.js --screenshots
+          $env:ORDER_REVIEW_REPORT = "artifacts/windows-layout/order-review.json"
+          $env:ORDER_REVIEW_SCREENSHOT_DIR = "artifacts/windows-layout/order-review"
+          & node_modules/.bin/electron.cmd scripts/verify-order-review-layout.js --screenshots
+
+      - name: Upload Windows layout diagnostics
+        if: steps.tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-layout-diagnostics
+          if-no-files-found: error
+          path: artifacts/windows-layout/
+
+      - name: Enforce test gate
+        if: steps.tests.outcome == 'failure'
+        shell: pwsh
+        run: throw "Test suite failed; packaging remains blocked."
       - run: npm run dist:win:ia32:dir
       - run: npm run dist:win:ia32
       - run: npm run verify:win:ia32

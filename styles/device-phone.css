@@ -1027,8 +1027,8 @@ html[data-layout="phone"] body[data-step="pizzaOptions"] .optionContinue {
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection {
-  margin-bottom: 7px;
-  padding: 9px 10px 10px;
+  margin-bottom: 3px;
+  padding: 9px 10px 9px;
 }
 
 html[data-layout="phone"] body[data-step="pizzaOptions"] .optionSection > h2 {
@@ -1528,7 +1528,7 @@ html[data-layout="phone"] body[data-step="review"] :is(
   .cartBenefitRow > span,
   .cartBenefitRow > strong
 ) {
-  line-height: 13px;
+  line-height: 15px;
   padding-bottom: 2px;
 }
 

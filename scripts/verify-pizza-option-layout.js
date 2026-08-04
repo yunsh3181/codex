@@ -28,7 +28,10 @@ app.commandLine.appendSwitch('headless');
 app.commandLine.appendSwitch('hide-scrollbars');
 app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
-const waitForPaint = () => new Promise(resolve => setTimeout(resolve, 120));
+const waitForLayout = window => window.webContents.executeJavaScript(`(async () => {
+  await document.fonts.ready;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+})()`, true);
 const fixtureScript = locale => `
   (() => {
     window.__pizzaOptionConsoleMessages = [];
@@ -122,7 +125,7 @@ const measureScript = `
   })()
 `;
 const captureExact = async (window, viewport, prefix) => {
-  await waitForPaint();
+  await waitForLayout(window);
   const screenshot = await window.webContents.debugger.sendCommand('Page.captureScreenshot', {
     format: 'png',
     fromSurface: true,
@@ -162,13 +165,13 @@ runElectronVerification({ app }, async lifecycle => {
     await window.loadFile(path.join(root, 'index.html'));
     for (const locale of locales) {
       await window.webContents.executeJavaScript(fixtureScript(locale), true);
-      await waitForPaint();
+      await waitForLayout(window);
       const before = await window.webContents.executeJavaScript(measureScript, true);
       await window.webContents.executeJavaScript(
         "setStandardPizzaOption('dough','씬도우');setStandardPizzaOption('crust','골드링');document.getAnimations().forEach(animation=>animation.finish())",
         true
       );
-      await waitForPaint();
+      await waitForLayout(window);
       const after = await window.webContents.executeJavaScript(measureScript, true);
       results.push({ viewportName: viewport.name, before, after });
     }
