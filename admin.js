@@ -929,8 +929,14 @@ function reservationDetailValue(order){
    return `${hour<12?'오전':'오후'} ${hour%12||12}:${time[2]}`;
   }
  }
- const value=raw?.toDate?raw.toDate():raw instanceof Date?raw:null;
- if(!value||Number.isNaN(value.getTime()))return '';
+ let value=null;
+ if(typeof raw?.toDate==='function'){
+  try{value=raw.toDate()}catch{return ''}
+ }else if(Object.prototype.toString.call(raw)==='[object Date]')value=raw;
+ if(Object.prototype.toString.call(value)!=='[object Date]')return '';
+ let timestamp;
+ try{timestamp=Date.prototype.getTime.call(value)}catch{return ''}
+ if(!Number.isFinite(timestamp))return '';
  const parts=new Intl.DateTimeFormat('en-US',{
   timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',
   hour:'2-digit',minute:'2-digit',hourCycle:'h23'

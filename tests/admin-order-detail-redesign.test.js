@@ -134,6 +134,22 @@ for(const invalid of [null,undefined,'not-a-time','25:99']){
 }
 const timestampDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:{toDate:()=>new Date('2026-08-05T09:30:00.000Z')}}});
 assert.ok(timestampDetail.includes('2026. 08. 05. 오후 6:30'),'timestamp reservations render in Asia/Seoul');
+const dateDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:new Date('2026-08-05T09:30:00.000Z')}});
+assert.ok(dateDetail.includes('2026. 08. 05. 오후 6:30'),'Date reservations render in Asia/Seoul');
+const unsafeReservationTimes=[
+ {label:'non-function toDate',value:{toDate:'not-a-function'}},
+ {label:'non-Date toDate result',value:{toDate:()=>'not-a-date'}},
+ {label:'null toDate result',value:{toDate:()=>null}},
+ {label:'throwing toDate',value:{toDate:()=>{throw new Error('broken timestamp')}}},
+ {label:'empty object',value:{}},
+ {label:'invalid Date',value:new Date('invalid')}
+];
+for(const {label,value} of unsafeReservationTimes){
+ let markup;
+ assert.doesNotThrow(()=>{markup=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:value}})},`${label} does not throw`);
+ assert.ok(!markup.includes('예약시간'),`${label} hides the reservation time region`);
+ assert.doesNotMatch(markup,/Invalid Date|undefined|null|NaN/,`${label} emits no invalid placeholder`);
+}
 
 const css=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 assert.match(css,/\.order-detail-panel\{width:min\(840px,calc\(100vw - 32px\)\);height:auto;max-height:84vh/,'detail dialog has the compact desktop bounds');
