@@ -931,14 +931,16 @@ function reservationDetailValue(order){
  }
  const value=raw?.toDate?raw.toDate():raw instanceof Date?raw:null;
  if(!value||Number.isNaN(value.getTime()))return '';
- const parts=new Intl.DateTimeFormat('ko-KR',{
+ const parts=new Intl.DateTimeFormat('en-US',{
   timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',
-  hour:'numeric',minute:'2-digit',hour12:true
+  hour:'2-digit',minute:'2-digit',hourCycle:'h23'
  }).formatToParts(value).reduce((result,part)=>(result[part.type]=part.value,result),{});
- if(!parts.year||!parts.month||!parts.day||!parts.dayPeriod||!parts.hour||!parts.minute)return '';
+ if(!parts.year||!parts.month||!parts.day||!parts.hour||!parts.minute)return '';
  const month=String(Number(parts.month)).padStart(2,'0');
  const day=String(Number(parts.day)).padStart(2,'0');
- return `${parts.year}. ${month}. ${day}. ${parts.dayPeriod} ${Number(parts.hour)}:${parts.minute}`;
+ const hour=Number(parts.hour);
+ if(!Number.isInteger(hour)||hour<0||hour>23)return '';
+ return `${parts.year}. ${month}. ${day}. ${hour<12?'오전':'오후'} ${hour%12||12}:${parts.minute}`;
 }
 function storedLineAmount(entry){
  for(const value of [entry?.total,entry?.amount,entry?.lineTotal]){
