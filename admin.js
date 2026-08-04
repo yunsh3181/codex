@@ -936,7 +936,9 @@ function reservationDetailValue(order){
   hour:'numeric',minute:'2-digit',hour12:true
  }).formatToParts(value).reduce((result,part)=>(result[part.type]=part.value,result),{});
  if(!parts.year||!parts.month||!parts.day||!parts.dayPeriod||!parts.hour||!parts.minute)return '';
- return `${parts.year}. ${parts.month}. ${parts.day}. ${parts.dayPeriod} ${Number(parts.hour)}:${parts.minute}`;
+ const month=String(Number(parts.month)).padStart(2,'0');
+ const day=String(Number(parts.day)).padStart(2,'0');
+ return `${parts.year}. ${month}. ${day}. ${parts.dayPeriod} ${Number(parts.hour)}:${parts.minute}`;
 }
 function storedLineAmount(entry){
  for(const value of [entry?.total,entry?.amount,entry?.lineTotal]){
