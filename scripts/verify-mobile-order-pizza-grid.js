@@ -30,7 +30,10 @@ const viewports = [
   { name: '390x844', width: 390, height: 844 },
   { name: '1080x1920', width: 1080, height: 1920 },
 ];
-const waitForPaint = () => new Promise(resolve => setTimeout(resolve, 140));
+const waitForLayout = window => window.webContents.executeJavaScript(`(async () => {
+  await document.fonts.ready;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+})()`, true);
 const fixture = (scenario, locale = 'ko') => `(() => {
   window.PJ_I18N.setLanguage(${JSON.stringify(locale)});
   Object.assign(state, {
@@ -149,14 +152,14 @@ runElectronVerification({ app }, async lifecycle => {
     window.setContentSize(viewport.width, viewport.height);
     await window.loadFile(path.join(root, 'index.html'));
     await window.webContents.executeJavaScript(timingFixture, true);
-    await waitForPaint();
+    await waitForLayout(window);
     const timingAfter = await window.webContents.executeJavaScript(measureTiming, true);
     if (capture && viewport.name === '390x844') await captureExact(window, viewport, 'timing-after');
     let timingBefore = null;
     if (hasBaseline) {
       await window.loadFile(baselinePath);
       await window.webContents.executeJavaScript(timingFixture, true);
-      await waitForPaint();
+      await waitForLayout(window);
       timingBefore = await window.webContents.executeJavaScript(measureTiming, true);
       if (capture && viewport.name === '390x844') await captureExact(window, viewport, 'timing-before');
     }
@@ -164,7 +167,7 @@ runElectronVerification({ app }, async lifecycle => {
     for (const scenario of scenarios) {
       await window.loadFile(path.join(root, 'index.html'));
       await window.webContents.executeJavaScript(fixture(scenario), true);
-      await waitForPaint();
+      await waitForLayout(window);
       const after = await window.webContents.executeJavaScript(measurePizza, true);
       if (capture && (viewport.name === '390x844' || (viewport.name === '360x640' && scenario.name === 'normal') || (viewport.name === '1080x1920' && scenario.name === 'normal'))) {
         await captureExact(window, viewport, `${scenario.name}-after`);
@@ -175,16 +178,16 @@ runElectronVerification({ app }, async lifecycle => {
           const template = grid.querySelector('.pizzaMenuCard');
           grid.append(template.cloneNode(true), template.cloneNode(true));
         })()`, true);
-        await waitForPaint();
+        await waitForLayout(window);
         await window.webContents.executeJavaScript('scrollTo(0, document.documentElement.scrollHeight)', true);
-        await waitForPaint();
+        await waitForLayout(window);
         await captureExact(window, viewport, 'normal-17-bottom-after');
       }
       let before = null;
       if (hasBaseline) {
         await window.loadFile(baselinePath);
         await window.webContents.executeJavaScript(fixture(scenario), true);
-        await waitForPaint();
+        await waitForLayout(window);
         before = await window.webContents.executeJavaScript(measurePizza, true);
         if (capture && ((viewport.name === '390x844' && scenario.name === 'normal') || (viewport.name === '1080x1920' && scenario.name === 'normal'))) {
           await captureExact(window, viewport, `${scenario.name}-before`);
@@ -198,7 +201,7 @@ runElectronVerification({ app }, async lifecycle => {
     for (const scenario of scenarios) {
       await window.loadFile(path.join(root, 'index.html'));
       await window.webContents.executeJavaScript(fixture(scenario, locale), true);
-      await waitForPaint();
+      await waitForLayout(window);
       localeResults.push({ locale, scenario: scenario.name, measurement: await window.webContents.executeJavaScript(measurePizza, true) });
     }
   }

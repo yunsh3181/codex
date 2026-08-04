@@ -88,6 +88,9 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
       assert.deepEqual(result.after.imageSize, { width: 193, height: 180 }, `${result.viewport}/${result.scenario}: image size`);
       assert.equal(result.after.imageFit, 'cover', `${result.viewport}/${result.scenario}: image fit`);
       assert.equal(result.after.nameFontSize, 17.82, `${result.viewport}/${result.scenario}: name font`);
+      if (result.scenario === 'normal') {
+        assert.equal(result.after.priceFontSize, 17.82, `${result.viewport}/${result.scenario}: price font`);
+      }
       assert.equal(result.after.horizontalOverflow, 0, `${result.viewport}/${result.scenario}: horizontal overflow`);
       assert.deepEqual(result.after.clipped, [], `${result.viewport}/${result.scenario}: clipped text`);
     }

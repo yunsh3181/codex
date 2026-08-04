@@ -10,6 +10,8 @@ const writeAggregateReport = captureScreenshots || process.argv.includes('--aggr
 const beforeShaArg = process.argv.find(argument => argument.startsWith('--before-sha='));
 const beforeSha = beforeShaArg ? beforeShaArg.slice('--before-sha='.length) : null;
 const reportPath = process.env.ORDER_REVIEW_REPORT || null;
+const screenshotDir = process.env.ORDER_REVIEW_SCREENSHOT_DIR || path.join(root, 'artifacts');
+if (captureScreenshots) fs.mkdirSync(screenshotDir, { recursive: true });
 const userDataPath = process.env.ELECTRON_VERIFICATION_USER_DATA || path.join(app.getPath('temp'), `order-review-layout-${process.pid}`);
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
@@ -71,9 +73,12 @@ app.commandLine.appendSwitch('headless');
 app.commandLine.appendSwitch('hide-scrollbars');
 app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
-const waitForPaint = () => new Promise(resolve => setTimeout(resolve, 120));
+const waitForLayout = window => window.webContents.executeJavaScript(`(async () => {
+  await document.fonts.ready;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+})()`, true);
 const captureExact = async (window, viewport, prefix) => {
-  await waitForPaint();
+  await waitForLayout(window);
   const screenshot = await window.webContents.debugger.sendCommand('Page.captureScreenshot', {
     format: 'png',
     fromSurface: true,
@@ -88,7 +93,7 @@ const captureExact = async (window, viewport, prefix) => {
     );
   }
   fs.writeFileSync(
-    path.join(root, 'artifacts', `order-review-${prefix}-${viewport.name}.png`),
+    path.join(screenshotDir, `order-review-${prefix}-${viewport.name}.png`),
     image.toPNG()
   );
 };
@@ -336,7 +341,7 @@ runElectronVerification({ app }, async lifecycle => {
     for (const locale of locales) {
       for (const scenario of scenarios) {
         await window.webContents.executeJavaScript(fixtureScript(locale, scenario), true);
-        await waitForPaint();
+        await waitForLayout(window);
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
         results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement });
       }
@@ -344,7 +349,7 @@ runElectronVerification({ app }, async lifecycle => {
     if (captureScreenshots) {
       const captureScenario = scenarios.find(scenario => scenario.name === 'long-complex-order');
       await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
-      await waitForPaint();
+      await waitForLayout(window);
       await captureExact(window, viewport, 'after');
       if (viewport.width <= 390) {
         await window.webContents.executeJavaScript('window.scrollTo(0, document.documentElement.scrollHeight)', true);
