@@ -17,6 +17,10 @@ let adminAuthenticated=false;
 let initialOrdersLoaded=false;
 let requestedSeatEntryHandled=false;
 let publicDisplayBusinessDayBackfill=null;
+const FORCE_COMPLETE_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking','ready']);
+const OCCUPIED_EXPIRY_MS=3*60*60*1000;
+let seatExpiryTimer=null,seatExpiryDebounce=null,seatExpiryRunning=false;
+const adminClockBaseline={wall:Date.now(),monotonic:typeof performance!=='undefined'?performance.now():0};
 
 function hasValidBusinessDay(value){
  if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
@@ -50,6 +54,8 @@ function stopRealtimeSubscriptions(){
  if(unsubscribeSeats){unsubscribeSeats();unsubscribeSeats=null}
  if(unsubscribeManualCalls){unsubscribeManualCalls();unsubscribeManualCalls=null}
  if(businessDayRefreshTimer){clearTimeout(businessDayRefreshTimer);businessDayRefreshTimer=null}
+ if(seatExpiryTimer){clearInterval(seatExpiryTimer);seatExpiryTimer=null}
+ if(seatExpiryDebounce){clearTimeout(seatExpiryDebounce);seatExpiryDebounce=null}
  subscriptionsStarted=false;
 }
 
@@ -142,6 +148,7 @@ function startRealtimeSubscriptions(){
   if(badge){badge.textContent='실시간 연결';badge.className='live'}
   renderSeatOverview();
   renderCentralOrderList();
+  scheduleExpiredSeatRelease();
  },error=>{
   console.error('좌석 연결 실패',error);
   const badge=document.getElementById('seatOverviewConnection');
@@ -166,6 +173,7 @@ firebase.auth().onAuthStateChanged(async user=>{
    setAuthenticatedTestModeUI(true);
    startAdminTestModeRemote(user);
    startRealtimeSubscriptions();
+   startExpiredSeatChecks();
   }else{
    adminAuthenticated=false;
    setAuthenticatedTestModeUI(false);
@@ -206,6 +214,14 @@ const selectedOrderDetail=document.getElementById('selectedOrderDetail');
 const orderDetailModal=document.getElementById('orderDetailModal');
 const orderDetailContent=document.getElementById('orderDetailContent');
 const closeOrderDetailButton=document.getElementById('closeOrderDetail');
+const forceCompleteModal=document.getElementById('forceCompleteModal');
+const forceCompleteDetails=document.getElementById('forceCompleteDetails');
+const forceCompleteCode=document.getElementById('forceCompleteCode');
+const forceCompleteCodeHint=document.getElementById('forceCompleteCodeHint');
+const forceCompleteError=document.getElementById('forceCompleteError');
+const confirmForceComplete=document.getElementById('confirmForceComplete');
+const closeForceCompleteButton=document.getElementById('closeForceComplete');
+const cancelForceCompleteButton=document.getElementById('cancelForceComplete');
 const settingsModal=document.getElementById('soundSettingsModal');
 const soundPreset=document.getElementById('soundPreset');
 
@@ -740,7 +756,26 @@ function centralPaymentMethod(order){
 }
 function isPendingOrder(order){return ['payment_pending','new'].includes(order?.status)}
 function isCompletedOrder(order){return ['ready','completed'].includes(order?.status)}
+function seatSnapshotRecord(snapshot){return snapshot?.exists?{exists:true,...snapshot.data()}:{exists:false}}
+function classifySeatOrderMismatch(order,seats=seatDocuments){
+ const ids=orderSeatIds(order);
+ if(order?.orderType!=='dinein'||!FORCE_COMPLETE_STATUSES.has(order?.status)||!ids.length)return {forceEligible:false,ids,reason:'ineligible'};
+ const records=ids.map(id=>({id,exists:Object.prototype.hasOwnProperty.call(seats,id),...(seats[id]||{})}));
+ const belongs=record=>record.exists&&String(record.orderId||'')===String(order.id);
+ const allHeld=records.every(record=>belongs(record)&&record.status==='held');
+ const allOccupied=records.every(record=>belongs(record)&&record.status==='occupied');
+ if(allHeld||allOccupied)return {forceEligible:false,ids,records,reason:allHeld?'linked-held':'linked-occupied'};
+ if(records.some(record=>belongs(record)&&!['held','occupied'].includes(record.status)))return {forceEligible:false,ids,records,reason:'linked-invalid-state'};
+ const mismatched=records.filter(record=>!belongs(record));
+ return {forceEligible:mismatched.length>0,ids,records,mismatched,reason:mismatched.length?'seat-order-mismatch':'mixed-linked-state'};
+}
+function forceConfirmationValue(order){
+ const value=String(order?.customerNumber||order?.orderNo||'').trim();
+ return value?value.slice(-Math.min(4,value.length)):'';
+}
 function centralPaymentAction(order){
+ const mismatch=classifySeatOrderMismatch(order);
+ if(mismatch.forceEligible){const enabled=Boolean(forceConfirmationValue(order));return `<button type="button" class="central-status-action force-complete" data-action="force-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 강제완료" ${enabled?'':'disabled aria-disabled="true" title="주문번호를 확인할 수 없어 상세 확인이 필요합니다."'}>강제완료</button>`}
  if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
  if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
  if(order?.status==='cancelled')return '<span class="central-status-badge payment-cancelled" aria-label="결제 상태 취소">취소</span>';
@@ -758,7 +793,7 @@ function centralOrderRow(order){
  const party=!takeout&&Number(order.partySize)>0?`${Number(order.partySize)}명`:'-';
  const seat=takeout?'-':displayText(orderSeatLabel(order));
  const phone=displayText(order.phone||order.phoneMasked),orderNo=displayText(order.customerNumber||order.orderNo);
- const visual=adminStatusVisual(order),status=displayText(adminStatusName(order));
+ const visual=adminStatusVisual(order),status=statusNames[order.status]?displayText(adminStatusName(order)):'확인 필요';
  return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong>${isPendingOrder(order)?'<span class="central-new-order">신규주문</span>':''}</td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?'포장':'매장식사'}</td><td title="${esc(seat)}"><span class="central-cell-value">${esc(seat)}</span>${centralSeatAction(order)}</td><td>${party}</td><td><span class="central-cell-value">${money(safeAmounts(order).paid)}</span>${centralPaymentAction(order)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
 }
 function nextBusinessDayBoundaryLabel(now=new Date()){
@@ -796,12 +831,20 @@ function manualCustomerCallCard(call){
  return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
 function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
+function timestampMillis(value){if(value&&typeof value.toMillis==='function')return value.toMillis();if(value instanceof Date&&Number.isFinite(value.getTime()))return value.getTime();return null}
+function occupiedElapsedLabel(data,now=Date.now()){
+ if(data?.status!=='occupied')return '';
+ const started=timestampMillis(data.occupiedAt);if(started==null)return '점유시간 확인 필요';
+ const elapsed=Math.max(0,now-started);if(elapsed>=OCCUPIED_EXPIRY_MS)return '자동 해제 대상';
+ return `사용중 · ${Math.floor(elapsed/3600000)}시간 ${Math.floor(elapsed%3600000/60000)}분`;
+}
 function renderSeatOverview(){
  if(!seatOverviewGrid)return;
  seatOverviewGrid.innerHTML=ADMIN_SEATS.map(seat=>{
   const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
   const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
-  const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}`;
+  const elapsed=occupiedElapsedLabel(data);
+  const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}${elapsed?`<small class="seat-occupied-elapsed">${esc(elapsed)}</small>`:''}`;
   const attributes=`class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}"`;
   const action=status==='held'?'open-seat-order':'toggle-seat';
   const actionLabel=status==='empty'?'사용중으로 변경':status==='occupied'?'빈자리로 변경':'주문 상세보기';
@@ -911,7 +954,11 @@ async function setStatus(id,status,button){
    if((acceptingDineIn||completingDineIn)&&!seatIds.length)throw Object.assign(new Error('주문에 연결된 좌석이 없습니다.'),{code:'seat/not-linked'});
    seatSnapshots.forEach((snapshot,index)=>{
     const seat=snapshot.exists?snapshot.data():null,seatId=seatIds[index];
-    if(!seat||String(seat.orderId||'')!==String(id))throw Object.assign(new Error(`${seatId} 좌석이 현재 주문에 연결되어 있지 않습니다.`),{code:'seat/order-mismatch'});
+    if(!seat||String(seat.orderId||'')!==String(id)){
+     const records=Object.fromEntries(seatSnapshots.map((item,seatIndex)=>[seatIds[seatIndex],seatSnapshotRecord(item)]));
+     const mismatch=classifySeatOrderMismatch(order,records);
+     throw Object.assign(new Error(`${seatId} 좌석이 현재 주문에 연결되어 있지 않습니다.`),{code:'seat/order-mismatch',forceEligible:mismatch.forceEligible});
+    }
     if(acceptingDineIn&&seat.status!=='held')throw Object.assign(new Error(`${seatId} 좌석이 주문중 상태가 아닙니다.`),{code:'seat/not-held'});
     if(completingDineIn&&seat.status!=='occupied')throw Object.assign(new Error(`${seatId} 좌석이 사용중 상태가 아닙니다.`),{code:'seat/not-occupied'});
     if(seat.status==='reserved')throw Object.assign(new Error(`${seatId} 예약 좌석은 변경할 수 없습니다.`),{code:'seat/reserved'});
@@ -945,6 +992,7 @@ async function setStatus(id,status,button){
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
+  if(error.code==='seat/order-mismatch'&&error.forceEligible){openForceCompleteModal(orders.find(order=>String(order.id)===String(id)));return false}
   showAdminMessage(`상태 변경 실패 (${error.code||'unknown'}): ${error.message}`,true);
   return false;
  }finally{
@@ -952,6 +1000,79 @@ async function setStatus(id,status,button){
   if(button&&button.isConnected){button.disabled=false;button.textContent=originalText;button.removeAttribute('aria-busy')}
  }
 }
+
+let forceCompleteOrderId=null,forceCompleteReturnFocus=null,forceCompleteBusy=false;
+function seatStateDescription(record,orderId){
+ if(!record?.exists)return '문서 누락 · orderId 없음';
+ const owner=record.orderId?`orderId 있음 (${String(record.orderId)===String(orderId)?'현재 주문':'다른 주문'})`:'orderId 없음';
+ return `${displayText(record.status)} · ${owner}${record.orderId&&String(record.orderId)!==String(orderId)?' · 다른 주문이 사용 중':''}`;
+}
+function closeForceCompleteModal(){
+ if(forceCompleteBusy)return;
+ forceCompleteModal.hidden=true;document.body.classList.remove('force-complete-open');
+ const target=forceCompleteReturnFocus;forceCompleteOrderId=null;forceCompleteReturnFocus=null;forceCompleteCode.value='';forceCompleteError.textContent='';
+ if(target?.isConnected)target.focus();
+}
+function syncForceCompleteConfirmation(){
+ const order=orderById(forceCompleteOrderId),expected=forceConfirmationValue(order),matches=Boolean(expected)&&forceCompleteCode.value.trim()===expected;
+ confirmForceComplete.disabled=forceCompleteBusy||!matches;confirmForceComplete.setAttribute('aria-disabled',String(confirmForceComplete.disabled));
+}
+function openForceCompleteModal(order,trigger=document.activeElement){
+ if(!order||!classifySeatOrderMismatch(order).forceEligible)return false;
+ const expected=forceConfirmationValue(order);if(!expected){showAdminMessage('주문번호를 안전하게 확인할 수 없습니다. 상세 확인이 필요합니다.',true);return false}
+ forceCompleteOrderId=order.id;forceCompleteReturnFocus=trigger;forceCompleteBusy=false;
+ const mismatch=classifySeatOrderMismatch(order),phone=displayText(order.phone||order.phoneMasked),savedSeats=orderSeatLabel(order);
+ forceCompleteDetails.innerHTML=[['순번',adminOrderNumberLabel(order)],['주문번호',displayText(order.customerNumber||order.orderNo)],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['전화번호',phone],['주문유형','매장식사'],['저장 좌석',savedSeats],['현재 주문 상태',displayText(order.status)],...mismatch.records.map(record=>[`현재 좌석 ${record.id}`,seatStateDescription(record,order.id)])].map(([term,value])=>`<div><dt>${esc(term)}</dt><dd>${esc(value)}</dd></div>`).join('');
+ forceCompleteCode.value='';forceCompleteCodeHint.textContent=`화면의 주문번호 마지막 ${expected.length}자리 “${expected}”를 입력하세요.`;forceCompleteError.textContent='';
+ forceCompleteModal.hidden=false;document.body.classList.add('force-complete-open');syncForceCompleteConfirmation();forceCompleteCode.focus();return true;
+}
+async function forceCompleteOrder(){
+ const id=forceCompleteOrderId,localOrder=orderById(id),expected=forceConfirmationValue(localOrder);
+ if(!id||forceCompleteBusy||!expected||forceCompleteCode.value.trim()!==expected)return false;
+ forceCompleteBusy=true;forceCompleteError.textContent='';confirmForceComplete.textContent='처리 중…';confirmForceComplete.setAttribute('aria-busy','true');syncForceCompleteConfirmation();
+ try{
+  await db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(id),orderSnapshot=await transaction.get(orderRef);
+   if(!orderSnapshot.exists)throw Object.assign(new Error('주문이 삭제되었습니다.'),{code:'order/not-found'});
+   const order={id,...orderSnapshot.data()};
+   if(order.status!==localOrder.status)throw Object.assign(new Error('다른 관리자가 주문 상태를 변경했습니다.'),{code:'order/stale-state'});
+   if(!FORCE_COMPLETE_STATUSES.has(order.status))throw Object.assign(new Error('현재 상태에서는 강제완료할 수 없습니다.'),{code:'order/ineligible'});
+   if(forceConfirmationValue(order)!==expected)throw Object.assign(new Error('주문번호 확인 정보가 변경되었습니다.'),{code:'order/confirmation-changed'});
+   const ids=orderSeatIds(order),snapshots=await Promise.all(ids.map(seatId=>transaction.get(db.collection('seats').doc(seatId))));
+   const records=Object.fromEntries(snapshots.map((snapshot,index)=>[ids[index],seatSnapshotRecord(snapshot)]));
+   if(!classifySeatOrderMismatch(order,records).forceEligible)throw Object.assign(new Error('좌석 불일치가 해소되었거나 안전 확인이 필요합니다.'),{code:'seat/mismatch-resolved'});
+   transaction.update(orderRef,{status:'completed',updatedAt:firebase.firestore.FieldValue.serverTimestamp(),adminForceCompleted:true,adminForceCompletedAt:firebase.firestore.FieldValue.serverTimestamp(),adminForceCompleteReason:'seat_state_mismatch'});
+  });
+  forceCompleteBusy=false;closeForceCompleteModal();showAdminMessage('주문을 강제완료했습니다. 결제와 현재 좌석 상태는 변경하지 않았습니다.');return true;
+ }catch(error){forceCompleteError.textContent=`강제완료 실패 (${error.code||'unknown'}): ${error.message}`;return false}
+ finally{forceCompleteBusy=false;confirmForceComplete.textContent='강제완료 확인';confirmForceComplete.removeAttribute('aria-busy');syncForceCompleteConfirmation()}
+}
+
+function adminClockIsReliable(){
+ if(typeof performance==='undefined')return true;
+ return Math.abs((Date.now()-adminClockBaseline.wall)-(performance.now()-adminClockBaseline.monotonic))<5*60*1000;
+}
+function expiredSeatGroups(now=Date.now()){
+ const groups=new Map();
+ Object.entries(seatDocuments).forEach(([id,seat])=>{if(!seat.orderId&&seat.status!=='occupied')return;const key=seat.orderId?`order:${seat.orderId}`:`seat:${id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push({id,...seat})});
+ return Array.from(groups.values()).filter(group=>group.length&&group.every(seat=>{const millis=timestampMillis(seat.occupiedAt);return seat.status==='occupied'&&millis!==null&&millis<=now-OCCUPIED_EXPIRY_MS}));
+}
+async function releaseExpiredSeatGroup(group,now){
+ return db.runTransaction(async transaction=>{
+  const refs=group.map(seat=>db.collection('seats').doc(seat.id)),snapshots=await Promise.all(refs.map(ref=>transaction.get(ref)));
+  snapshots.forEach((snapshot,index)=>{const current=snapshot.exists?snapshot.data():null,initial=group[index];if(!current||current.status!=='occupied'||String(current.orderId||'')!==String(initial.orderId||'')||timestampMillis(current.occupiedAt)!==timestampMillis(initial.occupiedAt)||timestampMillis(current.occupiedAt)>now-OCCUPIED_EXPIRY_MS)throw Object.assign(new Error('좌석 상태가 변경되어 자동 해제를 건너뜁니다.'),{code:'seat/stale-expiry'})});
+  refs.forEach(ref=>transaction.set(ref,seatReleasePayload(),{merge:true}));return refs.length;
+ });
+}
+async function releaseExpiredSeats(){
+ if(seatExpiryRunning||!adminAuthenticated||document.hidden)return 0;
+ if(!adminClockIsReliable()){showAdminMessage('PC 시각 변경이 감지되어 좌석 자동 해제를 중단했습니다. Windows 시간 동기화를 확인해 주세요.',true);return 0}
+ seatExpiryRunning=true;let released=0;const now=Date.now();
+ try{for(const group of expiredSeatGroups(now)){try{released+=await releaseExpiredSeatGroup(group,now)}catch(error){if(error.code!=='seat/stale-expiry')console.error('만료 좌석 자동 해제 실패',error)}}if(released)showAdminMessage(`3시간이 지난 사용중 좌석 ${released}개를 빈자리로 변경했습니다.`);return released}
+ finally{seatExpiryRunning=false}
+}
+function scheduleExpiredSeatRelease(){if(seatExpiryDebounce)clearTimeout(seatExpiryDebounce);seatExpiryDebounce=setTimeout(()=>{seatExpiryDebounce=null;releaseExpiredSeats()},350)}
+function startExpiredSeatChecks(){if(!seatExpiryTimer)seatExpiryTimer=setInterval(releaseExpiredSeats,60000);scheduleExpiredSeatRelease()}
 
 let orderDetailSourceSeatId=null;
 let orderDetailReturnFocus=null;
@@ -1183,6 +1304,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   await setStatus(button.dataset.orderId,button.dataset.status,button);
   return;
  }
+ if(action==='force-complete'){openForceCompleteModal(orderById(button.dataset.orderId),button);return}
  if(action==='set-manual-status'){
   await setManualCustomerCallStatus(button.dataset.callId,button.dataset.status,button);
   return;
@@ -1211,6 +1333,15 @@ document.getElementById('ordersPanel')?.addEventListener('keydown',event=>{
  event.preventDefault();openOrderDetail(trigger.dataset.orderId,trigger);
 });
 closeOrderDetailButton?.addEventListener('click',closeOrderDetail);
+forceCompleteCode?.addEventListener('input',syncForceCompleteConfirmation);
+confirmForceComplete?.addEventListener('click',forceCompleteOrder);
+closeForceCompleteButton?.addEventListener('click',closeForceCompleteModal);
+cancelForceCompleteButton?.addEventListener('click',closeForceCompleteModal);
+forceCompleteModal?.addEventListener('click',event=>{if(event.target===forceCompleteModal)closeForceCompleteModal()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!forceCompleteModal?.hidden){event.preventDefault();closeForceCompleteModal()}});
+window.addEventListener('focus',scheduleExpiredSeatRelease);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleExpiredSeatRelease()});
+window.addEventListener('beforeunload',()=>{if(seatExpiryTimer)clearInterval(seatExpiryTimer);if(seatExpiryDebounce)clearTimeout(seatExpiryDebounce)});
 selectedOrderDetail?.addEventListener('click',()=>{const trigger=syncCentralOrderSelection();if(trigger)openOrderDetail(selectedCentralOrderId,trigger)});
 orderPagination?.addEventListener('click',event=>{const button=event.target.closest('button[data-order-page]');if(!button||button.disabled)return;centralOrderPage=Number(button.dataset.orderPage)||1;renderCentralOrderList()});
 orderDetailModal?.addEventListener('click',async event=>{

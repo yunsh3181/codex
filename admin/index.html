@@ -115,6 +115,22 @@
     </section>
   </div>
 
+  <div id="forceCompleteModal" class="force-complete-modal" hidden>
+    <section class="force-complete-panel" role="dialog" aria-modal="true" aria-labelledby="forceCompleteTitle" aria-describedby="forceCompleteDescription">
+      <header><div><strong id="forceCompleteTitle">주문 강제완료</strong><span>좌석 불일치 주문 기록 정리</span></div><button type="button" id="closeForceComplete" aria-label="주문 강제완료 창 닫기">✕</button></header>
+      <div class="force-complete-body">
+        <p id="forceCompleteDescription">이 주문은 현재 좌석 상태와 연결 정보가 일치하지 않습니다.</p>
+        <dl id="forceCompleteDetails"></dl>
+        <p class="force-complete-warning">강제완료하면 주문 기록만 완료로 변경됩니다. 현재 좌석과 실제 결제는 변경되지 않습니다.</p>
+        <p>실제로 제공 및 완료된 주문인 경우에만 사용하세요.</p>
+        <label for="forceCompleteCode">주문번호 확인 <small id="forceCompleteCodeHint"></small></label>
+        <input id="forceCompleteCode" type="text" autocomplete="off" aria-describedby="forceCompleteCodeHint">
+        <p id="forceCompleteError" class="force-complete-error" role="alert"></p>
+      </div>
+      <footer><button type="button" id="cancelForceComplete">취소</button><button type="button" id="confirmForceComplete" disabled aria-disabled="true">강제완료 확인</button></footer>
+    </section>
+  </div>
+
   <div id="testModeModal" class="settings-modal" hidden>
     <section class="settings-panel test-mode-panel" role="dialog" aria-modal="true" aria-labelledby="testModeModalTitle">
       <div class="settings-head"><div><strong id="testModeModalTitle"></strong></div></div>

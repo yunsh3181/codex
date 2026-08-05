@@ -35,7 +35,9 @@ if(!emulatorAvailable){
 
  const adminSource=fs.readFileSync(path.join(root,'admin.js'),'utf8');
  const releaseSource=adminSource.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0];
- const setStatusSource=adminSource.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n\}\n\nlet orderDetailSourceSeatId/)?.[0].replace(/\n\nlet orderDetailSourceSeatId[\s\S]*/,'');
+ const seatSnapshotSource=adminSource.match(/function seatSnapshotRecord\(snapshot\)\{[^\n]+\}/)?.[0];
+ const mismatchSource=adminSource.match(/function classifySeatOrderMismatch\(order,seats=seatDocuments\)\{[\s\S]*?\n\}/)?.[0];
+ const setStatusSource=adminSource.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n\}\n\nlet forceCompleteOrderId/)?.[0].replace(/\n\nlet forceCompleteOrderId[\s\S]*/,'');
  assert.ok(releaseSource&&setStatusSource,'production transaction source found');
 
  function compatDb(db,mutationLog){
@@ -56,10 +58,10 @@ if(!emulatorAvailable){
    firebase:{firestore:{FieldValue:{serverTimestamp}}},
    orderSeatIds:value=>Array.isArray(value?.seat?.tables)?value.seat.tables:value?.seat?.id?[value.seat.id]:[],
    orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-05',adminOrderNumberLabel:value=>value.customerNumber||value.id,
-   stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},setTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},
+   stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},openForceCompleteModal(){messages.push({message:'force-complete-modal',isError:false})},setTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},
    console:{error(...args){errors.push(args.map(value=>value?.message||String(value)).join(' '))}}
   };
-  vm.createContext(context);vm.runInContext(`${releaseSource}\nconst statusUpdateLocks=new Set();\n${setStatusSource}`,context);
+  vm.createContext(context);vm.runInContext(`${releaseSource}\nconst FORCE_COMPLETE_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking','ready']);\n${seatSnapshotSource}\n${mismatchSource}\nconst statusUpdateLocks=new Set();\n${setStatusSource}`,context);
   return {run:(status)=>context.setStatus(localOrder.id,status,null),mutations,messages,errors};
  }
 
@@ -120,5 +122,19 @@ if(!emulatorAvailable){
   for(const status of ['cancelled',undefined,null,'','unknown_status']){
    assert.doesNotMatch(context.centralPaymentAction({id:'safe',status}),/<button|data-action|data-status/);assert.doesNotMatch(context.centralSeatAction({id:'safe',status,orderType:'dinein'}),/<button/);
   }
+ });
+
+ test('O-P. force completion is an administrator-only order write and preserves mismatched seats',async()=>{
+  const value=order('force-order','accepted',{seat:{tables:['force-seat']}});await seed({orders:[value],seats:[seat('force-seat','other-order','occupied')]});
+  await assertFails(updateDoc(ref(userDb(),'orders',value.id),{status:'completed'}));
+  const db=adminDb();await assertSucceeds(runTransaction(db,async transaction=>{const orderRef=ref(db,'orders',value.id),snapshot=await transaction.get(orderRef);assert.equal(snapshot.data().status,'accepted');transaction.update(orderRef,{status:'completed',adminForceCompleted:true,adminForceCompleteReason:'seat_state_mismatch',updatedAt:serverTimestamp()})}));
+  assert.equal((await read(adminDb(),'orders',value.id)).status,'completed');assert.equal((await read(adminDb(),'seats','force-seat')).orderId,'other-order');assert.equal((await read(adminDb(),'seats','force-seat')).status,'occupied');
+ });
+
+ test('Q-R. expired-seat release is administrator-only and never changes its order',async()=>{
+  const value=order('expiry-order','accepted',{seat:{tables:['expiry-1','expiry-2']}});await seed({orders:[value],seats:[seat('expiry-1',value.id,'occupied'),seat('expiry-2',value.id,'occupied')]});
+  await assertFails(updateDoc(ref(userDb(),'seats','expiry-1'),{status:'empty'}));
+  const db=adminDb();await assertSucceeds(runTransaction(db,async transaction=>{const refs=['expiry-1','expiry-2'].map(id=>ref(db,'seats',id)),snapshots=await Promise.all(refs.map(seatRef=>transaction.get(seatRef)));snapshots.forEach(snapshot=>assert.equal(snapshot.data().status,'occupied'));refs.forEach(seatRef=>transaction.update(seatRef,{status:'empty',orderId:null,occupiedAt:null,updatedAt:serverTimestamp()}))}));
+  assert.equal((await read(adminDb(),'orders',value.id)).status,'accepted');assert.equal((await read(adminDb(),'seats','expiry-1')).status,'empty');assert.equal((await read(adminDb(),'seats','expiry-2')).status,'empty');
  });
 }
