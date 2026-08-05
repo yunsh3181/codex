@@ -15,7 +15,7 @@ async function metrics(window){return window.webContents.executeJavaScript(`(()=
 async function main(){
  const visualRoot=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'admin-central-visual-'));
  exportAdminVisualSite(visualRoot,{ref:sourceRef});
- const window=new BrowserWindow({show:false,width:1440,height:900,useContentSize:true,webPreferences:{contextIsolation:true,nodeIntegration:false}});
+ const window=new BrowserWindow({show:false,width:1440,height:900,useContentSize:true,webPreferences:{contextIsolation:true,nodeIntegration:false,offscreen:true,sandbox:true}});
  const rendererProblems=[];
  window.webContents.on('console-message',event=>{if(event.level>=2)rendererProblems.push(event.message)});
  try{

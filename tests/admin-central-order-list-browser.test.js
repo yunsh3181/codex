@@ -17,6 +17,7 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  assert.equal(result.page2.label,'2 / 3');assert.equal(result.page2.selected,false);assert.equal(result.page2.detailDisabled,true);assert.match(result.page2.title,/다른 페이지/);
  assert.deepEqual(result.listener,{id:'fixture-32',selectedId:'fixture-32',connected:true});assert.deepEqual(result.deletion,{id:'fixture-32',selected:false,disabled:true});
  assert.deepEqual(result.consoleProblems,[]);
+ assert.deepEqual(result.metrics.after1440.viewport,[1440,900]);assert.deepEqual(result.metrics.operating.viewport,[1920,1080]);assert.deepEqual(result.metrics.narrow.viewport,[1100,800]);
  for(const metric of Object.values(result.metrics)){
   assert.equal(metric.horizontalOverflow,0);assert.deepEqual(metric.clipped,[]);assert.equal(metric.headerFont,11);assert.equal(metric.bodyFont,12);assert.equal(metric.rows,15);
   assert.ok(metric.requiredMeasurements.length>0);assert.ok(metric.requiredMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
