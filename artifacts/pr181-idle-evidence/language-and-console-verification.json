@@ -1,0 +1,12 @@
+{
+  "labels": {
+    "ko": "주문하기",
+    "en": "Start Order",
+    "ja": "注文する",
+    "zh": "开始点餐",
+    "vi": "Bắt đầu đặt món",
+    "es": "Hacer pedido"
+  },
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

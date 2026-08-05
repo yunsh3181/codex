@@ -1,0 +1,212 @@
+[
+  {
+    "name": "155959-set-only",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "set-menu",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "160000-happy-hour",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "happy-hour",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "195959-happy-hour",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "happy-hour",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "200000-set-only",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "set-menu",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "idle-full-with-start-order",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "set-menu",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "after-start-order-home",
+    "step": "home",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": null,
+    "imageNatural": null,
+    "imageRect": null,
+    "button": null,
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  },
+  {
+    "name": "after-30s-timeout-idle",
+    "step": "idle",
+    "viewport": {
+      "width": 1080,
+      "height": 1920
+    },
+    "overflow": {
+      "x": 0,
+      "y": 0
+    },
+    "promotion": "set-menu",
+    "imageNatural": {
+      "width": 1151,
+      "height": 2048
+    },
+    "imageRect": {
+      "top": 0,
+      "bottom": 1770,
+      "width": 1080,
+      "height": 1770
+    },
+    "button": {
+      "top": 1788,
+      "bottom": 1892,
+      "width": 961.203125,
+      "height": 104,
+      "bottomSafe": 28
+    },
+    "cartVisible": false,
+    "scrollIndicatorVisible": false
+  }
+]
