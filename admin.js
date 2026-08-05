@@ -758,8 +758,22 @@ function renderCentralOrderList(){
  businessDayOrderCount.textContent=`총 ${latest.length}건`;
  orderList.innerHTML=visible.length?visible.map(centralOrderRow).join(''):'<tr><td colspan="10" class="central-order-empty">현재 영업일 주문이 없습니다.</td></tr>';
  orderPagination.innerHTML=`<button type="button" data-order-page="${centralOrderPage-1}" ${centralOrderPage===1?'disabled':''}>이전</button><span>${centralOrderPage} / ${pages}</span><button type="button" data-order-page="${centralOrderPage+1}" ${centralOrderPage===pages?'disabled':''}>다음</button>`;
- selectedOrderDetail.disabled=!selectedCentralOrderId||!orderById(selectedCentralOrderId);
+ syncCentralOrderSelection();
  businessDayNotice.textContent=`영업시간: 09:00 ~ 22:00 | 오늘 주문 초기화: ${nextBusinessDayBoundaryLabel()} 09:00`;
+}
+function syncCentralOrderSelection(focusRow=null){
+ const selectedOrder=selectedCentralOrderId?orderById(selectedCentralOrderId):null;
+ if(!selectedOrder)selectedCentralOrderId=null;
+ let selectedRow=null;
+ orderList.querySelectorAll('.central-order-row[data-order-id]').forEach(row=>{
+  const selected=selectedCentralOrderId!==null&&String(row.dataset.orderId)===String(selectedCentralOrderId);
+  row.classList.toggle('selected',selected);row.setAttribute('aria-selected',String(selected));
+  if(selected)selectedRow=row;
+ });
+ selectedOrderDetail.disabled=!selectedRow;
+ selectedOrderDetail.title=selectedCentralOrderId&&!selectedRow?'선택한 주문은 다른 페이지에 있습니다. 해당 페이지에서 다시 선택해 주세요.':'';
+ if(focusRow?.isConnected)focusRow.focus();
+ return selectedRow;
 }
 function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
@@ -1093,9 +1107,10 @@ function showOrderDetail(order,seatId=null,trigger=null){
 }
 function closeOrderDetail(){
  if(!orderDetailModal||orderDetailModal.hidden)return;
+ const currentRow=orderDetailOpenOrderId?orderList.querySelector(`[data-order-id="${CSS.escape(orderDetailOpenOrderId)}"].central-order-row`):null;
  orderDetailModal.hidden=true;orderDetailContent.innerHTML='';orderDetailSourceSeatId=null;
  orderDetailOpenOrderId=null;document.body.classList.remove('order-detail-open');
- if(orderDetailReturnFocus?.isConnected)orderDetailReturnFocus.focus();
+ if(orderDetailReturnFocus?.isConnected)orderDetailReturnFocus.focus();else if(currentRow?.isConnected)currentRow.focus();
  orderDetailReturnFocus=null;
 }
 function openOrderDetail(orderId,trigger=null){return showOrderDetail(orderById(orderId),null,trigger)}
@@ -1121,7 +1136,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  if(!button||!document.getElementById('ordersPanel').contains(button)){
   const trigger=event.target.closest('[data-order-id].order-detail-trigger');
   if(trigger?.classList.contains('central-order-row')){
-   selectedCentralOrderId=trigger.dataset.orderId;renderCentralOrderList();trigger.focus();
+   selectedCentralOrderId=trigger.dataset.orderId;syncCentralOrderSelection(trigger);
   }else if(trigger&&document.getElementById('ordersPanel').contains(trigger))openOrderDetail(trigger.dataset.orderId,trigger);
   return;
  }
@@ -1167,7 +1182,7 @@ document.getElementById('ordersPanel')?.addEventListener('keydown',event=>{
  event.preventDefault();openOrderDetail(trigger.dataset.orderId,trigger);
 });
 closeOrderDetailButton?.addEventListener('click',closeOrderDetail);
-selectedOrderDetail?.addEventListener('click',()=>{const trigger=orderList.querySelector(`[data-order-id="${CSS.escape(String(selectedCentralOrderId||''))}"]`);openOrderDetail(selectedCentralOrderId,trigger||selectedOrderDetail)});
+selectedOrderDetail?.addEventListener('click',()=>{const trigger=syncCentralOrderSelection();if(trigger)openOrderDetail(selectedCentralOrderId,trigger)});
 orderPagination?.addEventListener('click',event=>{const button=event.target.closest('button[data-order-page]');if(!button||button.disabled)return;centralOrderPage=Number(button.dataset.orderPage)||1;renderCentralOrderList()});
 orderDetailModal?.addEventListener('click',async event=>{
  if(event.target===orderDetailModal){closeOrderDetail();return}
@@ -1467,7 +1482,7 @@ soundVolume.addEventListener('input',()=>volumeValue.textContent=soundVolume.val
 customSoundFile.addEventListener('change',()=>{const f=customSoundFile.files?.[0];if(!f)return;if(customAudioUrl)URL.revokeObjectURL(customAudioUrl);customAudioUrl=URL.createObjectURL(f);customSoundName.textContent=f.name;soundPreset.value='custom'});
 document.getElementById('previewSound').addEventListener('click',async()=>{settings={preset:soundPreset.value,volume:Number(soundVolume.value)/100,voice:voiceEnabled.checked};if(!soundEnabled){soundEnabled=true;soundButton.textContent='🔔 알림음 켜짐'}await playPreset();setTimeout(()=>enqueueSpeech('다이닝 주문이 들어왔습니다.'),settings.preset==='voice'?0:550)});
 document.getElementById('saveSoundSettings').addEventListener('click',()=>{settings={preset:soundPreset.value,volume:Number(soundVolume.value)/100,voice:voiceEnabled.checked};localStorage.setItem('pjAdminSoundSettings',JSON.stringify(settings));settingsModal.hidden=true});
-document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x===b));render()});
+document.getElementById('filters')?.addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x===b));render()});
 
 
 
