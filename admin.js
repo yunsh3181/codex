@@ -141,6 +141,7 @@ function startRealtimeSubscriptions(){
   const badge=document.getElementById('seatOverviewConnection');
   if(badge){badge.textContent='실시간 연결';badge.className='live'}
   renderSeatOverview();
+  renderCentralOrderList();
  },error=>{
   console.error('좌석 연결 실패',error);
   const badge=document.getElementById('seatOverviewConnection');
@@ -737,13 +738,28 @@ function centralPaymentMethod(order){
  const method=displayText(order?.payment?.methodName||order?.payment?.method);
  return split?`${method}/${split.count}인`:method;
 }
+function isPendingOrder(order){return ['payment_pending','new'].includes(order?.status)}
+function isCompletedOrder(order){return ['ready','completed'].includes(order?.status)}
+function centralPaymentAction(order){
+ if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
+ if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
+ if(order?.status==='cancelled')return '<span class="central-status-badge payment-cancelled" aria-label="결제 상태 취소">취소</span>';
+ return '<span class="central-status-badge payment-review" aria-label="결제 상태 확인 필요">확인 필요</span>';
+}
+function centralSeatAction(order){
+ if(order.orderType==='takeout')return '-';
+ if(isCompletedOrder(order))return '<span class="central-status-badge seat-complete">완료</span>';
+ const ids=orderSeatIds(order),linked=ids.length>0&&ids.every(id=>seatDocuments[id]?.status==='occupied'&&String(seatDocuments[id]?.orderId||'')===String(order.id));
+ if(!['accepted','paid','cooking'].includes(order.status))return '';
+ return `<button type="button" class="central-status-action seat-occupied" data-action="set-status" data-order-id="${esc(order.id)}" data-status="completed" data-confirm="주문을 완료하고 연결된 좌석을 빈자리로 변경하시겠습니까?" ${linked?'':'disabled aria-disabled="true" title="현재 주문에 연결된 사용중 좌석만 완료할 수 있습니다."'}>사용중</button>`;
+}
 function centralOrderRow(order){
  const takeout=order.orderType==='takeout',reservation=isReservationOrder(order),selected=String(order.id)===String(selectedCentralOrderId);
  const party=!takeout&&Number(order.partySize)>0?`${Number(order.partySize)}명`:'-';
  const seat=takeout?'-':displayText(orderSeatLabel(order));
  const phone=displayText(order.phone||order.phoneMasked),orderNo=displayText(order.customerNumber||order.orderNo);
  const visual=adminStatusVisual(order),status=displayText(adminStatusName(order));
- return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong></td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?'포장':'매장식사'}</td><td title="${esc(seat)}">${esc(seat)}</td><td>${party}</td><td>${money(safeAmounts(order).paid)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
+ return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong>${isPendingOrder(order)?'<span class="central-new-order">신규주문</span>':''}</td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?'포장':'매장식사'}</td><td title="${esc(seat)}"><span class="central-cell-value">${esc(seat)}</span>${centralSeatAction(order)}</td><td>${party}</td><td><span class="central-cell-value">${money(safeAmounts(order).paid)}</span>${centralPaymentAction(order)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
 }
 function nextBusinessDayBoundaryLabel(now=new Date()){
  const key=seoulBusinessDayKey(now),[year,month,day]=key.split('-').map(Number);
@@ -793,15 +809,7 @@ function renderSeatOverview(){
  }).join('');
 }
 function render(){
- const sortedTakeout=orders.filter(order=>order.orderType==='takeout').sort(compareOrdersOldestFirst);
- const pendingTakeout=sortedTakeout.filter(order=>['payment_pending','new'].includes(order.status));
- const processingTakeout=sortedTakeout.filter(order=>['accepted','paid','cooking','ready'].includes(order.status));
  if(takeoutPending)takeoutPending.innerHTML='';
- const processingCards=[
-  ...processingTakeout.map(order=>({time:order.createdAt||order.createdAtClient,html:takeoutProcessingCard(order)})),
-  ...manualCustomerCalls.map(call=>({time:call.createdAt,html:manualCustomerCallCard(call)}))
- ].sort((a,b)=>dateValue(a.time)-dateValue(b.time));
- if(takeoutProcessing)takeoutProcessing.innerHTML=processingCards.length?processingCards.map(card=>card.html).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
  renderCentralOrderList();
  if(orderDetailOpenOrderId&&!orderDetailModal.hidden){
   const current=orderById(orderDetailOpenOrderId);
@@ -880,41 +888,60 @@ async function setStatus(id,status,button){
  const originalText=button?.textContent||'';
  if(button){button.disabled=true;button.textContent='처리 중…';button.setAttribute('aria-busy','true')}
  try{
-  const order=orders.find(o=>o.id===id);
-  if(!order)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
-  if((status==='accepted'&&order.orderType!=='takeout')||(status==='cooking'&&order.orderType==='takeout'))stopNewOrderRepeat();
-  const seatIds=orderSeatIds(order);
-  const displayRef=order.orderType==='takeout'?db.collection('publicOrderDisplays').doc(id):null;
-  const batch=db.batch();
-  batch.update(db.collection('orders').doc(id),{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  if(order.orderType==='takeout'){
-   if(['accepted','paid','cooking','ready'].includes(status)){
-    const businessDay=orderBusinessDayKey(order);
-    if(businessDay)batch.set(displayRef,{
+  const localOrder=orders.find(o=>o.id===id);
+  if(!localOrder)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
+  const orderRef=db.collection('orders').doc(id);
+  let committedOrder=null;
+  await db.runTransaction(async transaction=>{
+   const orderSnapshot=await transaction.get(orderRef);
+   if(!orderSnapshot.exists)throw Object.assign(new Error('주문이 삭제되었습니다.'),{code:'order/not-found'});
+   const order={id,...orderSnapshot.data()},current=order.status;
+   const allowed=status==='accepted'||status==='cooking'
+    ?['payment_pending','new'].includes(current)
+    :status==='ready'||status==='completed'
+     ?['accepted','paid','cooking'].includes(current)
+     :status==='cancelled'&&!['cancelled','completed'].includes(current);
+   if(!allowed)throw Object.assign(new Error('다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.'),{code:'order/stale-state'});
+   if(status==='cooking'&&order.orderType!=='takeout')throw Object.assign(new Error('매장 주문은 접수 상태로만 전환할 수 있습니다.'),{code:'order/invalid-transition'});
+   if(status==='ready'&&order.orderType!=='takeout')throw Object.assign(new Error('매장 주문은 주문 완료로 처리해야 합니다.'),{code:'order/invalid-transition'});
+   const seatIds=order.orderType==='takeout'?[]:orderSeatIds(order),seatRefs=seatIds.map(seatId=>db.collection('seats').doc(seatId));
+   const seatSnapshots=await Promise.all(seatRefs.map(ref=>transaction.get(ref)));
+   const acceptingDineIn=(status==='accepted'&&order.orderType!=='takeout');
+   const completingDineIn=(status==='completed'&&order.orderType!=='takeout');
+   if((acceptingDineIn||completingDineIn)&&!seatIds.length)throw Object.assign(new Error('주문에 연결된 좌석이 없습니다.'),{code:'seat/not-linked'});
+   seatSnapshots.forEach((snapshot,index)=>{
+    const seat=snapshot.exists?snapshot.data():null,seatId=seatIds[index];
+    if(!seat||String(seat.orderId||'')!==String(id))throw Object.assign(new Error(`${seatId} 좌석이 현재 주문에 연결되어 있지 않습니다.`),{code:'seat/order-mismatch'});
+    if(acceptingDineIn&&seat.status!=='held')throw Object.assign(new Error(`${seatId} 좌석이 주문중 상태가 아닙니다.`),{code:'seat/not-held'});
+    if(completingDineIn&&seat.status!=='occupied')throw Object.assign(new Error(`${seatId} 좌석이 사용중 상태가 아닙니다.`),{code:'seat/not-occupied'});
+    if(seat.status==='reserved')throw Object.assign(new Error(`${seatId} 예약 좌석은 변경할 수 없습니다.`),{code:'seat/reserved'});
+   });
+   transaction.update(orderRef,{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   const displayRef=order.orderType==='takeout'?db.collection('publicOrderDisplays').doc(id):null;
+   if(order.orderType==='takeout'){
+    if(['accepted','paid','cooking','ready'].includes(status)){
+     const businessDay=orderBusinessDayKey(order);
+     if(businessDay)transaction.set(displayRef,{
      orderNumber:String(order.customerNumber||order.orderNo||adminOrderNumberLabel(order)),
      displayStatus:status==='ready'?'ready':'cooking',
      storeId:String(order.storeId||'pangyo2-techno-valley'),
      businessDay,
      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
     },{merge:true});
-   }else{
-    batch.delete(displayRef);
+    }else transaction.delete(displayRef);
    }
-  }
-  if(seatIds.length&&status==='accepted'&&order.orderType!=='takeout'){
-   seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),{
+   if(acceptingDineIn)seatRefs.forEach(ref=>transaction.set(ref,{
     status:'occupied',heldBy:null,heldUntil:null,
     occupiedAt:firebase.firestore.FieldValue.serverTimestamp(),
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
    },{merge:true}));
-  }
-  if(seatIds.length&&['completed','cancelled'].includes(status)){
-   seatIds.forEach(seatId=>batch.set(db.collection('seats').doc(seatId),seatReleasePayload(),{merge:true}));
-  }
-  await batch.commit();
-  showAdminMessage(status==='accepted'&&order.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&order.orderType==='takeout'?'픽업 완료로 처리했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
+   if(completingDineIn||(status==='cancelled'&&seatIds.length))seatRefs.forEach(ref=>transaction.set(ref,seatReleasePayload(),{merge:true}));
+   committedOrder=order;
+  });
+  if((status==='accepted'&&committedOrder.orderType!=='takeout')||(status==='cooking'&&committedOrder.orderType==='takeout'))stopNewOrderRepeat();
+  showAdminMessage(status==='accepted'&&committedOrder.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&committedOrder.orderType==='takeout'?'픽업 완료로 처리했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
-  if((status==='ready'&&order.orderType==='takeout')||(status==='completed'&&order.orderType!=='takeout'))callCustomer(order.customerNumber||order.orderNo||'',order.language);
+  if((status==='ready'&&committedOrder.orderType==='takeout')||(status==='completed'&&committedOrder.orderType!=='takeout'))callCustomer(committedOrder.customerNumber||committedOrder.orderNo||'',committedOrder.language);
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
@@ -1152,6 +1179,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   return;
  }
  if(action==='set-status'){
+  if(button.dataset.confirm&&!confirm(button.dataset.confirm))return;
   await setStatus(button.dataset.orderId,button.dataset.status,button);
   return;
  }
@@ -1172,6 +1200,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  }
 });
 document.getElementById('ordersPanel')?.addEventListener('dblclick',event=>{
+ if(event.target.closest('button[data-action]'))return;
  const trigger=event.target.closest('.central-order-row[data-order-id]');
  if(trigger)openOrderDetail(trigger.dataset.orderId,trigger);
 });

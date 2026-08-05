@@ -42,14 +42,15 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  const writes=[],seatWrites=[],displayWrites=[],displayDeletes=[],customerCalls=[],loggedErrors=[];
  let commits=0,releaseCommit,commitSucceeded=false;
  const commitGate=holdCommit?new Promise(resolve=>{releaseCommit=resolve}):Promise.resolve();
- const batch={
+ const seatState=new Map((order.seatIds||[]).map(id=>[id,{status:order.status==='payment_pending'?'held':'occupied',orderId:order.id}]));
+ const transaction={
+  async get(ref){if(ref.name==='orders')return {exists:true,data:()=>({...order})};const data=seatState.get(ref.id);return {exists:Boolean(data),data:()=>({...data})}},
   update(ref,data){writes.push({ref,data})},
   set(ref,data,options){(ref.name==='publicOrderDisplays'?displayWrites:seatWrites).push({ref,data,options})},
-  delete(ref){displayDeletes.push(ref)},
-  async commit(){commits++;await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}
+  delete(ref){displayDeletes.push(ref)}
  };
  const context={
-  Set,orders:[order],db:{batch:()=>batch,collection:name=>({doc:id=>({name,id})})},
+  Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}},
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
   orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
   orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
@@ -68,7 +69,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
 
 (async()=>{
  const acceptedTakeout=await exerciseStatus({id:'t1',status:'payment_pending',orderType:'takeout',seatIds:[]},'accepted',{holdCommit:true});
- assert.strictEqual(acceptedTakeout.commits,1,'double-clicked takeout acceptance commits once');
+ assert.strictEqual(acceptedTakeout.commits,1,'double-clicked takeout acceptance runs one transaction');
  assert.deepStrictEqual(acceptedTakeout.results,[true,false]);
  assert.strictEqual(acceptedTakeout.writes[0].data.status,'accepted','takeout acceptance never writes completed');
  assert.strictEqual(acceptedTakeout.seatWrites.length,0,'takeout acceptance does not touch seats');

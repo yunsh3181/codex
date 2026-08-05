@@ -5,13 +5,13 @@ const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const admin=read('admin.js'),html=read('admin/index.html'),css=read('admin.css'),rules=read('firestore.rules');
 
-for(const id of ['takeoutProcessing','takeoutPending','orderList','seatOverviewGrid'])assert.ok(html.includes(`id="${id}"`),`${id} exists`);
-assert.ok(html.indexOf('id="takeoutProcessing"')<html.indexOf('id="takeoutPending"'),'desktop source keeps processing rail before the central pending card');
+for(const id of ['takeoutPending','orderList','seatOverviewGrid'])assert.ok(html.includes(`id="${id}"`),`${id} exists`);
+assert.ok(!html.includes('id="takeoutProcessing"'),'duplicate processing rail is removed');
 assert.ok(html.includes('primary-admin-tabs')&&html.includes('secondary-admin-tabs'),'primary operations and secondary statistics remain accessible');
 assert.ok(html.includes('class="stats-toolbar"'),'compact stats and manual intake share the top toolbar');
 assert.ok(css.includes('grid-template-columns:minmax(500px,.95fr) minmax(470px,1.05fr)'),'wide toolbar keeps compact stats and manual intake on one row');
 assert.ok(css.includes('min-height:58px')&&css.includes('height:36px'),'toolbar cards and controls use compact target heights');
-assert.ok(css.includes('grid-template-columns:minmax(220px,15%) minmax(520px,1fr) minmax(300px,19%)'),'wide view preserves the operating screen proportions');
+assert.ok(css.includes('grid-template-columns:minmax(0,1fr) minmax(300px,19%)'),'wide view expands the order list while preserving the seat panel');
 assert.ok(css.includes('.seat-overview{grid-area:seats;min-width:300px}'),'seat panel remains wide enough for readable Korean names');
 assert.ok(css.includes('.seat-overview{max-height:none;overflow:visible}'),'seat panel displays every row without vertical scrolling');
 assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))')&&css.includes('grid-auto-flow:row'),'seat overview uses a fluid three-column grid');
@@ -71,7 +71,7 @@ for(const forbidden of ['groupSize','groupLabel','groupTableCount','reservationN
  assert.ok(!releaseSource.includes(`${forbidden}:`),`${forbidden} is not synthesized by seat release`);
 }
 assert.ok(clearSource.includes("db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true})"),'manual clearing reuses the shared release payload');
-assert.ok(setStatusSource.includes("batch.set(db.collection('seats').doc(seatId),seatReleasePayload(),{merge:true})"),'automatic dine-in release reuses the same payload');
+assert.ok(setStatusSource.includes('transaction.set(ref,seatReleasePayload(),{merge:true})'),'automatic dine-in release reuses the same payload');
 assert.ok(!clearSource.includes("collection('orders')"),'seat clearing never changes an order');
 assert.ok(rules.includes('match /seats/{seatId}')&&rules.includes('allow create: if isAdmin();'),'existing admin-only seat mutation policy remains');
 assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])"),'TV public data remains minimal');

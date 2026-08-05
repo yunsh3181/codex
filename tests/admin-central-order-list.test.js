@@ -12,9 +12,36 @@ for(const label of ['오더 리스트','(오늘 주문)','순번','예약/즉시
 }
 assert.ok(html.includes('id="businessDayOrderCount"')&&html.includes('id="orderPagination"'),'live total and pagination controls exist');
 const cssVersion=html.match(/admin\.css\?v=([0-9.]+)/)?.[1],jsVersion=html.match(/admin\.js\?v=([0-9.]+)/)?.[1];
-assert.strictEqual(cssVersion,'47.2.0','changed administrator CSS has a new cache version');
+assert.strictEqual(cssVersion,'47.3.0','changed administrator CSS has a new cache version');
 assert.strictEqual(jsVersion,cssVersion,'administrator CSS and JS cache versions move together');
-assert.ok(html.includes('주문 관리자 v47.2.0')&&html.includes('실시간 주문관리 · v47.2.0'),'page title and visible version match the core assets');
+assert.ok(html.includes('주문 관리자 v47.3.0')&&html.includes('실시간 주문관리 · v47.3.0'),'page title and visible version match the core assets');
+assert.ok(!html.includes('takeoutProcessingTitle')&&!html.includes('id="takeoutProcessing"'),'the duplicate left processing rail is removed');
+for(const label of ['신규주문','결제대기','결제완료','사용중','완료'])assert.ok(admin.includes(label),`inline order actions include ${label}`);
+assert.ok(admin.includes('data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?"'),'payment acceptance uses the required confirmation');
+assert.ok(admin.includes('data-confirm="주문을 완료하고 연결된 좌석을 빈자리로 변경하시겠습니까?"'),'seat completion uses the required confirmation');
+assert.ok(admin.includes("if(event.target.closest('button[data-action]'))return;"),'double-clicking an inline action cannot open order detail');
+
+const inlineStart=admin.indexOf('function isPendingOrder('),inlineEnd=admin.indexOf('function centralOrderRow(',inlineStart);
+assert.ok(inlineStart>=0&&inlineEnd>inlineStart,'inline state renderers found');
+const inlineContext={
+ esc:value=>String(value??''),adminOrderNumberLabel:()=> '1',orderSeatIds:order=>order.seatIds||[],seatDocuments:{seat1:{status:'occupied',orderId:'order-1'}}
+};
+vm.createContext(inlineContext);vm.runInContext(admin.slice(inlineStart,inlineEnd),inlineContext);
+const paymentFixtures=[
+ ['payment_pending','결제대기',true],['new','결제대기',true],['accepted','결제완료',false],['paid','결제완료',false],
+ ['cooking','결제완료',false],['ready','결제완료',false],['completed','결제완료',false],['cancelled','취소',false],
+ [undefined,'확인 필요',false],[null,'확인 필요',false],['','확인 필요',false],['unknown_status','확인 필요',false]
+];
+for(const [status,label,actionable] of paymentFixtures){
+ const markup=inlineContext.centralPaymentAction({id:'order-1',status});
+ assert.ok(markup.includes(`>${label}<`),`${String(status)} displays ${label}`);
+ assert.strictEqual(markup.includes('<button'),actionable,`${String(status)} actionable=${actionable}`);
+ if(!actionable)assert.ok(!markup.includes('data-action=')&&!markup.includes('data-status='),`${String(status)} cannot start a transaction`);
+}
+for(const status of ['cancelled',undefined,null,'','unknown_status']){
+ const markup=inlineContext.centralSeatAction({id:'order-1',status,orderType:'dinein',seatIds:['seat1']});
+ assert.ok(!markup.includes('<button'),`${String(status)} has no seat action`);
+}
 assert.ok(html.includes('admin-mobile.css?v=44.0.0'),'unchanged mobile CSS keeps its existing cache version');
 assert.ok(!html.includes('id="channelFilters"')&&!html.includes('id="filters"'),'inactive channel and status filters are absent from the all-orders screen');
 assert.ok(admin.includes('const CENTRAL_ORDER_PAGE_SIZE=15'),'the central list uses 15 rows per page');
