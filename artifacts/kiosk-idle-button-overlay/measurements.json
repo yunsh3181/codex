@@ -1,0 +1,58 @@
+{
+  "viewport": { "width": 1080, "height": 1920 },
+  "renderedImage": { "top": 0, "right": 1080, "bottom": 1920, "left": 0, "width": 1080, "height": 1920 },
+  "frame": { "top": 0, "right": 1080, "bottom": 1920, "left": 0, "width": 1080, "height": 1920 },
+  "setMenu": {
+    "button": { "top": 1685.203125, "right": 853.19921875, "bottom": 1795.203125, "left": 226.80078125, "width": 626.3984375, "height": 110 },
+    "bottomOffsetPx": 124.796875,
+    "bottomOffsetPercent": 6.5,
+    "widthPercent": 58,
+    "horizontalCenterErrorPx": 0,
+    "insideRenderedImage": true,
+    "coreContentOverlapPx": 0,
+    "logoOverlapPx": 0
+  },
+  "happyHour": {
+    "button": { "top": 1704.40625, "right": 853.19921875, "bottom": 1814.40625, "left": 226.80078125, "width": 626.3984375, "height": 110 },
+    "bottomOffsetPx": 105.59375,
+    "bottomOffsetPercent": 5.5,
+    "widthPercent": 58,
+    "horizontalCenterErrorPx": 0,
+    "insideRenderedImage": true,
+    "coreContentOverlapPx": 0,
+    "logoOverlapPx": 0
+  },
+  "fallback": {
+    "button": { "top": 1685.203125, "right": 853.19921875, "bottom": 1795.203125, "left": 226.80078125, "width": 626.3984375, "height": 110 },
+    "insideFallbackFrame": true,
+    "textReadable": true
+  },
+  "layout": {
+    "documentScrollWidth": 1080,
+    "documentScrollHeight": 1920,
+    "horizontalOverflowPx": 0,
+    "verticalOverflowPx": 0,
+    "separateBottomControlAreaPx": 0,
+    "cartBarVisible": false
+  },
+  "languages": {
+    "ko": { "text": "주문하기", "clipped": false },
+    "en": { "text": "Start Order", "clipped": false },
+    "ja": { "text": "注文する", "clipped": false },
+    "zh": { "text": "开始点餐", "clipped": false },
+    "vi": { "text": "Bắt đầu đặt món", "clipped": false },
+    "es": { "text": "Hacer pedido", "clipped": false }
+  },
+  "interaction": {
+    "buttonClickDestination": "home",
+    "fullFrameTapDestination": "home",
+    "doubleClickDestination": "home",
+    "idleHiddenAfterStart": true,
+    "initialOrderSelectionVisible": true,
+    "startExecutionCount": 1
+  },
+  "imageSha256": {
+    "kiosk-pick-set-menu.jpg": "fae456d5b9aebc7fae14d2888f9d1c9b5fb88914c6591826946d50dfe968168f",
+    "kiosk-happy-hour-regular-15000.jpg": "bdadf7d7518863baf538d65050d0761efd8c85956ee9ac768974fbf4e3dc8633"
+  }
+}

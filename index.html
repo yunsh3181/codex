@@ -2131,6 +2131,7 @@ body[data-step="drink"] .card:has(.row){display:grid!important;grid-template-col
 body[data-step="idle"]{overflow:hidden;background:#002f22}
 body[data-step="idle"] .app{padding:0;height:100vh;min-height:0}
 .kioskIdleScreen{position:relative;width:100%;height:100vh;overflow:hidden;background:linear-gradient(160deg,#003f2d,#001d15);display:grid;grid-template-rows:minmax(0,1fr) auto;padding:0 0 max(28px,env(safe-area-inset-bottom));isolation:isolate}
+.kioskIdleFrame{display:contents}
 .kioskIdleViewport{position:relative;min-height:0;margin:0 0 18px;overflow:hidden;background:#003f2d}
 .kioskIdleSlide{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;opacity:0;transition:opacity .45s ease;background:#003f2d}
 .kioskIdleSlide.isActive{opacity:1}
@@ -2139,7 +2140,17 @@ body[data-step="idle"] .app{padding:0;height:100vh;min-height:0}
 body[data-step="idle"] .kiosk-scroll-indicator{display:none!important}
 .kioskIdleControls{position:relative;z-index:3;padding:0 clamp(48px,5.5vw,64px)}
 .kioskIdleStart{display:block;width:100%;min-height:104px;border:4px solid #fff;border-radius:24px;background:#d71920;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.38);font-size:clamp(30px,3.2vw,42px);line-height:1.15;font-weight:1000;cursor:pointer;touch-action:manipulation}
+.kioskIdleStart:focus-visible{outline:8px solid #ffd34e;outline-offset:7px}
+.kioskIdleStart:active{transform:translateY(4px);box-shadow:0 7px 18px rgba(0,0,0,.42)}
 .kioskIdleStart:disabled{opacity:.68;cursor:wait}
+.kioskIdleClickShield{position:fixed;inset:0;z-index:99999;background:transparent;touch-action:none}
+html[data-layout="kiosk21"] .kioskIdleScreen{display:block;padding:0}
+html[data-layout="kiosk21"] .kioskIdleFrame{--idle-cta-bottom:6.5%;position:relative;display:block;width:100%;height:100%;overflow:hidden;background:#003f2d;cursor:pointer}
+html[data-layout="kiosk21"] .kioskIdleFrame[data-active-promotion="happy-hour"]{--idle-cta-bottom:5.5%}
+html[data-layout="kiosk21"] .kioskIdleFrame[data-active-promotion="fallback"]{--idle-cta-bottom:6.5%}
+html[data-layout="kiosk21"] .kioskIdleViewport{width:100%;height:100%;margin:0}
+html[data-layout="kiosk21"] .kioskIdleControls{position:absolute;z-index:4;left:50%;bottom:var(--idle-cta-bottom);width:58%;padding:0;transform:translateX(-50%)}
+html[data-layout="kiosk21"] .kioskIdleStart{width:100%;min-height:110px;font-size:clamp(42px,4.2vw,52px);white-space:nowrap;padding-inline:clamp(24px,4vw,44px)}
 @media(max-width:560px){.kioskIdleScreen{padding-bottom:max(16px,env(safe-area-inset-bottom))}.kioskIdleViewport{margin-bottom:10px}.kioskIdleControls{padding:0 18px}.kioskIdleStart{min-height:90px;border-radius:18px;font-size:30px}}
 @media(prefers-reduced-motion:reduce){.kioskIdleSlide{transition:none}}
 </style>
@@ -2544,13 +2555,14 @@ function seoulSecondsOfDay(now=new Date()){
 function isIdleHappyHourVisible(now=new Date()){const seconds=seoulSecondsOfDay(now);return seconds>=16*3600&&seconds<20*3600}
 function eligibleIdlePromotions(now=new Date()){return IDLE_PROMOTIONS.filter(item=>!failedIdlePromotions.has(item.id)&&(!item.scheduled||isIdleHappyHourVisible(now)))}
 function idlePromotionView(){
- return `<section class="kioskIdleScreen" aria-label="${escAttr(t('ui.idle.promotionAlt'))}"><div class="kioskIdleViewport">${IDLE_PROMOTIONS.map(item=>`<img class="kioskIdleSlide" data-promotion-id="${item.id}" src="${item.src}" alt="${escAttr(t('ui.idle.promotionAlt'))}" onerror="handleIdlePromotionError('${item.id}')">`).join('')}<div class="kioskIdleFallback" hidden>PAPA JOHNS</div></div><div class="kioskIdleControls"><button type="button" class="kioskIdleStart" aria-label="${escAttr(t('ui.idle.startOrder'))}" onclick="startOrderFromIdle()">${t('ui.idle.startOrder')}</button></div></section>`
+ return `<section class="kioskIdleScreen" aria-label="${escAttr(t('ui.idle.promotionAlt'))}"><div class="kioskIdleFrame" onclick="startOrderFromIdle()"><div class="kioskIdleViewport">${IDLE_PROMOTIONS.map(item=>`<img class="kioskIdleSlide" data-promotion-id="${item.id}" src="${item.src}" alt="${escAttr(t('ui.idle.promotionAlt'))}" onerror="handleIdlePromotionError('${item.id}')">`).join('')}<div class="kioskIdleFallback" hidden>PAPA JOHNS</div></div><div class="kioskIdleControls"><button type="button" class="kioskIdleStart" aria-label="${escAttr(t('ui.idle.startOrder'))}" onclick="event.stopPropagation();startOrderFromIdle()">${t('ui.idle.startOrder')}</button></div></div></section>`
 }
 function applyIdlePromotionEligibility(now=new Date()){
  if(state.step!=='idle')return;
  const candidates=eligibleIdlePromotions(now);
  if(idlePromotionIndex>=candidates.length)idlePromotionIndex=0;
  const active=candidates[idlePromotionIndex];
+ const frame=document.querySelector('.kioskIdleFrame');if(frame)frame.dataset.activePromotion=active?.id||'fallback';
  document.querySelectorAll('.kioskIdleSlide').forEach(image=>{const eligible=candidates.some(item=>item.id===image.dataset.promotionId);image.hidden=!eligible;image.classList.toggle('isActive',image.dataset.promotionId===active?.id)});
  const fallback=document.querySelector('.kioskIdleFallback');if(fallback)fallback.hidden=Boolean(active)
 }
@@ -2559,12 +2571,16 @@ function handleIdlePromotionError(id){failedIdlePromotions.add(id);idlePromotion
 function preloadIdlePromotions(){IDLE_PROMOTIONS.forEach(item=>{const image=new Image();image.onerror=()=>handleIdlePromotionError(item.id);image.src=item.src})}
 function stopIdlePromotionTimers(){if(typeof clearInterval==='function'){clearInterval(idlePromotionTimer);clearInterval(idleEligibilityTimer)}idlePromotionTimer=null;idleEligibilityTimer=null}
 function startIdlePromotionTimers(){stopIdlePromotionTimers();preloadIdlePromotions();applyIdlePromotionEligibility();if(document.hidden)return;idlePromotionTimer=setInterval(advanceIdlePromotion,IDLE_PROMOTION_INTERVAL_MS);idleEligibilityTimer=setInterval(()=>applyIdlePromotionEligibility(new Date()),1000)}
+function guardIdleStartTransition(){
+ const shield=document.createElement('div');shield.className='kioskIdleClickShield';shield.setAttribute('aria-hidden','true');document.body.append(shield);
+ setTimeout(()=>{shield.remove();idleStartLocked=false},800)
+}
 async function startOrderFromIdle(){
  if(idleStartLocked)return;idleStartLocked=true;
  const button=document.querySelector('.kioskIdleStart');if(button)button.disabled=true;
  const heldSeats=[...state.selectedTables];
  try{if(heldSeats.length&&!state.firebaseOrderId)await releaseSeats(heldSeats)}catch(error){console.warn('주문 시작 전 좌석 해제 실패',error)}
- reset('home',{skipRelease:true});render();idleStartLocked=false
+ reset('home',{skipRelease:true});render();guardIdleStartTransition()
 }
 function openLanguageSelect(){state.step='language';render()}
 function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;state.mode='single';state.dough='오리지널';state.crust='오리지널';state.toppings={};state.step='side';render()}

@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+const crypto=require('node:crypto');
 
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
@@ -34,14 +35,53 @@ test('set menu is always eligible and happy hour is the only scheduled candidate
  assert.deepEqual(ids('2026-08-05T11:00:00Z'),['set-menu']);
 });
 
-test('idle screen contains safe images, fallback, fixed CTA, and live reevaluation',()=>{
+test('idle screen contains safe images, fallback, image-frame overlay CTA, and live reevaluation',()=>{
  for(const file of ['kiosk-pick-set-menu.jpg','kiosk-happy-hour-regular-15000.jpg'])assert.equal(fs.existsSync(path.join(root,'assets/images/kiosk-promotions',file)),true,file);
  assert.match(html,/\.kioskIdleSlide\{[^}]*object-fit:contain/);
  assert.match(html,/class="kioskIdleFallback" hidden/);
+ assert.match(html,/class="kioskIdleFrame"/);
+ assert.match(html,/class="kioskIdleFrame" onclick="startOrderFromIdle\(\)"/);
  assert.match(html,/type="button" class="kioskIdleStart"/);
+ assert.match(html,/onclick="event\.stopPropagation\(\);startOrderFromIdle\(\)"/);
  assert.match(html,/min-height:104px/);
+ assert.match(html,/html\[data-layout="kiosk21"\] \.kioskIdleFrame\{[^}]*height:100%[^}]*overflow:hidden/);
+ assert.match(html,/html\[data-layout="kiosk21"\] \.kioskIdleControls\{[^}]*position:absolute[^}]*bottom:var\(--idle-cta-bottom\)[^}]*width:58%/);
+ assert.match(html,/html\[data-layout="kiosk21"\] \.kioskIdleStart\{[^}]*min-height:110px/);
+ assert.match(html,/data-active-promotion="happy-hour"\]\{--idle-cta-bottom:5\.5%/);
+ assert.match(html,/\.kioskIdleFrame\{--idle-cta-bottom:6\.5%/);
+ assert.match(html,/frame\.dataset\.activePromotion=active\?\.id\|\|'fallback'/);
+ assert.doesNotMatch(html,/html\[data-layout="kiosk21"\] \.kioskIdleScreen\{[^}]*grid-template-rows/);
  assert.match(html,/idleEligibilityTimer=setInterval\(\(\)=>applyIdlePromotionEligibility\(new Date\(\)\),1000\)/);
  assert.match(html,/document\.hidden\)stopIdlePromotionTimers/);
+});
+
+test('original promotion image bytes remain unchanged',()=>{
+ const expected={
+  'kiosk-pick-set-menu.jpg':'fae456d5b9aebc7fae14d2888f9d1c9b5fb88914c6591826946d50dfe968168f',
+  'kiosk-happy-hour-regular-15000.jpg':'bdadf7d7518863baf538d65050d0761efd8c85956ee9ac768974fbf4e3dc8633'
+ };
+ for(const [file,hash] of Object.entries(expected))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'assets/images/kiosk-promotions',file))).digest('hex'),hash,file);
+});
+
+test('start-order handler locks before async cleanup and ignores a rapid second activation',async()=>{
+ const source=html.match(/async function startOrderFromIdle\(\)\{[\s\S]*?\n\}/)?.[0];
+ assert.ok(source,'start-order handler source');
+ let releases=0,resets=0,renders=0,resolveRelease;
+ const releaseGate=new Promise(resolve=>{resolveRelease=resolve});
+ const button={disabled:false};
+ const context={idleStartLocked:false,state:{selectedTables:new Set(['A1']),firebaseOrderId:null},document:{querySelector(){return button}},async releaseSeats(){releases+=1;await releaseGate},reset(){resets+=1},render(){renders+=1},guardIdleStartTransition(){context.idleStartLocked=false},console};
+ vm.createContext(context);vm.runInContext(source,context);
+ const first=context.startOrderFromIdle();
+ const second=context.startOrderFromIdle();
+ assert.equal(releases,1);assert.equal(button.disabled,true);
+ resolveRelease();await Promise.all([first,second]);
+ assert.deepEqual({releases,resets,renders},{releases:1,resets:1,renders:1});
+});
+
+test('idle transition installs a short click shield before unlocking the new screen',()=>{
+ assert.match(html,/\.kioskIdleClickShield\{position:fixed;inset:0;z-index:99999/);
+ assert.match(html,/function guardIdleStartTransition\(\)\{[\s\S]*?document\.body\.append\(shield\)[\s\S]*?setTimeout\(\(\)=>\{shield\.remove\(\);idleStartLocked=false\},800\)/);
+ assert.match(html,/reset\('home',\{skipRelease:true\}\);render\(\);guardIdleStartTransition\(\)/);
 });
 
 test('idle translations use a fresh cache key without changing unrelated assets',()=>{
