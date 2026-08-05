@@ -742,7 +742,9 @@ function isPendingOrder(order){return ['payment_pending','new'].includes(order?.
 function isCompletedOrder(order){return ['ready','completed'].includes(order?.status)}
 function centralPaymentAction(order){
  if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
- return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
+ if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
+ if(order?.status==='cancelled')return '<span class="central-status-badge payment-cancelled" aria-label="결제 상태 취소">취소</span>';
+ return '<span class="central-status-badge payment-review" aria-label="결제 상태 확인 필요">확인 필요</span>';
 }
 function centralSeatAction(order){
  if(order.orderType==='takeout')return '-';
