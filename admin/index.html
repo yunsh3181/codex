@@ -73,12 +73,16 @@
         <section id="takeoutProcessing" class="takeout-processing"><div class="empty">처리중인 포장 주문이 없습니다.</div></section>
       </aside>
       <div class="order-workspace">
-        <section class="takeout-workflow" aria-labelledby="takeoutWorkflowTitle">
-          <div class="takeout-section-head"><div><p>신규 포장</p><h2 id="takeoutWorkflowTitle">결제대기 주문</h2></div><span>가장 오래된 주문부터 표시합니다.</span></div>
-          <section id="takeoutPending" class="takeout-pending"><div class="empty">신규 포장 주문을 불러오는 중입니다.</div></section>
+        <section class="central-order-list" aria-labelledby="centralOrderListTitle">
+          <header class="central-order-list-head"><div><h2 id="centralOrderListTitle">오더 리스트</h2><span>(오늘 주문)</span></div><strong id="businessDayOrderCount">총 0건</strong></header>
+          <div class="central-order-table-wrap"><table class="central-order-table">
+            <thead><tr><th>순번</th><th>예약/즉시</th><th>주문시간</th><th>전화번호</th><th>주문번호</th><th>포장/매장식사</th><th>좌석</th><th>인원</th><th>결제금액</th><th>결제수단</th></tr></thead>
+            <tbody id="orderList"><tr><td colspan="10" class="central-order-empty">주문을 불러오는 중입니다.</td></tr></tbody>
+          </table></div>
+          <div class="central-order-controls"><button type="button" id="selectedOrderDetail" disabled>상세보기</button><nav id="orderPagination" class="order-pagination" aria-label="오더 리스트 페이지"></nav></div>
+          <p id="businessDayNotice" class="business-day-notice"></p>
         </section>
-        <h2 class="other-orders-title">매장식사 주문</h2>
-        <section id="orderList" class="order-list"><div class="empty">주문을 불러오는 중입니다.</div></section>
+        <section id="takeoutPending" hidden aria-hidden="true"></section>
       </div>
       <aside class="seat-overview" aria-labelledby="seatOverviewTitle">
         <div class="operations-section-head"><div><p>실시간</p><h2 id="seatOverviewTitle">좌석 현황</h2></div><span id="seatOverviewConnection">연결 중</span></div>

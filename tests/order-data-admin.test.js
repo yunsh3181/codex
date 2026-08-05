@@ -118,18 +118,17 @@ assert.strictEqual(paymentContext.splitPaymentSummary({payment:{methods:['meal_t
 assert.deepStrictEqual(JSON.parse(JSON.stringify(paymentContext.safeAmounts({total:31000,discountAmount:-100}))),{original:31000,discount:0,paid:31000},'negative discounts are clamped and amounts stay finite');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(paymentContext.safeAmounts({originalAmount:'bad',total:undefined}))),{original:0,discount:0,paid:0},'missing and invalid amounts safely fall back to zero');
 
-assert.ok(adminSource.includes("db.collection('dailyStats').doc(`order-sequence_"),'sequence uses the admin-writable dailyStats counter');
-assert.ok(adminSource.includes('db.runTransaction(async transaction=>'),'sequence allocation uses a Firestore transaction');
-assert.ok(adminSource.includes('Promise.all([transaction.get(orderRef),transaction.get(counterRef)])'),'transaction reads before writes');
-assert.ok(adminSource.includes('transaction.update(orderRef,{businessDay,sequence:next,dailySequence:next'),'sequence is persisted on the order');
+assert.ok(!adminSource.includes("db.collection('dailyStats').doc(`order-sequence_"),'administrator display sequencing creates no counter document');
+assert.ok(adminSource.includes('adminDisplaySequence:index+1'),'sequence is derived from the deterministic business-day ordering');
+assert.ok(!adminSource.includes('transaction.update(orderRef,{businessDay,sequence:next,dailySequence:next'),'display sequence is never persisted on the order');
 assert.ok(rules.includes("match /dailyStats/{document=**} { allow read, write: if isAdmin(); }"),'existing rules authorize authenticated admin counter writes');
 assert.ok(rules.includes("request.resource.data.businessDay == resource.data.businessDay"),'public display rules prevent an existing business day from being overwritten');
 
-const functionMatch=adminSource.match(/function seoulBusinessDayKey[\s\S]*?\n}\nconst sequenceAssignments/);
+const functionMatch=adminSource.match(/function seoulBusinessDayKey[\s\S]*?\n}\nconst ORDER_CATALOG/);
 assert.ok(functionMatch,'business day helper found');
 const timeContext={Intl,Date,Object,Number,compareOrdersOldestFirst:sortContext.compareOrdersOldestFirst};
 vm.createContext(timeContext);
-vm.runInContext(functionMatch[0].replace(/\nconst sequenceAssignments[\s\S]*/,''),timeContext);
+vm.runInContext(functionMatch[0].replace(/\nconst ORDER_CATALOG[\s\S]*/,''),timeContext);
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-20T00:00:00.000Z')),'2026-07-20','09:00 KST starts a new business day');
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-19T23:59:59.000Z')),'2026-07-19','08:59:59 KST remains on the previous business day');
 assert.strictEqual(timeContext.seoulBusinessDayKey(new Date('2026-07-20T13:00:00.000Z')),'2026-07-20','22:00 KST remains on the current business day');
@@ -152,16 +151,16 @@ const businessOrders=[
  {id:'missing-date',status:'payment_pending'}
 ];
 const visible=Array.from(timeContext.visibleBusinessDayOrders(businessOrders,businessNow));
-assert.deepStrictEqual(visible.map(order=>order.id),['yesterday-active','today-pending','today-done','created-at-fallback','client-fallback'],'visible orders include current-day and previous active orders in oldest-first order');
+assert.deepStrictEqual(visible.map(order=>order.id),['today-pending','today-done','created-at-fallback','client-fallback'],'today list contains the complete current business day only');
 assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[5]),'2026-07-22','createdAt provides a missing business day');
 assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[6]),'2026-07-22','createdAtClient is the final date fallback');
 assert.strictEqual(timeContext.orderBusinessDayKey(businessOrders[7]),null,'orders without dates are safely excluded');
 assert.strictEqual(timeContext.isCurrentBusinessDayOrder(businessOrders[0],businessNow),true,'current-day added order is eligible for notification');
 assert.strictEqual(timeContext.isCurrentBusinessDayOrder(businessOrders[2],businessNow),false,'past active added order is not eligible for notification');
 const capped=Array.from(timeContext.visibleBusinessDayOrders(Array.from({length:101},(_,index)=>({id:`order-${index+1}`,businessDay:'2026-07-22',status:'completed',createdAtClient:new Date(Date.UTC(2026,6,22,0,0,index)).toISOString()})),businessNow));
-assert.strictEqual(capped.length,100,'visible order list is capped at 100');
-assert.strictEqual(capped[0].id,'order-2','cap drops the oldest overflow order');
-assert.strictEqual(capped[99].id,'order-101','cap retains the newest order while preserving oldest-first display');
+assert.strictEqual(capped.length,101,'the current business day total is never truncated for pagination');
+assert.strictEqual(capped[0].id,'order-1','the oldest order remains available with sequence 1');
+assert.strictEqual(capped[100].id,'order-101','the newest order remains available for descending display');
 assert.ok(adminSource.includes("notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)))"),'new-order notification is limited to current-business-day pending orders');
 assert.ok(!adminSource.includes("collection('orders').limit(200)"),'subscription does not truncate current-day orders behind historical documents');
 
@@ -175,43 +174,15 @@ assert.ok(rules.includes("!request.resource.data.keys().hasAny(['disposables'])"
 assert.ok(rules.includes('request.resource.data.disposables is bool'),'when present, Firestore requires a real disposable-fork boolean');
 for(const key of ['pizzaLeft','pizzaRight','crust','dough','toppings','sides','drinks','includedSides','includedDrinks','qty','discountAmount','total'])assert.ok(html.includes(`${key}:`),`order items retain ${key}`);
 
-async function verifyConcurrentSequenceAllocation(){
-  const allocatorMatch=adminSource.match(/function seoulBusinessDayKey[\s\S]*?\n}\nconst ORDER_CATALOG=/);
-  assert.ok(allocatorMatch,'sequence allocator source found');
-  const source=allocatorMatch[0].replace(/\nconst ORDER_CATALOG=[\s\S]*/,'');
-  const documents=new Map([
-    ['orders/o1',{storeId:'pangyo2-techno-valley'}],
-    ['orders/o2',{storeId:'pangyo2-techno-valley'}],
-    ['orders/o3',{storeId:'pangyo2-techno-valley'}]
-  ]);
-  let transactionQueue=Promise.resolve();
-  const db={
-    collection(name){return {doc(id){return {path:`${name}/${id}`}}}},
-    runTransaction(work){
-      const run=transactionQueue.then(async()=>{
-        const writes=[];
-        const transaction={
-          async get(ref){const value=documents.get(ref.path);return {exists:value!==undefined,data(){return {...value}}}},
-          set(ref,value,options){writes.push(()=>documents.set(ref.path,options?.merge?{...(documents.get(ref.path)||{}),...value}:{...value}))},
-          update(ref,value){writes.push(()=>documents.set(ref.path,{...(documents.get(ref.path)||{}),...value}))}
-        };
-        await work(transaction);
-        writes.forEach(write=>write());
-      });
-      transactionQueue=run.catch(()=>{});
-      return run;
-    }
-  };
-  const context={Intl,Date,Object,Number,String,Set,Promise,console,db,firebase:{firestore:{FieldValue:{serverTimestamp(){return 'server-time'}}}}};
-  vm.createContext(context);
-  vm.runInContext(source,context,{filename:'sequence-allocator.js'});
-  await Promise.all([
-    context.ensureOrderSequence({id:'o1',storeId:'pangyo2-techno-valley',createdAtClient:'2026-07-20T00:00:00.000Z'}),
-    context.ensureOrderSequence({id:'o2',storeId:'pangyo2-techno-valley',createdAtClient:'2026-07-20T00:00:00.001Z'})
-  ]);
-  assert.deepStrictEqual([documents.get('orders/o1').sequence,documents.get('orders/o2').sequence],[1,2],'concurrent orders receive unique increasing sequences');
-  await context.ensureOrderSequence({id:'o3',storeId:'pangyo2-techno-valley',createdAtClient:'2026-07-21T00:00:00.000Z'});
-  assert.strictEqual(documents.get('orders/o3').sequence,1,'next 09:00 KST business day resets to sequence 1');
+async function verifyDeterministicDisplaySequence(){
+  const sourceOrders=[
+    {id:'o2',businessDay:'2026-07-20',createdAtClient:'2026-07-20T00:00:00.000Z'},
+    {id:'o1',businessDay:'2026-07-20',createdAtClient:'2026-07-20T00:00:00.000Z'},
+    {id:'o3',businessDay:'2026-07-20',createdAtClient:'2026-07-20T00:00:00.001Z'}
+  ];
+  const result=Array.from(timeContext.visibleBusinessDayOrders(sourceOrders,new Date('2026-07-20T03:00:00Z')));
+  assert.deepStrictEqual(result.map(order=>[order.id,order.adminDisplaySequence]),[['o1',1],['o2',2],['o3',3]],'same-time orders use document ID and receive unique display-only sequences');
+  assert.ok(!adminSource.includes('ensureOrderSequence')&&!adminSource.includes('sequenceAssignedAt'),'display sequencing has no asynchronous Firestore allocator');
 }
 
 async function verifyPublicDisplayBusinessDayBackfill(){
@@ -265,4 +236,4 @@ async function verifyPublicDisplayBusinessDayBackfill(){
   assert.strictEqual(writes.get('legacy'),1,'status and updatedAt changes do not trigger another backfill write');
 }
 
-Promise.all([verifyConcurrentSequenceAllocation(),verifyPublicDisplayBusinessDayBackfill()]).then(()=>console.log('canonical order catalog, public display business-day backfill, Firestore schema, and concurrent 09:00 Asia/Seoul sequence transaction passed')).catch(error=>{console.error(error);process.exitCode=1});
+Promise.all([verifyDeterministicDisplaySequence(),verifyPublicDisplayBusinessDayBackfill()]).then(()=>console.log('canonical order catalog, public display business-day backfill, Firestore schema, and deterministic 09:00 Asia/Seoul display sequence passed')).catch(error=>{console.error(error);process.exitCode=1});
