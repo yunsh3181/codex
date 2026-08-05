@@ -1,7 +1,8 @@
-const {app,BrowserWindow,nativeImage}=require('electron');
+const {app,BrowserView,BrowserWindow,nativeImage}=require('electron');
 const fs=require('node:fs');
 const path=require('node:path');
 const {exportAdminVisualSite}=require('./serve-admin-visual');
+const {runElectronVerification}=require('./electron-verification-lifecycle');
 const root=path.resolve(__dirname,'..');
 const reportPath=process.env.ADMIN_CENTRAL_REPORT;
 const screenshotDir=process.env.ADMIN_CENTRAL_SCREENSHOT_DIR||path.join(root,'artifacts/admin-central-order-list');
@@ -12,14 +13,16 @@ async function capture(window,name){
  const image=await window.webContents.capturePage();fs.mkdirSync(screenshotDir,{recursive:true});fs.writeFileSync(path.join(screenshotDir,`${name}.png`),nativeImage.createFromBuffer(image.toPNG()).toPNG());
 }
 async function metrics(window){return window.webContents.executeJavaScript(`(()=>{const cells=[...document.querySelectorAll('.central-order-table td')],measure=cell=>({text:cell.textContent.trim(),column:cell.cellIndex+1,clientWidth:cell.clientWidth,scrollWidth:cell.scrollWidth,fits:cell.scrollWidth<=cell.clientWidth}),required=cells.filter(cell=>[4,5,7,9,10].includes(cell.cellIndex+1)).map(measure),clip=cells.filter(cell=>cell.scrollWidth>cell.clientWidth).map(measure),layout=document.querySelector('.operations-layout').getBoundingClientRect(),left=document.querySelector('.takeout-rail').getBoundingClientRect(),center=document.querySelector('.central-order-list').getBoundingClientRect(),right=document.querySelector('.seat-overview').getBoundingClientRect();return {viewport:[innerWidth,innerHeight],widths:{layout:Math.round(layout.width),left:Math.round(left.width),center:Math.round(center.width),right:Math.round(right.width)},horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),clipped:clip,requiredMeasurements:required,headerFont:parseFloat(getComputedStyle(document.querySelector('.central-order-table th')).fontSize),bodyFont:parseFloat(getComputedStyle(document.querySelector('.central-order-table td')).fontSize),fontFamily:getComputedStyle(document.querySelector('.central-order-table')).fontFamily,numericFontFamily:getComputedStyle(document.querySelector('.central-order-table td:nth-child(4)')).fontFamily,numericVariant:getComputedStyle(document.querySelector('.central-order-table td:nth-child(4)')).fontVariantNumeric,rows:document.querySelectorAll('.central-order-row').length}})()`,true)}
-async function main(){
+async function main(lifecycle){
  const visualRoot=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'admin-central-visual-'));
  exportAdminVisualSite(visualRoot,{ref:sourceRef});
- const window=new BrowserWindow({show:false,width:1440,height:900,useContentSize:true,webPreferences:{contextIsolation:true,nodeIntegration:false,offscreen:true,sandbox:true}});
+ const host=lifecycle.trackWindow(new BrowserWindow({show:true,opacity:0,width:800,height:600,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false}}));
+ const view=new BrowserView({webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true,backgroundThrottling:false}});host.setBrowserView(view);view.setBounds({x:0,y:0,width:1440,height:900});
+ const window={webContents:view.webContents,setContentSize(width,height){view.setBounds({x:0,y:0,width,height})}};
  const rendererProblems=[];
  window.webContents.on('console-message',event=>{if(event.level>=2)rendererProblems.push(event.message)});
  try{
-  await window.loadFile(path.join(visualRoot,'admin','index.html'));await wait(window);
+  await window.webContents.loadFile(path.join(visualRoot,'admin','index.html'));await wait(window);
   if(sourceRef){await capture(window,'admin-before-1440x900');fs.writeFileSync(reportPath,JSON.stringify({ref:sourceRef,metrics:await metrics(window)},null,2));return}
   const results={metrics:{}};results.metrics.after1440=await metrics(window);await capture(window,'admin-after-1440x900');await capture(window,'admin-mixed-15-orders');
   window.setContentSize(1920,1080);await wait(window);results.metrics.operating=await metrics(window);await capture(window,'admin-operating-1920x1080');
@@ -36,6 +39,6 @@ async function main(){
   results.listener=await window.webContents.executeJavaScript(`(()=>{const id=document.querySelector('.central-order-row.selected').dataset.orderId;window.PJAdminVisualFixture.emit();return new Promise(resolve=>setTimeout(()=>resolve({id,selectedId:document.querySelector('.central-order-row.selected')?.dataset.orderId||null,connected:!!document.querySelector('.central-order-row.selected')}),0))})()`,true);
   results.deletion=await window.webContents.executeJavaScript(`(()=>{const id=document.querySelector('.central-order-row.selected').dataset.orderId;window.PJAdminVisualFixture.remove(id);return new Promise(resolve=>setTimeout(()=>resolve({id,selected:!!document.querySelector('.central-order-row.selected'),disabled:document.getElementById('selectedOrderDetail').disabled}),0))})()`,true);
   results.consoleProblems=rendererProblems;fs.writeFileSync(reportPath,JSON.stringify(results,null,2));
- }finally{window.destroy();fs.rmSync(visualRoot,{recursive:true,force:true})}
+ }finally{fs.rmSync(visualRoot,{recursive:true,force:true})}
 }
-app.whenReady().then(main).then(()=>app.quit()).catch(error=>{console.error(error);app.exit(1)});
+runElectronVerification({app},main);
