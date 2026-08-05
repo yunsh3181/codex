@@ -131,5 +131,5 @@ test('modal hides the body indicator without changing the scroller position',()=
 
 test('screen rendering and scroll reset schedule an indicator update',()=>{
  assert.match(html,/if\(stepChanged\)\{\s*main\.scrollTop=0;/);
- assert.match(html,/lastRenderedStep=state\.step;\s*scheduleOrderReviewFit\(\);\s*window\.PJ_KIOSK_SCROLL_INDICATOR\?\.schedule\(\);/);
+ assert.match(html,/lastRenderedStep=state\.step;[\s\S]*?scheduleOrderReviewFit\(\);\s*window\.PJ_KIOSK_SCROLL_INDICATOR\?\.schedule\(\);/);
 });

@@ -34,10 +34,11 @@ test('start screens render a safe version label and ordering screens do not', ()
 });
 
 test('language persistence selects the expected start screen and home reset keeps the shared label', () => {
-  assert.match(indexSource, /sessionStorage\.getItem\('pjLangSelected'\)\?'home':'language'/);
+  assert.match(indexSource, /sessionStorage\.getItem\('pjLangSelected'\)\?'idle':'language'/);
   assert.match(indexSource, /sessionStorage\.setItem\('pjLangSelected','1'\);state\.step='home';render\(\)/);
-  assert.match(indexSource, /function reset\(\)[\s\S]*Object\.assign\(state,\{step:'home'/);
+  assert.match(indexSource, /function reset\(targetStep='home',options=\{\}\)[\s\S]*Object\.assign\(state,\{step:targetStep/);
   assert.match(indexSource, /if\(state\.step==='language'\)return languageView\(\)/);
+  assert.match(indexSource, /if\(state\.step==='idle'\)return idlePromotionView\(\)/);
   assert.match(indexSource, /if\(state\.step==='home'\)return `[\s\S]*startScreenVersionHTML\(\)/);
 });
 
