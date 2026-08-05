@@ -17,7 +17,8 @@ assert.ok(kiosk.includes("saved.heldBy!==seatClientId")||kiosk.includes("saved.h
 assert.ok(kiosk.includes("throw new Error('SEAT_UNAVAILABLE')"),'duplicate seat claims are rejected');
 assert.ok(kiosk.includes('seatIdleTimer=setTimeout(expireOrderIdle,SEAT_IDLE_MS)'),'central idle timeout uses the canonical 30-second value');
 assert.ok(kiosk.includes("reset('idle',{skipRelease:true});render()"),'idle timeout releases seats, clears state, and returns to promotions');
-for(const eventName of ['pointerdown','touchstart','keydown','wheel','scroll','click','input'])assert.ok(kiosk.includes(`'${eventName}'`),`${eventName} resets the inactivity timer`);
+for(const eventName of ['pointerdown','touchstart','keydown','wheel','click','input'])assert.ok(kiosk.includes(`'${eventName}'`),`${eventName} resets the inactivity timer`);
+assert.ok(!kiosk.includes("'wheel','scroll','click'"),'programmatic scroll cannot extend the inactivity timer');
 assert.ok(kiosk.includes("window.addEventListener('pagehide'"),'page close releases an unpaid seat');
 assert.ok(kiosk.includes("window.addEventListener('beforeunload'"),'browser unload attempts seat release');
 assert.ok(kiosk.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'payment keeps dine-in seats in ordering state');

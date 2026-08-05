@@ -44,6 +44,12 @@ test('idle screen contains safe images, fallback, fixed CTA, and live reevaluati
  assert.match(html,/document\.hidden\)stopIdlePromotionTimers/);
 });
 
+test('idle translations use a fresh cache key without changing unrelated assets',()=>{
+ assert.match(html,/<script src="i18n\/ui\.js\?v=51"><\/script>/);
+ assert.doesNotMatch(html,/<script src="i18n\/ui\.js\?v=50"><\/script>/);
+ assert.equal((html.match(/i18n\/ui\.js\?v=/g)||[]).length,1);
+});
+
 test('central idle controller ignores programmatic events and protects persistence',()=>{
  assert.match(html,/function recordOrderActivity\(event\)\{if\(event&&event\.isTrusted===false\)return;armOrderIdleTimer\(\)\}/);
  assert.match(html,/function isIdleResetProtected\(\)\{return mobileOrderSubmitting\|\|seatOrderCommitStarted\|\|Boolean\(state\.firebaseOrderId\)\}/);
@@ -51,6 +57,8 @@ test('central idle controller ignores programmatic events and protects persisten
  assert.match(html,/const heldSeats=\[\.\.\.state\.selectedTables\]/);
  assert.match(html,/if\(heldSeats\.length\)await releaseSeats\(heldSeats\)/);
   assert.doesNotMatch(html,/onSnapshot\([\s\S]{0,300}armOrderIdleTimer/);
+  assert.doesNotMatch(html,/\['pointerdown','touchstart','keydown','wheel','scroll'/);
+  assert.match(html,/\['pointerdown','touchstart','keydown','wheel','click','input'\]/);
 });
 
 test('central idle controller runs once across order steps and pauses while protected',async()=>{

@@ -2214,7 +2214,7 @@ try{
 <script src="i18n/zh.js?v=44.2"></script>
 <script src="i18n/vi.js?v=44.2"></script>
 <script src="i18n/es.js?v=44.2"></script>
-<script src="i18n/ui.js?v=50"></script>
+<script src="i18n/ui.js?v=51"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
@@ -3797,7 +3797,7 @@ db.collection('waitlist').onSnapshot(
 scheduleBottlePolicyBoundary();
 window.addEventListener?.('focus',()=>{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()});
 document.addEventListener?.('visibilitychange',()=>{if(document.hidden)stopIdlePromotionTimers();else{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()}});
-['pointerdown','touchstart','keydown','wheel','scroll','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:true}));
+['pointerdown','touchstart','keydown','wheel','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:true}));
 window.addEventListener('pagehide',()=>{clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();
