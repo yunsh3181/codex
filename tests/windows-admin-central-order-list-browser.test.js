@@ -30,6 +30,9 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  for(const [name,metric] of Object.entries(result.metrics)){
   const expected=name==='operating'?{header:14,body:15,sequence:21,row:56,action:44,font:13}:name==='after1440'?{header:13,body:14,sequence:20,row:52,action:42,font:12}:{header:11,body:12,sequence:17,row:45,action:40,font:11};
   assert.equal(metric.horizontalOverflow,0);assert.deepEqual(metric.clipped,[]);assert.equal(metric.headerFont,expected.header);assert.equal(metric.bodyFont,expected.body);assert.equal(metric.sequenceFont,expected.sequence);assert.equal(metric.rowHeight,expected.row);assert.equal(metric.actionHeight,expected.action);assert.equal(metric.actionFont,expected.font);assert.equal(metric.rows,15);
+  assert.deepEqual(metric.columnRatios,[7,7,5.5,14,5.5,7.5,17,5,22,9.5]);assert.ok(metric.criticalMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
+  assert.ok(metric.criticalMeasurements.find(entry=>entry.label==='순번 + 신규주문').safetyPx>=4);
+  assert.ok(metric.criticalMeasurements.filter(entry=>entry.label.startsWith('최대 결제금액')||entry.label.startsWith('결제금액 +')).every(entry=>entry.safetyPx>=16));
   assert.ok(metric.requiredMeasurements.length>0);assert.ok(metric.requiredMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
   for(const value of ['010-8888-1032','1032','파파존 4인 바테이블','97,100원','카드','현금','제로페이','식권대장','식권대장/2인','식권대장/4인'])assert.ok(metric.requiredMeasurements.some(entry=>entry.text===value),`${value} is measured without clipping at ${metric.viewport.join('x')}`);
   assert.match(metric.fontFamily,/Arial/);assert.match(metric.numericFontFamily,/Arial/);assert.match(metric.numericVariant,/tabular-nums/);

@@ -10,9 +10,56 @@
         "center": 1102,
         "right": 300
       },
+      "columnRatios": [
+        7,
+        7,
+        5.5,
+        14,
+        5.5,
+        7.5,
+        17,
+        5,
+        22,
+        9.5
+      ],
       "horizontalOverflow": 0,
       "clipped": [],
       "requiredMeasurements": [
+        {
+          "text": "010-0000-1525",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1525",
+          "column": 5,
+          "clientWidth": 61,
+          "scrollWidth": 61,
+          "fits": true
+        },
+        {
+          "text": "파파존 2번",
+          "column": 7,
+          "clientWidth": 187,
+          "scrollWidth": 187,
+          "fits": true
+        },
+        {
+          "text": "9,999,999원",
+          "column": 9,
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
         {
           "text": "010-8888-1032",
           "column": 4,
@@ -23,8 +70,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -37,15 +84,15 @@
         {
           "text": "97,100원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -58,8 +105,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -72,15 +119,15 @@
         {
           "text": "95,000원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -93,8 +140,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -107,15 +154,15 @@
         {
           "text": "92,900원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -128,8 +175,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -142,15 +189,15 @@
         {
           "text": "90,800원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -163,8 +210,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -177,15 +224,15 @@
         {
           "text": "88,700원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -198,8 +245,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -212,15 +259,15 @@
         {
           "text": "86,600원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -233,8 +280,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -247,15 +294,15 @@
         {
           "text": "84,500원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -268,8 +315,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -282,15 +329,15 @@
         {
           "text": "82,400원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -303,8 +350,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -317,15 +364,15 @@
         {
           "text": "80,300원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -338,8 +385,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -352,15 +399,15 @@
         {
           "text": "78,200원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -373,8 +420,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -387,15 +434,15 @@
         {
           "text": "76,100원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -408,8 +455,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -422,15 +469,15 @@
         {
           "text": "74,000원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -443,8 +490,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -457,15 +504,15 @@
         {
           "text": "71,900원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
         },
         {
@@ -478,8 +525,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 77,
-          "scrollWidth": 77,
+          "clientWidth": 61,
+          "scrollWidth": 61,
           "fits": true
         },
         {
@@ -492,50 +539,80 @@
         {
           "text": "69,800원",
           "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "clientWidth": 242,
+          "scrollWidth": 242,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "clientWidth": 105,
+          "scrollWidth": 105,
           "fits": true
-        },
+        }
+      ],
+      "criticalMeasurements": [
         {
-          "text": "010-8888-1018",
-          "column": 4,
-          "clientWidth": 154,
-          "scrollWidth": 154,
-          "fits": true
-        },
-        {
-          "text": "1018",
-          "column": 5,
+          "label": "순번 + 신규주문",
+          "text": "99신규주문",
           "clientWidth": 77,
           "scrollWidth": 77,
+          "contentWidth": 47,
+          "safetyPx": 30,
           "fits": true
         },
         {
-          "text": "별관 2번",
-          "column": 7,
-          "clientWidth": 187,
-          "scrollWidth": 187,
+          "label": "최대 결제금액 + 상태",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 139,
+          "safetyPx": 103,
           "fits": true
         },
         {
-          "text": "67,700원",
-          "column": 9,
-          "clientWidth": 176,
-          "scrollWidth": 176,
+          "label": "결제금액 + 결제대기",
+          "text": "97,100원결제대기",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 118,
+          "safetyPx": 124,
           "fits": true
         },
         {
-          "text": "현금",
-          "column": 10,
-          "clientWidth": 121,
-          "scrollWidth": 121,
+          "label": "결제금액 + 결제완료",
+          "text": "88,700원결제완료",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 118,
+          "safetyPx": 124,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 강제완료",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 139,
+          "safetyPx": 103,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 확인 필요",
+          "text": "92,900원확인 필요",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 121,
+          "safetyPx": 121,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 취소",
+          "text": "95,000원취소",
+          "clientWidth": 242,
+          "scrollWidth": 242,
+          "contentWidth": 102,
+          "safetyPx": 140,
           "fits": true
         }
       ],
@@ -560,9 +637,56 @@
         "center": 1506,
         "right": 356
       },
+      "columnRatios": [
+        7,
+        7,
+        5.5,
+        14,
+        5.5,
+        7.5,
+        17,
+        5,
+        22,
+        9.5
+      ],
       "horizontalOverflow": 0,
       "clipped": [],
       "requiredMeasurements": [
+        {
+          "text": "010-0000-1525",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1525",
+          "column": 5,
+          "clientWidth": 83,
+          "scrollWidth": 83,
+          "fits": true
+        },
+        {
+          "text": "파파존 2번",
+          "column": 7,
+          "clientWidth": 256,
+          "scrollWidth": 256,
+          "fits": true
+        },
+        {
+          "text": "9,999,999원",
+          "column": 9,
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
         {
           "text": "010-8888-1032",
           "column": 4,
@@ -573,8 +697,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -587,15 +711,15 @@
         {
           "text": "97,100원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -608,8 +732,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -622,15 +746,15 @@
         {
           "text": "95,000원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -643,8 +767,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -657,15 +781,15 @@
         {
           "text": "92,900원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -678,8 +802,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -692,15 +816,15 @@
         {
           "text": "90,800원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -713,8 +837,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -727,15 +851,15 @@
         {
           "text": "88,700원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -748,8 +872,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -762,15 +886,15 @@
         {
           "text": "86,600원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -783,8 +907,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -797,15 +921,15 @@
         {
           "text": "84,500원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -818,8 +942,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -832,15 +956,15 @@
         {
           "text": "82,400원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -853,8 +977,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -867,15 +991,15 @@
         {
           "text": "80,300원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -888,8 +1012,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -902,15 +1026,15 @@
         {
           "text": "78,200원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -923,8 +1047,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -937,15 +1061,15 @@
         {
           "text": "76,100원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -958,8 +1082,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -972,15 +1096,15 @@
         {
           "text": "74,000원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -993,8 +1117,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -1007,15 +1131,15 @@
         {
           "text": "71,900원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
         },
         {
@@ -1028,8 +1152,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 83,
+          "scrollWidth": 83,
           "fits": true
         },
         {
@@ -1042,50 +1166,80 @@
         {
           "text": "69,800원",
           "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "clientWidth": 331,
+          "scrollWidth": 331,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "clientWidth": 143,
+          "scrollWidth": 143,
           "fits": true
-        },
+        }
+      ],
+      "criticalMeasurements": [
         {
-          "text": "010-8888-1018",
-          "column": 4,
-          "clientWidth": 211,
-          "scrollWidth": 211,
-          "fits": true
-        },
-        {
-          "text": "1018",
-          "column": 5,
+          "label": "순번 + 신규주문",
+          "text": "99신규주문",
           "clientWidth": 105,
           "scrollWidth": 105,
+          "contentWidth": 47,
+          "safetyPx": 58,
           "fits": true
         },
         {
-          "text": "별관 2번",
-          "column": 7,
-          "clientWidth": 256,
-          "scrollWidth": 256,
+          "label": "최대 결제금액 + 상태",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 148,
+          "safetyPx": 183,
           "fits": true
         },
         {
-          "text": "67,700원",
-          "column": 9,
-          "clientWidth": 241,
-          "scrollWidth": 241,
+          "label": "결제금액 + 결제대기",
+          "text": "97,100원결제대기",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 125,
+          "safetyPx": 206,
           "fits": true
         },
         {
-          "text": "현금",
-          "column": 10,
-          "clientWidth": 166,
-          "scrollWidth": 166,
+          "label": "결제금액 + 결제완료",
+          "text": "88,700원결제완료",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 122,
+          "safetyPx": 209,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 강제완료",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 148,
+          "safetyPx": 183,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 확인 필요",
+          "text": "92,900원확인 필요",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 125,
+          "safetyPx": 206,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 취소",
+          "text": "95,000원취소",
+          "clientWidth": 331,
+          "scrollWidth": 331,
+          "contentWidth": 106,
+          "safetyPx": 225,
           "fits": true
         }
       ],
@@ -1110,9 +1264,56 @@
         "center": 762,
         "right": 300
       },
+      "columnRatios": [
+        7,
+        7,
+        5.5,
+        14,
+        5.5,
+        7.5,
+        17,
+        5,
+        22,
+        9.5
+      ],
       "horizontalOverflow": 0,
       "clipped": [],
       "requiredMeasurements": [
+        {
+          "text": "010-0000-1525",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1525",
+          "column": 5,
+          "clientWidth": 42,
+          "scrollWidth": 42,
+          "fits": true
+        },
+        {
+          "text": "파파존 2번",
+          "column": 7,
+          "clientWidth": 129,
+          "scrollWidth": 129,
+          "fits": true
+        },
+        {
+          "text": "9,999,999원",
+          "column": 9,
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 72,
+          "scrollWidth": 72,
+          "fits": true
+        },
         {
           "text": "010-8888-1032",
           "column": 4,
@@ -1123,8 +1324,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1137,15 +1338,15 @@
         {
           "text": "97,100원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1158,8 +1359,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1172,15 +1373,15 @@
         {
           "text": "95,000원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1193,8 +1394,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1207,15 +1408,15 @@
         {
           "text": "92,900원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1228,8 +1429,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1242,15 +1443,15 @@
         {
           "text": "90,800원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1263,8 +1464,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1277,15 +1478,15 @@
         {
           "text": "88,700원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1298,8 +1499,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1312,15 +1513,15 @@
         {
           "text": "86,600원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1333,8 +1534,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1347,15 +1548,15 @@
         {
           "text": "84,500원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1368,8 +1569,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1382,15 +1583,15 @@
         {
           "text": "82,400원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1403,8 +1604,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1417,15 +1618,15 @@
         {
           "text": "80,300원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1438,8 +1639,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1452,15 +1653,15 @@
         {
           "text": "78,200원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1473,8 +1674,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1487,15 +1688,15 @@
         {
           "text": "76,100원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1508,8 +1709,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1522,15 +1723,15 @@
         {
           "text": "74,000원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1543,8 +1744,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1557,15 +1758,15 @@
         {
           "text": "71,900원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
         },
         {
@@ -1578,8 +1779,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 53,
-          "scrollWidth": 53,
+          "clientWidth": 42,
+          "scrollWidth": 42,
           "fits": true
         },
         {
@@ -1592,50 +1793,80 @@
         {
           "text": "69,800원",
           "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "clientWidth": 167,
+          "scrollWidth": 167,
           "fits": true
         },
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "clientWidth": 72,
+          "scrollWidth": 72,
           "fits": true
-        },
+        }
+      ],
+      "criticalMeasurements": [
         {
-          "text": "010-8888-1018",
-          "column": 4,
-          "clientWidth": 106,
-          "scrollWidth": 106,
-          "fits": true
-        },
-        {
-          "text": "1018",
-          "column": 5,
+          "label": "순번 + 신규주문",
+          "text": "99신규주문",
           "clientWidth": 53,
           "scrollWidth": 53,
+          "contentWidth": 43,
+          "safetyPx": 10,
           "fits": true
         },
         {
-          "text": "별관 2번",
-          "column": 7,
-          "clientWidth": 129,
-          "scrollWidth": 129,
+          "label": "최대 결제금액 + 상태",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 125,
+          "safetyPx": 42,
           "fits": true
         },
         {
-          "text": "67,700원",
-          "column": 9,
-          "clientWidth": 122,
-          "scrollWidth": 122,
+          "label": "결제금액 + 결제대기",
+          "text": "97,100원결제대기",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 107,
+          "safetyPx": 60,
           "fits": true
         },
         {
-          "text": "현금",
-          "column": 10,
-          "clientWidth": 84,
-          "scrollWidth": 84,
+          "label": "결제금액 + 결제완료",
+          "text": "88,700원결제완료",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 110,
+          "safetyPx": 57,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 강제완료",
+          "text": "9,999,999원강제완료",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 125,
+          "safetyPx": 42,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 확인 필요",
+          "text": "92,900원확인 필요",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 113,
+          "safetyPx": 54,
+          "fits": true
+        },
+        {
+          "label": "결제금액 + 취소",
+          "text": "95,000원취소",
+          "clientWidth": 167,
+          "scrollWidth": 167,
+          "contentWidth": 95,
+          "safetyPx": 72,
           "fits": true
         }
       ],
@@ -1677,7 +1908,7 @@
     "title": "주문 강제완료",
     "clipped": false,
     "confirmDisabled": true,
-    "detail": "순번99주문번호1525주문시간08. 05. 오후 06:21전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음"
+    "detail": "순번99주문번호1525주문시간08. 05. 오후 06:31전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음"
   },
   "beforeProcessing": {
     "newBadge": "신규주문",
