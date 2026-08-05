@@ -1,0 +1,101 @@
+{
+  "metrics": {
+    "after1440": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "widths": {
+        "layout": 1412,
+        "left": 220,
+        "center": 872,
+        "right": 300
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "rows": 15
+    },
+    "operating": {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "widths": {
+        "layout": 1872,
+        "left": 281,
+        "center": 1216,
+        "right": 356
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "rows": 15
+    },
+    "narrow": {
+      "viewport": [
+        1100,
+        800
+      ],
+      "widths": {
+        "layout": 1072,
+        "left": 240,
+        "center": 822,
+        "right": 1072
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "rows": 15
+    }
+  },
+  "singleClick": {
+    "id": "fixture-32",
+    "selected": true,
+    "aria": "true",
+    "modalHidden": true,
+    "sameNode": true,
+    "focused": true
+  },
+  "doubleClick": {
+    "opens": 1,
+    "modalHidden": false,
+    "orderId": "fixture-32",
+    "title": "32번 · 먹고 가기",
+    "reservation": "예약주문예약시간오후 6:30",
+    "split": "식권대장 97,100원48,550원 × 2인"
+  },
+  "closeX": {
+    "hidden": true,
+    "focusId": "fixture-32"
+  },
+  "enter": {
+    "opened": true,
+    "closed": true,
+    "focusId": "fixture-32"
+  },
+  "detailButton": {
+    "opened": true,
+    "closed": true
+  },
+  "page2": {
+    "label": "2 / 3",
+    "selected": false,
+    "detailDisabled": true,
+    "title": "선택한 주문은 다른 페이지에 있습니다. 해당 페이지에서 다시 선택해 주세요."
+  },
+  "listener": {
+    "id": "fixture-32",
+    "selectedId": "fixture-32",
+    "connected": true
+  },
+  "deletion": {
+    "id": "fixture-32",
+    "selected": false,
+    "disabled": true
+  },
+  "consoleProblems": []
+}
