@@ -24,4 +24,5 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
   for(const value of ['010-8888-1032','1032','파파존 4인 바테이블','97,100원','카드','현금','제로페이','식권대장','식권대장/2인','식권대장/4인'])assert.ok(metric.requiredMeasurements.some(entry=>entry.text===value),`${value} is measured without clipping at ${metric.viewport.join('x')}`);
   assert.match(metric.fontFamily,/Arial/);assert.match(metric.numericFontFamily,/Arial/);assert.match(metric.numericVariant,/tabular-nums/);
  }
+ if(process.platform==='win32')console.log('WINDOWS_ADMIN_CENTRAL_MEASUREMENTS='+JSON.stringify(Object.fromEntries(Object.entries(result.metrics).map(([name,metric])=>[name,{viewport:metric.viewport,overflow:metric.horizontalOverflow,clipped:metric.clipped,values:Object.fromEntries(['010-8888-1032','1032','파파존 4인 바테이블','97,100원','카드','현금','제로페이','식권대장','식권대장/2인','식권대장/4인'].map(value=>{const entry=metric.requiredMeasurements.find(item=>item.text===value);return [value,{clientWidth:entry.clientWidth,scrollWidth:entry.scrollWidth}]}))}]))));
 });
