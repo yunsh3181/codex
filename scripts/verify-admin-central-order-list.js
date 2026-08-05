@@ -7,6 +7,7 @@ const root=path.resolve(__dirname,'..');
 const reportPath=process.env.ADMIN_CENTRAL_REPORT;
 const screenshotDir=process.env.ADMIN_CENTRAL_SCREENSHOT_DIR||path.join(root,'artifacts/admin-central-order-list');
 const sourceRef=process.env.ADMIN_CENTRAL_REF||null;
+app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('hide-scrollbars');app.commandLine.appendSwitch('force-device-scale-factor','1');
 const wait=window=>window.webContents.executeJavaScript(`new Promise((resolve,reject)=>{const started=Date.now();const done=()=>document.querySelectorAll('.central-order-row').length===15?requestAnimationFrame(()=>requestAnimationFrame(resolve)):Date.now()-started>8000?reject(new Error(JSON.stringify({rows:document.querySelectorAll('.central-order-row').length,fixture:!!window.PJAdminVisualFixture,firebase:!!window.firebase,auth:document.body.classList.contains('admin-authenticated'),loginError:document.getElementById('adminLoginError')?.textContent,connection:document.getElementById('connectionBadge')?.textContent}))):setTimeout(done,20);done()})`,true);
 async function capture(window,name){
