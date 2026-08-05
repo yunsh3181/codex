@@ -1,0 +1,1717 @@
+{
+  "metrics": {
+    "after1440": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "widths": {
+        "layout": 1412,
+        "center": 1102,
+        "right": 300
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "requiredMeasurements": [
+        {
+          "text": "010-8888-1032",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1032",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "97,100원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1031",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1031",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "95,000원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1030",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1030",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "92,900원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1029",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1029",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "90,800원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "식권대장",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1028",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1028",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "88,700원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "식권대장/4인",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1027",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1027",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "86,600원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1026",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1026",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "84,500원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1025",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1025",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "82,400원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1024",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1024",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "80,300원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1023",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1023",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "78,200원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1022",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1022",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "76,100원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1021",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1021",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "74,000원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1020",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1020",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "71,900원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1019",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1019",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "69,800원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1018",
+          "column": 4,
+          "clientWidth": 154,
+          "scrollWidth": 154,
+          "fits": true
+        },
+        {
+          "text": "1018",
+          "column": 5,
+          "clientWidth": 77,
+          "scrollWidth": 77,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 198,
+          "scrollWidth": 198,
+          "fits": true
+        },
+        {
+          "text": "67,700원",
+          "column": 9,
+          "clientWidth": 110,
+          "scrollWidth": 110,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 143,
+          "scrollWidth": 143,
+          "fits": true
+        }
+      ],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "fontFamily": "Arial, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif",
+      "numericFontFamily": "Arial, \"Segoe UI\", sans-serif",
+      "numericVariant": "tabular-nums",
+      "rows": 15
+    },
+    "operating": {
+      "viewport": [
+        1920,
+        1080
+      ],
+      "widths": {
+        "layout": 1872,
+        "center": 1506,
+        "right": 356
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "requiredMeasurements": [
+        {
+          "text": "010-8888-1032",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1032",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "97,100원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1031",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1031",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "95,000원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1030",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1030",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "92,900원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1029",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1029",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "90,800원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "식권대장",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1028",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1028",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "88,700원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "식권대장/4인",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1027",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1027",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "86,600원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1026",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1026",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "84,500원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1025",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1025",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "82,400원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1024",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1024",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "80,300원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1023",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1023",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "78,200원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1022",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1022",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "76,100원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1021",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1021",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "74,000원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1020",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1020",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "71,900원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1019",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1019",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "69,800원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1018",
+          "column": 4,
+          "clientWidth": 211,
+          "scrollWidth": 211,
+          "fits": true
+        },
+        {
+          "text": "1018",
+          "column": 5,
+          "clientWidth": 105,
+          "scrollWidth": 105,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 271,
+          "scrollWidth": 271,
+          "fits": true
+        },
+        {
+          "text": "67,700원",
+          "column": 9,
+          "clientWidth": 150,
+          "scrollWidth": 150,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 196,
+          "scrollWidth": 196,
+          "fits": true
+        }
+      ],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "fontFamily": "Arial, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif",
+      "numericFontFamily": "Arial, \"Segoe UI\", sans-serif",
+      "numericVariant": "tabular-nums",
+      "rows": 15
+    },
+    "narrow": {
+      "viewport": [
+        1100,
+        800
+      ],
+      "widths": {
+        "layout": 1072,
+        "center": 762,
+        "right": 300
+      },
+      "horizontalOverflow": 0,
+      "clipped": [],
+      "requiredMeasurements": [
+        {
+          "text": "010-8888-1032",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1032",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "97,100원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1031",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1031",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "95,000원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1030",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1030",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "92,900원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1029",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1029",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "90,800원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "식권대장",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1028",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1028",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "88,700원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "식권대장/4인",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1027",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1027",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "86,600원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1026",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1026",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "84,500원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1025",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1025",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "82,400원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1024",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1024",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "80,300원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1023",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1023",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "룸테이블 1",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "78,200원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1022",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1022",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "76,100원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1021",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1021",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "야외석 1번",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "74,000원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "카드",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1020",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1020",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "파파존 4인 바테이블",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "71,900원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "식권대장/2인",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1019",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1019",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "-",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "69,800원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "제로페이",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        },
+        {
+          "text": "010-8888-1018",
+          "column": 4,
+          "clientWidth": 106,
+          "scrollWidth": 106,
+          "fits": true
+        },
+        {
+          "text": "1018",
+          "column": 5,
+          "clientWidth": 53,
+          "scrollWidth": 53,
+          "fits": true
+        },
+        {
+          "text": "별관 2번",
+          "column": 7,
+          "clientWidth": 137,
+          "scrollWidth": 137,
+          "fits": true
+        },
+        {
+          "text": "67,700원",
+          "column": 9,
+          "clientWidth": 76,
+          "scrollWidth": 76,
+          "fits": true
+        },
+        {
+          "text": "현금",
+          "column": 10,
+          "clientWidth": 99,
+          "scrollWidth": 99,
+          "fits": true
+        }
+      ],
+      "headerFont": 11,
+      "bodyFont": 12,
+      "fontFamily": "Arial, \"Malgun Gothic\", \"Apple SD Gothic Neo\", sans-serif",
+      "numericFontFamily": "Arial, \"Segoe UI\", sans-serif",
+      "numericVariant": "tabular-nums",
+      "rows": 15
+    }
+  },
+  "beforeProcessing": {
+    "newBadge": "신규주문",
+    "payment": "결제대기",
+    "seat": "",
+    "counts": [
+      "1",
+      "13",
+      "18"
+    ]
+  },
+  "paymentProcessing": {
+    "newBadge": false,
+    "payment": "결제완료",
+    "seat": "사용중",
+    "counts": [
+      "0",
+      "14",
+      "18"
+    ]
+  },
+  "seatProcessing": {
+    "seat": "완료",
+    "seatOverview": "빈자리",
+    "counts": [
+      "0",
+      "13",
+      "19"
+    ]
+  },
+  "singleClick": {
+    "id": "fixture-32",
+    "selected": true,
+    "aria": "true",
+    "modalHidden": true,
+    "sameNode": true,
+    "focused": true
+  },
+  "doubleClick": {
+    "opens": 1,
+    "modalHidden": false,
+    "orderId": "fixture-32",
+    "title": "32번 · 먹고 가기",
+    "reservation": "예약주문예약시간오후 6:30",
+    "split": "식권대장 97,100원48,550원 × 2인"
+  },
+  "closeX": {
+    "hidden": true,
+    "focusId": "fixture-32"
+  },
+  "enter": {
+    "opened": true,
+    "closed": true,
+    "focusId": "fixture-32"
+  },
+  "detailButton": {
+    "opened": true,
+    "closed": true
+  },
+  "page2": {
+    "label": "2 / 3",
+    "selected": false,
+    "detailDisabled": true,
+    "title": "선택한 주문은 다른 페이지에 있습니다. 해당 페이지에서 다시 선택해 주세요."
+  },
+  "listener": {
+    "id": "fixture-32",
+    "selectedId": "fixture-32",
+    "connected": true
+  },
+  "deletion": {
+    "id": "fixture-32",
+    "selected": false,
+    "disabled": true
+  },
+  "consoleProblems": []
+}
