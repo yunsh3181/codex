@@ -17,5 +17,10 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  assert.equal(result.page2.label,'2 / 3');assert.equal(result.page2.selected,false);assert.equal(result.page2.detailDisabled,true);assert.match(result.page2.title,/다른 페이지/);
  assert.deepEqual(result.listener,{id:'fixture-32',selectedId:'fixture-32',connected:true});assert.deepEqual(result.deletion,{id:'fixture-32',selected:false,disabled:true});
  assert.deepEqual(result.consoleProblems,[]);
- for(const metric of Object.values(result.metrics)){assert.equal(metric.horizontalOverflow,0);assert.deepEqual(metric.clipped,[]);assert.equal(metric.headerFont,11);assert.equal(metric.bodyFont,12);assert.equal(metric.rows,15)}
+ for(const metric of Object.values(result.metrics)){
+  assert.equal(metric.horizontalOverflow,0);assert.deepEqual(metric.clipped,[]);assert.equal(metric.headerFont,11);assert.equal(metric.bodyFont,12);assert.equal(metric.rows,15);
+  assert.ok(metric.requiredMeasurements.length>0);assert.ok(metric.requiredMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
+  for(const value of ['010-8888-1032','1032','파파존 4인 바테이블','97,100원','카드','현금','제로페이','식권대장','식권대장/2인','식권대장/4인'])assert.ok(metric.requiredMeasurements.some(entry=>entry.text===value),`${value} is measured without clipping at ${metric.viewport.join('x')}`);
+  assert.match(metric.fontFamily,/Arial/);assert.match(metric.numericFontFamily,/Arial/);assert.match(metric.numericVariant,/tabular-nums/);
+ }
 });

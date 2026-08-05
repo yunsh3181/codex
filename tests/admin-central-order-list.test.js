@@ -12,16 +12,17 @@ for(const label of ['오더 리스트','(오늘 주문)','순번','예약/즉시
 }
 assert.ok(html.includes('id="businessDayOrderCount"')&&html.includes('id="orderPagination"'),'live total and pagination controls exist');
 const cssVersion=html.match(/admin\.css\?v=([0-9.]+)/)?.[1],jsVersion=html.match(/admin\.js\?v=([0-9.]+)/)?.[1];
-assert.strictEqual(cssVersion,'47.1.0','changed administrator CSS has a new cache version');
+assert.strictEqual(cssVersion,'47.2.0','changed administrator CSS has a new cache version');
 assert.strictEqual(jsVersion,cssVersion,'administrator CSS and JS cache versions move together');
-assert.ok(html.includes('주문 관리자 v47.1.0')&&html.includes('실시간 주문관리 · v47.1.0'),'page title and visible version match the core assets');
+assert.ok(html.includes('주문 관리자 v47.2.0')&&html.includes('실시간 주문관리 · v47.2.0'),'page title and visible version match the core assets');
 assert.ok(html.includes('admin-mobile.css?v=44.0.0'),'unchanged mobile CSS keeps its existing cache version');
 assert.ok(!html.includes('id="channelFilters"')&&!html.includes('id="filters"'),'inactive channel and status filters are absent from the all-orders screen');
 assert.ok(admin.includes('const CENTRAL_ORDER_PAGE_SIZE=15'),'the central list uses 15 rows per page');
 assert.ok(admin.includes("addEventListener('dblclick'")&&admin.includes("if(!['Enter',' '].includes(event.key)"),'mouse and keyboard detail entry points exist');
 assert.ok(admin.includes('selectedCentralOrderId=trigger.dataset.orderId;syncCentralOrderSelection(trigger)'),'single click updates the live row without replacing tbody');
 assert.ok(admin.includes("document.body.classList.add('order-detail-open')")&&admin.includes("document.body.classList.remove('order-detail-open')"),'modal locks and restores background scrolling');
-assert.ok(css.includes('table-layout:fixed')&&css.includes('overflow:hidden')&&css.includes('text-overflow:ellipsis'),'the ten-column table prevents horizontal overlap');
+assert.ok(css.includes('table-layout:fixed')&&css.includes('overflow:hidden')&&css.includes('text-overflow:clip'),'the ten-column table prevents overlap without disguising required-value clipping');
+assert.ok(css.includes('font-variant-numeric:tabular-nums')&&css.includes('font-feature-settings:"tnum" 1'),'numeric columns use stable tabular figures on Windows');
 
 const start=admin.indexOf('function orderTimeMillis(');
 const end=admin.indexOf('const ORDER_CATALOG=',start);
