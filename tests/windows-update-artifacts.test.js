@@ -61,8 +61,8 @@ function withFixture(arch, callback) {
 }
 
 test('workflow builds and uploads strict architecture-specific update artifacts', () => {
-  assert.match(workflow, /electron-builder --win --ia32 --publish never -c\.publish\.channel=latest-ia32/);
-  assert.match(workflow, /electron-builder --win --x64 --publish never -c\.publish\.channel=latest-x64/);
+  assert.match(workflow, /electron-builder --win --ia32 --publish never --config\.publish\.channel=latest-ia32/);
+  assert.match(workflow, /electron-builder --win --x64 --publish never --config\.publish\.channel=latest-x64/);
   for (const arch of ['ia32', 'x64']) {
     assert.match(workflow, new RegExp(`dist/PapaJohns-Kiosk-Setup-\\*-${arch}\\.exe`));
     assert.match(workflow, new RegExp(`dist/PapaJohns-Kiosk-Portable-\\*-${arch}\\.exe`));

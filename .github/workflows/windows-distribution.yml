@@ -69,12 +69,12 @@ jobs:
         run: throw "Test suite failed; packaging remains blocked."
       - run: npm run dist:win:ia32:dir
       - name: Build Windows ia32 update channel
-        run: npx electron-builder --win --ia32 --publish never -c.publish.channel=latest-ia32
+        run: npx electron-builder --win --ia32 --publish never --config.publish.channel=latest-ia32
       - run: npm run verify:win:ia32
       - name: Verify Windows ia32 update artifacts
         run: node scripts/verify-windows-update-artifacts.js ia32
       - name: Build Windows x64 update channel
-        run: npx electron-builder --win --x64 --publish never -c.publish.channel=latest-x64
+        run: npx electron-builder --win --x64 --publish never --config.publish.channel=latest-x64
       - run: npm run verify:win:x64
       - name: Verify Windows x64 update artifacts
         run: node scripts/verify-windows-update-artifacts.js x64
