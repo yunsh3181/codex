@@ -1639,14 +1639,34 @@
       "rows": 15
     }
   },
+  "safePaymentStates": {
+    "fixture-31": {
+      "label": "취소",
+      "action": false,
+      "seatAction": false,
+      "overlap": 0
+    },
+    "fixture-30": {
+      "label": "확인 필요",
+      "action": false,
+      "seatAction": false,
+      "overlap": 0
+    },
+    "fixture-29": {
+      "label": "확인 필요",
+      "action": false,
+      "seatAction": false,
+      "overlap": 0
+    }
+  },
   "beforeProcessing": {
     "newBadge": "신규주문",
     "payment": "결제대기",
     "seat": "",
     "counts": [
       "1",
-      "13",
-      "18"
+      "11",
+      "17"
     ]
   },
   "paymentProcessing": {
@@ -1655,8 +1675,8 @@
     "seat": "사용중",
     "counts": [
       "0",
-      "14",
-      "18"
+      "12",
+      "17"
     ]
   },
   "seatProcessing": {
@@ -1664,8 +1684,8 @@
     "seatOverview": "빈자리",
     "counts": [
       "0",
-      "13",
-      "19"
+      "11",
+      "18"
     ]
   },
   "singleClick": {
