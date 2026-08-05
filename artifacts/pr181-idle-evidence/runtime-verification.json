@@ -1,0 +1,42 @@
+{
+  "timeoutMs": 30000,
+  "takeoutNoActivity": {
+    "step": "idle",
+    "resetCount": 1,
+    "cartItems": 0,
+    "saveCalls": 0,
+    "paymentCalls": 0
+  },
+  "dineInBeforeSeat": {
+    "step": "idle",
+    "resetCount": 1
+  },
+  "heldSeat": {
+    "step": "idle",
+    "releaseTransactions": 1,
+    "releasedIds": [
+      "papa-2"
+    ]
+  },
+  "repeatedRenderAndScrollIntoView": {
+    "step": "idle",
+    "resetCount": 1
+  },
+  "repeatedSnapshotRender": {
+    "step": "idle",
+    "resetCount": 1
+  },
+  "trustedActivityAfter15s": {
+    "step": "promo"
+  },
+  "trustedActivityAfter31s": {
+    "step": "idle",
+    "resetCount": 1
+  },
+  "protection": {
+    "submitting": "timing",
+    "committing": "timing",
+    "completed": "timing",
+    "failureReturnTimerRestarted": true
+  }
+}

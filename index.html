@@ -2127,6 +2127,22 @@ body[data-step="drink"] .card:has(.row){display:grid!important;grid-template-col
 .areaPolicyGuide{max-width:820px;margin:14px auto 0;padding:15px 18px;border-radius:16px;background:#fff8e9;border:1px solid #ead5a8;color:#55452d;font-size:13px;line-height:1.6;font-weight:800}
 @media(max-width:560px){.areaCard .areaPolicyReason{font-size:11px!important;padding:7px 8px}.areaCard .areaHours{font-size:10px!important}.areaPolicyGuide{font-size:11px;padding:10px 12px}}
 </style>
+<style id="kiosk-idle-promotion-styles">
+body[data-step="idle"]{overflow:hidden;background:#002f22}
+body[data-step="idle"] .app{padding:0;height:100vh;min-height:0}
+.kioskIdleScreen{position:relative;width:100%;height:100vh;overflow:hidden;background:linear-gradient(160deg,#003f2d,#001d15);display:grid;grid-template-rows:minmax(0,1fr) auto;padding:0 0 max(28px,env(safe-area-inset-bottom));isolation:isolate}
+.kioskIdleViewport{position:relative;min-height:0;margin:0 0 18px;overflow:hidden;background:#003f2d}
+.kioskIdleSlide{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;opacity:0;transition:opacity .45s ease;background:#003f2d}
+.kioskIdleSlide.isActive{opacity:1}
+.kioskIdleFallback{position:absolute;inset:0;display:grid;place-items:center;padding:48px;background:linear-gradient(145deg,#006b3c,#003f2d);color:#fff;text-align:center;font-size:42px;font-weight:1000}
+.kioskIdleFallback[hidden],.kioskIdleSlide[hidden]{display:none!important}
+body[data-step="idle"] .kiosk-scroll-indicator{display:none!important}
+.kioskIdleControls{position:relative;z-index:3;padding:0 clamp(48px,5.5vw,64px)}
+.kioskIdleStart{display:block;width:100%;min-height:104px;border:4px solid #fff;border-radius:24px;background:#d71920;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.38);font-size:clamp(30px,3.2vw,42px);line-height:1.15;font-weight:1000;cursor:pointer;touch-action:manipulation}
+.kioskIdleStart:disabled{opacity:.68;cursor:wait}
+@media(max-width:560px){.kioskIdleScreen{padding-bottom:max(16px,env(safe-area-inset-bottom))}.kioskIdleViewport{margin-bottom:10px}.kioskIdleControls{padding:0 18px}.kioskIdleStart{min-height:90px;border-radius:18px;font-size:30px}}
+@media(prefers-reduced-motion:reduce){.kioskIdleSlide{transition:none}}
+</style>
 <link rel="stylesheet" href="styles/business-hours.css">
 <link rel="stylesheet" href="styles/kiosk-updater.css">
 </head><body>
@@ -2198,7 +2214,7 @@ try{
 <script src="i18n/zh.js?v=44.2"></script>
 <script src="i18n/vi.js?v=44.2"></script>
 <script src="i18n/es.js?v=44.2"></script>
-<script src="i18n/ui.js?v=50"></script>
+<script src="i18n/ui.js?v=51"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
@@ -2225,7 +2241,7 @@ function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&qu
 function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/images\//,'');return 'assets/images/'+encodeURIComponent(clean).replace(/%2F/g,'/')}
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
 const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
-const state={step:(sessionStorage.getItem('pjLangSelected')?'home':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
+const state={step:(sessionStorage.getItem('pjLangSelected')?'idle':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
 let seatReservationConflictActive=false;let bottleHoursConflictActive=false;let seatOrderCommitStarted=false;let bottlePolicyTimer=null;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
@@ -2249,7 +2265,7 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(){if(!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:'home',orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(targetStep='home',options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 const BOTTLE_COPY={ko:{before:'오전 11시부터 이용 가능',after:'오늘 운영 종료',weekend:'주말 이용 불가',holiday:'공휴일 이용 불가',unsupported:'현재 이용할 수 없습니다',conflict:'보틀석과 보틀룸 이용시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},en:{before:'Available from 11:00 AM',after:'Closed for today',weekend:'Unavailable on weekends',holiday:'Unavailable on public holidays',unsupported:'Currently unavailable',conflict:'Bottle seating hours have ended. Please choose another seat.'},ja:{before:'午前11時から利用可能',after:'本日の営業終了',weekend:'週末は利用不可',holiday:'祝日は利用不可',unsupported:'現在利用できません',conflict:'ボトル席・ルームの利用時間が終了しました。他の席を選択してください。'},zh:{before:'上午11点起可用',after:'今日营业已结束',weekend:'周末不可用',holiday:'节假日不可用',unsupported:'当前不可用',conflict:'瓶座和包间的使用时间已结束。请选择其他座位。'},vi:{before:'Có thể dùng từ 11:00',after:'Đã hết giờ hôm nay',weekend:'Không phục vụ cuối tuần',holiday:'Không phục vụ ngày lễ',unsupported:'Hiện không khả dụng',conflict:'Đã hết giờ sử dụng khu PapaBottle và ROOM. Vui lòng chọn chỗ khác.'},es:{before:'Disponible desde las 11:00',after:'Cerrado por hoy',weekend:'No disponible los fines de semana',holiday:'No disponible en festivos',unsupported:'No disponible actualmente',conflict:'El horario de PapaBottle y ROOM ha terminado. Elige otro asiento.'}};
@@ -2513,11 +2529,48 @@ function homeHappyDealHTML(){return t('home.happyHourDeal')}
 function homeTakeoutDealHTML(){return t('home.takeoutDeal')}
 function languageView(){const langs=Object.entries(window.PJ_LANGUAGE_NAMES||{}),current=window.PJ_I18N?.currentLanguage?.()||'ko';return `<section class="languageScreen"><img class="heroLogoDark" src="assets/images/papajohns_red_logo.png" alt="${escAttr(t('ui.common.brand'))}"><h1>${t('language.title')}</h1><p>${t('language.subtitle')}</p><div class="languageGrid">${langs.map(([id,name])=>`<button class="${id===current?'selected':''}" aria-current="${id===current?'true':'false'}" onclick="chooseLanguage('${id}')"><span>${name}</span>${id===current?'<span class="languageSelectedMark" aria-hidden="true">✓</span>':''}</button>`).join('')}</div>${startScreenVersionHTML()}</section>`}
 function chooseLanguage(lang){window.PJ_I18N?.setLanguage(lang);sessionStorage.setItem('pjLangSelected','1');state.step='home';render()}
+const IDLE_PROMOTION_INTERVAL_MS=8000;
+const IDLE_PROMOTIONS=[
+ {id:'set-menu',src:'assets/images/kiosk-promotions/kiosk-pick-set-menu.jpg',scheduled:false},
+ {id:'happy-hour',src:'assets/images/kiosk-promotions/kiosk-happy-hour-regular-15000.jpg',scheduled:true}
+];
+let idlePromotionIndex=0;let idlePromotionTimer=null;let idleEligibilityTimer=null;let idleStartLocked=false;
+const failedIdlePromotions=new Set();
+function seoulSecondsOfDay(now=new Date()){
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(now);
+ const value=type=>Number(parts.find(part=>part.type===type)?.value||0);
+ return value('hour')*3600+value('minute')*60+value('second')
+}
+function isIdleHappyHourVisible(now=new Date()){const seconds=seoulSecondsOfDay(now);return seconds>=16*3600&&seconds<20*3600}
+function eligibleIdlePromotions(now=new Date()){return IDLE_PROMOTIONS.filter(item=>!failedIdlePromotions.has(item.id)&&(!item.scheduled||isIdleHappyHourVisible(now)))}
+function idlePromotionView(){
+ return `<section class="kioskIdleScreen" aria-label="${escAttr(t('ui.idle.promotionAlt'))}"><div class="kioskIdleViewport">${IDLE_PROMOTIONS.map(item=>`<img class="kioskIdleSlide" data-promotion-id="${item.id}" src="${item.src}" alt="${escAttr(t('ui.idle.promotionAlt'))}" onerror="handleIdlePromotionError('${item.id}')">`).join('')}<div class="kioskIdleFallback" hidden>PAPA JOHNS</div></div><div class="kioskIdleControls"><button type="button" class="kioskIdleStart" aria-label="${escAttr(t('ui.idle.startOrder'))}" onclick="startOrderFromIdle()">${t('ui.idle.startOrder')}</button></div></section>`
+}
+function applyIdlePromotionEligibility(now=new Date()){
+ if(state.step!=='idle')return;
+ const candidates=eligibleIdlePromotions(now);
+ if(idlePromotionIndex>=candidates.length)idlePromotionIndex=0;
+ const active=candidates[idlePromotionIndex];
+ document.querySelectorAll('.kioskIdleSlide').forEach(image=>{const eligible=candidates.some(item=>item.id===image.dataset.promotionId);image.hidden=!eligible;image.classList.toggle('isActive',image.dataset.promotionId===active?.id)});
+ const fallback=document.querySelector('.kioskIdleFallback');if(fallback)fallback.hidden=Boolean(active)
+}
+function advanceIdlePromotion(){const candidates=eligibleIdlePromotions();if(candidates.length<2){idlePromotionIndex=0;applyIdlePromotionEligibility();return}idlePromotionIndex=(idlePromotionIndex+1)%candidates.length;applyIdlePromotionEligibility()}
+function handleIdlePromotionError(id){failedIdlePromotions.add(id);idlePromotionIndex=0;applyIdlePromotionEligibility();console.warn('Kiosk idle promotion failed to load',id)}
+function preloadIdlePromotions(){IDLE_PROMOTIONS.forEach(item=>{const image=new Image();image.onerror=()=>handleIdlePromotionError(item.id);image.src=item.src})}
+function stopIdlePromotionTimers(){if(typeof clearInterval==='function'){clearInterval(idlePromotionTimer);clearInterval(idleEligibilityTimer)}idlePromotionTimer=null;idleEligibilityTimer=null}
+function startIdlePromotionTimers(){stopIdlePromotionTimers();preloadIdlePromotions();applyIdlePromotionEligibility();if(document.hidden)return;idlePromotionTimer=setInterval(advanceIdlePromotion,IDLE_PROMOTION_INTERVAL_MS);idleEligibilityTimer=setInterval(()=>applyIdlePromotionEligibility(new Date()),1000)}
+async function startOrderFromIdle(){
+ if(idleStartLocked)return;idleStartLocked=true;
+ const button=document.querySelector('.kioskIdleStart');if(button)button.disabled=true;
+ const heldSeats=[...state.selectedTables];
+ try{if(heldSeats.length&&!state.firebaseOrderId)await releaseSeats(heldSeats)}catch(error){console.warn('주문 시작 전 좌석 해제 실패',error)}
+ reset('home',{skipRelease:true});render();idleStartLocked=false
+}
 function openLanguageSelect(){state.step='language';render()}
 function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;state.mode='single';state.dough='오리지널';state.crust='오리지널';state.toppings={};state.step='side';render()}
 
 function progress(){
- if(state.step==='home'||state.step==='done')return '';
+ if(['idle','home','done'].includes(state.step))return '';
  const phoneLayout=document.documentElement.dataset?.layout==='phone';
  const groups=[
   {id:'order',label:t('ui.progress.order'),steps:['type','party','area','table','timing','reserve']},
@@ -2599,6 +2652,7 @@ function scheduleOrderReviewFit(){
 function render(){
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
+ if(state.step!=='idle')stopIdlePromotionTimers();
  document.body.dataset.step=state.step||'';
  const main=document.getElementById('main');
  main.classList.remove('pageSwap');
@@ -2607,7 +2661,7 @@ function render(){
  main.querySelectorAll?.('.tableCard.reserved').forEach(card=>{card.setAttribute('aria-disabled','true');card.setAttribute('role','button');card.setAttribute('tabindex','-1');card.setAttribute('aria-label',`${card.querySelector('h2')?.textContent?.trim()||''} ${t('ui.seatReservation.disabled')}`);if(!card.querySelector('.reservedReason'))card.insertAdjacentHTML('beforeend',`<span class="reservedReason">${t('ui.seatReservation.disabled')}</span>`)});
  applyAdaptiveCardSizing();
  if(state.step!=='phone')main.classList.add('pageSwap');
- document.getElementById('cart').innerHTML=bar();
+ document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
  document.getElementById('modal').innerHTML=modalView();
  const activeProgress=document.querySelector('.progressStep.current');
  if(activeProgress)requestAnimationFrame(()=>activeProgress.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}));
@@ -2621,6 +2675,8 @@ function render(){
   }
  }
  lastRenderedStep=state.step;
+ if(state.step==='idle')startIdlePromotionTimers();
+ syncOrderIdleTimer(stepChanged);
  scheduleOrderReviewFit();
  window.PJ_KIOSK_SCROLL_INDICATOR?.schedule();
 }
@@ -2636,6 +2692,7 @@ if(kioskScrollContainer?.addEventListener)kioskScrollContainer.addEventListener(
 });
 function view(){
  if(state.step==='language')return languageView();
+ if(state.step==='idle')return idlePromotionView();
  if(state.step==='home')return `${testModeBanner()}<section class="darkHero">
   <div class="heroTop">
     <div class="heroBrandBlock">
@@ -2786,7 +2843,7 @@ let mobileSeatDocs={};let mobileWaitlist=[];let mobileSeatTimer=null;
 const SEAT_IDLE_MS=30000;
 const seatClientId=sessionStorage.getItem('pjSeatClientId')||('seat-'+Date.now()+'-'+Math.random().toString(36).slice(2));
 sessionStorage.setItem('pjSeatClientId',seatClientId);
-let seatIdleTimer=null;let lastSeatLeaseRefresh=0;
+let seatIdleTimer=null;let lastSeatLeaseRefresh=0;let idleResetInProgress=false;
 function seatDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d}
 function seatElapsed(v){const d=seatDate(v);if(!d)return '';const m=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));return m<60?t('ui.seatExtra.elapsedMinutes',{count:m}):t('ui.seatExtra.elapsedHours',{hours:Math.floor(m/60),minutes:m%60})}
 function seatLeaseExpired(doc){const until=seatDate(doc?.heldUntil);return doc?.status==='held'&&until&&until.getTime()<=Date.now()&&!doc?.orderId}
@@ -2902,10 +2959,10 @@ function getDiningAreas(){
 }
 function areaName(id){return seatAreaName(id)}
 function startDineIn(){state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.finalAddMode=null;
- state.orderType='dinein';state.orderTiming='now';state.partySize=2;state.diningArea=null;state.selectedTables=[];state.step='party';render()
+ state.orderType='dinein';state.orderTiming='now';state.partySize=2;state.diningArea=null;state.selectedTables=[];state.step='party';armOrderIdleTimer();render()
 }
 function startTakeout(){state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.finalAddMode=null;
- state.orderType='takeout';state.partySize=null;state.diningArea=null;state.selectedTables=[];state.step='timing';render()
+ state.orderType='takeout';state.partySize=null;state.diningArea=null;state.selectedTables=[];state.step='timing';armOrderIdleTimer();render()
 }
 function chooseTakeoutTiming(mode){
  state.orderTiming=mode;
@@ -2925,8 +2982,8 @@ function happyHourPhase(now=new Date()){const minutes=seoulMinutes(now),start=cl
 function isHappyHourNow(now){return happyHourPhase(now)==='active'}
 function isHappyHourBenefitVisible(now){return happyHourPhase(now)!=='closed'}
 function validHappyReserveTime(){if(!state.reserveTime)return false;const [h,m]=state.reserveTime.split(':').map(Number),minutes=h*60+m;return minutes>=16*60&&minutes<=20*60}
-function startHappyHourBanner(){reset();state.orderType='takeout';state.promo='happy';state.size='R';state.mode='single';state.crust='오리지널';state.bannerTakeout=false;if(isHappyHourNow()){state.orderTiming='now';state.step='pizza'}else{state.orderTiming='reserve';state.happyReserveOnly=true;state.step='reserve'}render()}
-function startTakeoutDiscountBanner(){reset();state.orderType='takeout';state.orderTiming='now';state.promo='takeout';state.size=null;state.mode='single';state.dough=null;state.crust=null;state.bannerTakeout=true;state.step='pizzaOptions';render()}
+function startHappyHourBanner(){reset();state.orderType='takeout';state.promo='happy';state.size='R';state.mode='single';state.crust='오리지널';state.bannerTakeout=false;if(isHappyHourNow()){state.orderTiming='now';state.step='pizza'}else{state.orderTiming='reserve';state.happyReserveOnly=true;state.step='reserve'}armOrderIdleTimer();render()}
+function startTakeoutDiscountBanner(){reset();state.orderType='takeout';state.orderTiming='now';state.promo='takeout';state.size=null;state.mode='single';state.dough=null;state.crust=null;state.bannerTakeout=true;state.step='pizzaOptions';armOrderIdleTimer();render()}
 function changeParty(delta){
  const next=Math.min(16,Math.max(1,(state.partySize||2)+delta));
  state.partySize=next;
@@ -2982,12 +3039,30 @@ async function refreshSeatLeases(){
  const now=Date.now();if(now-lastSeatLeaseRefresh<5000)return;lastSeatLeaseRefresh=now;
  await Promise.all(state.selectedTables.map(id=>db.collection('seats').doc(id).set({heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
 }
-function armSeatIdleTimer(){
- clearTimeout(seatIdleTimer);
- if(state.orderType!=='dinein'||state.firebaseOrderId||!state.selectedTables.length)return;
- seatIdleTimer=setTimeout(async()=>{await releaseSeats();reset();render()},SEAT_IDLE_MS);
- refreshSeatLeases().catch(error=>console.warn('좌석 주문중 시간 갱신 실패',error));
+function isOrderIdleStep(){return !['language','idle','home','done','testDone'].includes(state.step)}
+function isIdleResetProtected(){return mobileOrderSubmitting||seatOrderCommitStarted||Boolean(state.firebaseOrderId)}
+async function expireOrderIdle(){
+ if(idleResetInProgress||!isOrderIdleStep())return;
+ if(isIdleResetProtected())return;
+ idleResetInProgress=true;
+ const heldSeats=[...state.selectedTables];
+ try{
+  if(heldSeats.length)await releaseSeats(heldSeats);
+  reset('idle',{skipRelease:true});render()
+ }catch(error){
+  console.warn('무활동 초기화 중 좌석 해제 실패',error);
+  reset('idle',{skipRelease:true});render()
+ }finally{idleResetInProgress=false}
 }
+function armOrderIdleTimer(){
+ if(typeof clearTimeout==='function')clearTimeout(seatIdleTimer);
+ if(!isOrderIdleStep()||isIdleResetProtected())return;
+ seatIdleTimer=setTimeout(expireOrderIdle,SEAT_IDLE_MS);
+ if(state.orderType==='dinein'&&state.selectedTables.length)refreshSeatLeases().catch(error=>console.warn('좌석 주문중 시간 갱신 실패',error));
+}
+function armSeatIdleTimer(){armOrderIdleTimer()}
+function syncOrderIdleTimer(){if(!isOrderIdleStep()&&typeof clearTimeout==='function')clearTimeout(seatIdleTimer)}
+function recordOrderActivity(event){if(event&&event.isTrusted===false)return;armOrderIdleTimer()}
 async function toggleTable(id){
  const table=getAreaTables(state.diningArea).find(t=>t.id===id);
  if(!table||table.occupied)return;
@@ -3697,6 +3772,7 @@ async function handlePaymentSubmit(event){
  }finally{
   /* 완료 화면의 자동 reset 뒤 다음 고객도 주문할 수 있도록 요청 단위 잠금을 해제한다. */
   mobileOrderSubmitting=false;
+  if(state.step==='payment'&&!state.firebaseOrderId&&typeof armOrderIdleTimer==='function')armOrderIdleTimer();
  }
 }
 document.addEventListener('click',function(event){
@@ -3719,9 +3795,9 @@ db.collection('waitlist').onSnapshot(
  error=>console.error('Firestore waitlist subscription failed',error)
 );
 scheduleBottlePolicyBoundary();
-window.addEventListener?.('focus',checkBottleHoursBoundary);
-document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)checkBottleHoursBoundary()});
-['pointerdown','keydown','change'].forEach(type=>document.addEventListener(type,()=>armSeatIdleTimer(),{capture:true,passive:true}));
+window.addEventListener?.('focus',()=>{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()});
+document.addEventListener?.('visibilitychange',()=>{if(document.hidden)stopIdlePromotionTimers();else{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()}});
+['pointerdown','touchstart','keydown','wheel','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:true}));
 window.addEventListener('pagehide',()=>{clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();
