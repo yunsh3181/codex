@@ -14,6 +14,14 @@ const root = path.resolve(__dirname, '..');
 const script = path.join(root, 'scripts', 'verify-windows-update-artifacts.js');
 const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'windows-distribution.yml'), 'utf8');
 const version = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
+const RELEASE_VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+function assertConsistentReleaseVersions(packageVersion, lockVersion, lockRootVersion) {
+  assert.equal(typeof packageVersion, 'string');
+  assert.match(packageVersion, RELEASE_VERSION);
+  assert.equal(lockVersion, packageVersion);
+  assert.equal(lockRootVersion, packageVersion);
+}
 
 function makePe(machine) {
   const value = Buffer.alloc(256);
@@ -115,10 +123,26 @@ test('corrupt gzip blockmap fails', () => withFixture('x64', value => {
   assert.match(result.stderr, /invalid blockmap/);
 }));
 
-test('package and lockfile stay on the main release version', () => {
+test('release version consistency accepts supported patch releases', () => {
+  assert.doesNotThrow(() => assertConsistentReleaseVersions('1.2.21', '1.2.21', '1.2.21'));
+  assert.doesNotThrow(() => assertConsistentReleaseVersions('1.2.22', '1.2.22', '1.2.22'));
+});
+
+for (const [name, values] of [
+  ['package mismatch', ['1.2.22', '1.2.21', '1.2.21']],
+  ['lock root mismatch', ['1.2.22', '1.2.22', '1.2.21']],
+  ['empty version', ['', '', '']],
+  ['v-prefixed version', ['v1.2.22', 'v1.2.22', 'v1.2.22']],
+  ['incomplete version', ['1.2', '1.2', '1.2']],
+  ['arbitrary version', ['release', 'release', 'release']]
+]) {
+  test(`${name} fails release version consistency`, () => {
+    assert.throws(() => assertConsistentReleaseVersions(...values));
+  });
+}
+
+test('package and lockfile versions stay internally consistent', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   const lock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8'));
-  assert.equal(pkg.version, '1.2.21');
-  assert.equal(lock.version, '1.2.21');
-  assert.equal(lock.packages[''].version, '1.2.21');
+  assertConsistentReleaseVersions(pkg.version, lock.version, lock.packages[''].version);
 });
