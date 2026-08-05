@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
-  <title>판교2테크노밸리점 주문 관리자 v47.3.0</title>
-  <link rel="stylesheet" href="../admin.css?v=47.3.0" />
+  <title>판교2테크노밸리점 주문 관리자 v47.4.0</title>
+  <link rel="stylesheet" href="../admin.css?v=47.4.0" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
 </head>
 <body>
@@ -23,7 +23,7 @@
   <header class="admin-header">
     <div>
       <strong>PAPA JOHNS</strong>
-      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.3.0</span>
+      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.4.0</span>
     </div>
     <div class="header-actions">
       <button id="testModeButton" class="test-mode-button" type="button" hidden>테스트 모드 꺼짐</button>
@@ -115,6 +115,22 @@
     </section>
   </div>
 
+  <div id="forceCompleteModal" class="force-complete-modal" hidden>
+    <section class="force-complete-panel" role="dialog" aria-modal="true" aria-labelledby="forceCompleteTitle" aria-describedby="forceCompleteDescription">
+      <header><div><strong id="forceCompleteTitle">주문 강제완료</strong><span>좌석 불일치 주문 기록 정리</span></div><button type="button" id="closeForceComplete" aria-label="주문 강제완료 창 닫기">✕</button></header>
+      <div class="force-complete-body">
+        <p id="forceCompleteDescription">이 주문은 현재 좌석 상태와 연결 정보가 일치하지 않습니다.</p>
+        <dl id="forceCompleteDetails"></dl>
+        <p class="force-complete-warning">강제완료하면 주문 기록만 완료로 변경됩니다. 현재 좌석과 실제 결제는 변경되지 않습니다.</p>
+        <p>실제로 제공 및 완료된 주문인 경우에만 사용하세요.</p>
+        <label for="forceCompleteCode">주문번호 확인 <small id="forceCompleteCodeHint"></small></label>
+        <input id="forceCompleteCode" type="text" autocomplete="off" aria-describedby="forceCompleteCodeHint">
+        <p id="forceCompleteError" class="force-complete-error" role="alert"></p>
+      </div>
+      <footer><button type="button" id="cancelForceComplete">취소</button><button type="button" id="confirmForceComplete" disabled aria-disabled="true">강제완료 확인</button></footer>
+    </section>
+  </div>
+
   <div id="testModeModal" class="settings-modal" hidden>
     <section class="settings-panel test-mode-panel" role="dialog" aria-modal="true" aria-labelledby="testModeModalTitle">
       <div class="settings-head"><div><strong id="testModeModalTitle"></strong></div></div>
@@ -147,7 +163,8 @@
   <script src="../speech.js?v=1"></script>
   <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../test-mode-remote-channel.js?v=1"></script>
-  <script src="../admin.js?v=47.3.0"></script>
+  <script src="../admin-operations.js?v=47.4.0"></script>
+  <script src="../admin.js?v=47.4.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>

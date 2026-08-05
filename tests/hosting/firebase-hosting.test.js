@@ -19,11 +19,12 @@ test('Hosting targets the existing Firebase project and staged static output', (
 });
 
 test('Hosting output contains direct main and admin entries with their assets', () => {
-  for (const file of ['index.html', 'admin/index.html', 'admin.css', 'admin.js']) {
+  for (const file of ['index.html', 'admin/index.html', 'admin.css', 'admin-operations.js', 'admin.js']) {
     assert.equal(fs.existsSync(path.join(hostingRoot, file)), true, `${file} is missing`);
   }
   const admin = fs.readFileSync(path.join(hostingRoot, 'admin/index.html'), 'utf8');
   assert.match(admin, /\.\.\/admin\.css/);
+  assert.match(admin, /\.\.\/admin-operations\.js/);
   assert.match(admin, /\.\.\/admin\.js/);
 });
 
