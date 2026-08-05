@@ -65,9 +65,9 @@ test('done screen renders exact Korean particles and every locale safely resolve
 
 test('standard item benefits cover every mapping, strict fallback, ordering, and deduplication edge',()=>{
  const adminUi=adminHarness(),pizza=(promo,set=null)=>({pizzaLeft:'P001',promo,set});
- for(const [order,label] of [[{items:[pizza('upup')]},'업앤업'],[{items:[pizza('happy')]},'해피아워'],[{items:[pizza('set',2)]},'2인 세트'],[{items:[pizza('set',3)]},'3인 세트'],[{items:[pizza('set',4)]},'4인 세트'],[{items:[pizza('takeout')],orderType:'takeout'},'포장 20%'],[{items:[pizza('normal')],orderType:'takeout'},'포장'],[{items:[pizza('normal')],orderType:'dinein'},'']])assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels(order)),label?[label]:[]);
+ for(const [order,label] of [[{items:[pizza('upup')]},'UP&UP'],[{items:[pizza('happy')]},'해피아워'],[{items:[pizza('set',2)]},'2인 세트'],[{items:[pizza('set',3)]},'3인 세트'],[{items:[pizza('set',4)]},'4인 세트'],[{items:[pizza('takeout')],orderType:'takeout'},'포장 20%'],[{items:[pizza('normal')],orderType:'takeout'},'포장'],[{items:[pizza('normal')],orderType:'dinein'},'']])assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels(order)),label?[label]:[]);
  const combined={items:[pizza('upup'),pizza('set',3),pizza('upup'),pizza('set',4)],promo:'happy'};
- assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels(combined)),['업앤업','3인 세트','4인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels(combined)),['UP&UP','3인 세트','4인 세트']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001',set:null}],promo:'happy'})),['해피아워']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001'}],promo:'set',set:2})),['2인 세트']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('set','3')]})),[]);

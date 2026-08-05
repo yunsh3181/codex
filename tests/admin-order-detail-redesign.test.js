@@ -91,8 +91,8 @@ const benefitItems=[
  {...baseOrder.items[0],promo:'set',set:4}
 ];
 const benefitOrder={...baseOrder,items:benefitItems,promo:'happy'};
-assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels(benefitOrder)),['업앤업','3인 세트','4인 세트'],'item benefits preserve first-seen order and remove duplicates without mixing order promo');
-for(const markup of [context.newOrderCard({...benefitOrder,id:'benefits'}),context.renderOrderDetail(benefitOrder)])assert.ok(markup.includes('업앤업 + 3인 세트 + 4인 세트'),'main and detail render the same combined pizza heading');
+assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels(benefitOrder)),['UP&UP','3인 세트','4인 세트'],'item benefits preserve first-seen order and remove duplicates without mixing order promo');
+for(const markup of [context.newOrderCard({...benefitOrder,id:'benefits'}),context.renderOrderDetail(benefitOrder)])assert.ok(markup.includes('UP&amp;UP + 3인 세트 + 4인 세트'),'main and detail render the same combined pizza heading');
 assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels({...baseOrder,items:[{...baseOrder.items[0],promo:'set',set:'3'}]})),[],'unverified string set data is safely omitted');
 assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels({...baseOrder,items:[{...baseOrder.items[0]}],promo:'happy'})),['해피아워'],'order benefit is used only when every pizza lacks item benefit data');
 
@@ -123,6 +123,33 @@ assert.strictEqual(JSON.stringify(mixedItems),before,'display sorting does not m
 assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'reserve',time:'16:30:45'}}),'16:30 예약','reservation time omits seconds');
 assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'now',time:'16:30'}}),'','immediate orders do not display reservation time');
 assert.strictEqual(context.reservationTimeLabel({...baseOrder,pickup:{mode:'reserve',time:'not-a-time'}}),'','invalid reservation time is safely hidden');
+const reservedDetail=context.renderOrderDetail({...baseOrder,status:'payment_pending',pickup:{mode:'reserve',time:'18:30'}});
+assert.ok(reservedDetail.includes('<span>예약주문</span>')&&reservedDetail.includes('<small>예약시간</small>오후 6:30'),'payment-pending reservation detail distinguishes the selected time');
+assert.ok(reservedDetail.includes('주문시간 07. 30. 오후 12:22'),'reservation detail preserves the separate creation time');
+assert.ok(!normal.includes('예약시간'),'immediate order detail omits the reservation region');
+for(const invalid of [null,undefined,'not-a-time','25:99']){
+ const invalidDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:invalid}});
+ assert.ok(!invalidDetail.includes('예약시간'),'missing and invalid reservation values stay hidden');
+ assert.doesNotMatch(invalidDetail,/Invalid Date|undefined|null|NaN/);
+}
+const timestampDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:{toDate:()=>new Date('2026-08-05T09:30:00.000Z')}}});
+assert.ok(timestampDetail.includes('2026. 08. 05. 오후 6:30'),'timestamp reservations render in Asia/Seoul');
+const dateDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:new Date('2026-08-05T09:30:00.000Z')}});
+assert.ok(dateDetail.includes('2026. 08. 05. 오후 6:30'),'Date reservations render in Asia/Seoul');
+const unsafeReservationTimes=[
+ {label:'non-function toDate',value:{toDate:'not-a-function'}},
+ {label:'non-Date toDate result',value:{toDate:()=>'not-a-date'}},
+ {label:'null toDate result',value:{toDate:()=>null}},
+ {label:'throwing toDate',value:{toDate:()=>{throw new Error('broken timestamp')}}},
+ {label:'empty object',value:{}},
+ {label:'invalid Date',value:new Date('invalid')}
+];
+for(const {label,value} of unsafeReservationTimes){
+ let markup;
+ assert.doesNotThrow(()=>{markup=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:value}})},`${label} does not throw`);
+ assert.ok(!markup.includes('예약시간'),`${label} hides the reservation time region`);
+ assert.doesNotMatch(markup,/Invalid Date|undefined|null|NaN/,`${label} emits no invalid placeholder`);
+}
 
 const css=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 assert.match(css,/\.order-detail-panel\{width:min\(840px,calc\(100vw - 32px\)\);height:auto;max-height:84vh/,'detail dialog has the compact desktop bounds');
