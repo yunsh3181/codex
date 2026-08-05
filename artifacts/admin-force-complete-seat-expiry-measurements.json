@@ -12,15 +12,15 @@
       },
       "columnRatios": [
         7,
-        7,
-        5.5,
+        6.5,
+        5,
         14,
-        5.5,
+        5,
         7.5,
         17,
         5,
         22,
-        9.5
+        11
       ],
       "horizontalOverflow": 0,
       "clipped": [],
@@ -35,8 +35,8 @@
         {
           "text": "1525",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -56,8 +56,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -70,8 +70,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -91,8 +91,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -105,8 +105,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -126,8 +126,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -140,8 +140,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -161,8 +161,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -175,8 +175,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -196,8 +196,8 @@
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -210,8 +210,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -231,8 +231,8 @@
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -245,8 +245,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -266,8 +266,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -280,8 +280,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -301,8 +301,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -315,8 +315,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -336,8 +336,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -350,8 +350,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -371,8 +371,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -385,8 +385,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -406,8 +406,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -420,8 +420,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -441,8 +441,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -455,8 +455,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -476,8 +476,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -490,8 +490,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -511,8 +511,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         },
         {
@@ -525,8 +525,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 61,
-          "scrollWidth": 61,
+          "clientWidth": 55,
+          "scrollWidth": 55,
           "fits": true
         },
         {
@@ -546,8 +546,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 105,
-          "scrollWidth": 105,
+          "clientWidth": 121,
+          "scrollWidth": 121,
           "fits": true
         }
       ],
@@ -639,15 +639,15 @@
       },
       "columnRatios": [
         7,
-        7,
-        5.5,
+        6.5,
+        5,
         14,
-        5.5,
+        5,
         7.5,
         17,
         5,
         22,
-        9.5
+        11
       ],
       "horizontalOverflow": 0,
       "clipped": [],
@@ -662,8 +662,8 @@
         {
           "text": "1525",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -683,8 +683,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -697,8 +697,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -718,8 +718,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -732,8 +732,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -753,8 +753,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -767,8 +767,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -788,8 +788,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -802,8 +802,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -823,8 +823,8 @@
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -837,8 +837,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -858,8 +858,8 @@
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -872,8 +872,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -893,8 +893,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -907,8 +907,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -928,8 +928,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -942,8 +942,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -963,8 +963,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -977,8 +977,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -998,8 +998,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -1012,8 +1012,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -1033,8 +1033,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -1047,8 +1047,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -1068,8 +1068,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -1082,8 +1082,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -1103,8 +1103,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -1117,8 +1117,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -1138,8 +1138,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         },
         {
@@ -1152,8 +1152,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 83,
-          "scrollWidth": 83,
+          "clientWidth": 75,
+          "scrollWidth": 75,
           "fits": true
         },
         {
@@ -1173,8 +1173,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 143,
-          "scrollWidth": 143,
+          "clientWidth": 166,
+          "scrollWidth": 166,
           "fits": true
         }
       ],
@@ -1266,15 +1266,15 @@
       },
       "columnRatios": [
         7,
-        7,
-        5.5,
+        6.5,
+        5,
         14,
-        5.5,
+        5,
         7.5,
         17,
         5,
         22,
-        9.5
+        11
       ],
       "horizontalOverflow": 0,
       "clipped": [],
@@ -1289,8 +1289,8 @@
         {
           "text": "1525",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1310,8 +1310,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1324,8 +1324,8 @@
         {
           "text": "1032",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1345,8 +1345,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1359,8 +1359,8 @@
         {
           "text": "1031",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1380,8 +1380,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1394,8 +1394,8 @@
         {
           "text": "1030",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1415,8 +1415,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1429,8 +1429,8 @@
         {
           "text": "1029",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1450,8 +1450,8 @@
         {
           "text": "식권대장",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1464,8 +1464,8 @@
         {
           "text": "1028",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1485,8 +1485,8 @@
         {
           "text": "식권대장/4인",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1499,8 +1499,8 @@
         {
           "text": "1027",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1520,8 +1520,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1534,8 +1534,8 @@
         {
           "text": "1026",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1555,8 +1555,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1569,8 +1569,8 @@
         {
           "text": "1025",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1590,8 +1590,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1604,8 +1604,8 @@
         {
           "text": "1024",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1625,8 +1625,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1639,8 +1639,8 @@
         {
           "text": "1023",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1660,8 +1660,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1674,8 +1674,8 @@
         {
           "text": "1022",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1695,8 +1695,8 @@
         {
           "text": "현금",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1709,8 +1709,8 @@
         {
           "text": "1021",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1730,8 +1730,8 @@
         {
           "text": "카드",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1744,8 +1744,8 @@
         {
           "text": "1020",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1765,8 +1765,8 @@
         {
           "text": "식권대장/2인",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         },
         {
@@ -1779,8 +1779,8 @@
         {
           "text": "1019",
           "column": 5,
-          "clientWidth": 42,
-          "scrollWidth": 42,
+          "clientWidth": 38,
+          "scrollWidth": 38,
           "fits": true
         },
         {
@@ -1800,8 +1800,8 @@
         {
           "text": "제로페이",
           "column": 10,
-          "clientWidth": 72,
-          "scrollWidth": 72,
+          "clientWidth": 84,
+          "scrollWidth": 84,
           "fits": true
         }
       ],
@@ -1908,7 +1908,7 @@
     "title": "주문 강제완료",
     "clipped": false,
     "confirmDisabled": true,
-    "detail": "순번99주문번호1525주문시간08. 05. 오후 06:31전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음"
+    "detail": "순번99주문번호1525주문시간08. 05. 오후 06:36전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음"
   },
   "beforeProcessing": {
     "newBadge": "신규주문",
