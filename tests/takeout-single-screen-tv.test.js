@@ -7,7 +7,8 @@ const admin=read('admin.js'),html=read('admin/index.html'),css=read('admin.css')
 const rules=read('firestore.rules'),tvHTML=read('waiting-tv/index.html'),tvJS=read('waiting-tv/waiting-tv.js');
 
 for(const id of ['takeoutPending','takeoutProcessing'])assert.ok(html.includes(`id="${id}"`),`${id} is present`);
-assert.ok(admin.includes('takeoutPendingCard(pendingTakeout[0])'),'only the oldest pending takeout is the large priority card');
+assert.ok(html.includes('id="takeoutPending" hidden'),'the retired central pending card remains only as a compatibility hook');
+assert.ok(admin.includes("if(takeoutPending)takeoutPending.innerHTML=''"),'the central area never duplicates a pending takeout card');
 assert.ok(admin.includes("['accepted','paid','cooking','ready'].includes(order.status)"),'all active takeout statuses share one processing area');
 assert.ok(css.includes('.takeout-processing{display:grid;grid-template-columns:1fr'),'processing cards use one-column left rail');
 assert.ok(!html.includes('id="takeoutCooking"')&&!html.includes('id="takeoutReady"'),'processing cards are not split by status');

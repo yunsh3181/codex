@@ -56,7 +56,6 @@ function stopRealtimeSubscriptions(){
 function refreshVisibleOrders(now=new Date()){
  orders=visibleBusinessDayOrders(receivedOrders,now);
  render();
- assignMissingOrderSequences(orders).catch(error=>console.error('영업일 순번 배정 실패',error));
 }
 
 function backfillPublicDisplayBusinessDays(list){
@@ -122,7 +121,7 @@ function startRealtimeSubscriptions(){
  console.error(error);
  connectionBadge.textContent='연결 오류';
  connectionBadge.className='connection error';
- orderList.innerHTML=`<div class="empty">Firestore 연결 오류: ${esc(error.message)}</div>`;
+ orderList.innerHTML=`<tr><td colspan="10" class="central-order-empty">Firestore 연결 오류: ${esc(error.message)}</td></tr>`;
 });
  scheduleBusinessDayRefresh();
 
@@ -198,6 +197,11 @@ const confirmTestMode=document.getElementById('confirmTestMode');
 const takeoutPending=document.getElementById('takeoutPending');
 const takeoutProcessing=document.getElementById('takeoutProcessing');
 const seatOverviewGrid=document.getElementById('seatOverviewGrid');
+const orderList=document.getElementById('orderList');
+const businessDayOrderCount=document.getElementById('businessDayOrderCount');
+const businessDayNotice=document.getElementById('businessDayNotice');
+const orderPagination=document.getElementById('orderPagination');
+const selectedOrderDetail=document.getElementById('selectedOrderDetail');
 const orderDetailModal=document.getElementById('orderDetailModal');
 const orderDetailContent=document.getElementById('orderDetailContent');
 const closeOrderDetailButton=document.getElementById('closeOrderDetail');
@@ -323,6 +327,9 @@ const voiceEnabled=document.getElementById('voiceEnabled');
 const customSoundFile=document.getElementById('customSoundFile');
 const customSoundName=document.getElementById('customSoundName');
 let orders=[];
+const CENTRAL_ORDER_PAGE_SIZE=15;
+let centralOrderPage=1;
+let selectedCentralOrderId=null;
 let activeFilter='payment_pending';
 let activeChannel='all';
 let initialLoad=true;
@@ -382,6 +389,7 @@ function spokenKoreanOrderNumber(value){
  }).join('')
 }
 function adminOrderNumberLabel(order){
+ if(Number(order?.adminDisplaySequence)>0)return String(order.adminDisplaySequence);
  const stored=order?.customerNumber||order?.orderNo;
  if(stored)return orderNumberLabel(stored);
  const sequence=order?.sequence||order?.dailySequence;
@@ -397,11 +405,7 @@ function compareOrdersOldestFirst(a,b){
  const aTime=orderTimeMillis(a?.createdAt)??orderTimeMillis(a?.createdAtClient);
  const bTime=orderTimeMillis(b?.createdAt)??orderTimeMillis(b?.createdAtClient);
  if(aTime!==bTime){if(aTime==null)return 1;if(bTime==null)return -1;return aTime-bTime}
- const aSequence=Number(a?.sequence??a?.dailySequence);
- const bSequence=Number(b?.sequence??b?.dailySequence);
- const aValid=Number.isFinite(aSequence)&&aSequence>0,bValid=Number.isFinite(bSequence)&&bSequence>0;
- if(aValid!==bValid)return aValid?-1:1;
- return aValid&&aSequence!==bSequence?aSequence-bSequence:0;
+ return String(a?.id||'').localeCompare(String(b?.id||''),'en');
 }
 function seoulBusinessDayKey(value=new Date()){
  const date=value?.toDate?value.toDate():new Date(value);
@@ -426,41 +430,13 @@ function isCurrentBusinessDayOrder(order,now=new Date()){
 function shouldShowBusinessDayOrder(order,now=new Date()){
  const orderBusinessDay=orderBusinessDayKey(order);
  if(!orderBusinessDay)return false;
- return orderBusinessDay===seoulBusinessDayKey(now)||ACTIVE_ORDER_STATUSES.has(order.status);
+ return orderBusinessDay===seoulBusinessDayKey(now);
 }
-function visibleBusinessDayOrders(list,now=new Date(),limit=100){
+function visibleBusinessDayOrders(list,now=new Date()){
  const sorted=(list||[])
   .filter(order=>shouldShowBusinessDayOrder(order,now))
-  .map((order,index)=>({order,index}))
-  .sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index);
- return sorted.slice(Math.max(0,sorted.length-limit)).map(entry=>entry.order);
-}
-const sequenceAssignments=new Set();
-async function ensureOrderSequence(order){
- if(!order?.id||Number(order.sequence||order.dailySequence)>0||sequenceAssignments.has(order.id))return;
- sequenceAssignments.add(order.id);
- try{
-  const businessDay=seoulBusinessDayKey(order.createdAt||order.createdAtClient||new Date());
-  const storeId=String(order.storeId||'pangyo2-techno-valley').replace(/[^a-zA-Z0-9_-]/g,'_');
-  const orderRef=db.collection('orders').doc(order.id);
-  const counterRef=db.collection('dailyStats').doc(`order-sequence_${storeId}_${businessDay}`);
-  await db.runTransaction(async transaction=>{
-   const [orderSnapshot,counterSnapshot]=await Promise.all([transaction.get(orderRef),transaction.get(counterRef)]);
-   if(!orderSnapshot.exists)return;
-   const saved=orderSnapshot.data();
-   if(Number(saved.sequence||saved.dailySequence)>0)return;
-   const next=Math.max(0,Number(counterSnapshot.exists?counterSnapshot.data().lastSequence:0)||0)+1;
-   transaction.set(counterRef,{type:'orderSequence',storeId,businessDay,lastSequence:next,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-   transaction.update(orderRef,{businessDay,sequence:next,dailySequence:next,sequenceAssignedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  });
- }finally{sequenceAssignments.delete(order.id)}
-}
-async function assignMissingOrderSequences(list){
- const pending=(list||[]).filter(order=>!Number(order.sequence||order.dailySequence)).sort((a,b)=>{
-  const millis=value=>value?.toMillis?value.toMillis():value?.seconds?value.seconds*1000:new Date(value||0).getTime()||0;
-  return millis(a.createdAt||a.createdAtClient)-millis(b.createdAt||b.createdAtClient);
- });
- for(const order of pending)await ensureOrderSequence(order);
+  .sort(compareOrdersOldestFirst);
+ return sorted.map((order,index)=>({...order,adminDisplaySequence:index+1}));
 }
 const ORDER_CATALOG=window.PJ_ORDER_CATALOG||{};
 function displayText(value,fallback='-'){
@@ -751,6 +727,54 @@ function takeoutProcessingCard(order){
  const action=takeoutProgressAction(order);
  return `<article class="takeout-small order-detail-trigger" data-order-id="${esc(order.id)}" data-order-status="${esc(order.status)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 주문 상세보기"><div class="takeout-small-number">${esc(adminOrderNumberLabel(order))}</div><strong>포장 주문</strong><span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span><span>상품 ${takeoutItemCount(order)}개</span><button type="button" class="${action.className}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${action.status}">${action.label}</button></article>`;
 }
+function centralOrderTime(order){
+ const millis=orderTimeMillis(order?.createdAt)??orderTimeMillis(order?.createdAtClient);
+ if(millis==null)return '-';
+ return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(millis));
+}
+function centralPaymentMethod(order){
+ const paid=safeAmounts(order).paid,split=splitPaymentSummary(order,paid);
+ const method=displayText(order?.payment?.methodName||order?.payment?.method);
+ return split?`${method}/${split.count}인`:method;
+}
+function centralOrderRow(order){
+ const takeout=order.orderType==='takeout',reservation=isReservationOrder(order),selected=String(order.id)===String(selectedCentralOrderId);
+ const party=!takeout&&Number(order.partySize)>0?`${Number(order.partySize)}명`:'-';
+ const seat=takeout?'-':displayText(orderSeatLabel(order));
+ const phone=displayText(order.phone||order.phoneMasked),orderNo=displayText(order.customerNumber||order.orderNo);
+ const visual=adminStatusVisual(order),status=displayText(adminStatusName(order));
+ return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong></td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?'포장':'매장식사'}</td><td title="${esc(seat)}">${esc(seat)}</td><td>${party}</td><td>${money(safeAmounts(order).paid)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
+}
+function nextBusinessDayBoundaryLabel(now=new Date()){
+ const key=seoulBusinessDayKey(now),[year,month,day]=key.split('-').map(Number);
+ const boundary=new Date(Date.UTC(year,month-1,day+1,0,0,0));
+ return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(boundary);
+}
+function renderCentralOrderList(){
+ const latest=[...orders].sort((a,b)=>compareOrdersOldestFirst(b,a));
+ const pages=Math.max(1,Math.ceil(latest.length/CENTRAL_ORDER_PAGE_SIZE));
+ centralOrderPage=Math.min(Math.max(1,centralOrderPage),pages);
+ const visible=latest.slice((centralOrderPage-1)*CENTRAL_ORDER_PAGE_SIZE,centralOrderPage*CENTRAL_ORDER_PAGE_SIZE);
+ businessDayOrderCount.textContent=`총 ${latest.length}건`;
+ orderList.innerHTML=visible.length?visible.map(centralOrderRow).join(''):'<tr><td colspan="10" class="central-order-empty">현재 영업일 주문이 없습니다.</td></tr>';
+ orderPagination.innerHTML=`<button type="button" data-order-page="${centralOrderPage-1}" ${centralOrderPage===1?'disabled':''}>이전</button><span>${centralOrderPage} / ${pages}</span><button type="button" data-order-page="${centralOrderPage+1}" ${centralOrderPage===pages?'disabled':''}>다음</button>`;
+ syncCentralOrderSelection();
+ businessDayNotice.textContent=`영업시간: 09:00 ~ 22:00 | 오늘 주문 초기화: ${nextBusinessDayBoundaryLabel()} 09:00`;
+}
+function syncCentralOrderSelection(focusRow=null){
+ const selectedOrder=selectedCentralOrderId?orderById(selectedCentralOrderId):null;
+ if(!selectedOrder)selectedCentralOrderId=null;
+ let selectedRow=null;
+ orderList.querySelectorAll('.central-order-row[data-order-id]').forEach(row=>{
+  const selected=selectedCentralOrderId!==null&&String(row.dataset.orderId)===String(selectedCentralOrderId);
+  row.classList.toggle('selected',selected);row.setAttribute('aria-selected',String(selected));
+  if(selected)selectedRow=row;
+ });
+ selectedOrderDetail.disabled=!selectedRow;
+ selectedOrderDetail.title=selectedCentralOrderId&&!selectedRow?'선택한 주문은 다른 페이지에 있습니다. 해당 페이지에서 다시 선택해 주세요.':'';
+ if(focusRow?.isConnected)focusRow.focus();
+ return selectedRow;
+}
 function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
  return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
@@ -772,14 +796,18 @@ function render(){
  const sortedTakeout=orders.filter(order=>order.orderType==='takeout').sort(compareOrdersOldestFirst);
  const pendingTakeout=sortedTakeout.filter(order=>['payment_pending','new'].includes(order.status));
  const processingTakeout=sortedTakeout.filter(order=>['accepted','paid','cooking','ready'].includes(order.status));
- if(takeoutPending)takeoutPending.innerHTML=pendingTakeout.length?takeoutPendingCard(pendingTakeout[0]):'<div class="empty">결제대기 포장 주문이 없습니다.</div>';
+ if(takeoutPending)takeoutPending.innerHTML='';
  const processingCards=[
   ...processingTakeout.map(order=>({time:order.createdAt||order.createdAtClient,html:takeoutProcessingCard(order)})),
   ...manualCustomerCalls.map(call=>({time:call.createdAt,html:manualCustomerCallCard(call)}))
  ].sort((a,b)=>dateValue(a.time)-dateValue(b.time));
  if(takeoutProcessing)takeoutProcessing.innerHTML=processingCards.length?processingCards.map(card=>card.html).join(''):'<div class="empty">처리중인 포장 주문이 없습니다.</div>';
- const filtered=ordersForMainList(orders).map((order,index)=>({order,index})).sort((a,b)=>compareOrdersOldestFirst(a.order,b.order)||a.index-b.index).map(entry=>entry.order);
- orderList.innerHTML=filtered.length?filtered.map(order=>mainOrderCard(order)).join(''):'<div class="empty">해당 상태의 주문이 없습니다.</div>';
+ renderCentralOrderList();
+ if(orderDetailOpenOrderId&&!orderDetailModal.hidden){
+  const current=orderById(orderDetailOpenOrderId);
+  if(current)orderDetailContent.innerHTML=renderOrderDetail(current,orderDetailSourceSeatId);
+  else{closeOrderDetail();showAdminMessage('주문이 삭제되었거나 현재 영업일 목록에서 확인할 수 없습니다.',true)}
+ }
  const count=s=>orders.filter(o=>s.includes(o.status)).length;
  document.getElementById('newCount').textContent=count(['payment_pending','new']);document.getElementById('cookingCount').textContent=count(['paid','accepted','cooking']);document.getElementById('doneCount').textContent=count(['ready','completed']);
  const pendingCount=count(['payment_pending','new']);document.title=pendingCount?`🔴 미접수 주문(${pendingCount}) · 관리자`:'파파존스 주문 관리자';
@@ -900,6 +928,7 @@ async function setStatus(id,status,button){
 
 let orderDetailSourceSeatId=null;
 let orderDetailReturnFocus=null;
+let orderDetailOpenOrderId=null;
 function orderById(id){return orders.find(order=>String(order.id)===String(id))}
 function paymentStatusLabel(order){
  return displayText(order?.paymentStatus||order?.payment?.status,'저장 정보 없음');
@@ -1067,17 +1096,21 @@ function renderOrderDetail(order,seatId=null){
 function showOrderDetail(order,seatId=null,trigger=null){
  if(!order||!orderDetailModal||!orderDetailContent)return false;
  orderDetailSourceSeatId=seatId;
+ orderDetailOpenOrderId=String(order.id);
  orderDetailReturnFocus=trigger||document.activeElement;
  orderDetailContent.innerHTML=renderOrderDetail(order,seatId);
  document.getElementById('orderDetailTitle').textContent=`${adminOrderNumberLabel(order)}번 · ${order.orderType==='takeout'?'포장':'먹고 가기'}`;
  orderDetailModal.hidden=false;
+ document.body.classList.add('order-detail-open');
  closeOrderDetailButton?.focus();
  return true;
 }
 function closeOrderDetail(){
  if(!orderDetailModal||orderDetailModal.hidden)return;
+ const currentRow=orderDetailOpenOrderId?orderList.querySelector(`[data-order-id="${CSS.escape(orderDetailOpenOrderId)}"].central-order-row`):null;
  orderDetailModal.hidden=true;orderDetailContent.innerHTML='';orderDetailSourceSeatId=null;
- if(orderDetailReturnFocus?.isConnected)orderDetailReturnFocus.focus();
+ orderDetailOpenOrderId=null;document.body.classList.remove('order-detail-open');
+ if(orderDetailReturnFocus?.isConnected)orderDetailReturnFocus.focus();else if(currentRow?.isConnected)currentRow.focus();
  orderDetailReturnFocus=null;
 }
 function openOrderDetail(orderId,trigger=null){return showOrderDetail(orderById(orderId),null,trigger)}
@@ -1102,7 +1135,9 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  const button=event.target.closest('button[data-action]');
  if(!button||!document.getElementById('ordersPanel').contains(button)){
   const trigger=event.target.closest('[data-order-id].order-detail-trigger');
-  if(trigger&&document.getElementById('ordersPanel').contains(trigger))openOrderDetail(trigger.dataset.orderId,trigger);
+  if(trigger?.classList.contains('central-order-row')){
+   selectedCentralOrderId=trigger.dataset.orderId;syncCentralOrderSelection(trigger);
+  }else if(trigger&&document.getElementById('ordersPanel').contains(trigger))openOrderDetail(trigger.dataset.orderId,trigger);
   return;
  }
  event.preventDefault();
@@ -1136,6 +1171,10 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   await clearSeat(button.dataset.seatId,button);
  }
 });
+document.getElementById('ordersPanel')?.addEventListener('dblclick',event=>{
+ const trigger=event.target.closest('.central-order-row[data-order-id]');
+ if(trigger)openOrderDetail(trigger.dataset.orderId,trigger);
+});
 document.getElementById('ordersPanel')?.addEventListener('keydown',event=>{
  if(!['Enter',' '].includes(event.key)||event.target.closest('button[data-action]'))return;
  const trigger=event.target.closest('[data-order-id].order-detail-trigger');
@@ -1143,6 +1182,8 @@ document.getElementById('ordersPanel')?.addEventListener('keydown',event=>{
  event.preventDefault();openOrderDetail(trigger.dataset.orderId,trigger);
 });
 closeOrderDetailButton?.addEventListener('click',closeOrderDetail);
+selectedOrderDetail?.addEventListener('click',()=>{const trigger=syncCentralOrderSelection();if(trigger)openOrderDetail(selectedCentralOrderId,trigger)});
+orderPagination?.addEventListener('click',event=>{const button=event.target.closest('button[data-order-page]');if(!button||button.disabled)return;centralOrderPage=Number(button.dataset.orderPage)||1;renderCentralOrderList()});
 orderDetailModal?.addEventListener('click',async event=>{
  if(event.target===orderDetailModal){closeOrderDetail();return}
  const button=event.target.closest('button[data-action]');
@@ -1441,7 +1482,7 @@ soundVolume.addEventListener('input',()=>volumeValue.textContent=soundVolume.val
 customSoundFile.addEventListener('change',()=>{const f=customSoundFile.files?.[0];if(!f)return;if(customAudioUrl)URL.revokeObjectURL(customAudioUrl);customAudioUrl=URL.createObjectURL(f);customSoundName.textContent=f.name;soundPreset.value='custom'});
 document.getElementById('previewSound').addEventListener('click',async()=>{settings={preset:soundPreset.value,volume:Number(soundVolume.value)/100,voice:voiceEnabled.checked};if(!soundEnabled){soundEnabled=true;soundButton.textContent='🔔 알림음 켜짐'}await playPreset();setTimeout(()=>enqueueSpeech('다이닝 주문이 들어왔습니다.'),settings.preset==='voice'?0:550)});
 document.getElementById('saveSoundSettings').addEventListener('click',()=>{settings={preset:soundPreset.value,volume:Number(soundVolume.value)/100,voice:voiceEnabled.checked};localStorage.setItem('pjAdminSoundSettings',JSON.stringify(settings));settingsModal.hidden=true});
-document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x===b));render()});
+document.getElementById('filters')?.addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x===b));render()});
 
 
 

@@ -42,9 +42,9 @@ test('discount totals always equal normal sales total minus payment',()=>{
  );
 });
 
-test('admin main orders use the unified summary, menu, payment, and call layout',()=>{
+test('admin detail keeps the unified menu, payment, and call layout behind the central table',()=>{
  for(const token of ['mainOrderCard','main-order-summary','main-order-type','order.phone||order.phoneMasked','orderDetailMenuHTML(order)','orderDetailForkHTML(order)','main-payment-grid','main-customer-call'])assert.ok(admin.includes(token),token);
- assert.match(admin,/filtered\.map\(order=>mainOrderCard\(order\)\)/);
+ assert.match(admin,/visible\.map\(centralOrderRow\)\.join/);
  assert.match(adminCss,/\.main-order-body\{display:grid;grid-template-columns:minmax\(0,45fr\) minmax\(0,55fr\)/);
  assert.match(adminCss,/\.main-payment-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(adminCss,/\.main-customer-call\{[^}]*linear-gradient\(100deg,#5f45c9,#834ce1,#6550c9\)/);
