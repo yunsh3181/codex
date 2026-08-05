@@ -3,6 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -17,8 +18,6 @@ let adminAuthenticated=false;
 let initialOrdersLoaded=false;
 let requestedSeatEntryHandled=false;
 let publicDisplayBusinessDayBackfill=null;
-const FORCE_COMPLETE_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking','ready']);
-const OCCUPIED_EXPIRY_MS=3*60*60*1000;
 let seatExpiryTimer=null,seatExpiryDebounce=null,seatExpiryRunning=false;
 const adminClockBaseline={wall:Date.now(),monotonic:typeof performance!=='undefined'?performance.now():0};
 
@@ -756,25 +755,9 @@ function centralPaymentMethod(order){
 }
 function isPendingOrder(order){return ['payment_pending','new'].includes(order?.status)}
 function isCompletedOrder(order){return ['ready','completed'].includes(order?.status)}
-function seatSnapshotRecord(snapshot){return snapshot?.exists?{exists:true,...snapshot.data()}:{exists:false}}
-function classifySeatOrderMismatch(order,seats=seatDocuments){
- const ids=orderSeatIds(order);
- if(order?.orderType!=='dinein'||!FORCE_COMPLETE_STATUSES.has(order?.status)||!ids.length)return {forceEligible:false,ids,reason:'ineligible'};
- const records=ids.map(id=>({id,exists:Object.prototype.hasOwnProperty.call(seats,id),...(seats[id]||{})}));
- const belongs=record=>record.exists&&String(record.orderId||'')===String(order.id);
- const allHeld=records.every(record=>belongs(record)&&record.status==='held');
- const allOccupied=records.every(record=>belongs(record)&&record.status==='occupied');
- if(allHeld||allOccupied)return {forceEligible:false,ids,records,reason:allHeld?'linked-held':'linked-occupied'};
- if(records.some(record=>belongs(record)&&!['held','occupied'].includes(record.status)))return {forceEligible:false,ids,records,reason:'linked-invalid-state'};
- const mismatched=records.filter(record=>!belongs(record));
- return {forceEligible:mismatched.length>0,ids,records,mismatched,reason:mismatched.length?'seat-order-mismatch':'mixed-linked-state'};
-}
-function forceConfirmationValue(order){
- const value=String(order?.customerNumber||order?.orderNo||'').trim();
- return value?value.slice(-Math.min(4,value.length)):'';
-}
+function classifyCurrentSeatOrderMismatch(order,seats=seatDocuments){return classifySeatOrderMismatch(order,seats)}
 function centralPaymentAction(order){
- const mismatch=classifySeatOrderMismatch(order);
+ const mismatch=classifyCurrentSeatOrderMismatch(order);
  if(mismatch.forceEligible){const enabled=Boolean(forceConfirmationValue(order));return `<button type="button" class="central-status-action force-complete" data-action="force-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 강제완료" ${enabled?'':'disabled aria-disabled="true" title="주문번호를 확인할 수 없어 상세 확인이 필요합니다."'}>강제완료</button>`}
  if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
  if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
@@ -956,7 +939,7 @@ async function setStatus(id,status,button){
     const seat=snapshot.exists?snapshot.data():null,seatId=seatIds[index];
     if(!seat||String(seat.orderId||'')!==String(id)){
      const records=Object.fromEntries(seatSnapshots.map((item,seatIndex)=>[seatIds[seatIndex],seatSnapshotRecord(item)]));
-     const mismatch=classifySeatOrderMismatch(order,records);
+     const mismatch=classifyCurrentSeatOrderMismatch(order,records);
      throw Object.assign(new Error(`${seatId} 좌석이 현재 주문에 연결되어 있지 않습니다.`),{code:'seat/order-mismatch',forceEligible:mismatch.forceEligible});
     }
     if(acceptingDineIn&&seat.status!=='held')throw Object.assign(new Error(`${seatId} 좌석이 주문중 상태가 아닙니다.`),{code:'seat/not-held'});
@@ -1018,10 +1001,10 @@ function syncForceCompleteConfirmation(){
  confirmForceComplete.disabled=forceCompleteBusy||!matches;confirmForceComplete.setAttribute('aria-disabled',String(confirmForceComplete.disabled));
 }
 function openForceCompleteModal(order,trigger=document.activeElement){
- if(!order||!classifySeatOrderMismatch(order).forceEligible)return false;
+ if(!order||!classifyCurrentSeatOrderMismatch(order).forceEligible)return false;
  const expected=forceConfirmationValue(order);if(!expected){showAdminMessage('주문번호를 안전하게 확인할 수 없습니다. 상세 확인이 필요합니다.',true);return false}
  forceCompleteOrderId=order.id;forceCompleteReturnFocus=trigger;forceCompleteBusy=false;
- const mismatch=classifySeatOrderMismatch(order),phone=displayText(order.phone||order.phoneMasked),savedSeats=orderSeatLabel(order);
+ const mismatch=classifyCurrentSeatOrderMismatch(order),phone=displayText(order.phone||order.phoneMasked),savedSeats=orderSeatLabel(order);
  forceCompleteDetails.innerHTML=[['순번',adminOrderNumberLabel(order)],['주문번호',displayText(order.customerNumber||order.orderNo)],['주문시간',formatTime(order.createdAt||order.createdAtClient)],['전화번호',phone],['주문유형','매장식사'],['저장 좌석',savedSeats],['현재 주문 상태',displayText(order.status)],...mismatch.records.map(record=>[`현재 좌석 ${record.id}`,seatStateDescription(record,order.id)])].map(([term,value])=>`<div><dt>${esc(term)}</dt><dd>${esc(value)}</dd></div>`).join('');
  forceCompleteCode.value='';forceCompleteCodeHint.textContent=`화면의 주문번호 마지막 ${expected.length}자리 “${expected}”를 입력하세요.`;forceCompleteError.textContent='';
  forceCompleteModal.hidden=false;document.body.classList.add('force-complete-open');syncForceCompleteConfirmation();forceCompleteCode.focus();return true;
@@ -1031,18 +1014,7 @@ async function forceCompleteOrder(){
  if(!id||forceCompleteBusy||!expected||forceCompleteCode.value.trim()!==expected)return false;
  forceCompleteBusy=true;forceCompleteError.textContent='';confirmForceComplete.textContent='처리 중…';confirmForceComplete.setAttribute('aria-busy','true');syncForceCompleteConfirmation();
  try{
-  await db.runTransaction(async transaction=>{
-   const orderRef=db.collection('orders').doc(id),orderSnapshot=await transaction.get(orderRef);
-   if(!orderSnapshot.exists)throw Object.assign(new Error('주문이 삭제되었습니다.'),{code:'order/not-found'});
-   const order={id,...orderSnapshot.data()};
-   if(order.status!==localOrder.status)throw Object.assign(new Error('다른 관리자가 주문 상태를 변경했습니다.'),{code:'order/stale-state'});
-   if(!FORCE_COMPLETE_STATUSES.has(order.status))throw Object.assign(new Error('현재 상태에서는 강제완료할 수 없습니다.'),{code:'order/ineligible'});
-   if(forceConfirmationValue(order)!==expected)throw Object.assign(new Error('주문번호 확인 정보가 변경되었습니다.'),{code:'order/confirmation-changed'});
-   const ids=orderSeatIds(order),snapshots=await Promise.all(ids.map(seatId=>transaction.get(db.collection('seats').doc(seatId))));
-   const records=Object.fromEntries(snapshots.map((snapshot,index)=>[ids[index],seatSnapshotRecord(snapshot)]));
-   if(!classifySeatOrderMismatch(order,records).forceEligible)throw Object.assign(new Error('좌석 불일치가 해소되었거나 안전 확인이 필요합니다.'),{code:'seat/mismatch-resolved'});
-   transaction.update(orderRef,{status:'completed',updatedAt:firebase.firestore.FieldValue.serverTimestamp(),adminForceCompleted:true,adminForceCompletedAt:firebase.firestore.FieldValue.serverTimestamp(),adminForceCompleteReason:'seat_state_mismatch'});
-  });
+  await forceCompleteTransaction({db,orderId:id,expectedStatus:localOrder.status,expectedConfirmation:expected,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp});
   forceCompleteBusy=false;closeForceCompleteModal();showAdminMessage('주문을 강제완료했습니다. 결제와 현재 좌석 상태는 변경하지 않았습니다.');return true;
  }catch(error){forceCompleteError.textContent=`강제완료 실패 (${error.code||'unknown'}): ${error.message}`;return false}
  finally{forceCompleteBusy=false;confirmForceComplete.textContent='강제완료 확인';confirmForceComplete.removeAttribute('aria-busy');syncForceCompleteConfirmation()}
@@ -1053,16 +1025,10 @@ function adminClockIsReliable(){
  return Math.abs((Date.now()-adminClockBaseline.wall)-(performance.now()-adminClockBaseline.monotonic))<5*60*1000;
 }
 function expiredSeatGroups(now=Date.now()){
- const groups=new Map();
- Object.entries(seatDocuments).forEach(([id,seat])=>{if(!seat.orderId&&seat.status!=='occupied')return;const key=seat.orderId?`order:${seat.orderId}`:`seat:${id}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push({id,...seat})});
- return Array.from(groups.values()).filter(group=>group.length&&group.every(seat=>{const millis=timestampMillis(seat.occupiedAt);return seat.status==='occupied'&&millis!==null&&millis<=now-OCCUPIED_EXPIRY_MS}));
+ return findExpiredSeatGroups(seatDocuments,now);
 }
 async function releaseExpiredSeatGroup(group,now){
- return db.runTransaction(async transaction=>{
-  const refs=group.map(seat=>db.collection('seats').doc(seat.id)),snapshots=await Promise.all(refs.map(ref=>transaction.get(ref)));
-  snapshots.forEach((snapshot,index)=>{const current=snapshot.exists?snapshot.data():null,initial=group[index];if(!current||current.status!=='occupied'||String(current.orderId||'')!==String(initial.orderId||'')||timestampMillis(current.occupiedAt)!==timestampMillis(initial.occupiedAt)||timestampMillis(current.occupiedAt)>now-OCCUPIED_EXPIRY_MS)throw Object.assign(new Error('좌석 상태가 변경되어 자동 해제를 건너뜁니다.'),{code:'seat/stale-expiry'})});
-  refs.forEach(ref=>transaction.set(ref,seatReleasePayload(),{merge:true}));return refs.length;
- });
+ const result=await releaseExpiredSeatGroupTransaction({db,group,now,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp});return result.released;
 }
 async function releaseExpiredSeats(){
  if(seatExpiryRunning||!adminAuthenticated||document.hidden)return 0;

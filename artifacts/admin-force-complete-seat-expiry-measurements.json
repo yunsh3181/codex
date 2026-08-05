@@ -554,7 +554,7 @@
       "criticalMeasurements": [
         {
           "label": "순번 + 신규주문",
-          "text": "99신규주문",
+          "text": "33신규주문",
           "clientWidth": 77,
           "scrollWidth": 77,
           "contentWidth": 47,
@@ -1181,7 +1181,7 @@
       "criticalMeasurements": [
         {
           "label": "순번 + 신규주문",
-          "text": "99신규주문",
+          "text": "33신규주문",
           "clientWidth": 105,
           "scrollWidth": 105,
           "contentWidth": 47,
@@ -1808,7 +1808,7 @@
       "criticalMeasurements": [
         {
           "label": "순번 + 신규주문",
-          "text": "99신규주문",
+          "text": "33신규주문",
           "clientWidth": 53,
           "scrollWidth": 53,
           "contentWidth": 43,
@@ -1882,6 +1882,18 @@
       "rows": 15
     }
   },
+  "expiryTriggers": {
+    "released": [
+      1,
+      0,
+      0,
+      0
+    ],
+    "transactions": 1,
+    "status": "occupied",
+    "clockResult": 0,
+    "clockTransactions": 0
+  },
   "safePaymentStates": {
     "fixture-31": {
       "label": "취소",
@@ -1907,8 +1919,42 @@
     "modalCount": 1,
     "title": "주문 강제완료",
     "clipped": false,
+    "overflowX": 0,
+    "overflowY": 0,
     "confirmDisabled": true,
-    "detail": "순번99주문번호1525주문시간08. 05. 오후 06:36전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음"
+    "detail": "순번33주문번호1525주문시간08. 05. 오후 07:10전화번호010-0000-1525주문유형매장식사저장 좌석파파존 2번현재 주문 상태payment_pending현재 좌석 papa-2empty · orderId 없음",
+    "backgroundBlocked": true,
+    "detailStayedClosed": true,
+    "invalid": {
+      "disabled": true,
+      "transactions": 0,
+      "error": ""
+    },
+    "valid": {
+      "disabled": false,
+      "transactions": 0
+    },
+    "escape": {
+      "hidden": true,
+      "focusAction": "force-complete"
+    },
+    "narrow": {
+      "clipped": false,
+      "overflowX": 0,
+      "overflowY": 0,
+      "disabled": true
+    },
+    "cancel": {
+      "hidden": true,
+      "focusAction": "force-complete"
+    },
+    "success": {
+      "status": "completed",
+      "modalHidden": true,
+      "transactions": 1,
+      "payment": "결제완료",
+      "forceButton": false
+    }
   },
   "beforeProcessing": {
     "newBadge": "신규주문",

@@ -28,7 +28,7 @@ function createAdminVisualServer({ref=null,port=0}={}){
 function exportAdminVisualSite(target,{ref=null}={}){
  fs.mkdirSync(path.join(target,'admin'),{recursive:true});fs.mkdirSync(path.join(target,'tests','fixtures'),{recursive:true});
  fs.writeFileSync(path.join(target,'admin','index.html'),transformedAdmin(ref));
- for(const relative of ['admin.css','admin-mobile.css','common-data.js','order-catalog.js','data.js','speech.js','after-hours-test-mode.js','test-mode-remote-channel.js','admin.js','admin-dashboard.js','tests/fixtures/admin-browser-runtime.js']){
+ for(const relative of ['admin.css','admin-mobile.css','common-data.js','order-catalog.js','data.js','speech.js','after-hours-test-mode.js','test-mode-remote-channel.js','admin-operations.js','admin.js','admin-dashboard.js','tests/fixtures/admin-browser-runtime.js']){
   const destination=path.join(target,relative);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.writeFileSync(destination,source(relative,relative==='tests/fixtures/admin-browser-runtime.js'?null:ref));
  }
  fs.writeFileSync(path.join(target,'firebase-config.js'),source('tests/fixtures/admin-browser-runtime.js',null));

@@ -17,7 +17,9 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  assert.equal(result.page2.label,'2 / 3');assert.equal(result.page2.selected,false);assert.equal(result.page2.detailDisabled,true);assert.match(result.page2.title,/다른 페이지/);
  assert.deepEqual(result.listener,{id:'fixture-32',selectedId:'fixture-32',connected:true});assert.deepEqual(result.deletion,{id:'fixture-32',selected:false,disabled:true});
  assert.deepEqual(result.consoleProblems,[]);
- assert.equal(result.forceModal.button,'강제완료');assert.equal(result.forceModal.modalCount,1);assert.equal(result.forceModal.title,'주문 강제완료');assert.equal(result.forceModal.clipped,false);assert.equal(result.forceModal.confirmDisabled,true);assert.match(result.forceModal.detail,/papa-2.*orderId 없음/);
+ assert.deepEqual(result.expiryTriggers,{released:[1,0,0,0],transactions:1,status:'occupied',clockResult:0,clockTransactions:0});
+ assert.equal(result.forceModal.button,'강제완료');assert.equal(result.forceModal.modalCount,1);assert.equal(result.forceModal.title,'주문 강제완료');assert.equal(result.forceModal.clipped,false);assert.equal(result.forceModal.overflowX,0);assert.equal(result.forceModal.overflowY,0);assert.equal(result.forceModal.confirmDisabled,true);assert.equal(result.forceModal.backgroundBlocked,true);assert.equal(result.forceModal.detailStayedClosed,true);assert.match(result.forceModal.detail,/papa-2.*orderId 없음/);
+ assert.deepEqual(result.forceModal.invalid,{disabled:true,transactions:0,error:''});assert.deepEqual(result.forceModal.valid,{disabled:false,transactions:0});assert.deepEqual(result.forceModal.escape,{hidden:true,focusAction:'force-complete'});assert.deepEqual(result.forceModal.narrow,{clipped:false,overflowX:0,overflowY:0,disabled:true});assert.deepEqual(result.forceModal.cancel,{hidden:true,focusAction:'force-complete'});assert.deepEqual(result.forceModal.success,{status:'completed',modalHidden:true,transactions:1,payment:'결제완료',forceButton:false});
  assert.deepEqual(result.safePaymentStates,{
   'fixture-31':{label:'취소',action:false,seatAction:false,overlap:0},
   'fixture-30':{label:'확인 필요',action:false,seatAction:false,overlap:0},
