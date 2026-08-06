@@ -57,7 +57,62 @@ runElectronVerification({ app }, async lifecycle => {
   report.happyHour = await capture(window, '07-happy-hour-idle');
   await window.webContents.executeJavaScript(`(()=>{idlePromotionIndex=0;applyIdlePromotionEligibility(new Date('2026-08-05T06:59:59Z'))})()`, true);
   report.setMenu = await capture(window, '08-set-menu-idle');
+
+  report.takeoutAccompaniment = await window.webContents.executeJavaScript(`(async()=>{
+    await startOrderFromIdle();
+    startTakeout();
+    chooseTakeoutTiming('now');
+    pickPromo('normal');
+    setStandardPizzaOption('size','L');
+    setStandardPizzaOption('dough','오리지널');
+    setStandardPizzaOption('crust','오리지널');
+    confirmStandardPizzaOptions();
+    selectPizzaMode('single');
+    pickPizza('P001');
+    skipTopping();
+    skipSide();
+    const before={cartItems:JSON.stringify(state.cartItems),left:state.left,size:state.size,dough:state.dough,crust:state.crust,promo:state.promo,orderType:state.orderType};
+    let resets=0;const canonicalReset=reset;reset=(...args)=>{resets++;return canonicalReset(...args)};
+    skipDrink();
+    const accompaniment={step:state.step,resets,idleScreens:document.querySelectorAll('.kioskIdleScreen').length,cartVisible:Boolean(document.querySelector('#cart .cartbar')),cartItems:JSON.stringify(state.cartItems),left:state.left,size:state.size,dough:state.dough,crust:state.crust,promo:state.promo,orderType:state.orderType};
+    state.benefitPromptedKeys=[benefitRecommendationSignature()];state.finalUpsellPrompted=true;
+    finishAccompaniment();
+    const review={step:state.step,resets,idleScreens:document.querySelectorAll('.kioskIdleScreen').length,cartItems:state.cartItems.length};
+    reset=canonicalReset;
+    return {before,accompaniment,review}
+  })()`, true);
+
+  report.validStepRecovery = await window.webContents.executeJavaScript(`(()=>{
+    const canonicalReset=reset,results={};let resets=0;reset=(...args)=>{resets++;return canonicalReset(...args)};
+    for(const step of ['accompaniment','reserve','setChoice','party','area','table','done']){
+      Object.assign(state,{step,orderType:step==='accompaniment'?'takeout':null,selectedTables:[],firebaseOrderId:null,paymentMethod:'card'});
+      const before=resets;render();results[step]={step:state.step,resets:resets-before}
+    }
+    reset=canonicalReset;return results
+  })()`, true);
+
+  report.unknownStepRecovery = await window.webContents.executeJavaScript(`(()=>{
+    const canonicalReset=reset,results={};let resets=0;reset=(...args)=>{resets++;return canonicalReset(...args)};
+    Object.assign(state,{step:'corrupt-step',selectedTables:[],firebaseOrderId:null});render();results.unprotected={step:state.step,resets};
+    for(const protection of ['mobileOrderSubmitting','seatOrderCommitStarted','firebaseOrderId']){
+      canonicalReset('home',{skipRelease:true});state.step='corrupt-step';resets=0;
+      if(protection==='mobileOrderSubmitting')mobileOrderSubmitting=true;
+      if(protection==='seatOrderCommitStarted')seatOrderCommitStarted=true;
+      if(protection==='firebaseOrderId')state.firebaseOrderId='saved-order';
+      render();results[protection]={step:state.step,resets};
+      mobileOrderSubmitting=false;seatOrderCommitStarted=false;state.firebaseOrderId=null
+    }
+    reset=canonicalReset;canonicalReset('idle',{skipRelease:true});render();return results
+  })()`, true);
   report.consoleMessages = consoleMessages.slice(baselineConsoleCount).filter(message => !/Kiosk idle promotion failed to load/.test(message));
+
+  const takeout = report.takeoutAccompaniment;
+  if (takeout.accompaniment.step !== 'accompaniment' || takeout.accompaniment.resets !== 0 || takeout.accompaniment.idleScreens !== 0) throw new Error(`accompaniment route reset unexpectedly: ${JSON.stringify(takeout)}`);
+  for (const key of ['cartItems','left','size','dough','crust','promo','orderType']) if (takeout.accompaniment[key] !== takeout.before[key]) throw new Error(`accompaniment lost ${key}`);
+  if (!takeout.accompaniment.cartVisible || takeout.review.step !== 'review' || takeout.review.resets !== 0 || takeout.review.cartItems !== 1) throw new Error(`takeout review route failed: ${JSON.stringify(takeout)}`);
+  for (const [step,result] of Object.entries(report.validStepRecovery)) if (result.step !== step || result.resets !== 0) throw new Error(`valid step recovery reset ${step}: ${JSON.stringify(result)}`);
+  if (report.unknownStepRecovery.unprotected.step !== 'idle' || report.unknownStepRecovery.unprotected.resets !== 1) throw new Error(`unknown step did not reset safely: ${JSON.stringify(report.unknownStepRecovery)}`);
+  for (const protection of ['mobileOrderSubmitting','seatOrderCommitStarted','firebaseOrderId']) if (report.unknownStepRecovery[protection].resets !== 0) throw new Error(`protected unknown step reset: ${protection}`);
 
   if (reportPath) fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   return report;

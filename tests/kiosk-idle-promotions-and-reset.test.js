@@ -123,9 +123,23 @@ test('kiosk21 always boots and resets to idle while other layouts keep their pol
 });
 
 test('unknown kiosk steps use the canonical safe reset path to idle',()=>{
- assert.match(html,/const KIOSK_VALID_STEPS=new Set\(\['language','idle','home','done','testDone','party','area','table','reserve','setChoice',\.\.\.flow\]\)/);
+ assert.match(html,/const KIOSK_VALID_STEPS=new Set\(\[\.\.\.flow,\.\.\.KIOSK_SPECIAL_STEPS\]\)/);
  assert.match(html,/function recoverUnknownKioskStep\(\)\{[\s\S]*?if\(!isKioskInactivityLayout\(\)\|\|KIOSK_VALID_STEPS\.has\(state\.step\)\)return false;[\s\S]*?if\(isIdleResetProtected\(\)\)return false;[\s\S]*?reset\('idle'\)/);
  assert.match(html,/function render\(\)\{\n recoverUnknownKioskStep\(\)/);
+});
+
+test('every runtime step extracted from the application is registered exactly once',()=>{
+ const arrayValues=name=>{
+  const body=html.match(new RegExp(`const ${name}=\\[([^;]+)\\]`))?.[1];
+  assert.ok(body,`${name} declaration`);
+  return [...body.matchAll(/'([^']+)'/g)].map(match=>match[1])
+ };
+ const registered=[...arrayValues('flow'),...arrayValues('KIOSK_SPECIAL_STEPS')];
+ const expected=['language','idle','home','type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','accompaniment','review','phone','payment','party','area','table','reserve','setChoice','done','testDone'];
+ assert.deepEqual([...new Set(registered)].sort(),[...expected].sort());
+ assert.equal(registered.length,new Set(registered).size,'valid steps must not be duplicated');
+ const referenced=new Set([...html.matchAll(/state\.step\s*(?:===|!==|=)\s*'([^']+)'/g)].map(match=>match[1]));
+ for(const step of referenced)assert.ok(registered.includes(step),`unregistered runtime step: ${step}`)
 });
 
 test('all terminal home actions reuse reset and therefore return kiosk21 to idle',()=>{

@@ -24,6 +24,10 @@ test('Chromium evidence runner covers every required idle return path at 1080x19
   assert.match(source, /state\.step='done';state\.firebaseOrderId='completed-order'/);
   assert.match(source, /new Date\('2026-08-05T07:00:00Z'\)/);
   assert.match(source, /new Date\('2026-08-05T06:59:59Z'\)/);
+  assert.match(source, /await startOrderFromIdle\(\);[\s\S]*startTakeout\(\);[\s\S]*chooseTakeoutTiming\('now'\)/);
+  assert.match(source, /skipDrink\(\);[\s\S]*step:state\.step[\s\S]*finishAccompaniment\(\)/);
+  assert.match(source, /\['accompaniment','reserve','setChoice','party','area','table','done'\]/);
+  assert.match(source, /\['mobileOrderSubmitting','seatOrderCommitStarted','firebaseOrderId'\]/);
 });
 
 test('Chromium evidence runner measures overflow and idle-only chrome', () => {

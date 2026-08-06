@@ -2265,7 +2265,8 @@ const {PIZZAS,CRUSTS,TOPPINGS,SIDES,DRINKS,SAUCES,SETTINGS}=window.KIOSK_DATA;
 function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/images\//,'');return 'assets/images/'+encodeURIComponent(clean).replace(/%2F/g,'/')}
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
-const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
+const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','accompaniment','review','phone','payment'];
+const KIOSK_SPECIAL_STEPS=['language','idle','home','party','area','table','reserve','setChoice','done','testDone'];
 function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
 function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
 const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
@@ -2681,7 +2682,7 @@ function scheduleOrderReviewFit(){
  if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(reviewFitFrame);
  reviewFitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitOrderReview));
 }
-const KIOSK_VALID_STEPS=new Set(['language','idle','home','done','testDone','party','area','table','reserve','setChoice',...flow]);
+const KIOSK_VALID_STEPS=new Set([...flow,...KIOSK_SPECIAL_STEPS]);
 function recoverUnknownKioskStep(){
  if(!isKioskInactivityLayout()||KIOSK_VALID_STEPS.has(state.step))return false;
  if(isIdleResetProtected())return false;
