@@ -15,7 +15,7 @@ assert.ok(kiosk.includes('const SEAT_IDLE_MS=30000'),'seat inactivity timeout is
 assert.ok(kiosk.includes("transaction.set(ref,{status:'held'"),'seat selection writes the ordering state transactionally');
 assert.ok(kiosk.includes("saved.heldBy!==seatClientId")||kiosk.includes("saved.heldBy!==seatClientId"),'another kiosk cannot claim an active seat');
 assert.ok(kiosk.includes("throw new Error('SEAT_UNAVAILABLE')"),'duplicate seat claims are rejected');
-assert.ok(kiosk.includes('seatIdleTimer=setTimeout(expireOrderIdle,SEAT_IDLE_MS)'),'central idle timeout uses the canonical 30-second value');
+assert.ok(kiosk.includes('seatIdleTimer=setTimeout(()=>expireOrderIdle(generation),SEAT_IDLE_MS)'),'central idle timeout uses the canonical 30-second value');
 assert.ok(kiosk.includes("reset('idle',{skipRelease:true});render()"),'idle timeout releases seats, clears state, and returns to promotions');
 for(const eventName of ['pointerdown','touchstart','keydown','wheel','click','input'])assert.ok(kiosk.includes(`'${eventName}'`),`${eventName} resets the inactivity timer`);
 assert.ok(!kiosk.includes("'wheel','scroll','click'"),'programmatic scroll cannot extend the inactivity timer');
