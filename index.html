@@ -2154,6 +2154,20 @@ html[data-layout="kiosk21"] .kioskIdleStart{width:100%;min-height:110px;font-siz
 @media(max-width:560px){.kioskIdleScreen{padding-bottom:max(16px,env(safe-area-inset-bottom))}.kioskIdleViewport{margin-bottom:10px}.kioskIdleControls{padding:0 18px}.kioskIdleStart{min-height:90px;border-radius:18px;font-size:30px}}
 @media(prefers-reduced-motion:reduce){.kioskIdleSlide{transition:none}}
 </style>
+<style id="kiosk-inactivity-warning-styles">
+html[data-layout="kiosk21"] .inactivityWarningBackdrop{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:40px;background:rgba(0,0,0,.68);overflow:hidden}
+html[data-layout="kiosk21"] .inactivityWarningDialog{width:78%;max-width:840px;max-height:calc(100vh - 80px);overflow:hidden;padding:54px 58px;border:2px solid var(--line);border-radius:30px;background:#fff;text-align:center;box-shadow:0 28px 80px rgba(0,0,0,.38)}
+html[data-layout="kiosk21"] .inactivityWarningDialog h2{margin:0 0 20px;color:#17231d;font-size:42px;line-height:1.25}
+html[data-layout="kiosk21"] .inactivityWarningBody{margin:0;color:#505850;font-size:26px;line-height:1.45}
+html[data-layout="kiosk21"] .inactivityCountdown{display:flex;align-items:baseline;justify-content:center;min-height:190px;margin:18px 0 6px;color:var(--r);font-weight:1000;font-variant-numeric:tabular-nums}
+html[data-layout="kiosk21"] .inactivityCountdownNumber{display:inline-block;width:2ch;font-size:128px;line-height:1;text-align:right}
+html[data-layout="kiosk21"] .inactivityCountdownUnit{min-width:1.5em;margin-left:12px;font-size:38px;text-align:left}
+html[data-layout="kiosk21"] .inactivityWarningGuide{margin:0 0 28px;color:#5f675f;font-size:24px;line-height:1.45}
+html[data-layout="kiosk21"] .inactivityWarningActions{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+html[data-layout="kiosk21"] .inactivityWarningActions button{min-width:0;min-height:96px;padding:18px;border:0;border-radius:17px;font-size:26px;font-weight:1000;white-space:normal;overflow-wrap:anywhere}
+html[data-layout="kiosk21"] .inactivityContinue{background:var(--g);color:#fff;box-shadow:0 8px 20px rgba(0,107,60,.24)}
+html[data-layout="kiosk21"] .inactivityHome{background:#e5e9e6;color:#283029}
+</style>
 <link rel="stylesheet" href="styles/business-hours.css">
 <link rel="stylesheet" href="styles/kiosk-updater.css">
 </head><body>
@@ -2180,7 +2194,7 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
 <script src="kiosk-scroll-indicator.js?v=kiosk-scroll-indicator-v1.2.11"></script>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
@@ -2219,12 +2233,12 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=44.2"></script>
-<script src="i18n/en.js?v=44.2"></script>
-<script src="i18n/ja.js?v=44.2"></script>
-<script src="i18n/zh.js?v=44.2"></script>
-<script src="i18n/vi.js?v=44.2"></script>
-<script src="i18n/es.js?v=44.2"></script>
+<script src="i18n/ko.js?v=44.3"></script>
+<script src="i18n/en.js?v=44.3"></script>
+<script src="i18n/ja.js?v=44.3"></script>
+<script src="i18n/zh.js?v=44.3"></script>
+<script src="i18n/vi.js?v=44.3"></script>
+<script src="i18n/es.js?v=44.3"></script>
 <script src="i18n/ui.js?v=51"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
@@ -2276,7 +2290,7 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(targetStep='home',options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));clearTimeout(seatIdleTimer);Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(targetStep='home',options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 const BOTTLE_COPY={ko:{before:'오전 11시부터 이용 가능',after:'오늘 운영 종료',weekend:'주말 이용 불가',holiday:'공휴일 이용 불가',unsupported:'현재 이용할 수 없습니다',conflict:'보틀석과 보틀룸 이용시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},en:{before:'Available from 11:00 AM',after:'Closed for today',weekend:'Unavailable on weekends',holiday:'Unavailable on public holidays',unsupported:'Currently unavailable',conflict:'Bottle seating hours have ended. Please choose another seat.'},ja:{before:'午前11時から利用可能',after:'本日の営業終了',weekend:'週末は利用不可',holiday:'祝日は利用不可',unsupported:'現在利用できません',conflict:'ボトル席・ルームの利用時間が終了しました。他の席を選択してください。'},zh:{before:'上午11点起可用',after:'今日营业已结束',weekend:'周末不可用',holiday:'节假日不可用',unsupported:'当前不可用',conflict:'瓶座和包间的使用时间已结束。请选择其他座位。'},vi:{before:'Có thể dùng từ 11:00',after:'Đã hết giờ hôm nay',weekend:'Không phục vụ cuối tuần',holiday:'Không phục vụ ngày lễ',unsupported:'Hiện không khả dụng',conflict:'Đã hết giờ sử dụng khu PapaBottle và ROOM. Vui lòng chọn chỗ khác.'},es:{before:'Disponible desde las 11:00',after:'Cerrado por hoy',weekend:'No disponible los fines de semana',holiday:'No disponible en festivos',unsupported:'No disponible actualmente',conflict:'El horario de PapaBottle y ROOM ha terminado. Elige otro asiento.'}};
@@ -2679,6 +2693,7 @@ function render(){
  if(state.step!=='phone')main.classList.add('pageSwap');
  document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
  document.getElementById('modal').innerHTML=modalView();
+ renderOrderIdleWarning();
  const activeProgress=document.querySelector('.progressStep.current');
  if(activeProgress)requestAnimationFrame(()=>activeProgress.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}));
  if(stepChanged){
@@ -2859,7 +2874,8 @@ let mobileSeatDocs={};let mobileWaitlist=[];let mobileSeatTimer=null;
 const SEAT_IDLE_MS=30000;
 const seatClientId=sessionStorage.getItem('pjSeatClientId')||('seat-'+Date.now()+'-'+Math.random().toString(36).slice(2));
 sessionStorage.setItem('pjSeatClientId',seatClientId);
-let seatIdleTimer=null;let lastSeatLeaseRefresh=0;let idleResetInProgress=false;
+const ORDER_IDLE_WARNING_MS=10000;
+let seatIdleTimer=null;let orderIdleCountdownTimer=null;let orderIdleDeadline=0;let orderIdleGeneration=0;let orderIdleWarningOpen=false;let orderIdleSeconds=0;let orderIdleLastNow=0;let orderIdleReturnFocus=null;let lastSeatLeaseRefresh=0;let idleResetInProgress=false;
 function seatDate(v){if(!v)return null;if(typeof v.toDate==='function')return v.toDate();const d=new Date(v);return Number.isNaN(d.getTime())?null:d}
 function seatElapsed(v){const d=seatDate(v);if(!d)return '';const m=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));return m<60?t('ui.seatExtra.elapsedMinutes',{count:m}):t('ui.seatExtra.elapsedHours',{hours:Math.floor(m/60),minutes:m%60})}
 function seatLeaseExpired(doc){const until=seatDate(doc?.heldUntil);return doc?.status==='held'&&until&&until.getTime()<=Date.now()&&!doc?.orderId}
@@ -3057,9 +3073,39 @@ async function refreshSeatLeases(){
 }
 function isOrderIdleStep(){return !['language','idle','home','done','testDone'].includes(state.step)}
 function isIdleResetProtected(){return mobileOrderSubmitting||seatOrderCommitStarted||Boolean(state.firebaseOrderId)}
-async function expireOrderIdle(){
+function isKioskInactivityLayout(){return document.documentElement.dataset?.layout==='kiosk21'}
+function orderIdleNow(){const now=Date.now();orderIdleLastNow=Math.max(orderIdleLastNow,now);return orderIdleLastNow}
+function stopOrderIdleTimers(){
+ if(typeof clearTimeout==='function'){clearTimeout(seatIdleTimer);clearTimeout(orderIdleCountdownTimer)}
+ seatIdleTimer=null;orderIdleCountdownTimer=null;orderIdleDeadline=0;orderIdleGeneration+=1;closeOrderIdleWarning()
+}
+function closeOrderIdleWarning(restoreFocus=false){
+ const wasOpen=orderIdleWarningOpen;orderIdleWarningOpen=false;orderIdleSeconds=0;
+ const host=document.getElementById('inactivityWarningHost');if(host)host.innerHTML='';
+ if(wasOpen&&restoreFocus&&orderIdleReturnFocus?.isConnected)orderIdleReturnFocus.focus?.();
+ orderIdleReturnFocus=null
+}
+function inactivityWarningView(){return `<div class="inactivityWarningBackdrop"><section class="inactivityWarningDialog" role="dialog" aria-modal="true" aria-labelledby="inactivity-warning-title"><h2 id="inactivity-warning-title">${t('inactivity.title')}</h2><p class="inactivityWarningBody">${t('inactivity.body')}</p><div class="inactivityCountdown" aria-live="polite" aria-atomic="true"><span class="inactivityCountdownNumber">${orderIdleSeconds}</span><span class="inactivityCountdownUnit">${t('inactivity.seconds')}</span></div><p class="inactivityWarningGuide">${t('inactivity.guide')}</p><div class="inactivityWarningActions"><button type="button" class="inactivityContinue" onclick="continueOrderAfterIdleWarning()">${t('inactivity.continue')}</button><button type="button" class="inactivityHome" onclick="returnHomeFromIdleWarning()">${t('inactivity.home')}</button></div></section></div>`}
+function renderOrderIdleWarning(){
+ if(!orderIdleWarningOpen)return;
+ const host=document.getElementById('inactivityWarningHost');if(!host)return;
+ if(!host.querySelector('.inactivityWarningBackdrop')){orderIdleReturnFocus=document.activeElement;host.innerHTML=inactivityWarningView();host.querySelector('.inactivityContinue')?.focus()}
+ else host.querySelector('.inactivityCountdownNumber').textContent=String(orderIdleSeconds)
+}
+function scheduleOrderIdleCountdown(generation){
+ if(generation!==orderIdleGeneration)return;
+ const remaining=orderIdleDeadline-orderIdleNow();
+ if(remaining<=0){expireOrderIdle(generation);return}
+ const seconds=Math.ceil(remaining/1000);
+ if(seconds<=10){orderIdleSeconds=seconds;if(!orderIdleWarningOpen){orderIdleWarningOpen=true;renderOrderIdleWarning()}else renderOrderIdleWarning()}
+ orderIdleCountdownTimer=setTimeout(()=>scheduleOrderIdleCountdown(generation),Math.max(1,remaining-(seconds-1)*1000))
+}
+async function expireOrderIdle(generation=orderIdleGeneration,force=false){
+ if(generation!==orderIdleGeneration)return;
+ const remaining=orderIdleDeadline-orderIdleNow();
+ if(!force&&remaining>0){seatIdleTimer=setTimeout(()=>expireOrderIdle(generation),remaining);return}
  if(idleResetInProgress||!isOrderIdleStep())return;
- if(isIdleResetProtected())return;
+ if(isIdleResetProtected()){stopOrderIdleTimers();return}
  idleResetInProgress=true;
  const heldSeats=[...state.selectedTables];
  try{
@@ -3071,14 +3117,30 @@ async function expireOrderIdle(){
  }finally{idleResetInProgress=false}
 }
 function armOrderIdleTimer(){
- if(typeof clearTimeout==='function')clearTimeout(seatIdleTimer);
- if(!isOrderIdleStep()||isIdleResetProtected())return;
- seatIdleTimer=setTimeout(expireOrderIdle,SEAT_IDLE_MS);
+ stopOrderIdleTimers();
+ if(!isKioskInactivityLayout()||!isOrderIdleStep()||isIdleResetProtected())return;
+ const generation=orderIdleGeneration;orderIdleDeadline=orderIdleNow()+SEAT_IDLE_MS;
+ seatIdleTimer=setTimeout(()=>expireOrderIdle(generation),SEAT_IDLE_MS);
+ orderIdleCountdownTimer=setTimeout(()=>scheduleOrderIdleCountdown(generation),SEAT_IDLE_MS-ORDER_IDLE_WARNING_MS);
  if(state.orderType==='dinein'&&state.selectedTables.length)refreshSeatLeases().catch(error=>console.warn('좌석 주문중 시간 갱신 실패',error));
 }
 function armSeatIdleTimer(){armOrderIdleTimer()}
-function syncOrderIdleTimer(){if(!isOrderIdleStep()&&typeof clearTimeout==='function')clearTimeout(seatIdleTimer)}
-function recordOrderActivity(event){if(event&&event.isTrusted===false)return;armOrderIdleTimer()}
+function syncOrderIdleTimer(){if(!isOrderIdleStep()||isIdleResetProtected())stopOrderIdleTimers()}
+function continueOrderAfterIdleWarning(){if(!orderIdleWarningOpen||idleResetInProgress)return;closeOrderIdleWarning(true);armOrderIdleTimer()}
+function returnHomeFromIdleWarning(){if(!orderIdleWarningOpen||idleResetInProgress)return;expireOrderIdle(orderIdleGeneration,true)}
+function recordOrderActivity(event){
+ if(event&&event.isTrusted===false)return;
+ if(orderIdleWarningOpen){
+  if(event?.type==='keydown'&&event.key==='Escape'){event.preventDefault?.();continueOrderAfterIdleWarning()}
+  else if(event?.type==='keydown'&&event.key==='Tab'){
+   const buttons=[...document.querySelectorAll('.inactivityWarningActions button')];if(!buttons.length)return;
+   const index=buttons.indexOf(document.activeElement),next=event.shiftKey?(index<=0?buttons.length-1:index-1):(index<0||index===buttons.length-1?0:index+1);
+   event.preventDefault?.();buttons[next].focus()
+  }
+  return
+ }
+ armOrderIdleTimer()
+}
 async function toggleTable(id){
  const table=getAreaTables(state.diningArea).find(t=>t.id===id);
  if(!table||table.occupied)return;
@@ -3813,7 +3875,7 @@ db.collection('waitlist').onSnapshot(
 scheduleBottlePolicyBoundary();
 window.addEventListener?.('focus',()=>{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()});
 document.addEventListener?.('visibilitychange',()=>{if(document.hidden)stopIdlePromotionTimers();else{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()}});
-['pointerdown','touchstart','keydown','wheel','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:true}));
+['pointerdown','touchstart','keydown','wheel','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:type!=='keydown'}));
 window.addEventListener('pagehide',()=>{clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();

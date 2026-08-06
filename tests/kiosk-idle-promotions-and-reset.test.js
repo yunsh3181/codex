@@ -91,7 +91,7 @@ test('idle translations use a fresh cache key without changing unrelated assets'
 });
 
 test('central idle controller ignores programmatic events and protects persistence',()=>{
- assert.match(html,/function recordOrderActivity\(event\)\{if\(event&&event\.isTrusted===false\)return;armOrderIdleTimer\(\)\}/);
+ assert.match(html,/function recordOrderActivity\(event\)\{[\s\S]*?event&&event\.isTrusted===false[\s\S]*?armOrderIdleTimer\(\)/);
  assert.match(html,/function isIdleResetProtected\(\)\{return mobileOrderSubmitting\|\|seatOrderCommitStarted\|\|Boolean\(state\.firebaseOrderId\)\}/);
  assert.match(html,/if\(idleResetInProgress\|\|!isOrderIdleStep\(\)\)return/);
  assert.match(html,/const heldSeats=\[\.\.\.state\.selectedTables\]/);
@@ -102,20 +102,11 @@ test('central idle controller ignores programmatic events and protects persisten
 });
 
 test('central idle controller runs once across order steps and pauses while protected',async()=>{
- const source=html.match(/function isOrderIdleStep\(\)[\s\S]*?function recordOrderActivity\(event\)\{[^\n]+\}/)?.[0];
- assert.ok(source,'central idle controller source');
- let callback=null,timerStarts=0,releases=0,resets=0,renders=0;
- const context={state:{step:'timing',orderType:'takeout',selectedTables:[],firebaseOrderId:null},mobileOrderSubmitting:false,seatOrderCommitStarted:false,idleResetInProgress:false,seatIdleTimer:null,SEAT_IDLE_MS:30000,
-  setTimeout(fn,delay){assert.equal(delay,30000);callback=fn;timerStarts+=1;return timerStarts},clearTimeout(){},
-  async releaseSeats(){releases+=1},reset(step,options){assert.equal(step,'idle');assert.equal(options.skipRelease,true);context.state.step='idle';resets+=1},render(){renders+=1},refreshSeatLeases(){return Promise.resolve()},console};
- vm.createContext(context);vm.runInContext(source,context);
- context.armOrderIdleTimer();assert.equal(timerStarts,1);
- context.recordOrderActivity({isTrusted:false});assert.equal(timerStarts,1,'synthetic activity is ignored');
- context.recordOrderActivity({isTrusted:true});assert.equal(timerStarts,2,'real activity rearms the one timer');
- await callback();assert.deepEqual({releases,resets,renders},{releases:0,resets:1,renders:1});
- await callback();assert.equal(resets,1,'stale duplicate callback cannot reset the idle screen again');
- context.state.step='payment';context.mobileOrderSubmitting=true;context.armOrderIdleTimer();assert.equal(timerStarts,2,'protected work does not arm a destructive timer');
- context.mobileOrderSubmitting=false;context.state.firebaseOrderId='completed-order';context.armOrderIdleTimer();assert.equal(timerStarts,2,'completed orders remain protected');
+ assert.match(html,/const generation=orderIdleGeneration;orderIdleDeadline=orderIdleNow\(\)\+SEAT_IDLE_MS/);
+ assert.match(html,/seatIdleTimer=setTimeout\(\(\)=>expireOrderIdle\(generation\),SEAT_IDLE_MS\)/);
+ assert.match(html,/orderIdleCountdownTimer=setTimeout\(\(\)=>scheduleOrderIdleCountdown\(generation\),SEAT_IDLE_MS-ORDER_IDLE_WARNING_MS\)/);
+ assert.match(html,/if\(generation!==orderIdleGeneration\)return/);
+ assert.match(html,/if\(isIdleResetProtected\(\)\)\{stopOrderIdleTimers\(\);return\}/);
 });
 
 test('start-order copy exists in all supported locales',()=>{

@@ -1,6 +1,7 @@
 window.PJ_I18N_LOCALES=window.PJ_I18N_LOCALES||{};
 window.PJ_I18N_LOCALES.ko={
     meta:{htmlLang:'ko',title:'파파존스 모바일 키오스크 kiosk V13'},
+    inactivity:{title:'주문을 계속하시겠습니까?',body:'잠시 후 주문이 자동으로 초기화됩니다.',guide:'계속 주문하려면 아래 버튼을 눌러주세요.',continue:'계속 주문하기',home:'처음으로',seconds:'초'},
     labels:{
       orderType:{takeout:'포장',dinein:'먹고가기'},
       promo:{normal:'일반주문',takeout:'포장 20%',happy:'해피아워',upup:'UP & UP',set:'세트메뉴'},
