@@ -465,4 +465,35 @@ test('GitHub Release workflow publishes architecture-specific installers, blockm
   assert.match(workflow, /softprops\/action-gh-release@v2/);
 });
 
+test('GitHub Release validation runs the complete suite inside an Xvfb display', () => {
+  const workflow = read('.github/workflows/windows-release.yml');
+  const validate = workflow.match(/  validate:\n([\s\S]*?)\n  build:/)?.[1] || '';
+  const build = workflow.match(/  build:\n([\s\S]*?)\n  release:/)?.[1] || '';
+  const release = workflow.match(/  release:\n([\s\S]*)$/)?.[1] || '';
+
+  assert.match(validate, /runs-on: ubuntu-latest/);
+  assert.match(validate, /ELECTRON_DISABLE_SANDBOX: "1"/);
+  assert.match(validate, /name: Verify virtual display support[\s\S]*?shell: bash[\s\S]*?run: command -v xvfb-run/);
+  assert.match(
+    validate,
+    /name: Run full test suite with virtual display[\s\S]*?shell: bash[\s\S]*?run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" node --test --test-concurrency=1 tests\/\*\.test\.js/
+  );
+  assert.doesNotMatch(validate, /continue-on-error|\|\| true|--test-name-pattern|--test-skip-pattern/);
+  assert.match(
+    validate,
+    /ref: \$\{\{ github\.event_name == 'workflow_dispatch' && inputs\.tag \|\| github\.ref \}\}/
+  );
+  assert.match(validate, /test "\$RELEASE_TAG" = "v\$PACKAGE_VERSION"/);
+  assert.match(build, /needs: validate/);
+  assert.match(release, /needs: \[validate, build\]/);
+  for (const arch of ['ia32', 'x64']) {
+    assert.match(build, new RegExp(`arch: ${arch}`));
+    assert.ok(workflow.includes(`release/PapaJohns-Kiosk-Setup-*-${arch}.exe`));
+    assert.ok(workflow.includes(`release/PapaJohns-Kiosk-Setup-*-${arch}.exe.blockmap`));
+    assert.ok(workflow.includes(`release/latest-${arch}.yml`));
+  }
+  assert.match(release, /softprops\/action-gh-release@v2/);
+  assert.match(release, /fail_on_unmatched_files: true/);
+});
+
 console.log('Windows GitHub Release updater channels, safety gates, recovery, admin IPC, and release assets passed');
