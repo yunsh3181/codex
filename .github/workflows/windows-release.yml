@@ -32,7 +32,12 @@ jobs:
       - run: npm ci
       - name: Prepare Electron binary
         run: npx install-electron --no
-      - run: node --test --test-concurrency=1 tests/*.test.js
+      - name: Verify virtual display support
+        shell: bash
+        run: command -v xvfb-run
+      - name: Run full test suite with virtual display
+        shell: bash
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" node --test --test-concurrency=1 tests/*.test.js
       - id: version
         shell: bash
         run: |
