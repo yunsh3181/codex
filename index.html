@@ -2129,7 +2129,7 @@ body[data-step="drink"] .card:has(.row){display:grid!important;grid-template-col
 </style>
 <style id="kiosk-idle-promotion-styles">
 body[data-step="idle"]{overflow:hidden;background:#002f22}
-body[data-step="idle"] .app{padding:0;height:100vh;min-height:0}
+body[data-step="idle"] .app{padding:0!important;height:100vh;height:100dvh;min-height:0;overflow:hidden!important}
 .kioskIdleScreen{position:relative;width:100%;height:100vh;overflow:hidden;background:linear-gradient(160deg,#003f2d,#001d15);display:grid;grid-template-rows:minmax(0,1fr) auto;padding:0 0 max(28px,env(safe-area-inset-bottom));isolation:isolate}
 .kioskIdleFrame{display:contents}
 .kioskIdleViewport{position:relative;min-height:0;margin:0 0 18px;overflow:hidden;background:#003f2d}
@@ -2266,7 +2266,9 @@ function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&qu
 function assetImageUrl(value){const clean=String(value||'').replace(/^assets\/images\//,'');return 'assets/images/'+encodeURIComponent(clean).replace(/%2F/g,'/')}
 function itemPic(item,emoji='🍕'){if(!item||!item.image)return `<div class="pic">${emoji}</div>`;const src=assetImageUrl(item.image);return `<div class="pic imagePic"><img src="${src}" alt="${escAttr(menuItemName(item))}" onerror="this.parentElement.classList.remove('imagePic');this.parentElement.innerHTML='${emoji}'"></div>`}
 const flow=['type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','review','phone','payment'];
-const state={step:(sessionStorage.getItem('pjLangSelected')?'idle':'language'),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
+function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
+function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
+const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null};
 let seatReservationConflictActive=false;let bottleHoursConflictActive=false;let seatOrderCommitStarted=false;let bottlePolicyTimer=null;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
@@ -2290,7 +2292,7 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(targetStep='home',options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 const BOTTLE_COPY={ko:{before:'오전 11시부터 이용 가능',after:'오늘 운영 종료',weekend:'주말 이용 불가',holiday:'공휴일 이용 불가',unsupported:'현재 이용할 수 없습니다',conflict:'보틀석과 보틀룸 이용시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},en:{before:'Available from 11:00 AM',after:'Closed for today',weekend:'Unavailable on weekends',holiday:'Unavailable on public holidays',unsupported:'Currently unavailable',conflict:'Bottle seating hours have ended. Please choose another seat.'},ja:{before:'午前11時から利用可能',after:'本日の営業終了',weekend:'週末は利用不可',holiday:'祝日は利用不可',unsupported:'現在利用できません',conflict:'ボトル席・ルームの利用時間が終了しました。他の席を選択してください。'},zh:{before:'上午11点起可用',after:'今日营业已结束',weekend:'周末不可用',holiday:'节假日不可用',unsupported:'当前不可用',conflict:'瓶座和包间的使用时间已结束。请选择其他座位。'},vi:{before:'Có thể dùng từ 11:00',after:'Đã hết giờ hôm nay',weekend:'Không phục vụ cuối tuần',holiday:'Không phục vụ ngày lễ',unsupported:'Hiện không khả dụng',conflict:'Đã hết giờ sử dụng khu PapaBottle và ROOM. Vui lòng chọn chỗ khác.'},es:{before:'Disponible desde las 11:00',after:'Cerrado por hoy',weekend:'No disponible los fines de semana',holiday:'No disponible en festivos',unsupported:'No disponible actualmente',conflict:'El horario de PapaBottle y ROOM ha terminado. Elige otro asiento.'}};
@@ -2679,7 +2681,15 @@ function scheduleOrderReviewFit(){
  if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(reviewFitFrame);
  reviewFitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitOrderReview));
 }
+const KIOSK_VALID_STEPS=new Set(['language','idle','home','done','testDone','party','area','table','reserve','setChoice',...flow]);
+function recoverUnknownKioskStep(){
+ if(!isKioskInactivityLayout()||KIOSK_VALID_STEPS.has(state.step))return false;
+ if(isIdleResetProtected())return false;
+ reset('idle');
+ return true
+}
 function render(){
+ recoverUnknownKioskStep();
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
  if(state.step!=='idle')stopIdlePromotionTimers();
