@@ -33,10 +33,11 @@ test('start screens render a safe version label and ordering screens do not', ()
   assert.doesNotMatch(indexSource, new RegExp(`PapaJohns Kiosk v${packageJson.version.replace(/\./g, '\\.')}`));
 });
 
-test('language persistence selects the expected start screen and home reset keeps the shared label', () => {
+test('language persistence remains unchanged outside kiosk21 and kiosk resets use the idle screen', () => {
   assert.match(indexSource, /sessionStorage\.getItem\('pjLangSelected'\)\?'idle':'language'/);
   assert.match(indexSource, /sessionStorage\.setItem\('pjLangSelected','1'\);state\.step='home';render\(\)/);
-  assert.match(indexSource, /function reset\(targetStep='home',options=\{\}\)[\s\S]*Object\.assign\(state,\{step:targetStep/);
+  assert.match(indexSource, /function defaultResetStep\(\)\{return isKioskInactivityLayout\(\)\?'idle':'home'\}/);
+  assert.match(indexSource, /function reset\(targetStep=defaultResetStep\(\),options=\{\}\)[\s\S]*Object\.assign\(state,\{step:targetStep/);
   assert.match(indexSource, /if\(state\.step==='language'\)return languageView\(\)/);
   assert.match(indexSource, /if\(state\.step==='idle'\)return idlePromotionView\(\)/);
   assert.match(indexSource, /if\(state\.step==='home'\)return `[\s\S]*startScreenVersionHTML\(\)/);

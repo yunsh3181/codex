@@ -38,6 +38,7 @@ test('set menu is always eligible and happy hour is the only scheduled candidate
 test('idle screen contains safe images, fallback, image-frame overlay CTA, and live reevaluation',()=>{
  for(const file of ['kiosk-pick-set-menu.jpg','kiosk-happy-hour-regular-15000.jpg'])assert.equal(fs.existsSync(path.join(root,'assets/images/kiosk-promotions',file)),true,file);
  assert.match(html,/\.kioskIdleSlide\{[^}]*object-fit:contain/);
+ assert.match(html,/body\[data-step="idle"\] \.app\{[^}]*padding:0!important[^}]*height:100dvh[^}]*overflow:hidden!important/);
  assert.match(html,/class="kioskIdleFallback" hidden/);
  assert.match(html,/class="kioskIdleFrame"/);
  assert.match(html,/class="kioskIdleFrame" onclick="startOrderFromIdle\(\)"/);
@@ -111,4 +112,40 @@ test('central idle controller runs once across order steps and pauses while prot
 
 test('start-order copy exists in all supported locales',()=>{
  for(const language of ['ko','en','ja','zh','vi','es'])assert.match(ui,new RegExp(`${language}:\\{startOrder:`));
+});
+
+test('kiosk21 always boots and resets to idle while other layouts keep their policy',()=>{
+ assert.match(html,/function initialStep\(\)\{return isKioskInactivityLayout\(\)\?'idle':\(sessionStorage\.getItem\('pjLangSelected'\)\?'idle':'language'\)\}/);
+ assert.match(html,/function defaultResetStep\(\)\{return isKioskInactivityLayout\(\)\?'idle':'home'\}/);
+ assert.match(html,/const state=\{step:initialStep\(\)/);
+ assert.match(html,/function reset\(targetStep=defaultResetStep\(\),options=\{\}\)/);
+ assert.match(html,/reset\('home',\{skipRelease:true\}\);render\(\);guardIdleStartTransition\(\)/);
+});
+
+test('unknown kiosk steps use the canonical safe reset path to idle',()=>{
+ assert.match(html,/const KIOSK_VALID_STEPS=new Set\(\[\.\.\.flow,\.\.\.KIOSK_SPECIAL_STEPS\]\)/);
+ assert.match(html,/function recoverUnknownKioskStep\(\)\{[\s\S]*?if\(!isKioskInactivityLayout\(\)\|\|KIOSK_VALID_STEPS\.has\(state\.step\)\)return false;[\s\S]*?if\(isIdleResetProtected\(\)\)return false;[\s\S]*?reset\('idle'\)/);
+ assert.match(html,/function render\(\)\{\n recoverUnknownKioskStep\(\)/);
+});
+
+test('every runtime step extracted from the application is registered exactly once',()=>{
+ const arrayValues=name=>{
+  const body=html.match(new RegExp(`const ${name}=\\[([^;]+)\\]`))?.[1];
+  assert.ok(body,`${name} declaration`);
+  return [...body.matchAll(/'([^']+)'/g)].map(match=>match[1])
+ };
+ const registered=[...arrayValues('flow'),...arrayValues('KIOSK_SPECIAL_STEPS')];
+ const expected=['language','idle','home','type','timing','promo','size','mode','pizzaOptions','pizza','crust','topping','side','drink','accompaniment','review','phone','payment','party','area','table','reserve','setChoice','done','testDone'];
+ assert.deepEqual([...new Set(registered)].sort(),[...expected].sort());
+ assert.equal(registered.length,new Set(registered).size,'valid steps must not be duplicated');
+ const referenced=new Set([...html.matchAll(/state\.step\s*(?:===|!==|=)\s*'([^']+)'/g)].map(match=>match[1]));
+ for(const step of referenced)assert.ok(registered.includes(step),`unregistered runtime step: ${step}`)
+});
+
+test('all terminal home actions reuse reset and therefore return kiosk21 to idle',()=>{
+ assert.match(html,/class="doneHomeBtn" onclick="reset\(\);render\(\)"/);
+ assert.match(html,/setTimeout\(\(\)=>\{reset\(\);render\(\)\},5000\)/);
+ assert.match(html,/class="prev" onclick="reset\(\);render\(\)"/);
+ assert.match(html,/function confirmSeatReservationConflict\(\)\{reset\(\)/);
+ assert.match(html,/function confirmBottleHoursConflict\(\)\{[^}]*reset\(\)/);
 });
