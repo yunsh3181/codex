@@ -9,12 +9,19 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 
 test('countdown warning is kiosk-only, accessible, and sized for 1080x1920',()=>{
+ assert.match(html,/<div id="modal"><\/div><div id="inactivityWarningHost"><\/div>/);
  assert.match(html,/html\[data-layout="kiosk21"\] \.inactivityWarningBackdrop/);
  assert.match(html,/class="inactivityWarningDialog" role="dialog" aria-modal="true" aria-labelledby="inactivity-warning-title"/);
  assert.match(html,/class="inactivityCountdown" aria-live="polite" aria-atomic="true"/);
  assert.match(html,/\.inactivityCountdownNumber\{[^}]*width:2ch[^}]*font-size:128px/);
  assert.match(html,/\.inactivityWarningActions button\{[^}]*min-height:96px/);
  assert.match(html,/function isKioskInactivityLayout\(\)\{return document\.documentElement\.dataset\?\.layout==='kiosk21'\}/);
+});
+
+test('warning host is isolated from the existing order modal host',()=>{
+ assert.match(html,/const host=document\.getElementById\('inactivityWarningHost'\)/);
+ assert.doesNotMatch(html,/getElementById\('modal'\)[^\n]*inactivityWarningBackdrop/);
+ assert.doesNotMatch(html,/getElementById\('modal'\)[^\n]*inactivityWarningView/);
 });
 
 test('deadline controller derives every value from real remaining time and rejects stale work',()=>{

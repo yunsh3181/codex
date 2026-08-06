@@ -2194,7 +2194,7 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
 <script src="kiosk-scroll-indicator.js?v=kiosk-scroll-indicator-v1.2.11"></script>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
@@ -3081,14 +3081,14 @@ function stopOrderIdleTimers(){
 }
 function closeOrderIdleWarning(restoreFocus=false){
  const wasOpen=orderIdleWarningOpen;orderIdleWarningOpen=false;orderIdleSeconds=0;
- const host=document.getElementById('modal');if(host?.querySelector?.('.inactivityWarningBackdrop'))host.innerHTML='';
+ const host=document.getElementById('inactivityWarningHost');if(host)host.innerHTML='';
  if(wasOpen&&restoreFocus&&orderIdleReturnFocus?.isConnected)orderIdleReturnFocus.focus?.();
  orderIdleReturnFocus=null
 }
 function inactivityWarningView(){return `<div class="inactivityWarningBackdrop"><section class="inactivityWarningDialog" role="dialog" aria-modal="true" aria-labelledby="inactivity-warning-title"><h2 id="inactivity-warning-title">${t('inactivity.title')}</h2><p class="inactivityWarningBody">${t('inactivity.body')}</p><div class="inactivityCountdown" aria-live="polite" aria-atomic="true"><span class="inactivityCountdownNumber">${orderIdleSeconds}</span><span class="inactivityCountdownUnit">${t('inactivity.seconds')}</span></div><p class="inactivityWarningGuide">${t('inactivity.guide')}</p><div class="inactivityWarningActions"><button type="button" class="inactivityContinue" onclick="continueOrderAfterIdleWarning()">${t('inactivity.continue')}</button><button type="button" class="inactivityHome" onclick="returnHomeFromIdleWarning()">${t('inactivity.home')}</button></div></section></div>`}
 function renderOrderIdleWarning(){
  if(!orderIdleWarningOpen)return;
- const host=document.getElementById('modal');if(!host)return;
+ const host=document.getElementById('inactivityWarningHost');if(!host)return;
  if(!host.querySelector('.inactivityWarningBackdrop')){orderIdleReturnFocus=document.activeElement;host.innerHTML=inactivityWarningView();host.querySelector('.inactivityContinue')?.focus()}
  else host.querySelector('.inactivityCountdownNumber').textContent=String(orderIdleSeconds)
 }
