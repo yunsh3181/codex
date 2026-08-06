@@ -120,5 +120,6 @@ test('actual Chromium preserves existing order modals beneath the inactivity war
     assert.equal(run.signal, null, `iteration ${iteration}/${runCount}\n${details}`);
     assert.equal(run.error, undefined, `iteration ${iteration}/${runCount}\n${details}`);
     assertReport(JSON.parse(fs.readFileSync(reportPath, 'utf8')), screenshotDir);
+    console.log(`inactivity modal Electron iteration ${iteration}/${runCount}: status=${run.status} signal=${run.signal} timeout=${Boolean(run.error?.code === 'ETIMEDOUT')}`);
   }
 });

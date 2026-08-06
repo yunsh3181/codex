@@ -60,6 +60,12 @@ runElectronVerification({ app }, async lifecycle => {
   lifecycle.attachDebugger();
   await window.loadFile(path.join(root, 'index.html'));
   await waitForLayout(window);
+  await window.webContents.executeJavaScript(`(async()=>{
+    const deadline=Date.now()+30000;
+    while(kioskRuntimeConnecting&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,50));
+    if(kioskRuntimeConnecting)throw new Error('kiosk runtime bootstrap did not settle');
+    clearTimeout(kioskRuntimeReconnectTimer);kioskRuntimeReconnectTimer=null;
+  })()`, true);
   window.webContents.on('console-message', (_event, detailsOrLevel, legacyMessage) => {
     const level = typeof detailsOrLevel === 'object' ? detailsOrLevel.level : detailsOrLevel;
     const message = typeof detailsOrLevel === 'object' ? detailsOrLevel.message : legacyMessage;
