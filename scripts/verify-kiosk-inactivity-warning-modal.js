@@ -3,6 +3,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { runElectronVerification } = require('./electron-verification-lifecycle');
 
+// This verifier uses Chromium's offscreen renderer and debugger screenshot API.
+// Keep GPU-process initialization out of this test-only Electron process so a
+// Windows graphics-driver crash cannot hide the modal assertions below.
+app.disableHardwareAcceleration();
+
 const root = path.resolve(__dirname, '..');
 const reportPath = process.env.KIOSK_INACTIVITY_MODAL_REPORT;
 const screenshotDir = process.env.KIOSK_INACTIVITY_MODAL_SCREENSHOT_DIR || path.join(root, 'artifacts', 'kiosk-inactivity-countdown-warning');
@@ -50,10 +55,16 @@ const measure = `(()=>({
 
 runElectronVerification({ app }, async lifecycle => {
   const window = lifecycle.trackWindow(new BrowserWindow({ show: false, frame: false, useContentSize: true, webPreferences: { contextIsolation: true, offscreen: true, sandbox: true } }));
+  const consoleIssues = [];
   window.setContentSize(1080, 1920);
   lifecycle.attachDebugger();
   await window.loadFile(path.join(root, 'index.html'));
   await waitForLayout(window);
+  window.webContents.on('console-message', (_event, detailsOrLevel, legacyMessage) => {
+    const level = typeof detailsOrLevel === 'object' ? detailsOrLevel.level : detailsOrLevel;
+    const message = typeof detailsOrLevel === 'object' ? detailsOrLevel.message : legacyMessage;
+    if (level === 'warning' || level === 'error' || Number(level) >= 2) consoleIssues.push({ level, message });
+  });
 
   await window.webContents.executeJavaScript(fixture('halfGuide'), true);
   const overPizzaOptions = await window.webContents.executeJavaScript(measure, true);
@@ -99,7 +110,7 @@ runElectronVerification({ app }, async lifecycle => {
     return {releases,resets,step:state.step,warningVisible:orderIdleWarningOpen}
   })()`, true);
 
-  const report = { overPizzaOptions, continuedPizzaOptions, backdropIsolation, otherModals, escapedModal, homeReset, automaticAndStale };
+  const report = { overPizzaOptions, continuedPizzaOptions, backdropIsolation, otherModals, escapedModal, homeReset, automaticAndStale, consoleIssues };
   if (reportPath) fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   return report;
 });
