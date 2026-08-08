@@ -17,18 +17,16 @@ assert.strictEqual((html.match(/id="manualCustomerCallForm"/g)||[]).length,1,'ma
 assert.strictEqual((html.match(/id="manualCustomerNumber"/g)||[]).length,1,'manual number input id is unique');
 assert.ok(html.includes('type="submit" class="manual-call-primary" data-manual-status="cooking">주문접수</button>'),'order intake is the primary submit button');
 assert.ok(html.includes('type="button" class="manual-call-secondary" data-manual-status="ready">바로 조리완료</button>'),'direct completion is a secondary button');
-assert.ok(admin.includes('<span class="manual-badge">대면접수</span>')&&admin.includes('<strong>대면 포장</strong>'),'cards identify in-person takeout intake');
+assert.ok(admin.includes("isCounterTakeout(order)?'대면 포장':'포장'"),'central rows identify in-person takeout orders');
 assert.ok(admin.includes("replace(/[^0-9]/g,'').slice(0,4)"),'input blocks non-digits and limits to four');
 assert.ok(admin.includes("manualCustomerCallForm?.addEventListener('submit'")&&admin.includes("createManualCustomerCall(manualCustomerNumber.value,'cooking'"),'Enter performs order intake and creates cooking');
 assert.ok(admin.includes("db.runTransaction"),'registration uses a transaction');
-assert.ok(admin.includes("`${MANUAL_CALL_STORE_ID}_${orderNumber}`"),'store and number form the deterministic document id');
-assert.ok(admin.includes("db.collection('manualCustomerCalls')"),'admin uses the isolated manual collection');
-assert.ok(admin.includes("displayStatus:status")&&admin.includes("businessDay:seoulBusinessDayKey()")&&admin.includes("status==='ready'?1:0"),'order intake creates cooking or ready with an immutable business day');
-assert.ok(admin.includes("ref.update({displayStatus:'ready',announceVersion:1"),'cooking advances to ready');
-assert.ok(admin.includes("if(status==='picked-up')await ref.delete()"),'pickup completion deletes the display document');
-assert.ok(!/createManualCustomerCall[\s\S]{0,2000}collection\('orders'\)/.test(admin),'manual creation does not access orders');
-assert.ok(!/createManualCustomerCall[\s\S]{0,2000}publicOrderDisplays/.test(admin),'manual creation does not access publicOrderDisplays');
-assert.ok(admin.includes('Counter/in-person takeout intake only')&&admin.includes('Menu, payment, and sales records'),'code documents the non-kiosk display-only purpose');
+assert.ok(admin.includes('`counter_${businessDay}_${orderNumber}`'),'business day and number form the deterministic order id');
+assert.ok(/createManualCustomerCall[\s\S]{0,2200}collection\('orders'\)/.test(admin),'manual creation writes the canonical orders collection');
+assert.ok(/createManualCustomerCall[\s\S]{0,2200}publicOrderDisplays/.test(admin),'manual creation writes the existing public display collection');
+assert.ok(admin.includes("source:'admin_counter'")&&admin.includes("items:[]")&&admin.includes("totalAmount:0")&&admin.includes("methodName:'대면 결제'"),'counter schema contains no fabricated menu or revenue');
+assert.ok(admin.includes("status==='ready'?{completedAt:timestamp"),'direct completion records completion metadata atomically');
+assert.ok(rules.includes('validAdminCounterOrderCreate()'),'rules contain a narrow administrator counter-order create policy');
 
 const validatorSource=admin.match(/function validManualCustomerNumber[\s\S]*?\n}/)[0];
 const context={String};

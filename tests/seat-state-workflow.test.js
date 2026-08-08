@@ -41,7 +41,7 @@ assert.ok(kiosk.includes('.tableCard.occupiedCard.occupied{background:#FDE7E7'),
 for(const label of ["available:'사용가능'","selected:'주문중'","occupied:'사용중'"])assert.ok(ko.includes(label),`Korean kiosk label ${label} uses the three-state wording`);
 
 assert.ok(admin.includes('data-status="accepted">결제대기 · 주문 접수</button>'),'pending takeout and dine-in orders share the emphasized accept action');
-assert.ok(admin.includes('data-status="completed">조리완료</button>'),'accepted takeout and dine-in orders share the cooking-complete action');
+assert.ok(admin.includes('data-status="${takeout?\'ready\':\'completed\'}">${takeout?\'주문 완료\':\'조리완료\'}</button>'),'takeout and dine-in completion preserve their distinct status semantics');
 assert.ok(admin.includes("status:'occupied',heldBy:null,heldUntil:null"),'first dine-in click marks seats in use');
 assert.ok(admin.includes("status:'empty'"),'second dine-in click releases seats');
 assert.ok(admin.includes('await db.runTransaction(async transaction=>'),'order status and seat changes share one transaction');

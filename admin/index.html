@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
-  <title>판교2테크노밸리점 주문 관리자 v47.4.0</title>
-  <link rel="stylesheet" href="../admin.css?v=47.4.0" />
+  <title>판교2테크노밸리점 주문 관리자 v47.5.0</title>
+  <link rel="stylesheet" href="../admin.css?v=47.5.0" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
+  <style>.central-status-action.takeout-complete{background:#08703c;color:#fff}.takeout-complete-modal-card{max-width:520px}.takeout-complete-modal-card p{font-size:18px;line-height:1.6}</style>
 </head>
 <body>
 <div id="adminLoginGate" class="admin-login-gate">
@@ -23,7 +24,7 @@
   <header class="admin-header">
     <div>
       <strong>PAPA JOHNS</strong>
-      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.4.0</span>
+      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.5.0</span>
     </div>
     <div class="header-actions">
       <button id="testModeButton" class="test-mode-button" type="button" hidden>테스트 모드 꺼짐</button>
@@ -88,6 +89,9 @@
     <section id="customersPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>고객 통계</h2><input id="customerSearch" placeholder="전화번호 뒤 4자리 검색"></div><div id="customerSummary" class="analytics-summary"></div><div id="customerList" class="data-list"></div></section>
     <section id="recommendationsPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>추천 성과</h2></div><div id="recommendationSummary" class="analytics-summary"></div><div id="recommendationList" class="data-list"></div></section>
   </main>
+  <div id="takeoutCompleteModal" class="settings-modal" hidden>
+    <section class="settings-panel takeout-complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="takeoutCompleteTitle"><div class="settings-body"><h2 id="takeoutCompleteTitle">포장 주문을 완료할까요?</h2><p id="takeoutCompleteDescription"></p><div class="settings-actions"><button type="button" id="cancelTakeoutComplete" class="secondary-button">취소</button><button type="button" id="confirmTakeoutComplete" class="primary-button">주문 완료</button></div></div></section>
+  </div>
 
   <div id="soundSettingsModal" class="settings-modal" hidden>
     <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="soundSettingsTitle">
@@ -164,7 +168,7 @@
   <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../test-mode-remote-channel.js?v=1"></script>
   <script src="../admin-operations.js?v=47.4.0"></script>
-  <script src="../admin.js?v=47.4.0"></script>
+  <script src="../admin.js?v=47.5.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>

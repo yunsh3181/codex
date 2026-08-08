@@ -51,9 +51,28 @@ service cloud.firestore {
       && request.resource.data.totalAmount == request.resource.data.total
       && request.resource.data.createdAt == request.time;
     }
+    function validAdminCounterOrderCreate() {
+      return isAdmin()
+        && request.resource.data.keys().hasOnly(['channel','source','schemaVersion','storeId','orderNo','customerNumber','orderType','pickup','items','itemCount','normalAmount','discountAmount','totalAmount','total','payment','status','createdAt','updatedAt','businessDay','completedAt','completedBy'])
+        && request.resource.data.channel == 'admin'
+        && request.resource.data.source == 'admin_counter'
+        && request.resource.data.orderType == 'takeout'
+        && request.resource.data.status in ['cooking','ready']
+        && request.resource.data.orderNo.matches('^[0-9]{4}$')
+        && request.resource.data.customerNumber == request.resource.data.orderNo
+        && request.resource.data.items.size() == 0
+        && request.resource.data.itemCount == 0
+        && request.resource.data.total == 0
+        && request.resource.data.totalAmount == 0
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && (request.resource.data.status == 'cooking'
+          ? !request.resource.data.keys().hasAny(['completedAt','completedBy'])
+          : request.resource.data.completedAt == request.time && validString(request.resource.data.completedBy, 128));
+    }
 
     match /orders/{orderId} {
-      allow create: if validOrderCreate();
+      allow create: if validOrderCreate() || validAdminCounterOrderCreate();
       allow read, update, delete: if isAdmin();
     }
 

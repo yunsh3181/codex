@@ -30,7 +30,7 @@ const isReadyOverdue=item=>{
 };
 function renderDisplay(target,items,emptyText){
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
-  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}">${escapeHTML(spokenOrderNumber(item.orderNumber))}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':''}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
  }
  const desired=new Map(items.map(item=>[item.id,item]));
@@ -41,7 +41,7 @@ function renderDisplay(target,items,emptyText){
   let node=existing.get(item.id);
   if(!node){node=document.createElement('div');node.dataset.orderKey=item.id}
   node.className=`order-number${isReadyOverdue(item)?' ready-overdue':''}`;
-  node.textContent=spokenOrderNumber(item.orderNumber);
+  node.innerHTML=`<strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':''}`;
   target.appendChild(node);
  });
  if(!items.length){const empty=document.createElement('p');empty.className='empty';empty.textContent=emptyText;target.appendChild(empty)}
@@ -84,6 +84,13 @@ function enqueueReadyOrder(orderNumber){
  speechQueue=speechQueue.then(()=>speakReadyOrder(orderNumber)).catch(()=>{});
  return speechQueue;
 }
+let completionSoundQueue=Promise.resolve();
+async function playCompletionSound(){
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
+ const context=new AudioContextClass();
+ try{await context.resume();const start=context.currentTime;[659.25,783.99].forEach((frequency,index)=>{const oscillator=context.createOscillator(),gain=context.createGain();oscillator.frequency.value=frequency;gain.gain.setValueAtTime(.0001,start+index*.16);gain.gain.exponentialRampToValueAtTime(.22,start+index*.16+.015);gain.gain.exponentialRampToValueAtTime(.0001,start+index*.16+.28);oscillator.connect(gain);gain.connect(context.destination);oscillator.start(start+index*.16);oscillator.stop(start+index*.16+.3)});await new Promise(resolve=>window.setTimeout(resolve,500))}catch(error){tvDebug('completion sound blocked')}finally{context.close?.().catch?.(()=>{})}
+}
+function enqueueCompletionSound(){completionSoundQueue=completionSoundQueue.then(()=>playCompletionSound()).catch(()=>{});return completionSoundQueue}
 enableVoice?.addEventListener('click',()=>{
  voiceEnabled=true;
  try{localStorage.setItem('pjTvVoiceEnabled','true')}catch(error){}
@@ -103,7 +110,7 @@ function applyPublicSnapshot(snapshot){
  publicRows=snapshot.docs.map(doc=>({...doc.data(),id:`order:${doc.id}`})).filter(row=>shouldDisplayOrder(row));
  const currentDisplayStatuses=new Map(publicRows.map(row=>[row.id,row.displayStatus]));
  if(hasInitialPublicSnapshot){
-  publicRows.filter(row=>previousDisplayStatuses.get(row.id)==='cooking'&&row.displayStatus==='ready').forEach(row=>enqueueReadyOrder(row.orderNumber));
+  publicRows.filter(row=>row.displayStatus==='ready'&&['cooking',undefined].includes(previousDisplayStatuses.get(row.id))).forEach(()=>enqueueCompletionSound());
  }
  previousDisplayStatuses=currentDisplayStatuses;
  hasInitialPublicSnapshot=true;
