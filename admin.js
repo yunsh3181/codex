@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -761,6 +761,7 @@ function centralPaymentAction(order){
  if(mismatch.forceEligible){const enabled=Boolean(forceConfirmationValue(order));return `<button type="button" class="central-status-action force-complete" data-action="force-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 강제완료" ${enabled?'':'disabled aria-disabled="true" title="주문번호를 확인할 수 없어 상세 확인이 필요합니다."'}>강제완료</button>`}
  if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
  if(order?.orderType==='takeout'&&['accepted','paid','cooking'].includes(order?.status))return `<button type="button" class="central-status-action takeout-complete" data-action="confirm-takeout-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 주문 완료">주문 완료</button>`;
+ if(order?.orderType==='takeout'&&order?.status==='ready')return `<button type="button" class="central-status-action takeout-pickup" data-action="confirm-takeout-pickup" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 픽업 완료">픽업 완료</button>`;
  if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
  if(order?.status==='cancelled')return '<span class="central-status-badge payment-cancelled" aria-label="결제 상태 취소">취소</span>';
  return '<span class="central-status-badge payment-review" aria-label="결제 상태 확인 필요">확인 필요</span>';
@@ -911,10 +912,14 @@ async function setStatus(id,status,button){
  try{
   const localOrder=orders.find(o=>o.id===id);
   if(!localOrder)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
-  let committedOrder=null;
+  let committedOrder=null,pickupDisplayMissing=false;
   if(status==='ready'&&localOrder.orderType==='takeout'){
    const result=await completeTakeoutTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});
    committedOrder=result.order;
+  }else if(status==='completed'&&localOrder.orderType==='takeout'){
+   const result=await completeTakeoutPickupTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin'});
+   committedOrder=result.order;
+   pickupDisplayMissing=result.displayMissing;
   }else await db.runTransaction(async transaction=>{
    const orderRef=db.collection('orders').doc(id);
    const orderSnapshot=await transaction.get(orderRef);
@@ -967,7 +972,7 @@ async function setStatus(id,status,button){
    committedOrder=order;
   });
   if((status==='accepted'&&committedOrder.orderType!=='takeout')||(status==='cooking'&&committedOrder.orderType==='takeout'))stopNewOrderRepeat();
-  showAdminMessage(status==='accepted'&&committedOrder.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&committedOrder.orderType==='takeout'?'픽업 완료로 처리했습니다.':status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
+  showAdminMessage(status==='accepted'&&committedOrder.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&committedOrder.orderType==='takeout'?(pickupDisplayMissing?'픽업 완료했습니다. 고객 대기화면 문서는 이미 제거되어 있었습니다.':'픽업 완료로 처리했습니다.'):status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
   if(status==='completed'&&committedOrder.orderType!=='takeout')callCustomer(committedOrder.customerNumber||committedOrder.orderNo||'',committedOrder.language);
   return true;
@@ -984,9 +989,13 @@ async function setStatus(id,status,button){
 
 let forceCompleteOrderId=null,forceCompleteReturnFocus=null,forceCompleteBusy=false;
 let takeoutCompleteOrderId=null,takeoutCompleteReturnFocus=null,takeoutCompleteBusy=false;
+let takeoutPickupOrderId=null,takeoutPickupReturnFocus=null,takeoutPickupBusy=false;
 const takeoutCompleteModal=typeof document==='undefined'?null:document.getElementById('takeoutCompleteModal');
 const takeoutCompleteDescription=typeof document==='undefined'?null:document.getElementById('takeoutCompleteDescription');
 const confirmTakeoutComplete=typeof document==='undefined'?null:document.getElementById('confirmTakeoutComplete');
+const takeoutPickupModal=typeof document==='undefined'?null:document.getElementById('takeoutPickupModal');
+const takeoutPickupDescription=typeof document==='undefined'?null:document.getElementById('takeoutPickupDescription');
+const confirmTakeoutPickup=typeof document==='undefined'?null:document.getElementById('confirmTakeoutPickup');
 function openTakeoutCompleteModal(order,trigger=document.activeElement){
  if(!order||order.orderType!=='takeout'||!['accepted','paid','cooking'].includes(order.status))return false;
  takeoutCompleteOrderId=order.id;takeoutCompleteReturnFocus=trigger;takeoutCompleteBusy=false;
@@ -1003,6 +1012,23 @@ async function completeTakeoutFromModal(){
  const success=await setStatus(takeoutCompleteOrderId,'ready',confirmTakeoutComplete);
  takeoutCompleteBusy=false;confirmTakeoutComplete.disabled=false;confirmTakeoutComplete.textContent='주문 완료';
  if(success){takeoutCompleteModal.hidden=true;document.body.classList.remove('takeout-complete-open');takeoutCompleteOrderId=null;takeoutCompleteReturnFocus=null}
+}
+function openTakeoutPickupModal(order,trigger=document.activeElement){
+ if(!order||order.orderType!=='takeout'||order.status!=='ready')return false;
+ takeoutPickupOrderId=order.id;takeoutPickupReturnFocus=trigger;takeoutPickupBusy=false;
+ takeoutPickupDescription.textContent=`주문번호 ${displayText(order.customerNumber||order.orderNo||adminOrderNumberLabel(order))}번 (${isCounterTakeout(order)?'대면 포장':'키오스크 포장'})을 픽업 완료 처리하고 고객 대기화면에서 제거합니다.`;
+ takeoutPickupModal.hidden=false;document.body.classList.add('takeout-pickup-open');confirmTakeoutPickup.focus();return true;
+}
+function closeTakeoutPickupModal(){
+ if(takeoutPickupBusy)return;takeoutPickupModal.hidden=true;document.body.classList.remove('takeout-pickup-open');
+ const target=takeoutPickupReturnFocus;takeoutPickupOrderId=null;takeoutPickupReturnFocus=null;if(target?.isConnected)target.focus();
+}
+async function completeTakeoutPickupFromModal(){
+ if(takeoutPickupBusy||!takeoutPickupOrderId)return;
+ takeoutPickupBusy=true;confirmTakeoutPickup.disabled=true;confirmTakeoutPickup.textContent='처리 중…';
+ const success=await setStatus(takeoutPickupOrderId,'completed',confirmTakeoutPickup);
+ takeoutPickupBusy=false;confirmTakeoutPickup.disabled=false;confirmTakeoutPickup.textContent='픽업 완료';
+ if(success){takeoutPickupModal.hidden=true;document.body.classList.remove('takeout-pickup-open');takeoutPickupOrderId=null;takeoutPickupReturnFocus=null}
 }
 function seatStateDescription(record,orderId){
  if(!record?.exists)return '문서 누락 · orderId 없음';
@@ -1290,6 +1316,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   return;
  }
  if(action==='confirm-takeout-complete'){openTakeoutCompleteModal(orderById(button.dataset.orderId),button);return}
+ if(action==='confirm-takeout-pickup'){openTakeoutPickupModal(orderById(button.dataset.orderId),button);return}
  if(action==='force-complete'){openForceCompleteModal(orderById(button.dataset.orderId),button);return}
  if(action==='set-manual-status'){
   await setManualCustomerCallStatus(button.dataset.callId,button.dataset.status,button);
@@ -1323,6 +1350,10 @@ confirmTakeoutComplete?.addEventListener('click',completeTakeoutFromModal);
 document.getElementById('cancelTakeoutComplete')?.addEventListener('click',closeTakeoutCompleteModal);
 takeoutCompleteModal?.addEventListener('click',event=>{if(event.target===takeoutCompleteModal)closeTakeoutCompleteModal()});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!takeoutCompleteModal?.hidden){event.preventDefault();closeTakeoutCompleteModal()}});
+confirmTakeoutPickup?.addEventListener('click',completeTakeoutPickupFromModal);
+document.getElementById('cancelTakeoutPickup')?.addEventListener('click',closeTakeoutPickupModal);
+takeoutPickupModal?.addEventListener('click',event=>{if(event.target===takeoutPickupModal)closeTakeoutPickupModal()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!takeoutPickupModal?.hidden){event.preventDefault();closeTakeoutPickupModal()}});
 forceCompleteCode?.addEventListener('input',syncForceCompleteConfirmation);
 confirmForceComplete?.addEventListener('click',forceCompleteOrder);
 closeForceCompleteButton?.addEventListener('click',closeForceCompleteModal);

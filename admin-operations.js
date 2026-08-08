@@ -70,6 +70,21 @@
    return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
+ async function completeTakeoutPickupTransaction({db,orderId,expectedStatus,serverTimestamp,adminId='admin'}){
+  if(!orderId)throw operationError('order/invalid-request','주문 정보가 없습니다.');
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   const orderSnapshot=await transaction.get(orderRef),displaySnapshot=await transaction.get(displayRef);
+   if(!orderSnapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...orderSnapshot.data()};
+   if(order.orderType!=='takeout')throw operationError('order/invalid-transition','포장 주문만 픽업 완료할 수 있습니다.');
+   if(expectedStatus!=='ready'||order.status!=='ready')throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
+   const timestamp=serverTimestamp();
+   transaction.update(orderRef,{status:'completed',updatedAt:timestamp,pickedUpAt:timestamp,pickedUpBy:String(adminId||'admin')});
+   transaction.delete(displayRef);
+   return {order,status:'completed',displayMissing:!displaySnapshot.exists,orderWrites:1,displayDeletes:1,seatWrites:0,paymentCalls:0};
+  });
+ }
  async function forceCompleteTransaction({db,orderId,expectedStatus,expectedConfirmation,serverTimestamp}){
   if(!orderId||!expectedConfirmation)throw operationError('order/invalid-request','주문번호 확인 정보가 없습니다.');
   return db.runTransaction(async transaction=>{
@@ -100,5 +115,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });
