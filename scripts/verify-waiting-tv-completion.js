@@ -13,7 +13,8 @@ function exportFixtureSite(target){
  fs.copyFileSync(path.join(root,'speech.js'),path.join(target,'speech.js'));fs.copyFileSync(path.join(root,'assets/images/papajohns_red_logo.png'),path.join(target,'assets/images/papajohns_red_logo.png'));fs.copyFileSync(path.join(root,'tests/fixtures/waiting-tv-browser-runtime.js'),path.join(target,'tests/fixtures/waiting-tv-browser-runtime.js'));
  let html=fs.readFileSync(path.join(root,'waiting-tv/index.html'),'utf8');html=html.replace(/\s*<script src="https:\/\/www\.gstatic\.com\/firebasejs[^>]+><\/script>/g,'').replace(/\s*<script src="\.\.\/firebase-config\.js"><\/script>/,'\n  <script src="../tests/fixtures/waiting-tv-browser-runtime.js"></script>');fs.writeFileSync(path.join(target,'waiting-tv/index.html'),html);
 }
-const ready=(id,number,updatedAt)=>({id,orderNumber:number,displayStatus:'ready',businessDay:new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),updatedAt});
+const fixtureBusinessDay=()=>{const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).filter(part=>part.type!=='literal').map(part=>[part.type,part.value])),date=new Date(Date.UTC(+parts.year,+parts.month-1,+parts.day,12));if(+parts.hour<9)date.setUTCDate(date.getUTCDate()-1);return date.toISOString().slice(0,10)};
+const ready=(id,number,updatedAt)=>({id,orderNumber:number,displayStatus:'ready',businessDay:fixtureBusinessDay(),updatedAt});
 const cooking=(id,number,updatedAt)=>({...ready(id,number,updatedAt),displayStatus:'cooking'});
 async function main(lifecycle){
  const site=fs.mkdtempSync(path.join(os.tmpdir(),'waiting-tv-completion-'));exportFixtureSite(site);
