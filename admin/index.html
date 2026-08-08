@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
-  <title>판교2테크노밸리점 주문 관리자 v47.5.0</title>
-  <link rel="stylesheet" href="../admin.css?v=47.5.0" />
+  <title>판교2테크노밸리점 주문 관리자 v47.6.0</title>
+  <link rel="stylesheet" href="../admin.css?v=47.6.0" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
-  <style>.central-status-action.takeout-complete{background:#08703c;color:#fff}.takeout-complete-modal-card{max-width:520px}.takeout-complete-modal-card p{font-size:18px;line-height:1.6}</style>
+  <style>.central-status-action.takeout-complete{background:#08703c;color:#fff}.central-status-action.takeout-pickup{background:#1976d2;color:#fff}.takeout-complete-modal-card{max-width:520px}.takeout-complete-modal-card p{font-size:18px;line-height:1.6}</style>
 </head>
 <body>
 <div id="adminLoginGate" class="admin-login-gate">
@@ -24,7 +24,7 @@
   <header class="admin-header">
     <div>
       <strong>PAPA JOHNS</strong>
-      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.5.0</span>
+      <span>판교2테크노밸리점 · 실시간 주문관리 · v47.6.0</span>
     </div>
     <div class="header-actions">
       <button id="testModeButton" class="test-mode-button" type="button" hidden>테스트 모드 꺼짐</button>
@@ -91,6 +91,9 @@
   </main>
   <div id="takeoutCompleteModal" class="settings-modal" hidden>
     <section class="settings-panel takeout-complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="takeoutCompleteTitle"><div class="settings-body"><h2 id="takeoutCompleteTitle">포장 주문을 완료할까요?</h2><p id="takeoutCompleteDescription"></p><div class="settings-actions"><button type="button" id="cancelTakeoutComplete" class="secondary-button">취소</button><button type="button" id="confirmTakeoutComplete" class="primary-button">주문 완료</button></div></div></section>
+  </div>
+  <div id="takeoutPickupModal" class="settings-modal" hidden>
+    <section class="settings-panel takeout-complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="takeoutPickupTitle" aria-describedby="takeoutPickupDescription"><div class="settings-body"><h2 id="takeoutPickupTitle">픽업 완료 처리할까요?</h2><p id="takeoutPickupDescription"></p><div class="settings-actions"><button type="button" id="cancelTakeoutPickup" class="secondary-button">취소</button><button type="button" id="confirmTakeoutPickup" class="primary-button">픽업 완료</button></div></div></section>
   </div>
 
   <div id="soundSettingsModal" class="settings-modal" hidden>
@@ -167,8 +170,8 @@
   <script src="../speech.js?v=1"></script>
   <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../test-mode-remote-channel.js?v=1"></script>
-  <script src="../admin-operations.js?v=47.5.0"></script>
-  <script src="../admin.js?v=47.5.0"></script>
+  <script src="../admin-operations.js?v=47.6.0"></script>
+  <script src="../admin.js?v=47.6.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>

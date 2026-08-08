@@ -3,7 +3,7 @@ const path=require('node:path');
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');
-const {doc,getDoc,getDocs,collection,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=require('firebase/firestore');
+const {doc,getDoc,getDocs,collection,deleteDoc,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=require('firebase/firestore');
 const operations=require('../admin-operations.js');
 
 const PROJECT_ID='demo-admin-takeout-completion';
@@ -26,6 +26,7 @@ if(!emulatorAvailable){test('admin takeout production transactions and rules mat
  const seedTakeout=async value=>{const number=/^[0-9]{4}$/.test(value.customerNumber)?value.customerNumber:'8888',payload={...kioskPayload(),orderNo:`P${number}`,customerNumber:`P${number}`};await setDoc(ref(kioskDb(),'orders',value.id),payload);if(value.status!=='payment_pending')await updateDoc(ref(adminDb(),'orders',value.id),{status:value.status,businessDay:'2026-08-08'});await setDoc(ref(adminDb(),'publicOrderDisplays',value.id),{orderNumber:number,displayStatus:'cooking',storeId:'pangyo2-techno-valley',businessDay:'2026-08-08',updatedAt:serverTimestamp()})};
  const createCounter=(db,number,status,adminId='admin-one',mutations=[])=>operations.createCounterTakeoutTransaction({db:compatDb(db,mutations),orderNumber:number,status,businessDay:'2026-08-08',serverTimestamp,adminId});
  const complete=(db,value,mutations=[])=>operations.completeTakeoutTransaction({db:compatDb(db,mutations),orderId:value.id,expectedStatus:value.status,serverTimestamp,adminId:'admin-one'});
+ const pickup=(db,value,mutations=[],adminId='admin-one')=>operations.completeTakeoutPickupTransaction({db:compatDb(db,mutations),orderId:value.id,expectedStatus:value.status,serverTimestamp,adminId});
 
  test('A-D. administrator valid creates and legacy rules remain allowed',async()=>{
   await assertSucceeds(setDoc(ref(adminDb(),'orders','counter-cooking'),counterPayload('cooking')));
@@ -75,5 +76,31 @@ if(!emulatorAvailable){test('admin takeout production transactions and rules mat
  for(const status of ['completed','cancelled','ready'])test(`W-X. stale ${status} aborts without partial public write`,async()=>{
   const local={...takeout(`takeout-stale-${status}-8888`,'cooking'),customerNumber:'8888'},server={...local,status};await seedTakeout(server);
   const mutations=[];await assert.rejects(complete(adminDb(),local,mutations),{code:'order/stale-state'});assert.equal((await read(adminDb(),'orders',local.id)).status,status);assert.equal((await read(adminDb(),'publicOrderDisplays',local.id)).displayStatus,'cooking');assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+ test('ready takeout pickup completes atomically, preserves completion metadata, and deletes its display',async()=>{
+  const value=takeout('takeout-pickup-4242','ready');await seedTakeout(value);
+  const completedAt=Timestamp.fromMillis(123456);await updateDoc(ref(adminDb(),'orders',value.id),{completedAt,completedBy:'cook-admin'});
+  const mutations=[],result=await pickup(adminDb(),value,mutations),order=await read(adminDb(),'orders',value.id);
+  assert.equal(result.orderWrites,1);assert.equal(result.displayDeletes,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);assert.equal(result.displayMissing,false);
+  assert.equal(order.status,'completed');assert.equal(order.completedAt.toMillis(),completedAt.toMillis());assert.equal(order.completedBy,'cook-admin');assert.ok(order.pickedUpAt);assert.equal(order.pickedUpBy,'admin-one');
+  assert.equal(await read(adminDb(),'publicOrderDisplays',value.id),null);assert.deepEqual(mutations.map(item=>item.path).sort(),[`orders/${value.id}`,`publicOrderDisplays/${value.id}`].sort());assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+ test('concurrent pickup succeeds once and leaves no partial display document',async()=>{
+  const value=takeout('takeout-pickup-concurrent-7777','ready');await seedTakeout(value);
+  const results=await Promise.allSettled([pickup(adminDb(),value),pickup(adminDb('admin-two'),value,[],'admin-two')]);
+  assert.equal(results.filter(result=>result.status==='fulfilled').length,1);assert.equal(results.filter(result=>result.status==='rejected').length,1);assert.equal((await read(adminDb(),'orders',value.id)).status,'completed');assert.equal(await read(adminDb(),'publicOrderDisplays',value.id),null);
+ });
+ for(const status of ['completed','cancelled','cooking'])test(`pickup stale ${status} aborts without order/display writes`,async()=>{
+  const local=takeout(`takeout-pickup-stale-${status}-8888`,'ready');await seedTakeout({...local,status});
+  const mutations=[];await assert.rejects(pickup(adminDb(),local,mutations),{code:'order/stale-state'});assert.equal((await read(adminDb(),'orders',local.id)).status,status);assert.ok(await read(adminDb(),'publicOrderDisplays',local.id));assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+ test('missing public display is reported while pickup still succeeds safely',async()=>{
+  const value=takeout('takeout-pickup-missing-9999','ready');await seedTakeout(value);await environment.withSecurityRulesDisabled(context=>deleteDoc(ref(context.firestore(),'publicOrderDisplays',value.id)));
+  const result=await pickup(adminDb(),value);assert.equal(result.displayMissing,true);assert.equal((await read(adminDb(),'orders',value.id)).status,'completed');assert.equal(await read(adminDb(),'publicOrderDisplays',value.id),null);
+ });
+ test('non-admin cannot complete a ready pickup or delete its public display',async()=>{
+  const value=takeout('takeout-pickup-user-6161','ready');await seedTakeout(value);
+  await assertFails(updateDoc(ref(userDb(),'orders',value.id),{status:'completed',pickedUpAt:serverTimestamp(),pickedUpBy:'ordinary-user'}));
+  await assertFails(deleteDoc(ref(userDb(),'publicOrderDisplays',value.id)));assert.equal((await read(adminDb(),'orders',value.id)).status,'ready');assert.ok(await read(adminDb(),'publicOrderDisplays',value.id));
  });
 }
