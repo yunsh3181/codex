@@ -57,16 +57,16 @@ subscriptions.manualCustomerCalls({docs:[
 ]});
 
 let readyHTML=element('readyOrders').innerHTML;
-assert.match(readyHTML,/class="order-number">1111<\/div>/,'ready under five minutes keeps normal green class');
-assert.match(readyHTML,/class="order-number ready-overdue">2222<\/div>/,'public ready over five minutes is highlighted');
-assert.match(readyHTML,/class="order-number">4444<\/div>/,'manual ready under five minutes keeps normal green class');
-assert.match(readyHTML,/class="order-number ready-overdue">5555<\/div>/,'manual ready over five minutes is highlighted');
+assert.match(readyHTML,/class="order-number"><strong>1111번<\/strong>/,'ready under five minutes keeps normal green class');
+assert.match(readyHTML,/class="order-number ready-overdue"><strong>2222번<\/strong>/,'public ready over five minutes is highlighted');
+assert.match(readyHTML,/class="order-number"><strong>4444번<\/strong>/,'manual ready under five minutes keeps normal green class');
+assert.match(readyHTML,/class="order-number ready-overdue"><strong>5555번<\/strong>/,'manual ready over five minutes is highlighted');
 assert.ok(!readyHTML.includes('3333'),'cooking order is not rendered as ready');
 
 fakeNow+=2;
 intervals[0].callback();
 readyHTML=element('readyOrders').innerHTML;
-assert.match(readyHTML,/class="order-number ready-overdue">1111<\/div>/,'timer rerender can promote an order without reload');
+assert.match(readyHTML,/class="order-number ready-overdue"><strong>1111번<\/strong>/,'timer rerender can promote an order without reload');
 
 subscriptions.publicOrderDisplays({docs:[
  doc('recent','1111','ready',now-300001),

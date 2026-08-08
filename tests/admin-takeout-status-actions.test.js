@@ -2,6 +2,7 @@ const assert=require('assert');
 const fs=require('fs');
 const path=require('path');
 const vm=require('vm');
+const adminOperations=require('../admin-operations.js');
 
 const root=path.resolve(__dirname,'..');
 const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
@@ -22,7 +23,7 @@ for(const status of ['payment_pending','new']){
 }
 for(const orderType of ['takeout','dinein'])for(const status of ['paid','accepted','cooking']){
  const html=markup(status,orderType);
- assert.match(html,/data-status="completed">조리완료<\/button>/,`${orderType} ${status} offers cooking completion`);
+ assert.match(html,orderType==='takeout'?/data-status="ready">주문 완료<\/button>/:/data-status="completed">조리완료<\/button>/,`${orderType} ${status} offers its completion action`);
  assert.match(html,/data-action="call-customer"/,`${orderType} ${status} remains callable`);
  assert.match(html,/data-order-language="en"/,`${orderType} ${status} preserves the order language on the call button`);
 }
@@ -51,7 +52,9 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  };
  const context={
   Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}},
-  firebase:{firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
+  document:{getElementById:()=>({hidden:true,focus(){},classList:{add(){},remove(){}}}),body:{classList:{add(){},remove(){}}}},
+  firebase:{auth:()=>({currentUser:{uid:'admin-test'}}),firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
+  completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
   orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
   orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},
@@ -79,7 +82,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(readyTakeout.writes[0].data.status,'ready');
  assert.strictEqual(readyTakeout.seatWrites.length,0,'takeout ready transition does not touch seats');
  assert.strictEqual(readyTakeout.displayWrites[0].data.businessDay,'2026-07-31','ready transition preserves the order business day instead of renewing it from updatedAt');
- assert.deepStrictEqual(readyTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'ready transition calls once, after commit, in the order language');
+ assert.deepStrictEqual(readyTakeout.customerCalls,[],'ready transition does not automatically invoke administrator TTS');
 
  const acceptedDineIn=await exerciseStatus({id:'d1',status:'payment_pending',orderType:'dinein',seatIds:['s1']},'accepted');
  assert.strictEqual(acceptedDineIn.seatWrites.length,1,'dine-in acceptance marks its seat occupied');

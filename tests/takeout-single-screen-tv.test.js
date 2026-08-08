@@ -19,7 +19,7 @@ for(const transition of [
 ])assert.ok(admin.includes(transition),`${transition} transition is configured`);
 assert.ok(admin.includes('transaction.delete(displayRef)'),'pickup removes only the public display document');
 assert.ok(!admin.includes("delete(db.collection('orders')"),'pickup never deletes the source order');
-assert.ok(admin.includes("status==='ready'&&committedOrder.orderType==='takeout'"),'customer call occurs when manufacturing is ready');
+assert.ok(!admin.includes("(status==='ready'&&committedOrder.orderType==='takeout')||"),'takeout completion does not automatically invoke administrator TTS');
 
 assert.ok(tvHTML.includes('id="cookingOrders"')&&tvHTML.includes('id="readyOrders"'),'TV has cooking and ready sections');
 assert.ok(tvJS.includes("collection('publicOrderDisplays').onSnapshot"),'TV subscribes to public data in real time');

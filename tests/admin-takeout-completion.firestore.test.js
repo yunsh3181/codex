@@ -1,0 +1,79 @@
+const fs=require('node:fs');
+const path=require('node:path');
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');
+const {doc,getDoc,getDocs,collection,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=require('firebase/firestore');
+const operations=require('../admin-operations.js');
+
+const PROJECT_ID='demo-admin-takeout-completion';
+const emulatorAvailable=Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+if(!emulatorAvailable){test('admin takeout production transactions and rules matrix',{skip:true},()=>{});}else{
+ let environment;const databases=new Map();
+ test.before(async()=>{environment=await initializeTestEnvironment({projectId:PROJECT_ID,firestore:{rules:fs.readFileSync(path.resolve(__dirname,'../firestore.rules'),'utf8')}})});
+ test.beforeEach(async()=>environment.clearFirestore());
+ test.after(async()=>environment.cleanup());
+ const database=(key,factory)=>{if(!databases.has(key))databases.set(key,factory().firestore());return databases.get(key)};
+ const adminDb=(uid='admin-one')=>database(`admin:${uid}`,()=>environment.authenticatedContext(uid,{admin:true}));
+ const userDb=()=>database('user',()=>environment.authenticatedContext('ordinary-user',{}));
+ const kioskDb=()=>database('kiosk',()=>environment.authenticatedContext('kiosk-one',{role:'kiosk',storeId:'pangyo2-techno-valley',kioskId:'kiosk-01'}));
+ const ref=(db,name,id)=>doc(db,name,id);
+ const read=async(db,name,id)=>{const snap=await getDoc(ref(db,name,id));return snap.exists()?snap.data():null};
+ function compatDb(db,mutations=[]){return {collection:name=>({doc:id=>ref(db,name,id)}),runTransaction:callback=>runTransaction(db,transaction=>callback({get:documentRef=>transaction.get(documentRef).then(snapshot=>({exists:snapshot.exists(),data:()=>snapshot.data()})),set(documentRef,data,options){mutations.push({type:'set',path:documentRef.path});transaction.set(documentRef,data,options)},update(documentRef,data){mutations.push({type:'update',path:documentRef.path});transaction.update(documentRef,data)},delete(documentRef){mutations.push({type:'delete',path:documentRef.path});transaction.delete(documentRef)}}))};}
+ const counterPayload=(status='cooking',overrides={})=>{const ready=status==='ready';return {channel:'admin',source:'admin_counter',schemaVersion:1,storeId:'pangyo2-techno-valley',orderNo:'4242',customerNumber:'4242',orderType:'takeout',pickup:{mode:'now'},items:[],itemCount:0,normalAmount:0,discountAmount:0,totalAmount:0,total:0,payment:{method:'counter',methodName:'대면 결제'},status,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),businessDay:'2026-08-08',...(ready?{completedAt:serverTimestamp(),completedBy:'admin-one'}:{}),...overrides};};
+ const kioskPayload=()=>({channel:'mobile',deviceId:'mobile-01',appVersion:'1.2.24',schemaVersion:1,aggregationVersion:1,storeId:'pangyo2-techno-valley',storeName:'판교2테크노밸리점',orderNo:'P4242',customerNumber:'P4242',phone:'01012345678',phoneMasked:'010-****-5678',phoneLast4:'5678',orderType:'takeout',partySize:null,seat:null,pickup:{mode:'now'},disposables:false,items:[{id:'P001',name:'테스트',qty:1,price:10000,total:10000}],itemCount:1,normalAmount:10000,discountAmount:0,totalAmount:10000,total:10000,benefit:{labels:[]},payment:{method:'card',methodName:'카드'},status:'payment_pending',recommendationEvents:[],createdAt:serverTimestamp(),createdAtClient:'2026-08-08T01:00:00.000Z',source:'mobile'});
+ const takeout=(id,status)=>({id,status,orderType:'takeout',customerNumber:id.slice(-4),businessDay:'2026-08-08',storeId:'pangyo2-techno-valley',total:15000});
+ const seedTakeout=async value=>{const number=/^[0-9]{4}$/.test(value.customerNumber)?value.customerNumber:'8888',payload={...kioskPayload(),orderNo:`P${number}`,customerNumber:`P${number}`};await setDoc(ref(kioskDb(),'orders',value.id),payload);if(value.status!=='payment_pending')await updateDoc(ref(adminDb(),'orders',value.id),{status:value.status,businessDay:'2026-08-08'});await setDoc(ref(adminDb(),'publicOrderDisplays',value.id),{orderNumber:number,displayStatus:'cooking',storeId:'pangyo2-techno-valley',businessDay:'2026-08-08',updatedAt:serverTimestamp()})};
+ const createCounter=(db,number,status,adminId='admin-one',mutations=[])=>operations.createCounterTakeoutTransaction({db:compatDb(db,mutations),orderNumber:number,status,businessDay:'2026-08-08',serverTimestamp,adminId});
+ const complete=(db,value,mutations=[])=>operations.completeTakeoutTransaction({db:compatDb(db,mutations),orderId:value.id,expectedStatus:value.status,serverTimestamp,adminId:'admin-one'});
+
+ test('A-D. administrator valid creates and legacy rules remain allowed',async()=>{
+  await assertSucceeds(setDoc(ref(adminDb(),'orders','counter-cooking'),counterPayload('cooking')));
+  await assertSucceeds(setDoc(ref(adminDb(),'orders','counter-ready'),counterPayload('ready')));
+  await assertSucceeds(setDoc(ref(kioskDb(),'orders','kiosk-create'),kioskPayload()));
+  await assertSucceeds(updateDoc(ref(adminDb(),'orders','kiosk-create'),{status:'accepted'}));
+ });
+ test('E-H. non-admin counter, completion, and public display writes are rejected',async()=>{
+  await assertFails(setDoc(ref(userDb(),'orders','counter-user-cooking'),counterPayload('cooking')));
+  await assertFails(setDoc(ref(userDb(),'orders','counter-user-ready'),counterPayload('ready')));
+  await seedTakeout({...takeout('existing-takeout','cooking'),customerNumber:'4242'});
+  await assertFails(updateDoc(ref(userDb(),'orders','existing-takeout'),{status:'ready'}));
+  await assertFails(updateDoc(ref(userDb(),'publicOrderDisplays','existing-takeout'),{displayStatus:'ready',updatedAt:serverTimestamp()}));
+ });
+ test('I-T. malformed administrator counter payload matrix is rejected',async()=>{
+  const cases=[
+   ['source',{source:'other'}],['orderType',{orderType:'dinein'}],['status',{status:'accepted'}],['orderNo',{orderNo:'42A2'}],['number mismatch',{customerNumber:'4243'}],
+   ['items',{items:[{id:'fake'}]}],['itemCount',{itemCount:1}],['total',{total:1}],['totalAmount',{totalAmount:1}],
+   ['cooking completion metadata',{completedAt:serverTimestamp(),completedBy:'admin-one'}],['createdAt',{createdAt:Timestamp.fromMillis(1)}],['updatedAt',{updatedAt:Timestamp.fromMillis(1)}],['extra',{unexpected:true}]
+  ];
+  for(const [label,override] of cases)await assertFails(setDoc(ref(adminDb(),'orders',`invalid-${label.replace(/\s/g,'-')}`),counterPayload('cooking',override)));
+  await assertFails(setDoc(ref(adminDb(),'orders','ready-no-completed-at'),counterPayload('ready',{completedAt:null})));
+  const missingBy=counterPayload('ready');delete missingBy.completedBy;await assertFails(setDoc(ref(adminDb(),'orders','ready-no-completed-by'),missingBy));
+ });
+ test('U and X. concurrent identical counter intake creates one atomic order/display pair',async()=>{
+  const firstMutations=[],secondMutations=[],results=await Promise.allSettled([createCounter(adminDb(),'5555','cooking','admin-one',firstMutations),createCounter(adminDb('admin-two'),'5555','cooking','admin-two',secondMutations)]);
+  assert.equal(results.filter(result=>result.status==='fulfilled').length,1);assert.equal(results.filter(result=>result.status==='rejected').length,1);
+  assert.ok(await read(adminDb(),'orders','counter_2026-08-08_5555'));assert.ok(await read(adminDb(),'publicOrderDisplays','counter_2026-08-08_5555'));
+  assert.equal((await getDocs(collection(adminDb(),'orders'))).size,1);assert.equal((await getDocs(collection(adminDb(),'publicOrderDisplays'))).size,1);
+ });
+ test('direct ready counter intake is atomic and records completion with no seat/payment writes',async()=>{
+  const mutations=[],result=await createCounter(adminDb(),'5656','ready','admin-one',mutations),order=await read(adminDb(),'orders',result.orderId),display=await read(adminDb(),'publicOrderDisplays',result.orderId);
+  assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);
+  assert.ok(order.completedAt);assert.equal(order.completedBy,'admin-one');assert.equal(order.status,'ready');assert.equal(display.displayStatus,'ready');
+  assert.deepEqual(mutations.map(item=>item.path).sort(),[`orders/${result.orderId}`,`publicOrderDisplays/${result.orderId}`].sort());assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+ for(const status of ['accepted','paid','cooking'])test(`existing ${status} takeout completes atomically through production helper`,async()=>{
+  const value=takeout(`takeout-${status}-4242`,status);await seedTakeout(value);
+  const mutations=[],result=await complete(adminDb(),value,mutations),order=await read(adminDb(),'orders',value.id),display=await read(adminDb(),'publicOrderDisplays',value.id);
+  assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);assert.equal(order.status,'ready');assert.ok(order.completedAt);assert.equal(display.displayStatus,'ready');
+  assert.deepEqual(mutations.map(item=>item.path).sort(),[`orders/${value.id}`,`publicOrderDisplays/${value.id}`].sort());assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+ test('V. concurrent completion succeeds once and emits one final ready event',async()=>{
+  const value=takeout('takeout-concurrent-7777','cooking');await seedTakeout(value);
+  const results=await Promise.allSettled([complete(adminDb(),value),complete(adminDb('admin-two'),value)]);assert.equal(results.filter(result=>result.status==='fulfilled').length,1);assert.equal((await read(adminDb(),'orders',value.id)).status,'ready');assert.equal((await read(adminDb(),'publicOrderDisplays',value.id)).displayStatus,'ready');
+ });
+ for(const status of ['completed','cancelled','ready'])test(`W-X. stale ${status} aborts without partial public write`,async()=>{
+  const local={...takeout(`takeout-stale-${status}-8888`,'cooking'),customerNumber:'8888'},server={...local,status};await seedTakeout(server);
+  const mutations=[];await assert.rejects(complete(adminDb(),local,mutations),{code:'order/stale-state'});assert.equal((await read(adminDb(),'orders',local.id)).status,status);assert.equal((await read(adminDb(),'publicOrderDisplays',local.id)).displayStatus,'cooking');assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);
+ });
+}

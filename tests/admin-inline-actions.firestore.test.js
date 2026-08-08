@@ -54,7 +54,8 @@ if(!emulatorAvailable){
   const mutations=[],messages=[],errors=[];
   const context={
    Set,Promise,orders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,
-   firebase:{firestore:{FieldValue:{serverTimestamp}}},
+   firebase:{auth:()=>({currentUser:{uid:'admin-inline'}}),firestore:{FieldValue:{serverTimestamp}}},
+   completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
    orderSeatIds:value=>Array.isArray(value?.seat?.tables)?value.seat.tables:value?.seat?.id?[value.seat.id]:[],
    orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-05',adminOrderNumberLabel:value=>value.customerNumber||value.id,
    stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},openForceCompleteModal(){messages.push({message:'force-complete-modal',isError:false})},setTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},
