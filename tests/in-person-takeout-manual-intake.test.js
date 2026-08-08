@@ -27,7 +27,7 @@ assert.ok(!/createManualCustomerCall[\s\S]{0,1600}db\.runTransaction/.test(admin
 const operations=fs.readFileSync(path.resolve(__dirname,'../admin-operations.js'),'utf8');
 assert.ok(operations.includes("source:'admin_counter'")&&operations.includes("items:[]")&&operations.includes("totalAmount:0")&&operations.includes("methodName:'대면 결제'"),'production helper contains no fabricated menu or revenue');
 assert.ok(operations.includes("status==='ready'?{completedAt:timestamp"),'direct completion records completion metadata atomically');
-assert.ok(rules.includes('validAdminCounterOrderCreate()'),'rules contain a narrow administrator counter-order create policy');
+assert.ok(rules.includes('validAdminCounterOrderCreate(orderId)')&&rules.includes('validAdminCounterDisplayForOrder(orderId)'),'rules contain a narrow atomic administrator counter-order create policy');
 
 const validatorSource=admin.match(/function validManualCustomerNumber[\s\S]*?\n}/)[0];
 const context={String};
