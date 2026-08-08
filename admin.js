@@ -610,14 +610,13 @@ function storedPizzaBenefitLabel(promo,set,orderType){
 }
 function orderPizzaBenefitLabels(order){
  const pizzas=(Array.isArray(order?.items)?order.items:[]).filter(item=>item&&(item.pizza||item.pizzaLeft||item.pizzaRight));
- const hasItemBenefitData=pizzas.some(item=>typeof item?.promo==='string'&&item.promo.length>0);
- const sources=hasItemBenefitData?pizzas:[{promo:order?.promo??order?.benefit,set:order?.set}];
- const labels=[];
- for(const source of sources){
-  const label=storedPizzaBenefitLabel(source?.promo,source?.set,order?.orderType);
-  if(label&&!labels.includes(label))labels.push(label);
- }
- return labels;
+ const itemPromoLabels=pizzas.map(item=>storedPizzaBenefitLabel(item?.promo,null,order?.orderType)).filter(Boolean);
+ const orderPromoLabel=[order?.promo,order?.benefit].map(promo=>storedPizzaBenefitLabel(promo,null,order?.orderType)).find(Boolean)||'';
+ const promoLabels=itemPromoLabels.length?itemPromoLabels:(orderPromoLabel?[orderPromoLabel]:[]);
+ const itemSetLabels=pizzas.map(item=>storedPizzaBenefitLabel('set',item?.set,order?.orderType)).filter(Boolean);
+ const orderSetLabel=storedPizzaBenefitLabel('set',order?.set,order?.orderType);
+ const setLabels=itemSetLabels.length?itemSetLabels:(orderSetLabel?[orderSetLabel]:[]);
+ return [...new Set([...promoLabels,...setLabels])].sort((left,right)=>(left==='UP&UP'?0:1)-(right==='UP&UP'?0:1));
 }
 function pizzaSectionHeadingHTML(order){
  const benefits=orderPizzaBenefitLabels(order);

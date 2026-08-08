@@ -71,4 +71,59 @@ test('standard item benefits cover every mapping, strict fallback, ordering, and
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001',set:null}],promo:'happy'})),['해피아워']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001'}],promo:'set',set:2})),['2인 세트']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('set','3')]})),[]);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('normal')],set:3})),['3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza(null,3)],promo:'upup'})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup',3)],benefit:'normal'})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup')],set:3})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('normal')],benefit:'normal'})),[]);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('unknown','invalid')],benefit:'upup',set:3})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup',3),pizza('upup',3)]})),['UP&UP','3인 세트']);
+});
+
+test('D8222-shaped set and UP&UP order keeps the paid set crust and combines item benefits',()=>{
+ const customer=customerHarness(),adminUi=adminHarness();
+ vm.runInContext("Object.assign(state,{orderType:'dinein',orderTiming:'now',phone:'00008222',paymentMethod:'card',promo:'upup',set:3,size:'L',mode:'single',left:'P001',right:null,dough:'오리지널',crust:'치즈롤',toppings:{},extraSides:{},extraDrinks:{},setSides:{S007:1},setDrink:'D004',cartItems:[]})",customer);
+ const setSnapshot=JSON.parse(vm.runInContext('JSON.stringify(orderSnapshot())',customer));
+ assert.equal(setSnapshot.price,37000);
+ assert.equal(setSnapshot.normalPrice,44900);
+ assert.equal(setSnapshot.discount,7900);
+
+ vm.runInContext(`state.cartItems=[${JSON.stringify(setSnapshot)},{kind:'single',set:null,name:'존스 페이버릿',size:'F',promo:'upup',price:29500,normalPrice:39900,discount:10400,discountLabel:'UP & UP',qty:1,mode:'single',pizza:'P002',pizzaLeft:'P002',pizzaRight:null,pizzaName:'존스 페이버릿',crust:'치즈롤',dough:'오리지널',toppings:{},sides:{},drinks:{},includedSides:{},includedDrinks:{}}];clearCurrentProduct()`,customer);
+ const payload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',customer));
+ assert.deepEqual(payload.items.map(item=>({total:item.total,normalTotal:item.normalTotal,discountAmount:item.discountAmount})),[
+  {total:37000,normalTotal:44900,discountAmount:7900},
+  {total:29500,normalTotal:39900,discountAmount:10400}
+ ]);
+ assert.equal(payload.normalAmount,84800);
+ assert.equal(payload.discountAmount,18300);
+ assert.equal(payload.totalAmount,66500);
+ assert.equal(payload.total,66500);
+ assert.deepEqual(payload.items[0].includedSides,{S007:1});
+ assert.deepEqual(payload.items[0].includedDrinks,{D004:1});
+ assert.ok(payload.items.every(item=>Object.values(item).every(value=>value!==undefined)));
+ assert.ok([payload.normalAmount,payload.discountAmount,payload.totalAmount,payload.total,...payload.items.flatMap(item=>[item.total,item.normalTotal,item.discountAmount])].every(Number.isFinite));
+
+ const firestoreDocument={...payload,benefit:'normal'};
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels(firestoreDocument)),['UP&UP','3인 세트']);
+ for(const markup of [adminUi.newOrderCard(firestoreDocument),adminUi.renderOrderDetail(firestoreDocument)])assert.match(markup,/UP&amp;UP \+ 3인 세트/);
+
+ vm.runInContext("Object.assign(state,{promo:'upup',set:null,size:'F',mode:'single',left:'P002',right:null,dough:'오리지널',crust:'치즈롤',toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null})",customer);
+ assert.equal(vm.runInContext('price().crust',customer),0,'standalone UP&UP keeps its free crust policy');
+ assert.equal(vm.runInContext('price().total',customer),29500,'standalone UP&UP payment remains the Large pizza price');
+
+ vm.runInContext("Object.assign(state,{promo:'upup',set:3,size:'L',mode:'single',left:'P001',right:null,dough:'오리지널',crust:'오리지널',toppings:{},extraSides:{},extraDrinks:{},setSides:{S007:1},setDrink:'D004'})",customer);
+ assert.equal(vm.runInContext('price().total',customer),33000,'the default set crust keeps the set base price');
+ for(const [setNo,size,crust,fee] of [[2,'R','오리지널',0],[3,'L','치즈롤',4000],[4,'F','치즈롤',5000]]){
+  vm.runInContext(`Object.assign(state,{promo:'upup',set:${setNo},size:'${size}',crust:'${crust}'})`,customer);
+  assert.equal(vm.runInContext('crustFee()',customer),fee,`${setNo}-person set reads the existing ${size} crust price`);
+ }
+
+ const doubled={...setSnapshot,qty:2};
+ vm.runInContext(`state.cartItems=[${JSON.stringify(doubled)}];clearCurrentProduct()`,customer);
+ const doubledPayload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',customer));
+ assert.equal(doubledPayload.items[0].total,74000);
+ assert.equal(doubledPayload.items[0].normalTotal,89800);
+ assert.equal(doubledPayload.items[0].discountAmount,15800);
+ assert.deepEqual(doubledPayload.items[0].includedSides,{S007:1},'included sides remain one per set unit in stored data');
+ assert.deepEqual(doubledPayload.items[0].includedDrinks,{D004:1},'included drinks remain one per set unit in stored data');
 });
