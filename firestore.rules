@@ -51,28 +51,65 @@ service cloud.firestore {
       && request.resource.data.totalAmount == request.resource.data.total
       && request.resource.data.createdAt == request.time;
     }
-    function validAdminCounterOrderCreate() {
+    function validAdminCounterDisplayForOrder(orderId) {
+      let displayPath = /databases/$(database)/documents/publicOrderDisplays/$(orderId);
+      return existsAfter(displayPath)
+        && getAfter(displayPath).data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])
+        && getAfter(displayPath).data.orderNumber == request.resource.data.orderNo
+        && getAfter(displayPath).data.displayStatus == (request.resource.data.status == 'ready' ? 'ready' : 'cooking')
+        && getAfter(displayPath).data.storeId == request.resource.data.storeId
+        && getAfter(displayPath).data.businessDay == request.resource.data.businessDay
+        && getAfter(displayPath).data.updatedAt == request.time;
+    }
+    function validAdminCounterOrderCreate(orderId) {
       return isAdmin()
         && request.resource.data.keys().hasOnly(['channel','source','schemaVersion','storeId','orderNo','customerNumber','orderType','pickup','items','itemCount','normalAmount','discountAmount','totalAmount','total','payment','status','createdAt','updatedAt','businessDay','completedAt','completedBy'])
         && request.resource.data.channel == 'admin'
         && request.resource.data.source == 'admin_counter'
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.storeId == 'pangyo2-techno-valley'
         && request.resource.data.orderType == 'takeout'
         && request.resource.data.status in ['cooking','ready']
+        && request.resource.data.businessDay is string
+        && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && request.resource.data.orderNo.matches('^[0-9]{4}$')
         && request.resource.data.customerNumber == request.resource.data.orderNo
+        && orderId == 'counter_' + request.resource.data.businessDay + '_' + request.resource.data.orderNo
+        && request.resource.data.pickup.keys().hasOnly(['mode'])
+        && request.resource.data.pickup.mode == 'now'
+        && request.resource.data.items is list
         && request.resource.data.items.size() == 0
         && request.resource.data.itemCount == 0
+        && request.resource.data.normalAmount == 0
+        && request.resource.data.discountAmount == 0
         && request.resource.data.total == 0
         && request.resource.data.totalAmount == 0
+        && request.resource.data.payment.keys().hasOnly(['method','methodName'])
+        && request.resource.data.payment.method == 'counter'
+        && request.resource.data.payment.methodName == '대면 결제'
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time
         && (request.resource.data.status == 'cooking'
           ? !request.resource.data.keys().hasAny(['completedAt','completedBy'])
-          : request.resource.data.completedAt == request.time && validString(request.resource.data.completedBy, 128));
+          : request.resource.data.completedAt == request.time
+            && request.resource.data.completedBy is string
+            && request.resource.data.completedBy.size() >= 1
+            && request.resource.data.completedBy.size() <= 128)
+        && validAdminCounterDisplayForOrder(orderId);
+    }
+    function validAdminCounterDisplayWrite(orderId) {
+      let orderPath = /databases/$(database)/documents/orders/$(orderId);
+      return existsAfter(orderPath)
+        && getAfter(orderPath).data.source == 'admin_counter'
+        && getAfter(orderPath).data.orderType == 'takeout'
+        && getAfter(orderPath).data.orderNo == request.resource.data.orderNumber
+        && getAfter(orderPath).data.storeId == request.resource.data.storeId
+        && getAfter(orderPath).data.businessDay == request.resource.data.businessDay
+        && request.resource.data.displayStatus == (getAfter(orderPath).data.status == 'ready' ? 'ready' : 'cooking');
     }
 
     match /orders/{orderId} {
-      allow create: if validOrderCreate() || validAdminCounterOrderCreate();
+      allow create: if validOrderCreate() || validAdminCounterOrderCreate(orderId);
       allow read, update, delete: if isAdmin();
     }
 
@@ -87,7 +124,12 @@ service cloud.firestore {
         && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && (resource == null || !resource.data.keys().hasAny(['businessDay'])
           || request.resource.data.businessDay == resource.data.businessDay)
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.updatedAt == request.time
+        && ((!orderId.matches('^counter_.*$')
+            && (!existsAfter(/databases/$(database)/documents/orders/$(orderId))
+              || !getAfter(/databases/$(database)/documents/orders/$(orderId)).data.keys().hasAny(['source'])
+              || getAfter(/databases/$(database)/documents/orders/$(orderId)).data.source != 'admin_counter'))
+          || validAdminCounterDisplayWrite(orderId));
       allow delete: if isAdmin();
     }
 
