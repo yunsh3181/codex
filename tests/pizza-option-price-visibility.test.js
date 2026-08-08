@@ -26,5 +26,5 @@ test('all six languages provide option surcharge and deferred-price copy',()=>{
 test('option price display reads existing price sources without changing checkout functions',()=>{
   assert.match(html,/function standardOptionPriceText\(kind,value\)\{[\s\S]*?value==='크루아상'[\s\S]*?CRUSTS\.find\(c=>c\.name==='크루아상'\)\?\.\[state\.size\][\s\S]*?CRUSTS\.find\(c=>c\.name===value\)\?\.\[state\.size\]/);
   assert.match(html,/function pizzaOptionFee\(dough,crust,size\)[\s\S]*?CRUSTS\.find\(item=>item\.name===option\)\?\.\[size\]/);
-  assert.match(html,/function crustFee\(\)\{if\(state\.promo==='upup'\)return 0;return pizzaOptionFee\(state\.dough,state\.crust,state\.size\)\}/);
+  assert.match(html,/function crustFee\(\)\{if\(state\.promo==='upup'&&!state\.set\)return 0;return pizzaOptionFee\(state\.dough,state\.crust,state\.size\)\}/);
 });

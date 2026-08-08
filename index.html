@@ -3330,7 +3330,7 @@ function setDrinkCard(x){const selected=state.setDrink===x.id,zero=['D003','D004
 
 function qty(key,id,d,maxEach,maxTotal){let o=state[key],n=Math.max(0,Math.min(maxEach,(o[id]||0)+d));if(d>0&&sum(o)>=maxTotal)return;if(n)o[id]=n;else delete o[id];render();if(key==='setSides')setTimeout(maybePromptSetSideExtra,120)}function toppingQty(id,d){let q=state.toppings[id]||0,total=sum(state.toppings);if(d>0&&q>=2){state.modal='toppingLimitEach';render();return}if(d>0&&total>=5){state.modal='toppingLimitTotal';render();return}let n=Math.max(0,q+d);if(n)state.toppings[id]=n;else delete state.toppings[id];render()}
 function pizzaBase(){let a=po(state.left)?.[state.promo==='upup'?'L':state.size]||0;if(state.mode==='half'){if(!state.right)return a;let b=po(state.right)?.[state.promo==='upup'?'L':state.size]||0;return (a+b)/2}return a}
-function crustFee(){if(state.promo==='upup')return 0;return pizzaOptionFee(state.dough,state.crust,state.size)}
+function crustFee(){if(state.promo==='upup'&&!state.set)return 0;return pizzaOptionFee(state.dough,state.crust,state.size)}
 function topFee(){return Object.entries(state.toppings).reduce((s,[id,q])=>s+(TOPPINGS.find(x=>x.id===id)?.price[effectiveSize()]||0)*q,0)}function sideFee(){return Object.entries(state.extraSides).reduce((s,[id,q])=>s+(SIDES.find(x=>x.id===id)?.price||0)*q,0)}function drinkFee(){const items=[...DRINKS,...SAUCES];return Object.entries(state.extraDrinks).reduce((s,[id,q])=>s+(items.find(x=>x.id===id)?.price||0)*q,0)}
 function masterName(id,master){const item=master.find(x=>x.id===id)||{};return menuItemName(item)||id}
 function optionDisplayName(item){return item?menuItemName(item):''}

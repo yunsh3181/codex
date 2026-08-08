@@ -610,11 +610,16 @@ function storedPizzaBenefitLabel(promo,set,orderType){
 }
 function orderPizzaBenefitLabels(order){
  const pizzas=(Array.isArray(order?.items)?order.items:[]).filter(item=>item&&(item.pizza||item.pizzaLeft||item.pizzaRight));
- const hasItemBenefitData=pizzas.some(item=>typeof item?.promo==='string'&&item.promo.length>0);
+ const knownPromos=new Set(['upup','happy','takeout','normal','set']);
+ const hasItemBenefitData=pizzas.some(item=>knownPromos.has(item?.promo)||[2,3,4].includes(item?.set));
  const sources=hasItemBenefitData?pizzas:[{promo:order?.promo??order?.benefit,set:order?.set}];
  const labels=[];
  for(const source of sources){
-  const label=storedPizzaBenefitLabel(source?.promo,source?.set,order?.orderType);
+  const label=storedPizzaBenefitLabel(source?.promo,null,order?.orderType);
+  if(label&&!labels.includes(label))labels.push(label);
+ }
+ for(const source of sources){
+  const label=storedPizzaBenefitLabel('set',source?.set,order?.orderType);
   if(label&&!labels.includes(label))labels.push(label);
  }
  return labels;
