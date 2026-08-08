@@ -71,6 +71,13 @@ test('standard item benefits cover every mapping, strict fallback, ordering, and
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001',set:null}],promo:'happy'})),['해피아워']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[{pizzaLeft:'P001'}],promo:'set',set:2})),['2인 세트']);
  assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('set','3')]})),[]);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('normal')],set:3})),['3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza(null,3)],promo:'upup'})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup',3)],benefit:'normal'})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup')],set:3})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('normal')],benefit:'normal'})),[]);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('unknown','invalid')],benefit:'upup',set:3})),['UP&UP','3인 세트']);
+ assert.deepEqual(Array.from(adminUi.orderPizzaBenefitLabels({items:[pizza('upup',3),pizza('upup',3)]})),['UP&UP','3인 세트']);
 });
 
 test('D8222-shaped set and UP&UP order keeps the paid set crust and combines item benefits',()=>{
