@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -861,7 +861,7 @@ const statusUpdateLocks=new Set();
 const MANUAL_CALL_STORE_ID='pangyo2-techno-valley';
 const manualCallLocks=new Set();
 function validManualCustomerNumber(value){return /^[0-9]{4}$/.test(String(value??'').trim())}
-function manualCallDocumentId(orderNumber,businessDay=seoulBusinessDayKey()){return `counter_${businessDay}_${orderNumber}`}
+function manualCallDocumentId(orderNumber,businessDay=seoulBusinessDayKey()){return PJAdminOperations.counterTakeoutOrderId(orderNumber,businessDay)}
 async function createManualCustomerCall(orderNumber,status,buttons=[]){
  const number=String(orderNumber??'').trim();
  if(!validManualCustomerNumber(number)){showAdminMessage('전화번호 뒤 4자리 숫자를 정확히 입력해 주세요.',true);return false}
@@ -869,18 +869,11 @@ async function createManualCustomerCall(orderNumber,status,buttons=[]){
  if(manualCallLocks.has(id))return false;
  manualCallLocks.add(id);buttons.forEach(button=>{button.disabled=true;button.setAttribute('aria-busy','true')});
  try{
-  await db.runTransaction(async transaction=>{
-   const ref=db.collection('orders').doc(id),displayRef=db.collection('publicOrderDisplays').doc(id);
-   const existing=await transaction.get(ref);
-   if(existing.exists){const error=new Error(`${number}번은 이미 고객 화면에 표시 중입니다.`);error.code='manual-call/duplicate';throw error}
-   const timestamp=firebase.firestore.FieldValue.serverTimestamp();
-   transaction.set(ref,{channel:'admin',source:'admin_counter',schemaVersion:1,storeId:MANUAL_CALL_STORE_ID,orderNo:number,customerNumber:number,orderType:'takeout',pickup:{mode:'now'},items:[],itemCount:0,normalAmount:0,discountAmount:0,totalAmount:0,total:0,payment:{method:'counter',methodName:'대면 결제'},status,createdAt:timestamp,updatedAt:timestamp,businessDay,...(status==='ready'?{completedAt:timestamp,completedBy:firebase.auth().currentUser?.uid||'admin'}:{})});
-   transaction.set(displayRef,{orderNumber:number,displayStatus:status==='ready'?'ready':'cooking',storeId:MANUAL_CALL_STORE_ID,businessDay,updatedAt:timestamp});
-  });
+  await createCounterTakeoutTransaction({db,orderNumber:number,status,businessDay,storeId:MANUAL_CALL_STORE_ID,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin'});
   showAdminMessage(`${number}번 대면 포장 주문을 ${status==='ready'?'완료':'조리중'} 상태로 등록했습니다.`);
   return true;
  }catch(error){
-  showAdminMessage(error.code==='manual-call/duplicate'?error.message:`대면 포장 주문접수 실패: ${error.message}`,true);
+  showAdminMessage(error.code==='counter/duplicate'?error.message:`대면 포장 주문접수 실패: ${error.message}`,true);
   return false;
  }finally{
   manualCallLocks.delete(id);buttons.forEach(button=>{button.disabled=false;button.removeAttribute('aria-busy')});
@@ -918,9 +911,12 @@ async function setStatus(id,status,button){
  try{
   const localOrder=orders.find(o=>o.id===id);
   if(!localOrder)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
-  const orderRef=db.collection('orders').doc(id);
   let committedOrder=null;
-  await db.runTransaction(async transaction=>{
+  if(status==='ready'&&localOrder.orderType==='takeout'){
+   const result=await completeTakeoutTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});
+   committedOrder=result.order;
+  }else await db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(id);
    const orderSnapshot=await transaction.get(orderRef);
    if(!orderSnapshot.exists)throw Object.assign(new Error('주문이 삭제되었습니다.'),{code:'order/not-found'});
    const order={id,...orderSnapshot.data()},current=order.status;
@@ -948,9 +944,7 @@ async function setStatus(id,status,button){
     if(completingDineIn&&seat.status!=='occupied')throw Object.assign(new Error(`${seatId} 좌석이 사용중 상태가 아닙니다.`),{code:'seat/not-occupied'});
     if(seat.status==='reserved')throw Object.assign(new Error(`${seatId} 예약 좌석은 변경할 수 없습니다.`),{code:'seat/reserved'});
    });
-   const orderUpdate={status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-   if(status==='ready'&&order.orderType==='takeout')Object.assign(orderUpdate,{completedAt:firebase.firestore.FieldValue.serverTimestamp(),completedBy:firebase.auth().currentUser?.uid||'admin'});
-   transaction.update(orderRef,orderUpdate);
+   transaction.update(orderRef,{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
    const displayRef=order.orderType==='takeout'?db.collection('publicOrderDisplays').doc(id):null;
    if(order.orderType==='takeout'){
     if(['accepted','paid','cooking','ready'].includes(status)){
@@ -996,7 +990,7 @@ const confirmTakeoutComplete=typeof document==='undefined'?null:document.getElem
 function openTakeoutCompleteModal(order,trigger=document.activeElement){
  if(!order||order.orderType!=='takeout'||!['accepted','paid','cooking'].includes(order.status))return false;
  takeoutCompleteOrderId=order.id;takeoutCompleteReturnFocus=trigger;takeoutCompleteBusy=false;
- takeoutCompleteDescription.textContent=`주문번호 ${adminOrderNumberLabel(order)}번 (${isCounterTakeout(order)?'대면 포장':'키오스크 포장'})을 포장 완료 처리하고 고객 화면에 안내합니다.`;
+ takeoutCompleteDescription.textContent=`주문번호 ${displayText(order.customerNumber||order.orderNo||adminOrderNumberLabel(order))}번 (${isCounterTakeout(order)?'대면 포장':'키오스크 포장'})을 포장 완료 처리하고 고객 화면에 안내합니다.`;
  takeoutCompleteModal.hidden=false;document.body.classList.add('takeout-complete-open');confirmTakeoutComplete.focus();return true;
 }
 function closeTakeoutCompleteModal(){

@@ -2,6 +2,7 @@ const assert=require('assert');
 const fs=require('fs');
 const path=require('path');
 const vm=require('vm');
+const adminOperations=require('../admin-operations.js');
 
 const root=path.resolve(__dirname,'..');
 const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
@@ -53,6 +54,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
   Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}},
   document:{getElementById:()=>({hidden:true,focus(){},classList:{add(){},remove(){}}}),body:{classList:{add(){},remove(){}}}},
   firebase:{auth:()=>({currentUser:{uid:'admin-test'}}),firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
+  completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
   orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
   orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},

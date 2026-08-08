@@ -33,7 +33,7 @@ const context={
   },
   addEventListener(){},
   setTimeout(callback,delay){if(delay===500)callback();return 1},
-  AudioContext:class{constructor(){this.currentTime=0;this.destination={}}resume(){return Promise.resolve()}createOscillator(){return {frequency:{},connect(){},start(){soundPlays++},stop(){}}}createGain(){return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}}}close(){return Promise.resolve()}}
+  AudioContext:class{constructor(){this.currentTime=0;this.destination={};this.state='suspended'}resume(){this.state='running';return Promise.resolve()}createOscillator(){return {frequency:{},connect(){},start(){soundPlays++},stop(){}}}createGain(){return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}}}close(){this.state='closed';return Promise.resolve()}}
  },
  db:{collection(name){
   assert.ok(['publicOrderDisplays','manualCustomerCalls'].includes(name));
@@ -45,9 +45,10 @@ vm.runInNewContext(speechSource,context);
 context.PJSpeech=context.window.PJSpeech;
 vm.runInNewContext(source,context);
 
-const doc=(id,orderNumber,displayStatus)=>({
+const tvNow=Date.now();
+const doc=(id,orderNumber,displayStatus,updatedAt=tvNow)=>({
  id,
- data:()=>({orderNumber,displayStatus,updatedAt:{toMillis:()=>Date.now()}})
+ data:()=>({orderNumber,displayStatus,updatedAt:{toMillis:()=>updatedAt}})
 });
 const emit=(...docs)=>subscriptions.publicOrderDisplays({docs});
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
@@ -56,6 +57,7 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
  emit(doc('existing-ready','1111','ready'),doc('new-order','2222','cooking'));
  await flush();
  assert.deepStrictEqual(spoken,[],'initial snapshot never speaks existing ready orders');
+ await context.unlockCompletionSound();
 
  emit(doc('existing-ready','1111','ready'),doc('new-order','2222','ready'));
  await flush();
@@ -86,6 +88,8 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
  emit(doc('brand-new-ready','5555','ready'));
  await flush();
  assert.strictEqual(soundPlays,8,'a ready order added after initial subscription plays once');
+ emit();emit(doc('brand-new-ready','5555','ready'));await flush();
+ assert.strictEqual(soundPlays,8,'a temporarily excluded completion event does not replay when it reappears');
 
  const manualDoc=(id,orderNumber,displayStatus,announceVersion)=>({
   id,data:()=>({orderNumber,displayStatus,announceVersion,updatedAt:{toMillis:()=>Date.now()}})

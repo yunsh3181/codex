@@ -62,11 +62,12 @@ function scheduleBusinessDayRefresh(){
 }
 scheduleBusinessDayRefresh();
 let voiceEnabled=false;
+let completionSoundQueue=Promise.resolve(),completionAudioContext=null,completionSoundEnabled=false,completionSoundBlocked=false;
 try{voiceEnabled=localStorage.getItem('pjTvVoiceEnabled')==='true'}catch(error){}
 function updateVoiceButton(){
  if(!enableVoice)return;
- enableVoice.textContent=voiceEnabled?'음성 안내 켜짐':'음성 안내 시작';
- enableVoice.classList.toggle('enabled',voiceEnabled);
+ enableVoice.textContent=completionSoundEnabled&&voiceEnabled?'알림음·음성 안내 켜짐':completionSoundBlocked&&voiceEnabled?'음성 안내 켜짐 · 알림음 차단됨':'알림음·음성 안내 시작';
+ enableVoice.classList.toggle('enabled',completionSoundEnabled&&voiceEnabled);
 }
 updateVoiceButton();
 let speechQueue=Promise.resolve();
@@ -84,22 +85,30 @@ function enqueueReadyOrder(orderNumber){
  speechQueue=speechQueue.then(()=>speakReadyOrder(orderNumber)).catch(()=>{});
  return speechQueue;
 }
-let completionSoundQueue=Promise.resolve();
+async function unlockCompletionSound(){
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return false;
+ try{
+  if(!completionAudioContext||completionAudioContext.state==='closed')completionAudioContext=new AudioContextClass();
+  await completionAudioContext.resume();completionSoundEnabled=completionAudioContext.state==='running';completionSoundBlocked=!completionSoundEnabled;
+ }catch(error){completionSoundEnabled=false;completionSoundBlocked=true;tvDebug('completion sound unlock blocked')}
+ updateVoiceButton();return completionSoundEnabled;
+}
 async function playCompletionSound(){
- const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return;
- const context=new AudioContextClass();
- try{await context.resume();const start=context.currentTime;[659.25,783.99].forEach((frequency,index)=>{const oscillator=context.createOscillator(),gain=context.createGain();oscillator.frequency.value=frequency;gain.gain.setValueAtTime(.0001,start+index*.16);gain.gain.exponentialRampToValueAtTime(.22,start+index*.16+.015);gain.gain.exponentialRampToValueAtTime(.0001,start+index*.16+.28);oscillator.connect(gain);gain.connect(context.destination);oscillator.start(start+index*.16);oscillator.stop(start+index*.16+.3)});await new Promise(resolve=>window.setTimeout(resolve,500))}catch(error){tvDebug('completion sound blocked')}finally{context.close?.().catch?.(()=>{})}
+ const context=completionAudioContext;
+ if(!completionSoundEnabled||!context||context.state!=='running'||document.hidden)return false;
+ try{const start=context.currentTime;[659.25,783.99].forEach((frequency,index)=>{const oscillator=context.createOscillator(),gain=context.createGain();oscillator.frequency.value=frequency;gain.gain.setValueAtTime(.0001,start+index*.16);gain.gain.exponentialRampToValueAtTime(.22,start+index*.16+.015);gain.gain.exponentialRampToValueAtTime(.0001,start+index*.16+.28);oscillator.connect(gain);gain.connect(context.destination);oscillator.start(start+index*.16);oscillator.stop(start+index*.16+.3)});await new Promise(resolve=>window.setTimeout(resolve,500));return true}catch(error){completionSoundEnabled=false;completionSoundBlocked=true;updateVoiceButton();tvDebug('completion sound playback failed');return false}
 }
 function enqueueCompletionSound(){completionSoundQueue=completionSoundQueue.then(()=>playCompletionSound()).catch(()=>{});return completionSoundQueue}
-enableVoice?.addEventListener('click',()=>{
+enableVoice?.addEventListener('click',async()=>{
  voiceEnabled=true;
  try{localStorage.setItem('pjTvVoiceEnabled','true')}catch(error){}
- updateVoiceButton();
+ await unlockCompletionSound();updateVoiceButton();
  if('speechSynthesis'in window)window.speechSynthesis.speak(PJSpeech.createSpeechUtterance(''));
 });
 
 let hasInitialPublicSnapshot=false;
 let previousDisplayStatuses=new Map();
+let seenCompletionEvents=new Set();
 let hasInitialManualSnapshot=false;
 let previousAnnounceVersions=new Map();
 let unsubscribePublic=null;
@@ -109,9 +118,9 @@ function applyPublicSnapshot(snapshot){
  tvDebug('snapshot count',snapshot.size??snapshot.docs.length);
  publicRows=snapshot.docs.map(doc=>({...doc.data(),id:`order:${doc.id}`})).filter(row=>shouldDisplayOrder(row));
  const currentDisplayStatuses=new Map(publicRows.map(row=>[row.id,row.displayStatus]));
- if(hasInitialPublicSnapshot){
-  publicRows.filter(row=>row.displayStatus==='ready'&&['cooking',undefined].includes(previousDisplayStatuses.get(row.id))).forEach(()=>enqueueCompletionSound());
- }
+ const readyEvents=publicRows.filter(row=>row.displayStatus==='ready').map(row=>({row,key:`${row.id}:${millis(row.updatedAt)}`}));
+ if(hasInitialPublicSnapshot)readyEvents.filter(event=>!seenCompletionEvents.has(event.key)).forEach(event=>{seenCompletionEvents.add(event.key);enqueueCompletionSound()});
+ else readyEvents.forEach(event=>seenCompletionEvents.add(event.key));
  previousDisplayStatuses=currentDisplayStatuses;
  hasInitialPublicSnapshot=true;
  renderAll();
@@ -154,4 +163,4 @@ function handleConnectionError(error){
 }
 window.addEventListener('offline',()=>{connection.textContent='네트워크 끊김';connection.className='error'});
 window.addEventListener('online',()=>{connection.textContent='재연결 중';connection.className=''});
-window.addEventListener('pagehide',()=>{stopTvListeners();if(highlightRefreshTimer!=null)window.clearInterval?.(highlightRefreshTimer);if(businessDayRefreshTimer!=null)window.clearTimeout?.(businessDayRefreshTimer)});
+window.addEventListener('pagehide',()=>{stopTvListeners();completionSoundEnabled=false;completionAudioContext?.close?.().catch?.(()=>{});completionAudioContext=null;if(highlightRefreshTimer!=null)window.clearInterval?.(highlightRefreshTimer);if(businessDayRefreshTimer!=null)window.clearTimeout?.(businessDayRefreshTimer)});

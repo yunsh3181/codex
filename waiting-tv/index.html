@@ -9,7 +9,7 @@
   <style>.order-number{display:flex;flex-direction:column;align-items:center;justify-content:center}.order-number strong{font-size:clamp(52px,7vw,96px)}.order-number span{margin-top:10px;font-size:clamp(22px,2.3vw,34px)}.order-number small{margin-top:8px;font-size:clamp(18px,1.8vw,28px);font-weight:700}</style>
 </head>
 <body>
-  <header><img src="../assets/images/papajohns_red_logo.png" alt="Papa Johns"><div><h1>포장 주문 현황</h1><p>주문번호를 확인해 주세요</p></div><div class="tv-controls"><button id="enableVoice" type="button">음성 안내 시작</button><span id="tvConnection">연결 중</span></div></header>
+  <header><img src="../assets/images/papajohns_red_logo.png" alt="Papa Johns"><div><h1>포장 주문 현황</h1><p>주문번호를 확인해 주세요</p></div><div class="tv-controls"><button id="enableVoice" type="button">알림음·음성 안내 시작</button><span id="tvConnection">연결 중</span></div></header>
   <main>
     <section aria-labelledby="cookingTitle"><h2 id="cookingTitle">조리중</h2><div id="cookingOrders" class="number-grid"><p class="empty">조리중인 주문이 없습니다.</p></div></section>
     <section class="ready-section" aria-labelledby="readyTitle"><h2 id="readyTitle">조리완료</h2><div id="readyOrders" class="number-grid"><p class="empty">조리완료 주문이 없습니다.</p></div></section>
@@ -18,6 +18,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../speech.js?v=1"></script>
-  <script src="waiting-tv.js?v=4"></script>
+  <script src="waiting-tv.js?v=5"></script>
 </body>
 </html>

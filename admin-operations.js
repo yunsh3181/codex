@@ -40,6 +40,36 @@
  function seatReleasePayload(serverTimestamp){
   return {status:'empty',orderId:null,orderNo:null,partySize:null,groupId:null,occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,updatedAt:serverTimestamp()};
  }
+ function counterTakeoutOrderId(orderNumber,businessDay){return `counter_${businessDay}_${orderNumber}`}
+ async function createCounterTakeoutTransaction({db,orderNumber,status,businessDay,storeId='pangyo2-techno-valley',serverTimestamp,adminId='admin'}){
+  const number=String(orderNumber??'').trim();
+  if(!/^[0-9]{4}$/.test(number)||!/^\d{4}-\d{2}-\d{2}$/.test(String(businessDay||''))||!['cooking','ready'].includes(status))throw operationError('counter/invalid-request','대면 포장 주문 정보가 올바르지 않습니다.');
+  const orderId=counterTakeoutOrderId(number,businessDay);
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),displayRef=db.collection('publicOrderDisplays').doc(orderId),existing=await transaction.get(orderRef);
+   if(existing.exists)throw operationError('counter/duplicate',`${number}번은 이미 고객 화면에 표시 중입니다.`);
+   const timestamp=serverTimestamp(),completion=status==='ready'?{completedAt:timestamp,completedBy:String(adminId||'admin')}:{};
+   transaction.set(orderRef,{channel:'admin',source:'admin_counter',schemaVersion:1,storeId,orderNo:number,customerNumber:number,orderType:'takeout',pickup:{mode:'now'},items:[],itemCount:0,normalAmount:0,discountAmount:0,totalAmount:0,total:0,payment:{method:'counter',methodName:'대면 결제'},status,createdAt:timestamp,updatedAt:timestamp,businessDay,...completion});
+   transaction.set(displayRef,{orderNumber:number,displayStatus:status==='ready'?'ready':'cooking',storeId,businessDay,updatedAt:timestamp});
+   return {orderId,status,orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+  });
+ }
+ async function completeTakeoutTransaction({db,orderId,expectedStatus,serverTimestamp,adminId='admin',resolveBusinessDay=order=>order.businessDay}){
+  if(!orderId)throw operationError('order/invalid-request','주문 정보가 없습니다.');
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
+   if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...snapshot.data()};
+   if(order.orderType!=='takeout')throw operationError('order/invalid-transition','포장 주문만 완료할 수 있습니다.');
+   if(order.status!==expectedStatus||!['accepted','paid','cooking'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
+   const businessDay=resolveBusinessDay(order);
+   if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
+   const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   transaction.update(orderRef,{status:'ready',updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+  });
+ }
  async function forceCompleteTransaction({db,orderId,expectedStatus,expectedConfirmation,serverTimestamp}){
   if(!orderId||!expectedConfirmation)throw operationError('order/invalid-request','주문번호 확인 정보가 없습니다.');
   return db.runTransaction(async transaction=>{
@@ -70,5 +100,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });

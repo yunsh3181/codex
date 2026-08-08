@@ -21,11 +21,12 @@ assert.ok(admin.includes("isCounterTakeout(order)?'대면 포장':'포장'"),'ce
 assert.ok(admin.includes("replace(/[^0-9]/g,'').slice(0,4)"),'input blocks non-digits and limits to four');
 assert.ok(admin.includes("manualCustomerCallForm?.addEventListener('submit'")&&admin.includes("createManualCustomerCall(manualCustomerNumber.value,'cooking'"),'Enter performs order intake and creates cooking');
 assert.ok(admin.includes("db.runTransaction"),'registration uses a transaction');
-assert.ok(admin.includes('`counter_${businessDay}_${orderNumber}`'),'business day and number form the deterministic order id');
-assert.ok(/createManualCustomerCall[\s\S]{0,2200}collection\('orders'\)/.test(admin),'manual creation writes the canonical orders collection');
-assert.ok(/createManualCustomerCall[\s\S]{0,2200}publicOrderDisplays/.test(admin),'manual creation writes the existing public display collection');
-assert.ok(admin.includes("source:'admin_counter'")&&admin.includes("items:[]")&&admin.includes("totalAmount:0")&&admin.includes("methodName:'대면 결제'"),'counter schema contains no fabricated menu or revenue');
-assert.ok(admin.includes("status==='ready'?{completedAt:timestamp"),'direct completion records completion metadata atomically');
+assert.ok(admin.includes('PJAdminOperations.counterTakeoutOrderId(orderNumber,businessDay)'),'browser delegates the deterministic order id to production operations');
+assert.ok(admin.includes('await createCounterTakeoutTransaction({db'),'manual creation calls the shared production transaction helper');
+assert.ok(!/createManualCustomerCall[\s\S]{0,1600}db\.runTransaction/.test(admin),'browser does not duplicate the counter transaction');
+const operations=fs.readFileSync(path.resolve(__dirname,'../admin-operations.js'),'utf8');
+assert.ok(operations.includes("source:'admin_counter'")&&operations.includes("items:[]")&&operations.includes("totalAmount:0")&&operations.includes("methodName:'대면 결제'"),'production helper contains no fabricated menu or revenue');
+assert.ok(operations.includes("status==='ready'?{completedAt:timestamp"),'direct completion records completion metadata atomically');
 assert.ok(rules.includes('validAdminCounterOrderCreate()'),'rules contain a narrow administrator counter-order create policy');
 
 const validatorSource=admin.match(/function validManualCustomerNumber[\s\S]*?\n}/)[0];
