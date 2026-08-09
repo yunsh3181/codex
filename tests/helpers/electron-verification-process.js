@@ -81,10 +81,11 @@ function releaseElectronLock(lock) {
 
 function diagnosticPathFor(env = {}) {
   if (env.ELECTRON_VERIFICATION_DIAGNOSTICS) return env.ELECTRON_VERIFICATION_DIAGNOSTICS;
-  const uniqueDirectoryKey = Object.keys(env).find(key => /_(SCREENSHOT_DIR|OUTPUT)$/.test(key));
-  if (uniqueDirectoryKey && env[uniqueDirectoryKey]) return path.join(env[uniqueDirectoryKey], 'electron-lifecycle.jsonl');
   const userDataKey = Object.keys(env).find(key => /USER_DATA$/.test(key));
   if (userDataKey && env[userDataKey]) return path.join(env[userDataKey], 'electron-lifecycle.jsonl');
+  const screenshotDirectoryKey = Object.keys(env).find(key => /_SCREENSHOT_DIR$/.test(key));
+  if (screenshotDirectoryKey && env[screenshotDirectoryKey]) return path.join(env[screenshotDirectoryKey], 'electron-lifecycle.jsonl');
+  if (env.MOBILE_PIZZA_GRID_OUTPUT) return path.join(env.MOBILE_PIZZA_GRID_OUTPUT, 'electron-lifecycle.jsonl');
   const reportKey = Object.keys(env).find(key => /_REPORT$/.test(key));
   return reportKey && env[reportKey] ? `${env[reportKey]}.lifecycle.jsonl` : null;
 }
@@ -147,6 +148,7 @@ function electronResultDetails(result) {
 module.exports = {
   acquireElectronLock,
   assertElectronSucceeded,
+  diagnosticPathFor,
   electronResultDetails,
   lockPathFor,
   releaseElectronLock,

@@ -5,9 +5,23 @@ const path = require('node:path');
 const test = require('node:test');
 const {
   acquireElectronLock,
+  diagnosticPathFor,
   lockPathFor,
   releaseElectronLock,
 } = require('./helpers/electron-verification-process');
+
+test('diagnostics never treat GitHub output command files as directories', () => {
+  assert.equal(diagnosticPathFor({
+    GITHUB_OUTPUT: '/runner/_temp/_runner_file_commands/set_output-id',
+    WAITING_TV_REPORT: '/tmp/waiting/report.json',
+    WAITING_TV_USER_DATA: '/tmp/waiting/profile',
+  }), path.join('/tmp/waiting/profile', 'electron-lifecycle.jsonl'));
+  assert.equal(diagnosticPathFor({
+    GITHUB_OUTPUT: '/runner/_temp/_runner_file_commands/set_output-id',
+    ADMIN_CENTRAL_REPORT: '/tmp/admin-report.json',
+    ADMIN_CENTRAL_SCREENSHOT_DIR: '/tmp/admin-screens',
+  }), path.join('/tmp/admin-screens', 'electron-lifecycle.jsonl'));
+});
 
 test('Electron verification lock is atomic, owner-bound, and released', t => {
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'electron-lock-test-'));
