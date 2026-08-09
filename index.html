@@ -2642,6 +2642,7 @@ let lastRenderedStep=null;
 let reviewFitFrame=0;
 let reviewPage=0;
 let reviewPages=[];
+let reviewPageMetrics={availableHeight:0,gap:0,cardHeights:[]};
 function applyAdaptiveCardSizing(){
  document.querySelectorAll('.grid,.areaGrid,.tableGrid,.darkBenefitGrid,.darkSetGrid,.optionGrid,.menuGrid').forEach(grid=>{
   const count=[...grid.children].filter(el=>!el.hidden).length;
@@ -2663,7 +2664,7 @@ function reviewContentOverflows(){
 function fitOrderReview(){
  const body=document.body;
  if(!body?.classList)return 0;
- body.classList.remove('reviewCompact1','reviewCompact2');
+ body.classList.remove('reviewCompact1','reviewCompact2','reviewPaginated');
  body.dataset.reviewCompression='0';
  if(state.step!=='review')return 0;
  if(document.documentElement.dataset?.layout==='phone')return 0;
@@ -2672,13 +2673,40 @@ function fitOrderReview(){
   const cards=[...document.querySelectorAll('.reviewOrderCard')];
   const pager=document.querySelector('.reviewPager');
   if(!list||!cards.length)return 0;
+  if(pager)pager.hidden=true;
   cards.forEach(card=>card.hidden=false);
   reviewPages=[];
   const fits=()=>list.scrollHeight<=list.clientHeight+1;
   if(!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
   if(!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
   if(fits())reviewPages=[cards.map((_,index)=>index)];
-  else reviewPages=cards.map((_,index)=>[index]);
+  else{
+   body.classList.add('reviewPaginated');
+   if(pager)pager.hidden=false;
+   const availableHeight=list.clientHeight;
+   const gap=parseFloat(getComputedStyle(list).rowGap)||0;
+   const showOnly=indexes=>{const visible=new Set(indexes);cards.forEach((card,index)=>card.hidden=!visible.has(index))};
+   const cardHeights=cards.map((card,index)=>{showOnly([index]);return Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight))});
+   reviewPageMetrics={availableHeight,gap,cardHeights};
+   let page=[];
+   cards.forEach((card,index)=>{
+    const candidate=[...page,index];
+    showOnly(candidate);
+    if(page.length&&list.scrollHeight>list.clientHeight){reviewPages.push(page);page=[index];showOnly(page)}else page=candidate;
+   });
+   if(page.length)reviewPages.push(page);
+   const pageMetrics=reviewPages.map((indexes,pageIndex)=>{
+    showOnly(indexes);
+    const heights=indexes.map(index=>Math.ceil(Math.max(cards[index].getBoundingClientRect().height,cards[index].scrollHeight)));
+    const usedHeight=heights.reduce((sum,height)=>sum+height,0)+Math.max(0,heights.length-1)*gap;
+    const nextIndex=reviewPages[pageIndex+1]?.[0];
+    let canFitNextCard=false;
+    if(nextIndex!==undefined){showOnly([...indexes,nextIndex]);canFitNextCard=list.scrollHeight<=list.clientHeight}
+    return {availableHeight:list.clientHeight,usedHeight,remainingHeight:list.clientHeight-usedHeight,nextCardHeight:nextIndex===undefined?0:cardHeights[nextIndex],canFitNextCard};
+   });
+   reviewPageMetrics={availableHeight,gap,cardHeights,pageMetrics};
+  }
+  if(reviewPages.length===1){const gap=parseFloat(getComputedStyle(list).rowGap)||0;reviewPageMetrics={availableHeight:list.clientHeight,gap,cardHeights:cards.map(card=>Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight)))}}
   reviewPage=Math.min(Math.max(0,reviewPage),Math.max(0,reviewPages.length-1));
   const visible=new Set(reviewPages[reviewPage]||[]);
   cards.forEach((card,index)=>card.hidden=!visible.has(index));
@@ -7292,9 +7320,11 @@ html[data-layout="kiosk21"] body[data-step="review"] #main{position:fixed;inset:
 html[data-layout="kiosk21"] body[data-step="review"] .stage{position:absolute;inset:0 0 calc(var(--order-summary-height) + 22px) 0;display:flex;width:auto;height:auto!important;min-height:0;padding-bottom:0!important;box-sizing:border-box;flex-direction:column;overflow:hidden!important}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewKioskHeader{flex:0 0 auto}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewKioskLayout{display:grid;min-height:0;flex:1;grid-template-columns:minmax(0,66%) minmax(0,34%);gap:20px}
-html[data-layout="kiosk21"] body[data-step="review"] .reviewItemsPane{display:grid;min-height:0;grid-template-rows:minmax(0,1fr) 92px;overflow:hidden}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewItemsPane{display:grid;min-height:0;grid-template-rows:minmax(0,1fr);overflow:hidden}
+html[data-layout="kiosk21"] body[data-step="review"].reviewPaginated .reviewItemsPane{grid-template-rows:minmax(0,1fr) 92px}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderList{display:flex;min-height:0;margin:0;gap:12px;flex-direction:column;overflow:hidden!important;overscroll-behavior:none;scrollbar-width:none}
-html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard{flex:0 0 auto;padding:16px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard{flex:0 0 auto;margin:0!important;padding:16px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard .cartCategory{grid-column:1/-1}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard[hidden]{display:none!important}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane{display:flex;min-height:0;padding:16px;border-radius:20px;flex-direction:column;overflow:hidden;background:#fff}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox{margin:0;padding:18px;background:#f4f7f5}
@@ -7309,14 +7339,27 @@ html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewA
 html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewConfirmBtn{order:3;min-height:86px;margin-top:auto}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewConfirmNote{order:4}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewPager{display:grid;flex:0 0 auto;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;padding-top:12px}
-html[data-layout="kiosk21"] body[data-step="review"] .reviewPager[hidden]{display:grid;visibility:hidden}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPager[hidden]{display:none}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewPager button{min-height:80px;padding:10px;border:0;border-radius:16px;background:var(--v10-green);color:#fff;font-size:18px;font-weight:900;touch-action:manipulation}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewPager button:disabled{background:#b7bdb9;color:#f5f5f5}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewPageStatus{min-width:70px;text-align:center;font-size:20px;font-weight:1000;color:#fff}
 html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 .reviewOrderCard{padding:12px}
 html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){line-height:1.25}
 html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderCard{padding:9px}
-html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){font-size:12px!important;line-height:1.15}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderList{gap:10px}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderCard{padding:6px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartCategory{padding:2px 0!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartCategory h2{margin-bottom:3px!important;font-size:20px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaMeta{gap:2px 0!important;padding:0 0 2px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaToppingLine{padding:1px 0!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown{gap:1px 12px!important;margin-top:3px!important;padding:5px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine.final{margin-top:1px!important;padding-top:3px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartBenefitRow,.cartOrderTotal){padding-top:5px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartOrderActions{margin-top:3px!important}
+html[data-layout="kiosk21"] body[data-step="review"] :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){font-size:16px!important}
+html[data-layout="kiosk21"] body[data-step="review"] :is(.cartItemQuantity,.cartItemPrice,.cartOrderTotal){font-size:18px!important}
+html[data-layout="kiosk21"] body[data-step="review"] .cartPizzaToppingLine{font-size:20px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){line-height:1.15}
 html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartCategory,.cartPizzaCategory){padding-top:6px;padding-bottom:6px}
 
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active{
