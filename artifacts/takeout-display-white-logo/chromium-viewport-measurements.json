@@ -1,0 +1,35 @@
+{
+  "baseline": "origin/main@6c539c6f38f0a9ee062b0689351f6854a91e94d7",
+  "selector": ".takeout-display-logo",
+  "asset": "assets/images/papajohns_red_logo.png",
+  "scale": {
+    "width": 1.5,
+    "height": 1.5
+  },
+  "viewports": [
+    {
+      "viewport": [1080, 1920],
+      "before": {"logo": {"x": 43.1953125, "y": 36.75, "width": 150, "height": 64}, "header": {"x": 0, "y": 0, "width": 1080, "height": 138.5}, "left": 43.1953125, "top": 36.75, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0},
+      "after": {"logo": {"x": 43.1953125, "y": 21, "width": 225, "height": 96}, "header": {"x": 0, "y": 0, "width": 1080, "height": 139}, "left": 43.1953125, "top": 21, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0}
+    },
+    {
+      "viewport": [1920, 1080],
+      "before": {"logo": {"x": 76.796875, "y": 43.5, "width": 150, "height": 64}, "header": {"x": 0, "y": 0, "width": 1920, "height": 152}, "left": 76.796875, "top": 43.5, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0},
+      "after": {"logo": {"x": 76.796875, "y": 21, "width": 225, "height": 96}, "header": {"x": 0, "y": 0, "width": 1920, "height": 139}, "left": 76.796875, "top": 21, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0}
+    },
+    {
+      "viewport": [1440, 900],
+      "before": {"logo": {"x": 57.59375, "y": 43.5, "width": 150, "height": 64}, "header": {"x": 0, "y": 0, "width": 1440, "height": 152}, "left": 57.59375, "top": 43.5, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0},
+      "after": {"logo": {"x": 57.59375, "y": 21, "width": 225, "height": 96}, "header": {"x": 0, "y": 0, "width": 1440, "height": 139}, "left": 57.59375, "top": 21, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0}
+    },
+    {
+      "viewport": [1100, 800],
+      "before": {"logo": {"x": 44, "y": 37.25, "width": 150, "height": 64}, "header": {"x": 0, "y": 0, "width": 1100, "height": 139.5}, "left": 44, "top": 37.25, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0},
+      "after": {"logo": {"x": 44, "y": 21, "width": 225, "height": 96}, "header": {"x": 0, "y": 0, "width": 1100, "height": 139}, "left": 44, "top": 21, "clipped": false, "overlapTitle": false, "overlapControls": false, "horizontalOverflow": 0, "verticalOverflow": 0}
+    }
+  ],
+  "computedStyle": {
+    "before": {"background": "rgb(255, 255, 255)", "padding": "7px", "filter": "none"},
+    "after": {"background": "rgba(0, 0, 0, 0)", "padding": "0px", "margin": "0px", "filter": "brightness(0) invert(1)", "objectFit": "contain", "objectPosition": "0% 50%"}
+  }
+}
