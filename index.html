@@ -2640,6 +2640,9 @@ function toppingVisual(name){
 }
 let lastRenderedStep=null;
 let reviewFitFrame=0;
+let reviewPage=0;
+let reviewPages=[];
+let reviewPageMetrics={availableHeight:0,gap:0,cardHeights:[]};
 function applyAdaptiveCardSizing(){
  document.querySelectorAll('.grid,.areaGrid,.tableGrid,.darkBenefitGrid,.darkSetGrid,.optionGrid,.menuGrid').forEach(grid=>{
   const count=[...grid.children].filter(el=>!el.hidden).length;
@@ -2661,10 +2664,58 @@ function reviewContentOverflows(){
 function fitOrderReview(){
  const body=document.body;
  if(!body?.classList)return 0;
- body.classList.remove('reviewCompact1','reviewCompact2');
+ body.classList.remove('reviewCompact1','reviewCompact2','reviewPaginated');
  body.dataset.reviewCompression='0';
  if(state.step!=='review')return 0;
  if(document.documentElement.dataset?.layout==='phone')return 0;
+ if(document.documentElement.dataset?.layout==='kiosk21'){
+  const list=document.querySelector('.reviewOrderList');
+  const cards=[...document.querySelectorAll('.reviewOrderCard')];
+  const pager=document.querySelector('.reviewPager');
+  if(!list||!cards.length)return 0;
+  if(pager)pager.hidden=true;
+  cards.forEach(card=>card.hidden=false);
+  reviewPages=[];
+  const fits=()=>list.scrollHeight<=list.clientHeight+1;
+  if(!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
+  if(!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
+  if(fits())reviewPages=[cards.map((_,index)=>index)];
+  else{
+   body.classList.add('reviewPaginated');
+   if(pager)pager.hidden=false;
+   const availableHeight=list.clientHeight;
+   const gap=parseFloat(getComputedStyle(list).rowGap)||0;
+   const showOnly=indexes=>{const visible=new Set(indexes);cards.forEach((card,index)=>card.hidden=!visible.has(index))};
+   const cardHeights=cards.map((card,index)=>{showOnly([index]);return Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight))});
+   reviewPageMetrics={availableHeight,gap,cardHeights};
+   let page=[];
+   cards.forEach((card,index)=>{
+    const candidate=[...page,index];
+    showOnly(candidate);
+    if(page.length&&list.scrollHeight>list.clientHeight){reviewPages.push(page);page=[index];showOnly(page)}else page=candidate;
+   });
+   if(page.length)reviewPages.push(page);
+   const pageMetrics=reviewPages.map((indexes,pageIndex)=>{
+    showOnly(indexes);
+    const heights=indexes.map(index=>Math.ceil(Math.max(cards[index].getBoundingClientRect().height,cards[index].scrollHeight)));
+    const usedHeight=heights.reduce((sum,height)=>sum+height,0)+Math.max(0,heights.length-1)*gap;
+    const nextIndex=reviewPages[pageIndex+1]?.[0];
+    let canFitNextCard=false;
+    if(nextIndex!==undefined){showOnly([...indexes,nextIndex]);canFitNextCard=list.scrollHeight<=list.clientHeight}
+    return {availableHeight:list.clientHeight,usedHeight,remainingHeight:list.clientHeight-usedHeight,nextCardHeight:nextIndex===undefined?0:cardHeights[nextIndex],canFitNextCard};
+   });
+   reviewPageMetrics={availableHeight,gap,cardHeights,pageMetrics};
+  }
+  if(reviewPages.length===1){const gap=parseFloat(getComputedStyle(list).rowGap)||0;reviewPageMetrics={availableHeight:list.clientHeight,gap,cardHeights:cards.map(card=>Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight)))}}
+  reviewPage=Math.min(Math.max(0,reviewPage),Math.max(0,reviewPages.length-1));
+  const visible=new Set(reviewPages[reviewPage]||[]);
+  cards.forEach((card,index)=>card.hidden=!visible.has(index));
+  const paginated=reviewPages.length>1;
+  if(pager){pager.hidden=!paginated;pager.querySelector('.reviewPageStatus').textContent=`${reviewPage+1} / ${reviewPages.length}`;pager.querySelector('.reviewPagePrev').disabled=reviewPage===0;pager.querySelector('.reviewPageNext').disabled=reviewPage===reviewPages.length-1}
+  body.dataset.reviewDensity=paginated?'pagination':Number(body.dataset.reviewCompression)?'compact':'default';
+  list.scrollTo({top:0,left:0,behavior:'auto'});
+  return Number(body.dataset.reviewCompression);
+ }
  const orderCount=Math.max(1,document.querySelectorAll('.reviewOrderCard').length);
  body.style.setProperty('--review-order-columns',String(Math.min(orderCount,4)));
  if(reviewContentOverflows()){
@@ -2677,6 +2728,7 @@ function fitOrderReview(){
  }
  return Number(body.dataset.reviewCompression);
 }
+function changeReviewPage(delta){const next=Math.min(Math.max(0,reviewPage+delta),Math.max(0,reviewPages.length-1));if(next===reviewPage)return;reviewPage=next;fitOrderReview();document.querySelector('.reviewPageStatus')?.focus({preventScroll:true})}
 function scheduleOrderReviewFit(){
  if(typeof requestAnimationFrame!=='function'){fitOrderReview();return}
  if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(reviewFitFrame);
@@ -2693,6 +2745,7 @@ function render(){
  recoverUnknownKioskStep();
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
+ if(stepChanged&&(state.step==='review'||lastRenderedStep==='review'))reviewPage=0;
  if(state.step!=='idle')stopIdlePromotionTimers();
  document.body.dataset.step=state.step||'';
  const main=document.getElementById('main');
@@ -2851,7 +2904,7 @@ function view(){
  if(state.step==='side'){if(state.finalAddMode==='side')return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.sideScreen.paidBanner')}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipReview'))}`);if(state.set){const need=state.set===4?2:1;const complete=sum(state.setSides)===need;if(state.setSideExtraMode)return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.sideScreen.extraComplete',{count:sum(state.setSides)})}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSideExtra()',t('ui.sideScreen.finishToDrink'))}`);return shell(`<h1 class="title">${t('ui.sideScreen.includedTitle')} ${complete?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="notice">${t('ui.sideScreen.selectionGuide',{need,current:sum(state.setSides)})}</div><div class="grid sideMenuGrid">${SIDES.filter(x=>state.set===2?x.set2:x.set).map(x=>setSideCard(x,need)).join('')}</div>${selectionFooter('continueSetSide()',t('ui.sideScreen.finishToDrink'),'setSideContinue',!complete)}`)}return shell(`<h1 class="title">${t('ui.sideScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.sideScreen.recommendation')}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipToDrink'))}`)};
  if(state.step==='drink'){if(state.finalAddMode==='drink')return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.drinkScreen.paidBanner')}</div><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`);if(state.set){if(state.setDrinkExtraMode)return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.drinkScreen.extraPaidBanner')}</div><h2>${t('ui.drinkScreen.additionalPurchase')}</h2><p class="sub">${t('ui.drinkScreen.selectTypeSize')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrinkExtra()',t('ui.drinkScreen.finishNext'))}`);let provided=state.set===2?DRINKS.filter(x=>x.small):DRINKS.filter(x=>x.large);return shell(`<h1 class="title">${t('ui.drinkScreen.includedTitle')} ${state.setDrink?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="grid four drinkTextGrid">${provided.map(x=>setDrinkCard(x)).join('')}</div>${selectionFooter('continueSetDrink()',t('ui.drinkScreen.finishNext'),'setDrinkContinue',!state.setDrink)}`)}return shell(`<h1 class="title">${t('ui.drinkScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.recommendation')}</div><p class="sub">${t('ui.drinkScreen.subtitle')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`)};
  if(state.step==='accompaniment')return shell(`<h1 class="title">${t('ui.drinkScreen.accompanimentTitle')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.accompanimentRecommendation')}</div><p class="sub">${t('ui.drinkScreen.optional')}</p><div class="grid four accompanimentGrid">${SAUCES.map(x=>textQtyCard(x,'extraDrinks')).join('')}</div>${selectionFooter('finishAccompaniment()',t('ui.drinkScreen.finishReview'))}`);
- if(state.step==='review')return shell(`<h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p>${reviewOrdersHTML()}${reviewAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div>`);
+ if(state.step==='review')return shell(`<div class="reviewKioskHeader"><h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p></div><div class="reviewKioskLayout"><section class="reviewItemsPane">${reviewOrdersHTML()}</section><aside class="reviewSummaryPane">${reviewAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div></aside></div>`);
  if(state.step==='phone')return shell(`<div class="phoneStep"><h1 class="title stepTitleIcon">${uiIcon("phone")} ${t('phone.title')}</h1><p class="sub">${t('phone.subtitle')}</p><div class="summary"><div id="phoneDisplay" class="phoneDisplay ${validPhone()?'isComplete':'isIncomplete'}">${formatPhone(state.phone)}</div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pressPhone('${n}')">${n}</button>`).join('')}<button onclick="clearPhone()">${t('phone.clear')}</button><button onclick="pressPhone('0')">0</button><button onclick="backPhone()">⌫</button></div><div id="phoneNotice" class="notice ${validPhone()?'isComplete':'isIncomplete'}">${phoneNoticeHTML()}</div><button id="phoneNext" class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPhone()?'':'disabled'} onclick="goPayment()">${t('phone.next')}</button></div></div>`);
  if(state.step==='payment'){const total=currentOrderTotal()+cartTotal();return shell(`<h1 class="title">${t('ui.payment.title')}</h1><p class="sub">${t('ui.payment.subtitle')}</p><div class="summary"><div class="row grand"><span>${t('ui.payment.amount')}</span><strong>${money(total)}</strong></div><div class="paymentGrid">${['cash','card','meal_ticket','bizle'].map(method=>`<button class="paymentCard payment-method-${method} ${state.paymentMethod===method?'active':''}" data-payment-method="${method}" onclick="selectPayment('${method}')">${paymentName(method)}</button>`).join('')}</div>${isSplitPayment()?splitPaymentHTML(total):''}<button type="button" id="paymentSubmitBtn" data-action="submit-order" class="next paymentSubmitBtn" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPayment()?'':'disabled'}>${t('ui.payment.submit')}</button><div id="submitError" class="submitError"></div></div>`)};
  if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${orderNumberLabel(state.orderNo)}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentGuidanceName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="reset();render()">${t('done.home')}</button></div>`)
@@ -3361,7 +3414,7 @@ function orderDetailData(order){
 function detailList(title,lines,included=false){if(!lines.length)return '';return `<div class="reviewSection"><b>${title}</b><ul>${lines.map(x=>`<li><span>${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}</span><span>${included?t('review.included'):x.amount?'+ '+money(x.amount):'-'}</span></li>`).join('')}</ul></div>`}
 function reviewOrderCard(order,index){const model=buildCartDisplayModel(order);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}<div class="cartOrderActions"><button onclick="changeCartQty(${index},-1)">−</button><button onclick="changeCartQty(${index},1)">＋</button><button class="remove" onclick="removeCartItem(${index})">${t('cart.remove')}</button></div></article>`}
 function allReviewOrders(){return (state.cartItems||[]).map(x=>({...x,__current:false}))}
-function reviewOrdersHTML(){return `<div class="reviewOrderList">${allReviewOrders().map(reviewOrderCard).join('')}</div>`}
+function reviewOrdersHTML(){return `<div class="reviewOrderList" role="region" aria-label="${escAttr(t('review.orderListLabel'))}">${allReviewOrders().map(reviewOrderCard).join('')}</div><nav class="reviewPager" aria-label="${escAttr(t('review.paginationLabel'))}" hidden><button type="button" class="reviewPagePrev" aria-label="${escAttr(t('review.previousItems'))}" onclick="changeReviewPage(-1)">${t('review.previousItems')}</button><span class="reviewPageStatus" role="status" aria-live="polite" tabindex="-1">1 / 1</span><button type="button" class="reviewPageNext" aria-label="${escAttr(t('review.nextItems'))}" onclick="changeReviewPage(1)">${t('review.nextItems')}</button></nav>`}
 function reviewAddActionsHTML(){return `<section class="reviewAddMore"><h2>${t('cart.addMoreTitle')}</h2><div class="reviewAddMoreGrid"><button type="button" onclick="addAnotherSet()">${t('cart.addSet')}</button><button type="button" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button type="button" onclick="addAnotherSingle()">${t('cart.addSingle')}</button></div><p>${t('cart.continueCheckout')}</p></section>`}
 function reviewTotals(){const orders=allReviewOrders();let normal=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),q=d.qty||1;normal+=d.amount.normal*q;final+=d.amount.final*q;const itemDiscount=Math.max(0,d.amount.normal-d.amount.final)*q;if(itemDiscount)discounts[d.amount.label]=(discounts[d.amount.label]||0)+itemDiscount});return {normal,discount:Math.max(0,normal-final),final,discounts}}
 function reviewTotalsHTML(){const totals=reviewTotals();return `<div class="reviewDiscountBox"><div class="line"><span>${t('orderSummary.normalAmount')}</span><strong>${money(totals.normal)}</strong></div>${Object.entries(totals.discounts).map(([k,v])=>`<div class="line discountLine"><span>${k}</span><strong>−${money(v)}</strong></div>`).join('')}${totals.discount?`<div class="line totalDiscount"><span>${t('orderSummary.totalDiscount')}</span><strong>−${money(totals.discount)}</strong></div>`:''}<div class="line final"><span>${t('orderSummary.finalPayment')}</span><strong>${money(totals.final)}</strong></div></div>`}
@@ -7260,6 +7313,55 @@ html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid :is(.set-2,
   line-height:1.2!important;
 }
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"],
+/* 1080x1920 kiosk order review: single reading direction with measured card pagination. */
+html[data-layout="kiosk21"] body[data-step="review"]{overflow:hidden!important}
+html[data-layout="kiosk21"] body[data-step="review"] :is(.app,#main,.stage){height:100%;overflow:hidden!important}
+html[data-layout="kiosk21"] body[data-step="review"] #main{position:fixed;inset:208px 0 0;height:auto!important;transform:none!important}
+html[data-layout="kiosk21"] body[data-step="review"] .stage{position:absolute;inset:0 0 calc(var(--order-summary-height) + 22px) 0;display:flex;width:auto;height:auto!important;min-height:0;padding-bottom:0!important;box-sizing:border-box;flex-direction:column;overflow:hidden!important}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewKioskHeader{flex:0 0 auto}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewKioskLayout{display:grid;min-height:0;flex:1;grid-template-columns:minmax(0,66%) minmax(0,34%);gap:20px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewItemsPane{display:grid;min-height:0;grid-template-rows:minmax(0,1fr);overflow:hidden}
+html[data-layout="kiosk21"] body[data-step="review"].reviewPaginated .reviewItemsPane{grid-template-rows:minmax(0,1fr) 92px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderList{display:flex;min-height:0;margin:0;gap:12px;flex-direction:column;overflow:hidden!important;overscroll-behavior:none;scrollbar-width:none}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard{flex:0 0 auto;margin:0!important;padding:16px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard .cartCategory{grid-column:1/-1}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard[hidden]{display:none!important}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane{display:flex;min-height:0;padding:16px;border-radius:20px;flex-direction:column;overflow:hidden;background:#fff}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox{margin:0;padding:18px;background:#f4f7f5}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox{order:1}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox .line{font-size:18px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox .line{gap:10px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox .line span{min-width:0;flex:1;overflow-wrap:anywhere}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox .line strong{flex:0 0 auto;white-space:nowrap}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewDiscountBox .final{font-size:28px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewAddMore{order:2;margin:16px 0;padding:14px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewAddMoreGrid{grid-template-columns:1fr}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewConfirmBtn{order:3;min-height:86px;margin-top:auto}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewSummaryPane .reviewConfirmNote{order:4}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPager{display:grid;flex:0 0 auto;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;padding-top:12px}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPager[hidden]{display:none}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPager button{min-height:80px;padding:10px;border:0;border-radius:16px;background:var(--v10-green);color:#fff;font-size:18px;font-weight:900;touch-action:manipulation}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPager button:disabled{background:#b7bdb9;color:#f5f5f5}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewPageStatus{min-width:70px;text-align:center;font-size:20px;font-weight:1000;color:#fff}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 .reviewOrderCard{padding:12px}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){line-height:1.25}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderCard{padding:9px}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderList{gap:10px}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .reviewOrderCard{padding:6px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartCategory{padding:2px 0!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartCategory h2{margin-bottom:3px!important;font-size:20px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaMeta{gap:2px 0!important;padding:0 0 2px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaToppingLine{padding:1px 0!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaPriceBreakdown{gap:1px 12px!important;margin-top:3px!important;padding:5px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartPizzaPriceLine.final{margin-top:1px!important;padding-top:3px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartBenefitRow,.cartOrderTotal){padding-top:5px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 .cartOrderActions{margin-top:3px!important}
+html[data-layout="kiosk21"] body[data-step="review"] :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){font-size:16px!important}
+html[data-layout="kiosk21"] body[data-step="review"] :is(.cartItemQuantity,.cartItemPrice,.cartOrderTotal){font-size:18px!important}
+html[data-layout="kiosk21"] body[data-step="review"] .cartPizzaToppingLine{font-size:20px!important}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartPizzaMeta,.cartPizzaToppingLine,.cartPizzaPriceLine,.cartItemSummary){line-height:1.15}
+html[data-layout="kiosk21"] body[data-step="review"].reviewCompact2 :is(.cartCategory,.cartPizzaCategory){padding-top:6px;padding-bottom:6px}
+
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active{
   background:#03C75A!important;
   color:#07150f!important;

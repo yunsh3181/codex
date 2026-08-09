@@ -15,6 +15,9 @@
   ],
   "scenarios": [
     "normal-whole",
+    "two-items",
+    "three-items",
+    "four-items",
     "takeout-half",
     "set-2",
     "set-3",
@@ -23,36 +26,40 @@
     "happy-hour",
     "multi-pizza",
     "max-categories",
-    "long-complex-order"
+    "long-complex-order",
+    "five-items",
+    "six-items",
+    "bulk-pagination",
+    "max-cart-items"
   ],
-  "totalCombinations": 240,
+  "totalCombinations": 408,
   "overlapCount": 0,
   "clippedTextCount": 0,
   "maxHorizontalOverflow": 0,
   "scrollHeightByLocale": {
     "ko": {
       "min": 1002,
-      "max": 3980
+      "max": 3989
     },
     "en": {
       "min": 1022,
-      "max": 4089
+      "max": 4099
     },
     "ja": {
       "min": 1005,
-      "max": 4090
+      "max": 4100
     },
     "zh": {
       "min": 1002,
-      "max": 3980
+      "max": 3989
     },
     "vi": {
       "min": 1002,
-      "max": 3999
+      "max": 4009
     },
     "es": {
       "min": 1044,
-      "max": 4176
+      "max": 4185
     }
   },
   "minimumBottomSafetyGap": 48,
@@ -87,24 +94,616 @@
       "promotionDescription": 11
     }
   },
+  "kioskMeasurements": [
+    {
+      "scenario": "normal-whole",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 421,
+      "remainingHeight": 847,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "two-items",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 854,
+      "remainingHeight": 414,
+      "visibleIndexes": [
+        0,
+        1
+      ],
+      "visibleCount": 2,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 2,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "three-items",
+      "densityMode": "compact",
+      "availableHeight": 1268,
+      "usedHeight": 1253,
+      "remainingHeight": 15,
+      "visibleIndexes": [
+        0,
+        1,
+        2
+      ],
+      "visibleCount": 3,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 3,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "four-items",
+      "densityMode": "compact",
+      "availableHeight": 1268,
+      "usedHeight": 950,
+      "remainingHeight": 318,
+      "visibleIndexes": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "visibleCount": 4,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 4,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "takeout-half",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 440,
+      "remainingHeight": 828,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "set-2",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 421,
+      "remainingHeight": 847,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "set-3",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 421,
+      "remainingHeight": 847,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "set-4",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 421,
+      "remainingHeight": 847,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "upup",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 459,
+      "remainingHeight": 809,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "happy-hour",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 440,
+      "remainingHeight": 828,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "multi-pizza",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 421,
+      "remainingHeight": 847,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "max-categories",
+      "densityMode": "default",
+      "availableHeight": 1268,
+      "usedHeight": 892,
+      "remainingHeight": 376,
+      "visibleIndexes": [
+        0
+      ],
+      "visibleCount": 1,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 1,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "long-complex-order",
+      "densityMode": "pagination",
+      "availableHeight": 1176,
+      "usedHeight": 1018,
+      "remainingHeight": 158,
+      "visibleIndexes": [
+        0,
+        1
+      ],
+      "visibleCount": 2,
+      "minimumFontSize": 16,
+      "pageCount": 2,
+      "cardCount": 4,
+      "pagerReservedHeight": 92,
+      "canFitNextCard": false,
+      "pages": [
+        {
+          "page": 1,
+          "visibleIndexes": [
+            0,
+            1
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 1018,
+          "remainingHeight": 158,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": true,
+          "nextDisabled": false,
+          "statusText": "1 / 2",
+          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 506,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액404,000원포장 20%−57,600원총 할인−57,600원최종 결제금액346,400원"
+        },
+        {
+          "page": 2,
+          "visibleIndexes": [
+            2,
+            3
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 1018,
+          "remainingHeight": 158,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": true,
+          "statusText": "2 / 2",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 0,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액404,000원포장 20%−57,600원총 할인−57,600원최종 결제금액346,400원"
+        }
+      ]
+    },
+    {
+      "scenario": "five-items",
+      "densityMode": "compact",
+      "availableHeight": 1268,
+      "usedHeight": 1189,
+      "remainingHeight": 79,
+      "visibleIndexes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "visibleCount": 5,
+      "minimumFontSize": 16,
+      "pageCount": 1,
+      "cardCount": 5,
+      "pagerReservedHeight": 0,
+      "canFitNextCard": false,
+      "pages": []
+    },
+    {
+      "scenario": "six-items",
+      "densityMode": "pagination",
+      "availableHeight": 1176,
+      "usedHeight": 1106,
+      "remainingHeight": 70,
+      "visibleIndexes": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "visibleCount": 4,
+      "minimumFontSize": 16,
+      "pageCount": 2,
+      "cardCount": 6,
+      "pagerReservedHeight": 92,
+      "canFitNextCard": false,
+      "pages": [
+        {
+          "page": 1,
+          "visibleIndexes": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "visibleCount": 4,
+          "availableHeight": 1176,
+          "usedHeight": 1106,
+          "remainingHeight": 70,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": true,
+          "nextDisabled": false,
+          "statusText": "1 / 2",
+          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 272,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액233,400원UP & UP−62,400원총 할인−62,400원최종 결제금액171,000원"
+        },
+        {
+          "page": 2,
+          "visibleIndexes": [
+            4,
+            5
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 550,
+          "remainingHeight": 626,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": true,
+          "statusText": "2 / 2",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 0,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액233,400원UP & UP−62,400원총 할인−62,400원최종 결제금액171,000원"
+        }
+      ]
+    },
+    {
+      "scenario": "bulk-pagination",
+      "densityMode": "pagination",
+      "availableHeight": 1176,
+      "usedHeight": 1030,
+      "remainingHeight": 146,
+      "visibleIndexes": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "visibleCount": 4,
+      "minimumFontSize": 16,
+      "pageCount": 3,
+      "cardCount": 10,
+      "pagerReservedHeight": 92,
+      "canFitNextCard": false,
+      "pages": [
+        {
+          "page": 1,
+          "visibleIndexes": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "visibleCount": 4,
+          "availableHeight": 1176,
+          "usedHeight": 1030,
+          "remainingHeight": 146,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": true,
+          "nextDisabled": false,
+          "statusText": "1 / 3",
+          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 253,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액295,000원최종 결제금액295,000원"
+        },
+        {
+          "page": 2,
+          "visibleIndexes": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "visibleCount": 4,
+          "availableHeight": 1176,
+          "usedHeight": 1030,
+          "remainingHeight": 146,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": false,
+          "statusText": "2 / 3",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 253,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액295,000원최종 결제금액295,000원"
+        },
+        {
+          "page": 3,
+          "visibleIndexes": [
+            8,
+            9
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 512,
+          "remainingHeight": 664,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": true,
+          "statusText": "3 / 3",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 0,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액295,000원최종 결제금액295,000원"
+        }
+      ]
+    },
+    {
+      "scenario": "max-cart-items",
+      "densityMode": "pagination",
+      "availableHeight": 1176,
+      "usedHeight": 938,
+      "remainingHeight": 238,
+      "visibleIndexes": [
+        0,
+        1
+      ],
+      "visibleCount": 2,
+      "minimumFontSize": 16,
+      "pageCount": 6,
+      "cardCount": 12,
+      "pagerReservedHeight": 92,
+      "canFitNextCard": false,
+      "pages": [
+        {
+          "page": 1,
+          "visibleIndexes": [
+            0,
+            1
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": true,
+          "nextDisabled": false,
+          "statusText": "1 / 6",
+          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 466,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        },
+        {
+          "page": 2,
+          "visibleIndexes": [
+            2,
+            3
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": false,
+          "statusText": "2 / 6",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 466,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        },
+        {
+          "page": 3,
+          "visibleIndexes": [
+            4,
+            5
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": false,
+          "statusText": "3 / 6",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 466,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        },
+        {
+          "page": 4,
+          "visibleIndexes": [
+            6,
+            7
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": false,
+          "statusText": "4 / 6",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 466,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        },
+        {
+          "page": 5,
+          "visibleIndexes": [
+            8,
+            9
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": false,
+          "statusText": "5 / 6",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 466,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        },
+        {
+          "page": 6,
+          "visibleIndexes": [
+            10,
+            11
+          ],
+          "visibleCount": 2,
+          "availableHeight": 1176,
+          "usedHeight": 938,
+          "remainingHeight": 238,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": true,
+          "statusText": "6 / 6",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 0,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
+        }
+      ]
+    }
+  ],
   "protectedLayouts": {
     "kiosk": {
-      "changed": false,
-      "combinations": 60,
+      "changed": true,
+      "combinations": 102,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
     },
     "tablet": {
       "changed": false,
-      "combinations": 60,
+      "combinations": 102,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
     },
     "desktop": {
       "changed": false,
-      "verification": "All implementation selectors require html[data-layout=\"phone\"] and a scoped step."
+      "verification": "Order review implementation requires html[data-layout=\"kiosk21\"] and body[data-step=\"review\"]."
     }
   }
 }

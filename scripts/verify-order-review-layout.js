@@ -24,6 +24,9 @@ const viewports = [
 const locales = ['ko', 'en', 'ja', 'zh', 'vi', 'es'];
 const scenarios = [
   { name: 'normal-whole', promo: 'normal', size: 'L', mode: 'single', set: null, right: null },
+  { name: 'two-items', promo: 'normal', size: 'L', mode: 'single', set: null, right: null, orderCount: 2 },
+  { name: 'three-items', promo: 'normal', size: 'L', mode: 'single', set: null, right: null, orderCount: 3 },
+  { name: 'four-items', promo: 'normal', size: 'L', mode: 'single', set: null, right: null, orderCount: 4 },
   { name: 'takeout-half', promo: 'takeout', size: 'L', mode: 'half', set: null, right: 'P002' },
   { name: 'set-2', promo: 'set', size: 'R', mode: 'single', set: 2, right: null },
   { name: 'set-3', promo: 'set', size: 'L', mode: 'single', set: 3, right: null },
@@ -65,8 +68,18 @@ const scenarios = [
     topping: true,
     extras: true,
     orderCount: 4,
+    phoneOrderCount: 4,
     quantity: 2,
   },
+  { name: 'five-items', promo: 'normal', size: 'L', mode: 'single', set: null, right: null, orderCount: 5 },
+  { name: 'six-items', promo: 'upup', size: 'F', mode: 'single', set: null, right: null, orderCount: 6 },
+  {
+    name: 'bulk-pagination',
+    promo: 'normal', size: 'L', mode: 'single', set: null, right: null,
+    crust: '오리지널', left: 'P003', topping: false, extras: false,
+    orderCount: 10, quantity: 1,
+  },
+  { name: 'max-cart-items', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, extras: true, orderCount: 12 },
 ];
 
 app.commandLine.appendSwitch('headless');
@@ -124,9 +137,11 @@ const fixtureScript = (locale, scenario) => `
     });
     const snapshot = orderSnapshot();
     state.cartItems = Array.from(
-      { length: document.documentElement.dataset.layout === 'phone'
+      { length: document.documentElement.dataset.layout === 'kiosk21'
         ? ${JSON.stringify(scenario.orderCount || 1)}
-        : 1 },
+        : document.documentElement.dataset.layout === 'phone'
+          ? ${JSON.stringify(scenario.phoneOrderCount || 1)}
+          : 1 },
       () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
     );
     clearCurrentProduct();
@@ -147,12 +162,13 @@ const measureScript = `
       '.cartPizzaMeta, .cartPizzaToppingLine, .cartPizzaPriceLine, .cartItemSummary, ' +
       '.cartBenefitRow, .cartOrderTotal, .reviewDiscountBox .line'
     )];
-    const textTargets = targets.filter(element =>
-      element.children.length === 0 && element.textContent.trim()
-    );
+    const textTargets = targets.filter(element => {
+      const rect=element.getBoundingClientRect();
+      return element.children.length===0&&element.textContent.trim()&&rect.width>0&&rect.height>0;
+    });
     const touchTargets = [...document.querySelectorAll(
       '.cartOrderActions button, .reviewAddMoreGrid button, .reviewConfirmBtn, .langTopBtn'
-    )];
+    )].filter(element => { const rect=element.getBoundingClientRect(); return rect.width>0&&rect.height>0 });
     const isPhoneReview = root.dataset.layout === 'phone';
     const requiredSelector = [
       '.progress',
@@ -226,11 +242,32 @@ const measureScript = `
       const element = document.querySelector(selector);
       return element ? parseFloat(getComputedStyle(element).fontSize) : fallback;
     };
+    const visibleIndexes=[...document.querySelectorAll('.reviewOrderCard')].map((card,index)=>card.hidden?null:index).filter(index=>index!==null);
+    const measuredGap=Number(reviewPageMetrics?.gap||0);
+    const usedHeight=visibleIndexes.reduce((sum,index)=>sum+Number(reviewPageMetrics?.cardHeights?.[index]||0),0)+Math.max(0,visibleIndexes.length-1)*measuredGap;
+    const nextIndex=visibleIndexes.length?visibleIndexes[visibleIndexes.length-1]+1:null;
+    const nextCardHeight=nextIndex===null?0:Number(reviewPageMetrics?.cardHeights?.[nextIndex]||0);
+    const pager=document.querySelector('.reviewPager');
+    const currentPageMetric=reviewPageMetrics?.pageMetrics?.[reviewPage]||null;
     return {
       viewport: { width: innerWidth, height: innerHeight },
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
       orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
       compressionStage: Number(document.body.dataset.reviewCompression || 0),
+      densityMode: document.body.dataset.reviewDensity || 'default',
+      pageCount: Array.isArray(reviewPages) ? reviewPages.length : 1,
+      currentPage: Number(reviewPage || 0) + 1,
+      visibleItemCount: [...document.querySelectorAll('.reviewOrderCard')].filter(card => !card.hidden).length,
+      pageItemIndexes: Array.isArray(reviewPages) ? reviewPages.map(page => [...page]) : [],
+      cardCount: document.querySelectorAll('.reviewOrderCard').length,
+      availableHeight: currentPageMetric?.availableHeight??orderList?.clientHeight??0,
+      usedHeight:currentPageMetric?.usedHeight??usedHeight,
+      remainingHeight:currentPageMetric?.remainingHeight??((orderList?.clientHeight||0)-usedHeight),
+      visibleIndexes,
+      visibleCount:visibleIndexes.length,
+      minimumFontSize:Math.min(...coreTextTargets.map(element=>parseFloat(getComputedStyle(element).fontSize))),
+      pagerReservedHeight:pager&&!pager.hidden?pager.getBoundingClientRect().height:0,
+      canFitNextCard:Boolean(currentPageMetric?.canFitNextCard),
       orderRegion: {
         scrollHeight: orderList?.scrollHeight || 0,
         clientHeight: orderList?.clientHeight || 0,
@@ -320,6 +357,50 @@ const measureScript = `
   })()
 `;
 
+const paginationTraceScript = `
+  (async () => {
+    if(document.documentElement.dataset.layout!=='kiosk21'||reviewPages.length<2)return null;
+    const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const snapshot=()=>{
+      const list=document.querySelector('.reviewOrderList');
+      const cards=[...document.querySelectorAll('.reviewOrderCard')];
+      const visibleIndexes=cards.map((card,index)=>card.hidden?null:index).filter(index=>index!==null);
+      const gap=Number(reviewPageMetrics.gap||0);
+      const metric=reviewPageMetrics.pageMetrics?.[reviewPage]||{};
+      const heights=visibleIndexes.map(index=>Math.ceil(Math.max(cards[index].getBoundingClientRect().height,cards[index].scrollHeight)));
+      const usedHeight=Number(metric.usedHeight??(heights.reduce((sum,height)=>sum+height,0)+Math.max(0,heights.length-1)*gap));
+      const nextIndex=visibleIndexes.length?visibleIndexes[visibleIndexes.length-1]+1:null;
+      const nextHeight=nextIndex!==null?Number(reviewPageMetrics.cardHeights[nextIndex]||0):0;
+      const previous=document.querySelector('.reviewPagePrev');
+      const next=document.querySelector('.reviewPageNext');
+      const status=document.querySelector('.reviewPageStatus');
+      const pager=document.querySelector('.reviewPager');
+      return {
+        page:Number(reviewPage)+1,
+        visibleIndexes,
+        visibleCount:visibleIndexes.length,
+        availableHeight:Number(metric.availableHeight??list.clientHeight),
+        usedHeight,
+        remainingHeight:Number(metric.remainingHeight??(list.clientHeight-usedHeight)),
+        overflow:Math.max(0,list.scrollHeight-list.clientHeight),
+        clipping:[...cards.filter(card=>!card.hidden).flatMap(card=>[...card.querySelectorAll('*')])].filter(element=>element.children.length===0&&element.textContent.trim()&&(element.scrollWidth>element.clientWidth+2||element.scrollHeight>element.clientHeight+2)).length,
+        previousDisabled:previous.disabled,
+        nextDisabled:next.disabled,
+        statusText:status.textContent.trim(),
+        focusClass:document.activeElement?.className||'',
+        pagerReservedHeight:pager.hidden?0:pager.getBoundingClientRect().height,
+        nextCardHeight:Number(metric.nextCardHeight??nextHeight),
+        canFitNextCard:Boolean(metric.canFitNextCard),
+        totalsText:document.querySelector('.reviewDiscountBox')?.textContent.replace(/\\s+/g,' ').trim()||''
+      };
+    };
+    const pages=[snapshot()];
+    while(!document.querySelector('.reviewPageNext').disabled){document.querySelector('.reviewPageNext').click();await settle();pages.push(snapshot())}
+    while(!document.querySelector('.reviewPagePrev').disabled){document.querySelector('.reviewPagePrev').click();await settle()}
+    return {pages,returnToFirst:snapshot()};
+  })()
+`;
+
 runElectronVerification({ app }, async lifecycle => {
   const window = lifecycle.trackWindow(new BrowserWindow({
     show: false,
@@ -343,7 +424,8 @@ runElectronVerification({ app }, async lifecycle => {
         await window.webContents.executeJavaScript(fixtureScript(locale, scenario), true);
         await waitForLayout(window);
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
-        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement });
+        const paginationTrace = await window.webContents.executeJavaScript(paginationTraceScript, true);
+        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace });
       }
     }
     if (captureScreenshots) {
@@ -351,6 +433,22 @@ runElectronVerification({ app }, async lifecycle => {
       await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
       await waitForLayout(window);
       await captureExact(window, viewport, 'after');
+      if(viewport.name==='1080x1920'){
+        const normalScenario=scenarios.find(scenario=>scenario.name==='normal-whole');
+        await window.webContents.executeJavaScript(fixtureScript('ko',normalScenario),true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'normal-no-pager');
+        const bulkScenario=scenarios.find(scenario=>scenario.name==='bulk-pagination');
+        await window.webContents.executeJavaScript(fixtureScript('ko',bulkScenario),true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'pagination-first');
+        await window.webContents.executeJavaScript(`for(let index=0;index<Math.floor((reviewPages.length-1)/2);index+=1)document.querySelector('.reviewPageNext').click()`,true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'pagination-middle');
+        await window.webContents.executeJavaScript(`while(!document.querySelector('.reviewPageNext').disabled)document.querySelector('.reviewPageNext').click()`,true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'pagination-last');
+      }
       if (viewport.width <= 390) {
         await window.webContents.executeJavaScript('window.scrollTo(0, document.documentElement.scrollHeight)', true);
         await captureExact(window, viewport, 'after-bottom');
@@ -394,7 +492,7 @@ const report = {
     const layoutSummary = layout => {
       const matches = results.filter(result => result.layout === layout);
       return {
-        changed: false,
+        changed: layout === 'kiosk21',
         combinations: matches.length,
         overlapCount: matches.reduce((total, result) => total + result.overlapCount, 0),
         clippedTextCount: matches.reduce((total, result) => total + result.clipped.length, 0),
@@ -427,12 +525,27 @@ const report = {
           promotionDescription: 11,
         },
       },
+      kioskMeasurements: results.filter(result=>result.layout==='kiosk21'&&result.locale==='ko').map(result=>({
+        scenario:result.scenario,
+        densityMode:result.densityMode,
+        availableHeight:result.availableHeight,
+        usedHeight:result.usedHeight,
+        remainingHeight:result.remainingHeight,
+        visibleIndexes:result.visibleIndexes,
+        visibleCount:result.visibleCount,
+        minimumFontSize:result.minimumFontSize,
+        pageCount:result.pageCount,
+        cardCount:result.cardCount,
+        pagerReservedHeight:result.pagerReservedHeight,
+        canFitNextCard:result.canFitNextCard,
+        pages:result.paginationTrace?.pages||[],
+      })),
       protectedLayouts: {
         kiosk: layoutSummary('kiosk21'),
         tablet: layoutSummary('tablet'),
         desktop: {
           changed: false,
-          verification: 'All implementation selectors require html[data-layout="phone"] and a scoped step.',
+          verification: 'Order review implementation requires html[data-layout="kiosk21"] and body[data-step="review"].',
         },
       },
     };
