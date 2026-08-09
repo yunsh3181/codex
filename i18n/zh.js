@@ -31,3 +31,4 @@ Object.assign(window.PJ_I18N_LOCALES.zh.drink.group,{coke:'Coca-Cola',cokeZero:'
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.takeout,{title:'Takeout 20%'});
+Object.assign(window.PJ_I18N_LOCALES.zh.review,{orderListLabel:'订单商品列表',paginationLabel:'订单内容分页',previousItems:'上一页订单',nextItems:'下一页订单'});

@@ -48,7 +48,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
   assert.ok(fs.existsSync(reportPath), run.stdout);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 4 * 6 * 10);
+  assert.equal(report.results.length, 4 * 6 * 11);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -68,8 +68,17 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       }
     } else {
       assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+      if (result.layout === 'kiosk21') {
+        assert.equal(result.verticalScrollable, false, `${context}: document must not scroll`);
+        assert.ok(result.orderRegion.scrollHeight <= result.orderRegion.clientHeight + 2, `${context}: order list overflow`);
+        const indexes = result.pageItemIndexes.flat();
+        assert.equal(indexes.length, result.orderItemCount, `${context}: paged item count`);
+        assert.equal(new Set(indexes).size, result.orderItemCount, `${context}: duplicate paged item`);
+        assert.deepEqual([...indexes].sort((a,b)=>a-b), Array.from({length:result.orderItemCount},(_,i)=>i), `${context}: missing paged item`);
+        if (result.scenario === 'bulk-pagination') assert.ok(result.pageCount >= 3, `${context}: ${result.pageCount} pages`);
+      }
     }
-    if (['multi-pizza', 'max-categories', 'long-complex-order'].includes(result.scenario)) {
+    if (['multi-pizza', 'max-categories', 'long-complex-order', 'bulk-pagination'].includes(result.scenario)) {
       if (result.scenario === 'multi-pizza') {
         assert.equal(result.orderQuantity, 2, `${context}: order quantity`);
       }
@@ -147,7 +156,7 @@ test('repository measurement artifact is aggregate-only while failures retain de
     'utf8'
   ));
   assert.equal('results' in aggregate, false);
-  assert.equal(aggregate.totalCombinations, 4 * 6 * 10);
+  assert.equal(aggregate.totalCombinations, 4 * 6 * 11);
   assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '768x1024', '1080x1920']);
   assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
   assert.equal(aggregate.overlapCount, 0);

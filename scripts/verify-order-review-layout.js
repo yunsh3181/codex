@@ -67,6 +67,12 @@ const scenarios = [
     orderCount: 4,
     quantity: 2,
   },
+  {
+    name: 'bulk-pagination',
+    promo: 'takeout', size: 'L', mode: 'half', set: null, right: 'P002',
+    crust: '치즈롤', left: 'P003', topping: true, extras: true,
+    orderCount: 10, quantity: 1,
+  },
 ];
 
 app.commandLine.appendSwitch('headless');
@@ -124,7 +130,7 @@ const fixtureScript = (locale, scenario) => `
     });
     const snapshot = orderSnapshot();
     state.cartItems = Array.from(
-      { length: document.documentElement.dataset.layout === 'phone'
+      { length: ['phone','kiosk21'].includes(document.documentElement.dataset.layout)
         ? ${JSON.stringify(scenario.orderCount || 1)}
         : 1 },
       () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
@@ -152,7 +158,7 @@ const measureScript = `
     );
     const touchTargets = [...document.querySelectorAll(
       '.cartOrderActions button, .reviewAddMoreGrid button, .reviewConfirmBtn, .langTopBtn'
-    )];
+    )].filter(element => { const rect=element.getBoundingClientRect(); return rect.width>0&&rect.height>0 });
     const isPhoneReview = root.dataset.layout === 'phone';
     const requiredSelector = [
       '.progress',
@@ -231,6 +237,11 @@ const measureScript = `
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
       orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
       compressionStage: Number(document.body.dataset.reviewCompression || 0),
+      densityMode: document.body.dataset.reviewDensity || 'default',
+      pageCount: Array.isArray(reviewPages) ? reviewPages.length : 1,
+      currentPage: Number(reviewPage || 0) + 1,
+      visibleItemCount: [...document.querySelectorAll('.reviewOrderCard')].filter(card => !card.hidden).length,
+      pageItemIndexes: Array.isArray(reviewPages) ? reviewPages.map(page => [...page]) : [],
       orderRegion: {
         scrollHeight: orderList?.scrollHeight || 0,
         clientHeight: orderList?.clientHeight || 0,
@@ -394,7 +405,7 @@ const report = {
     const layoutSummary = layout => {
       const matches = results.filter(result => result.layout === layout);
       return {
-        changed: false,
+        changed: layout === 'kiosk21',
         combinations: matches.length,
         overlapCount: matches.reduce((total, result) => total + result.overlapCount, 0),
         clippedTextCount: matches.reduce((total, result) => total + result.clipped.length, 0),
@@ -432,7 +443,7 @@ const report = {
         tablet: layoutSummary('tablet'),
         desktop: {
           changed: false,
-          verification: 'All implementation selectors require html[data-layout="phone"] and a scoped step.',
+          verification: 'Order review implementation requires html[data-layout="kiosk21"] and body[data-step="review"].',
         },
       },
     };

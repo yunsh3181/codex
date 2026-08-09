@@ -27,3 +27,4 @@ window.PJ_I18N_LOCALES.es={
     done:{title:'Tu pedido ha sido recibido',orderLabel:'Número de pedido · últimos 4 dígitos',paymentRequired:'Paga con {payment} en el mostrador',paymentMethodPhrase:{cash:'efectivo',card:'tarjeta de crédito',meal_ticket:'Libro de vales de comida',bizle:'Zero Pay'},paymentGuide:'La pizza empezará a prepararse después del pago.',reserveTime:'Hora de reserva {time}',guide:'Comprueba el número de pedido y acércate al mostrador.',home:'Volver al inicio'}
   };
 window.PJ_I18N_LOCALES.es.party.label='Personas';
+Object.assign(window.PJ_I18N_LOCALES.es.review,{orderListLabel:'Lista de productos',paginationLabel:'Páginas del pedido',previousItems:'Productos anteriores',nextItems:'Productos siguientes'});

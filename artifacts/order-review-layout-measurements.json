@@ -23,36 +23,37 @@
     "happy-hour",
     "multi-pizza",
     "max-categories",
-    "long-complex-order"
+    "long-complex-order",
+    "bulk-pagination"
   ],
-  "totalCombinations": 240,
+  "totalCombinations": 264,
   "overlapCount": 0,
   "clippedTextCount": 0,
   "maxHorizontalOverflow": 0,
   "scrollHeightByLocale": {
     "ko": {
       "min": 1002,
-      "max": 3980
+      "max": 8964
     },
     "en": {
       "min": 1022,
-      "max": 4089
+      "max": 9209
     },
     "ja": {
       "min": 1005,
-      "max": 4090
+      "max": 9210
     },
     "zh": {
       "min": 1002,
-      "max": 3980
+      "max": 8964
     },
     "vi": {
       "min": 1002,
-      "max": 3999
+      "max": 8983
     },
     "es": {
       "min": 1044,
-      "max": 4176
+      "max": 9400
     }
   },
   "minimumBottomSafetyGap": 48,
@@ -89,22 +90,22 @@
   },
   "protectedLayouts": {
     "kiosk": {
-      "changed": false,
-      "combinations": 60,
+      "changed": true,
+      "combinations": 66,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
     },
     "tablet": {
       "changed": false,
-      "combinations": 60,
+      "combinations": 66,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
     },
     "desktop": {
       "changed": false,
-      "verification": "All implementation selectors require html[data-layout=\"phone\"] and a scoped step."
+      "verification": "Order review implementation requires html[data-layout=\"kiosk21\"] and body[data-step=\"review\"]."
     }
   }
 }

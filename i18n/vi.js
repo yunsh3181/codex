@@ -31,3 +31,4 @@ window.PJ_I18N_LOCALES.vi.benefit.card.normal.sideDrinkOnlyDesc='Bạn cũng có
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.takeout,{title:'Takeout 20%'});
+Object.assign(window.PJ_I18N_LOCALES.vi.review,{orderListLabel:'Danh sách món đã đặt',paginationLabel:'Trang chi tiết đơn',previousItems:'Món trước',nextItems:'Món tiếp theo'});
