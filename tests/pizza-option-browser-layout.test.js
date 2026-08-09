@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
-const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, spawnElectronSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 test('pizza options pass real viewport, locale, badge, and typography checks', { timeout: 120_000 }, t => {
@@ -42,9 +42,7 @@ test('pizza options pass real viewport, locale, badge, and typography checks', {
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, electronResultDetails(run));
-  assert.equal(run.signal, null, electronResultDetails(run));
-  assert.equal(run.error, undefined, electronResultDetails(run));
+  assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
   assert.equal(report.results.length, 4 * 6);

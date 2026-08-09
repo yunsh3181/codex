@@ -2,7 +2,7 @@ const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
-const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, spawnElectronSync } = require('./helpers/electron-verification-process');
 const fs = require('node:fs');
 const os = require('node:os');
 
@@ -42,10 +42,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, electronResultDetails(run));
-  assert.equal(run.signal, null, electronResultDetails(run));
-  assert.equal(run.error, undefined, electronResultDetails(run));
-  assert.ok(fs.existsSync(reportPath), run.stdout);
+  assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
   assert.equal(report.results.length, 4 * 6 * 17);

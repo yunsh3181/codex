@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, spawnElectronSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 
@@ -43,9 +43,7 @@ test('mobile timing colors and every pizza path pass real viewport checks', { ti
     timeout: 110_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-  assert.equal(run.status, 0, electronResultDetails(run));
-  assert.equal(run.signal, null, electronResultDetails(run));
-  assert.equal(run.error, undefined, electronResultDetails(run));
+  assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   assert.deepEqual(report.baselineComparison, {
     requested: false,

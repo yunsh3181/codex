@@ -1,0 +1,96 @@
+name: Electron Xvfb stability
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/electron-xvfb-stability.yml
+      - scripts/electron-verification-lifecycle.js
+      - scripts/verify-*-layout.js
+      - scripts/verify-admin-central-order-list.js
+      - scripts/verify-kiosk-*.js
+      - scripts/verify-waiting-tv-completion.js
+      - tests/helpers/electron-verification-process.js
+      - tests/*browser*.test.js
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: electron-xvfb-stability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repeated_linux_xvfb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Electron runtime
+        run: node node_modules/electron/install.js
+
+      - name: Run Firebase-equivalent full suite ten times
+        env:
+          ELECTRON_DISABLE_SANDBOX: "true"
+        run: |
+          for iteration in {1..10}; do
+            echo "Full Xvfb suite ${iteration}/10"
+            xvfb-run --auto-servernum npm test
+          done
+
+      - name: Run all Electron browser tests together ten times
+        env:
+          ELECTRON_DISABLE_SANDBOX: "true"
+        run: |
+          for iteration in {1..10}; do
+            echo "Concurrent Electron suite ${iteration}/10"
+            xvfb-run --auto-servernum node --test \
+              tests/kiosk-inactivity-warning-modal-browser.test.js \
+              tests/mobile-order-pizza-grid-browser.test.js \
+              tests/order-review-browser-layout.test.js \
+              tests/pizza-option-browser-layout.test.js \
+              tests/waiting-tv-completion-browser.test.js \
+              tests/windows-admin-central-order-list-browser.test.js
+          done
+
+      - name: Run waiting-TV Electron test ten times
+        env:
+          ELECTRON_DISABLE_SANDBOX: "true"
+        run: |
+          for iteration in {1..10}; do
+            echo "waiting-TV ${iteration}/10"
+            xvfb-run --auto-servernum node --test tests/waiting-tv-completion-browser.test.js
+          done
+
+      - name: Verify Electron and temporary resource cleanup
+        run: |
+          if pgrep -af '[e]lectron'; then
+            echo 'Orphan Electron process detected.' >&2
+            exit 1
+          fi
+          leftovers="$(find /tmp -maxdepth 1 \( \
+            -name 'electron-verification-*.lock*' -o \
+            -name 'waiting-tv-completion-*' -o \
+            -name 'waiting-tv-completion-test-*' -o \
+            -name 'inactivity-modal-run-*' -o \
+            -name 'mobile-pizza-grid-profile-*' -o \
+            -name 'pizza-option-profile-*' -o \
+            -name 'order-review-profile-*' -o \
+            -name 'admin-central-screens-*' \
+          \) -print)"
+          if [[ -n "$leftovers" ]]; then
+            echo 'Temporary Electron resources remain:' >&2
+            echo "$leftovers" >&2
+            exit 1
+          fi

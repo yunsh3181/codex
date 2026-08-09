@@ -3,13 +3,13 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
-const {spawnElectronSync,electronResultDetails}=require('./helpers/electron-verification-process');
+const {assertElectronSucceeded,spawnElectronSync}=require('./helpers/electron-verification-process');
 const root=path.resolve(__dirname,'..');
 test('actual admin DOM preserves click, double-click, keyboard, focus, pagination, listener, and deletion behavior',{timeout:120000},t=>{
  const report=path.join(os.tmpdir(),`admin-central-browser-${process.pid}.json`),screens=fs.mkdtempSync(path.join(os.tmpdir(),'admin-central-screens-'));
  t.after(()=>{fs.rmSync(report,{force:true});fs.rmSync(screens,{recursive:true,force:true})});
  const run=spawnElectronSync(require('electron'),['scripts/verify-admin-central-order-list.js'],{cwd:root,encoding:'utf8',env:{...process.env,ADMIN_CENTRAL_REPORT:report,ADMIN_CENTRAL_SCREENSHOT_DIR:screens,ELECTRON_DISABLE_SECURITY_WARNINGS:'true'},timeout:110000,maxBuffer:10*1024*1024});
- assert.equal(run.status,0,electronResultDetails(run));assert.equal(run.signal,null,electronResultDetails(run));assert.equal(run.error,undefined,electronResultDetails(run));
+ assertElectronSucceeded(assert,run,report);
  const result=JSON.parse(fs.readFileSync(report,'utf8'));
  assert.deepEqual(result.singleClick,{id:'fixture-32',selected:true,aria:'true',modalHidden:true,sameNode:true,focused:true});
  assert.equal(result.doubleClick.opens,1);assert.equal(result.doubleClick.modalHidden,false);assert.match(result.doubleClick.title,/32번/);assert.match(result.doubleClick.reservation,/예약시간/);assert.match(result.doubleClick.split,/식권대장/);

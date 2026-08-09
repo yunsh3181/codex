@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 const verifierPath = path.join(root, 'scripts', 'verify-kiosk-inactivity-warning-modal.js');
@@ -116,9 +116,7 @@ test('actual Chromium preserves existing order modals beneath the inactivity war
       maxBuffer: 10 * 1024 * 1024,
     });
     const details = resultDetails(run, { executable: command, profile, screenshotDir });
-    assert.equal(run.status, 0, `iteration ${iteration}/${runCount}\n${details}`);
-    assert.equal(run.signal, null, `iteration ${iteration}/${runCount}\n${details}`);
-    assert.equal(run.error, undefined, `iteration ${iteration}/${runCount}\n${details}`);
+    assertElectronSucceeded(assert, run, reportPath);
     assertReport(JSON.parse(fs.readFileSync(reportPath, 'utf8')), screenshotDir);
     console.log(`inactivity modal Electron iteration ${iteration}/${runCount}: status=${run.status} signal=${run.signal} timeout=${Boolean(run.error?.code === 'ETIMEDOUT')}`);
   }
