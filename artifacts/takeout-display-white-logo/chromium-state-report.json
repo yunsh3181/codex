@@ -1,0 +1,70 @@
+{
+  "initial": {
+    "starts": 0,
+    "contexts": 0,
+    "ready": 0,
+    "button": "알림음·음성 안내 시작"
+  },
+  "unlock": {
+    "contexts": 1,
+    "resumeCalls": 1,
+    "state": "running",
+    "button": "알림음·음성 안내 켜짐"
+  },
+  "transition": {
+    "starts": 2,
+    "ready": "1111번포장 주문이 완료되었습니다카운터에서 주문을 받아주세요"
+  },
+  "duplicate": 2,
+  "reload": {
+    "starts": 0,
+    "ready": 1
+  },
+  "newReady": 2,
+  "mixed": {
+    "cooking": 2,
+    "ready": 2,
+    "headerOverlap": false
+  },
+  "twoOrders": 6,
+  "resumeFailure": {
+    "starts": 6,
+    "before": 6,
+    "resumeCalls": 2,
+    "ready": "5555번포장 주문이 완료되었습니다카운터에서 주문을 받아주세요",
+    "button": "음성 안내 켜짐 · 알림음 차단됨"
+  },
+  "hidden": 6,
+  "removed": 0,
+  "reappeared": 6,
+  "maximum": {
+    "count": 24,
+    "longNumber": true,
+    "gridScroll": 1853,
+    "horizontalOverflow": 0,
+    "verticalOverflow": 0,
+    "headerOverlap": false
+  },
+  "layout": {
+    "viewport": [
+      1080,
+      1920
+    ],
+    "horizontalOverflow": 0,
+    "verticalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "logo": {
+      "width": 225,
+      "height": 96,
+      "left": 43.1953125,
+      "top": 21,
+      "background": "rgba(0, 0, 0, 0)",
+      "padding": "0px",
+      "filter": "brightness(0) invert(1)",
+      "clipped": false,
+      "overlap": false
+    }
+  },
+  "consoleProblems": []
+}
