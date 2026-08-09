@@ -3,9 +3,18 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const {runElectronVerification}=require('./electron-verification-lifecycle');
-const root=path.resolve(__dirname,'..'),reportPath=process.env.WAITING_TV_REPORT,screenshotPath=process.env.WAITING_TV_SCREENSHOT,mixedScreenshotPath=process.env.WAITING_TV_MIXED_SCREENSHOT;
+const root=path.resolve(__dirname,'..'),reportPath=process.env.WAITING_TV_REPORT,screenshotPath=process.env.WAITING_TV_SCREENSHOT,mixedScreenshotPath=process.env.WAITING_TV_MIXED_SCREENSHOT,userDataPath=process.env.WAITING_TV_USER_DATA;
+if(!reportPath)throw new Error('WAITING_TV_REPORT is required');
+if(!userDataPath)throw new Error('WAITING_TV_USER_DATA is required');
+fs.mkdirSync(userDataPath,{recursive:true});
+app.setPath('userData',userDataPath);
 app.disableHardwareAcceleration();app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('force-device-scale-factor','1');
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function writeReportAtomically(value){
+ fs.mkdirSync(path.dirname(reportPath),{recursive:true});
+ const temporaryPath=path.join(path.dirname(reportPath),`.${path.basename(reportPath)}.${process.pid}.tmp`);
+ try{await fs.promises.writeFile(temporaryPath,`${JSON.stringify(value,null,2)}\n`);await fs.promises.rename(temporaryPath,reportPath)}finally{await fs.promises.rm(temporaryPath,{force:true})}
+}
 async function trustedClick(window,selector){const bounds=await window.webContents.executeJavaScript(`(()=>{const rect=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:Math.round(rect.left+rect.width/2),y:Math.round(rect.top+rect.height/2)}})()`);window.webContents.sendInputEvent({type:'mouseDown',...bounds,button:'left',clickCount:1});window.webContents.sendInputEvent({type:'mouseUp',...bounds,button:'left',clickCount:1});await delay(150)}
 function exportFixtureSite(target){
  fs.mkdirSync(path.join(target,'waiting-tv'),{recursive:true});fs.mkdirSync(path.join(target,'assets','images'),{recursive:true});fs.mkdirSync(path.join(target,'tests','fixtures'),{recursive:true});
@@ -42,7 +51,7 @@ async function main(lifecycle){
   const maximumOrders=Array.from({length:24},(_,index)=>cooking(`maximum-${index}`,index===0?'TAKEOUT-ORDER-12345678901234567890':String(7000+index),now+20+index));await window.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(maximumOrders)})`);await delay(350);results.maximum=await window.webContents.executeJavaScript(`(()=>{const grid=document.querySelector('#cookingOrders'),longCard=grid.querySelector('.order-number');return {count:grid.querySelectorAll('[data-order-key]').length,longNumber:longCard.textContent.includes('7890'),gridScroll:Math.max(0,grid.scrollHeight-grid.clientHeight),horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),verticalOverflow:Math.max(0,document.documentElement.scrollHeight-document.documentElement.clientHeight),headerOverlap:longCard.getBoundingClientRect().top<document.querySelector('header').getBoundingClientRect().bottom}})()`);
   results.layout=await window.webContents.executeJavaScript(`(()=>{const readyCards=[...document.querySelectorAll('#readyOrders .order-number')],logo=document.querySelector('.takeout-display-logo'),header=document.querySelector('header'),title=document.querySelector('header>div'),lr=logo.getBoundingClientRect(),hr=header.getBoundingClientRect(),tr=title.getBoundingClientRect(),style=getComputedStyle(logo);return {viewport:[innerWidth,innerHeight],horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),verticalOverflow:Math.max(0,document.documentElement.scrollHeight-document.documentElement.clientHeight),clipped:readyCards.filter(card=>{const r=card.getBoundingClientRect();return r.left<0||r.right>innerWidth}).length,overlap:readyCards.some((card,index)=>{const r=card.getBoundingClientRect();return readyCards.slice(index+1).some(other=>{const o=other.getBoundingClientRect();return r.bottom>o.top&&r.top<o.bottom})}),logo:{width:lr.width,height:lr.height,left:lr.left,top:lr.top,background:style.backgroundColor,padding:style.padding,filter:style.filter,clipped:lr.left<hr.left||lr.top<hr.top||lr.right>hr.right||lr.bottom>hr.bottom,overlap:lr.right>tr.left}}})()`);results.consoleProblems=consoleProblems;
   if(screenshotPath){const image=await window.webContents.capturePage();fs.mkdirSync(path.dirname(screenshotPath),{recursive:true});fs.writeFileSync(screenshotPath,nativeImage.createFromBuffer(image.toPNG()).toPNG())}
-  fs.writeFileSync(reportPath,JSON.stringify(results,null,2));
+  await writeReportAtomically(results);
  }finally{fs.rmSync(site,{recursive:true,force:true})}
 }
 runElectronVerification({app},main);
