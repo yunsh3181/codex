@@ -82,7 +82,7 @@ test('seat cards use safe data attributes without inline JavaScript',()=>{
  assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat seat-zone-papa empty" data-seat-id="papa-2"\s*>/);
  assert.doesNotMatch(manager.elements.seatAdmin.innerHTML,/\sonclick=/);
  assert.doesNotMatch(source,/jsArg|onclick="manageSeat/);
- assert.match(html,/seat-layout\.js\?v=1/);assert.match(html,/seats\.js\?v=44\.0\.0/);
+ assert.match(html,/seat-layout\.js\?v=1/);assert.match(html,/seats\.js\?v=44\.0\.1/);
 });
 
 test('delegated seat clicks handle cards and their nested content exactly once',()=>{

@@ -34,10 +34,15 @@ test('validation rejects missing, duplicate, unknown, and out-of-range entries',
 });
 
 test('editor UI and transaction boundaries preserve seat-state writes',()=>{
- for(const id of ['editSeatLayout','saveSeatLayout','cancelSeatLayout','resetSeatLayout','seatLayoutNotice'])assert.match(html,new RegExp(`id="${id}"`));
+ for(const id of ['editSeatLayout','saveSeatLayout','reloadSeatLayout','cancelSeatLayout','resetSeatLayout','seatLayoutNotice'])assert.match(html,new RegExp(`id="${id}"`));
  assert.match(css,/grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);assert.match(css,/grid-template-rows:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(source,/db\.collection\('adminSettings'\)\.doc\('seatLayout'\)/);
  assert.match(source,/currentRevision!==expectedRevision/);assert.match(source,/throw new Error\('SEAT_LAYOUT_STALE'\)/);
+ assert.match(source,/const expectedRevision=editBaseRevision/);assert.match(source,/editBaseRevision=layoutRevision/);
+ assert.match(source,/if\(layoutRevision!==editBaseRevision\)\{remoteLayoutChanged=true/);
+ assert.match(source,/revisionValid=Number\.isInteger\(data\.revision\)&&data\.revision>=1/);
+ assert.match(source,/layoutRevision=data\.revision;\n if\(!checked\.valid\)/,'a recoverable corrupt document preserves its valid server revision');
+ assert.match(source,/SEAT_LAYOUT_REVISION_INVALID/);assert.match(source,/layoutWarningSticky=true/);
  assert.match(source,/if\(layoutEditing\)return;const action=/,'state actions are blocked while editing');
  assert.match(source,/if\(!layoutEditing\|\|layoutSaving\)return false/);assert.match(source,/layoutSaving=true;renderLayoutControls\(\)/);
  assert.match(source,/if\(!layoutEditing\)draftPositions=\{\.\.\.savedPositions\}/,'snapshots preserve the editing draft');
