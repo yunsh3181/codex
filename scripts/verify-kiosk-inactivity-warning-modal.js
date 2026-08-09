@@ -54,6 +54,7 @@ const measure = `(()=>({
 }))()`;
 
 runElectronVerification({ app }, async lifecycle => {
+  if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({ show: false, frame: false, useContentSize: true, webPreferences: { contextIsolation: true, offscreen: true, sandbox: true } }));
   const consoleIssues = [];
   window.setContentSize(1080, 1920);
@@ -117,6 +118,6 @@ runElectronVerification({ app }, async lifecycle => {
   })()`, true);
 
   const report = { overPizzaOptions, continuedPizzaOptions, backdropIsolation, otherModals, escapedModal, homeReset, automaticAndStale, consoleIssues };
-  if (reportPath) fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  if (reportPath) await lifecycle.writeReportAtomically(reportPath, report);
   return report;
 });

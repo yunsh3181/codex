@@ -29,6 +29,7 @@ async function capture(window, name) {
 }
 
 runElectronVerification({ app }, async lifecycle => {
+  if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({ show: false, frame: false, useContentSize: true, webPreferences: { contextIsolation: true, offscreen: true, sandbox: true } }));
   window.setContentSize(1080, 1920);
   lifecycle.attachDebugger();
@@ -114,6 +115,6 @@ runElectronVerification({ app }, async lifecycle => {
   if (report.unknownStepRecovery.unprotected.step !== 'idle' || report.unknownStepRecovery.unprotected.resets !== 1) throw new Error(`unknown step did not reset safely: ${JSON.stringify(report.unknownStepRecovery)}`);
   for (const protection of ['mobileOrderSubmitting','seatOrderCommitStarted','firebaseOrderId']) if (report.unknownStepRecovery[protection].resets !== 0) throw new Error(`protected unknown step reset: ${protection}`);
 
-  if (reportPath) fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  if (reportPath) await lifecycle.writeReportAtomically(reportPath, report);
   return report;
 });
