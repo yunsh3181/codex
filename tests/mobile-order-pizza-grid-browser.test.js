@@ -3,34 +3,17 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
-const { assertElectronSucceeded, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, spawnElectronVerificationSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 
 test('mobile timing colors and every pizza path pass real viewport checks', { timeout: 120_000 }, t => {
-  const electron = require('electron');
-  let command = electron;
-  let args = ['scripts/verify-mobile-order-pizza-grid.js'];
-  if (process.platform === 'darwin') {
-    const binary = spawnSync('file', [electron], { encoding: 'utf8' }).stdout;
-    const architecture = binary.includes('arm64') ? '-arm64' : binary.includes('x86_64') ? '-x86_64' : null;
-    if (architecture) {
-      const supported = spawnSync('/usr/bin/arch', [architecture, '/usr/bin/true']);
-      if (supported.status !== 0) {
-        t.skip(`Electron ${architecture.slice(1)} is not supported by this host`);
-        return;
-      }
-      command = '/usr/bin/arch';
-      args = [architecture, electron, ...args];
-    }
-  }
   const outputDir = path.join(os.tmpdir(), `mobile-order-pizza-grid-test-${process.pid}`);
   const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'mobile-pizza-grid-profile-'));
   t.after(() => fs.rmSync(outputDir, { recursive: true, force: true }));
   t.after(() => fs.rmSync(userDataPath, { recursive: true, force: true }));
   const reportPath = path.join(outputDir, 'measurements.json');
-  const run = spawnElectronSync(command, args, {
+  const run = spawnElectronVerificationSync(['scripts/verify-mobile-order-pizza-grid.js'], {
     cwd: root,
     encoding: 'utf8',
     env: {

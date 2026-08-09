@@ -105,12 +105,27 @@ function spawnElectronSync(command, args, options = {}) {
   let released = false;
   try {
     if (diagnosticsPath) fs.mkdirSync(path.dirname(diagnosticsPath), { recursive: true });
-    result = spawnSync(command, args, { ...options, env });
+    const spawnSpec = typeof command === 'function' ? command() : { command, args };
+    result = spawnSync(spawnSpec.command, spawnSpec.args, { ...options, env });
     return Object.assign(result, { electronDiagnosticsPath: diagnosticsPath, electronLock: lock });
   } finally {
     released = releaseElectronLock(lock);
     if (result) result.electronLockReleased = released;
   }
+}
+
+function spawnElectronVerificationSync(args, options) {
+  return spawnElectronSync(() => {
+    const electron = require('electron');
+    if (process.platform !== 'darwin') return { command: electron, args };
+    const binary = spawnSync('file', [electron], { encoding: 'utf8' }).stdout;
+    const architecture = binary.includes('arm64') ? '-arm64' : binary.includes('x86_64') ? '-x86_64' : null;
+    if (!architecture) return { command: electron, args };
+    const supported = spawnSync('/usr/bin/arch', [architecture, '/usr/bin/true']);
+    return supported.status === 0
+      ? { command: '/usr/bin/arch', args: [architecture, electron, ...args] }
+      : { command: electron, args };
+  }, args, options);
 }
 
 function assertElectronSucceeded(assert, result, expectedReportPath) {
@@ -152,5 +167,6 @@ module.exports = {
   electronResultDetails,
   lockPathFor,
   releaseElectronLock,
+  spawnElectronVerificationSync,
   spawnElectronSync,
 };

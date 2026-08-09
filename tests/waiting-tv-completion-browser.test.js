@@ -3,11 +3,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
-const {assertElectronSucceeded,spawnElectronSync}=require('./helpers/electron-verification-process');
+const {assertElectronSucceeded,spawnElectronVerificationSync}=require('./helpers/electron-verification-process');
 const root=path.resolve(__dirname,'..');
 test('actual Chromium unlocks and reuses one completion AudioContext without duplicate alerts',{timeout:120000},t=>{
  const tempRoot=fs.mkdtempSync(path.join(os.tmpdir(),'waiting-tv-completion-test-')),report=path.join(tempRoot,'report.json'),screenshot=path.join(tempRoot,'completion.png'),mixedScreenshot=path.join(tempRoot,'mixed.png'),userData=path.join(tempRoot,'profile');t.after(()=>fs.rmSync(tempRoot,{recursive:true,force:true}));
- const run=spawnElectronSync(require('electron'),['scripts/verify-waiting-tv-completion.js'],{cwd:root,encoding:'utf8',env:{...process.env,WAITING_TV_REPORT:report,WAITING_TV_SCREENSHOT:screenshot,WAITING_TV_MIXED_SCREENSHOT:mixedScreenshot,WAITING_TV_USER_DATA:userData,ELECTRON_DISABLE_SECURITY_WARNINGS:'true'},timeout:110000,maxBuffer:10*1024*1024});
+ const run=spawnElectronVerificationSync(['scripts/verify-waiting-tv-completion.js'],{cwd:root,encoding:'utf8',env:{...process.env,WAITING_TV_REPORT:report,WAITING_TV_SCREENSHOT:screenshot,WAITING_TV_MIXED_SCREENSHOT:mixedScreenshot,WAITING_TV_USER_DATA:userData,ELECTRON_DISABLE_SECURITY_WARNINGS:'true'},timeout:110000,maxBuffer:10*1024*1024});
  assertElectronSucceeded(assert,run,report);
  const result=JSON.parse(fs.readFileSync(report,'utf8'));
  assert.deepEqual(result.initial,{starts:0,contexts:0,ready:0,button:'알림음·음성 안내 시작'});assert.equal(result.unlock.contexts,1);assert.equal(result.unlock.resumeCalls,1);assert.equal(result.unlock.state,'running');assert.equal(result.unlock.button,'알림음·음성 안내 켜짐');

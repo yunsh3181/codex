@@ -5,8 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
-const { assertElectronSucceeded, electronResultDetails, spawnElectronSync } = require('./helpers/electron-verification-process');
+const { assertElectronSucceeded, spawnElectronVerificationSync } = require('./helpers/electron-verification-process');
 
 const root = path.resolve(__dirname, '..');
 const verifierPath = path.join(root, 'scripts', 'verify-kiosk-inactivity-warning-modal.js');
@@ -17,16 +16,6 @@ function pngSize(file) {
   const bytes = fs.readFileSync(file);
   assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
-}
-
-function resultDetails(result, context) {
-  return [
-    electronResultDetails(result),
-    `executable: ${context.executable}`,
-    `platform/architecture: ${process.platform}/${process.arch}`,
-    `userData: ${context.profile}`,
-    `screenshots: ${context.screenshotDir}`,
-  ].join('\n');
 }
 
 function assertReport(report, screenshotDir) {
@@ -78,23 +67,6 @@ test('inactivity verifier disables hardware acceleration before readiness withou
 });
 
 test('actual Chromium preserves existing order modals beneath the inactivity warning', { timeout: 600_000 }, t => {
-  const electron = require('electron');
-  let command = electron;
-  let baseArgs = ['scripts/verify-kiosk-inactivity-warning-modal.js'];
-  if (process.platform === 'darwin') {
-    const binary = spawnSync('file', [electron], { encoding: 'utf8' }).stdout;
-    const architecture = binary.includes('arm64') ? '-arm64' : binary.includes('x86_64') ? '-x86_64' : null;
-    if (architecture) {
-      const supported = spawnSync('/usr/bin/arch', [architecture, '/usr/bin/true']);
-      if (supported.status !== 0) {
-        t.skip(`Electron ${architecture.slice(1)} is not supported by this host`);
-        return;
-      }
-      command = '/usr/bin/arch';
-      baseArgs = [architecture, electron, ...baseArgs];
-    }
-  }
-
   const runCount = process.platform === 'win32' ? 5 : 1;
   for (let iteration = 1; iteration <= runCount; iteration += 1) {
     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), `inactivity-modal-run-${iteration}-`));
@@ -102,7 +74,7 @@ test('actual Chromium preserves existing order modals beneath the inactivity war
     const profile = path.join(tempRoot, 'profile');
     const screenshotDir = path.join(tempRoot, 'screenshots');
     t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
-    const run = spawnElectronSync(command, [...baseArgs], {
+    const run = spawnElectronVerificationSync(['scripts/verify-kiosk-inactivity-warning-modal.js'], {
       cwd: root,
       encoding: 'utf8',
       env: {
@@ -115,7 +87,6 @@ test('actual Chromium preserves existing order modals beneath the inactivity war
       timeout: 110_000,
       maxBuffer: 10 * 1024 * 1024,
     });
-    const details = resultDetails(run, { executable: command, profile, screenshotDir });
     assertElectronSucceeded(assert, run, reportPath);
     assertReport(JSON.parse(fs.readFileSync(reportPath, 'utf8')), screenshotDir);
     console.log(`inactivity modal Electron iteration ${iteration}/${runCount}: status=${run.status} signal=${run.signal} timeout=${Boolean(run.error?.code === 'ETIMEDOUT')}`);
