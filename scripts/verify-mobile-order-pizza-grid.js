@@ -143,6 +143,7 @@ const prepareBaseline = baselinePath => {
 };
 
 runElectronVerification({ app }, async lifecycle => {
+  lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({
     show: false, frame: false, useContentSize: true,
     webPreferences: { contextIsolation: true, offscreen: true, sandbox: true },
@@ -209,6 +210,6 @@ runElectronVerification({ app }, async lifecycle => {
       localeResults.push({ locale, scenario: scenario.name, measurement: await window.webContents.executeJavaScript(measurePizza, true) });
     }
   }
-  fs.writeFileSync(reportPath, `${JSON.stringify({ baselineComparison, viewports, scenarios, locales, results, localeResults }, null, 2)}\n`);
+  await lifecycle.writeReportAtomically(reportPath, { baselineComparison, viewports, scenarios, locales, results, localeResults });
   if (hasBaseline) fs.unlinkSync(baselinePath);
 });

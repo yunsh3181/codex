@@ -402,6 +402,7 @@ const paginationTraceScript = `
 `;
 
 runElectronVerification({ app }, async lifecycle => {
+  if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({
     show: false,
     frame: false,
@@ -555,7 +556,7 @@ const report = {
     );
   }
   if (reportPath) {
-    fs.writeFileSync(reportPath, `${JSON.stringify(report)}\n`);
+    await lifecycle.writeReportAtomically(reportPath, report);
     process.stdout.write(`ORDER_REVIEW_LAYOUT_REPORT=${reportPath}\n`);
   } else {
     process.stdout.write(`ORDER_REVIEW_LAYOUT_RESULT=${JSON.stringify(report)}\n`);
