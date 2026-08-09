@@ -1,0 +1,220 @@
+{
+  "1100x800": {
+    "viewport": [
+      1100,
+      800
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-2": 0,
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "1440x900": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-2": 0,
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "1920x1080": {
+    "viewport": [
+      1920,
+      1080
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-2": 0,
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "saveWriteCount": 1,
+  "saved": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "papa-2": 10,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "reloaded": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "papa-2": 10,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "swapDraft": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "annex-2": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "papa-bar4": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "papa-2": 10,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  },
+  "resetDraft": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "columns": 6,
+    "rows": 3,
+    "slots": 18,
+    "cards": 13,
+    "emptySlots": 5,
+    "horizontalOverflow": 0,
+    "clipped": 0,
+    "overlap": false,
+    "handleOverlap": false,
+    "consoleProblems": [],
+    "positions": {
+      "papa-2": 0,
+      "papa-bar4": 1,
+      "outdoor-1": 2,
+      "outdoor-2": 3,
+      "outdoor-3": 4,
+      "outdoor-4": 5,
+      "annex-1": 6,
+      "annex-2": 7,
+      "annex-3": 8,
+      "annex-4": 9,
+      "room-1": 12,
+      "room-2": 13,
+      "room-3": 14
+    }
+  }
+}

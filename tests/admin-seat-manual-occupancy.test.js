@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+const seatLayout=require('../seat-layout');
 
 const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
@@ -49,17 +50,17 @@ function createSeatManager(initial='empty',dbOverride=null,options={}){
  const db={
  runTransaction:async callback=>{options.beforeTransaction?.();return callback({get:async ref=>({exists:true,data:()=>({...initialData})}),set(ref,payload,writeOptions){writes.push({name:'seats',id:ref.id,payload,options:writeOptions});Object.assign(initialData,payload)}})},
  collection(name){return {
-  doc(id){return {id,async set(payload,options){writes.push({name,id,payload,options})}}},
+  doc(id){return {id,async set(payload,options){writes.push({name,id,payload,options})},onSnapshot(success){if(name==='adminSettings')success({exists:false})}}},
   onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}
  }}};
  const context={
   console,db:dbOverride||db,
   document:{
-   body:{classList:{add(){}}},
+   body:{classList:{add(){},toggle(){}}},
    getElementById(id){return elements[id]},
    querySelector(selector){return buttons[selector]||null}
   },
-  window:{top:null,PJ_BOTTLE_SEAT_POLICY:{SUPPORTED_END_YEAR:2030,isBottleSeat:id=>String(id).startsWith('annex-')||String(id).startsWith('room-'),getBottleSeatAvailability:()=>({available:options.available!==false,reason:options.available===false?'after-close':'open'}),millisecondsUntilNextBoundary:()=>86400000}},location:{replace(){},assign(url){context.assignedUrl=url}},encodeURIComponent,alert(message){alerts.push(message)},confirm(){return false},prompt(){return null},
+  window:{top:null,PJSeatLayout:seatLayout,PJ_BOTTLE_SEAT_POLICY:{SUPPORTED_END_YEAR:2030,isBottleSeat:id=>String(id).startsWith('annex-')||String(id).startsWith('room-'),getBottleSeatAvailability:()=>({available:options.available!==false,reason:options.available===false?'after-close':'open'}),millisecondsUntilNextBoundary:()=>86400000}},location:{replace(){},assign(url){context.assignedUrl=url}},encodeURIComponent,alert(message){alerts.push(message)},confirm(){return false},prompt(){return null},
   setInterval(){},
   firebase:{
    auth(){return {onAuthStateChanged(callback){callback({getIdTokenResult:async()=>({claims:{admin:true}})})},signOut:async()=>{}}},
@@ -78,10 +79,10 @@ function clickTarget(seatId,tag='button',insideSeatAdmin=true){
 
 test('seat cards use safe data attributes without inline JavaScript',()=>{
  const manager=createSeatManager();
- assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat empty" data-seat-id="papa-2"\s*>/);
+ assert.match(manager.elements.seatAdmin.innerHTML,/<button type="button" class="simple-seat seat-zone-papa empty" data-seat-id="papa-2"\s*>/);
  assert.doesNotMatch(manager.elements.seatAdmin.innerHTML,/\sonclick=/);
  assert.doesNotMatch(source,/jsArg|onclick="manageSeat/);
- assert.match(html,/seats\.js\?v=43\.10\.0/);
+ assert.match(html,/seat-layout\.js\?v=1/);assert.match(html,/seats\.js\?v=44\.0\.0/);
 });
 
 test('delegated seat clicks handle cards and their nested content exactly once',()=>{

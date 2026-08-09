@@ -12,6 +12,29 @@ service cloud.firestore {
         && value.matches('^[A-Za-z0-9_-]+$');
     }
 
+    function validSeatLayoutPositions(positions) {
+      return positions is map
+        && positions.keys().hasOnly([
+          'papa-2','papa-bar4','outdoor-1','outdoor-2','outdoor-3','outdoor-4',
+          'annex-1','annex-2','annex-3','annex-4','room-1','room-2','room-3'
+        ])
+        && positions.keys().hasAll([
+          'papa-2','papa-bar4','outdoor-1','outdoor-2','outdoor-3','outdoor-4',
+          'annex-1','annex-2','annex-3','annex-4','room-1','room-2','room-3'
+        ])
+        && positions.values().toSet().size() == 13
+        && positions.values().hasOnly([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]);
+    }
+
+    function validSeatLayoutDocument() {
+      return request.resource.data.keys().hasOnly(['positions','revision','updatedAt','updatedBy'])
+        && validSeatLayoutPositions(request.resource.data.positions)
+        && request.resource.data.revision is int
+        && request.resource.data.revision >= 1
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+
     function isKiosk(storeId, kioskId) {
       return request.auth != null
         && validRuntimeId(storeId)
@@ -279,6 +302,14 @@ service cloud.firestore {
         && isAdmin();
     }
 
+    match /adminSettings/seatLayout {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validSeatLayoutDocument()
+        && request.resource.data.revision == 1;
+      allow update: if isAdmin() && validSeatLayoutDocument()
+        && request.resource.data.revision == resource.data.revision + 1;
+      allow delete: if false;
+    }
     match /customers/{customerId} { allow read, write: if isAdmin(); }
     match /salesStats/{document=**} { allow read, write: if isAdmin(); }
     match /dailyStats/{document=**} { allow read, write: if isAdmin(); }

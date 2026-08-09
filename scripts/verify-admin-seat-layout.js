@@ -1,0 +1,40 @@
+const {app,BrowserWindow,nativeImage}=require('electron');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const {runElectronVerification}=require('./electron-verification-lifecycle');
+const root=path.resolve(__dirname,'..');
+const reportPath=process.env.ADMIN_SEAT_LAYOUT_REPORT;
+const screenshotDir=process.env.ADMIN_SEAT_LAYOUT_SCREENSHOTS;
+const userData=process.env.ELECTRON_VERIFICATION_USER_DATA;
+if(!reportPath||!screenshotDir||!userData)throw new Error('ADMIN_SEAT_LAYOUT_REPORT, ADMIN_SEAT_LAYOUT_SCREENSHOTS, and ELECTRON_VERIFICATION_USER_DATA are required');
+fs.mkdirSync(userData,{recursive:true});app.setPath('userData',userData);app.disableHardwareAcceleration();app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('force-device-scale-factor','1');
+const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function exportSite(target){
+ for(const dir of ['seat','tests/fixtures'])fs.mkdirSync(path.join(target,dir),{recursive:true});
+ for(const file of ['admin.css','seats.css','seats-mobile.css','bottle-seat-policy.css','bottle-seat-policy.js','seat-layout.css','seat-layout.js','seats.js'])fs.copyFileSync(path.join(root,file),path.join(target,file));
+ fs.copyFileSync(path.join(root,'tests/fixtures/seat-layout-browser-runtime.js'),path.join(target,'tests/fixtures/seat-layout-browser-runtime.js'));
+ let html=fs.readFileSync(path.join(root,'seat/index.html'),'utf8');
+ html=html.replace(/<script src="https:\/\/www\.gstatic\.com[^>]+><\/script>/g,'').replace(/<script src="\.\.\/firebase-config\.js[^>]+><\/script>/,'<script src="../tests/fixtures/seat-layout-browser-runtime.js"></script>');
+ fs.writeFileSync(path.join(target,'seat/index.html'),html);
+}
+async function capture(win,name){const image=await win.webContents.capturePage();fs.mkdirSync(screenshotDir,{recursive:true});fs.writeFileSync(path.join(screenshotDir,`${name}.png`),nativeImage.createFromBuffer(image.toPNG()).toPNG())}
+async function metrics(win){return win.webContents.executeJavaScript(`(()=>{const grid=document.querySelector('#seatAdmin'),slots=[...document.querySelectorAll('.seat-slot')],cards=[...document.querySelectorAll('.simple-seat')],handles=[...document.querySelectorAll('.seat-move-handle')],rects=cards.map(card=>card.getBoundingClientRect()),overlap=rects.some((rect,index)=>rects.slice(index+1).some(other=>rect.left<other.right&&rect.right>other.left&&rect.top<other.bottom&&rect.bottom>other.top));return {viewport:[innerWidth,innerHeight],columns:getComputedStyle(grid).gridTemplateColumns.split(' ').length,rows:getComputedStyle(grid).gridTemplateRows.split(' ').length,slots:slots.length,cards:cards.length,emptySlots:slots.filter(slot=>slot.classList.contains('empty-slot')).length,horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),clipped:cards.filter(card=>card.scrollWidth>card.clientWidth||card.scrollHeight>card.clientHeight).length,overlap,handleOverlap:handles.some(handle=>{const h=handle.getBoundingClientRect();return [...handle.parentElement.querySelectorAll('em')].some(badge=>{const b=badge.getBoundingClientRect();return h.left<b.right&&h.right>b.left&&h.top<b.bottom&&h.bottom>b.top})}),consoleProblems:window.__consoleProblems||[],positions:Object.fromEntries(slots.filter(slot=>slot.dataset.layoutSeatId).map(slot=>[slot.dataset.layoutSeatId,Number(slot.dataset.seatSlot)]))}})()`)}
+async function main(lifecycle){
+ const site=fs.mkdtempSync(path.join(os.tmpdir(),'admin-seat-layout-site-'));exportSite(site);
+ const win=lifecycle.trackWindow(new BrowserWindow({show:true,width:1440,height:900,webPreferences:{contextIsolation:false,nodeIntegration:false,sandbox:false,backgroundThrottling:false}}));
+ try{
+  await win.loadFile(path.join(site,'seat/index.html'));lifecycle.attachDebugger();await win.webContents.executeJavaScript(`window.__consoleProblems=[];window.addEventListener('error',event=>__consoleProblems.push(event.message));window.confirm=()=>true;true`);await delay(250);await capture(win,'admin-seat-layout-before-1440x900');
+  const setViewport=(width,height)=>win.webContents.debugger.sendCommand('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});
+  const results={};for(const [width,height] of [[1100,800],[1440,900],[1920,1080]]){await setViewport(width,height);await delay(150);results[`${width}x${height}`]=await metrics(win);await capture(win,`admin-seat-layout-${width}x${height}`)}
+  await setViewport(1440,900);await win.webContents.executeJavaScript(`editSeatLayout.click()`);await delay(100);await capture(win,'admin-seat-layout-editing-1440x900');
+  await win.webContents.executeJavaScript(`{const transfer=new DataTransfer();document.querySelector('[data-layout-seat-id="papa-2"]').dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:transfer}));document.querySelector('[data-seat-slot="10"]').dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:transfer}))}`);await delay(80);await capture(win,'admin-seat-layout-drag-target-1440x900');
+  await win.webContents.executeJavaScript(`document.querySelector('[data-seat-slot="10"]').dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:new DataTransfer()}))`);await delay(80);await capture(win,'admin-seat-layout-moved-1440x900');
+  results.saveWriteCount=await win.webContents.executeJavaScript(`saveSeatLayout.click();saveSeatLayout.click();new Promise(resolve=>setTimeout(()=>resolve(__seatLayoutFixture.writeCount),120))`);await delay(80);results.saved=await metrics(win);await win.reload();await delay(250);results.reloaded=await metrics(win);await capture(win,'admin-seat-layout-reloaded-1440x900');
+  await win.webContents.executeJavaScript(`editSeatLayout.click()`);await delay(80);await capture(win,'admin-seat-layout-swap-before-1440x900');
+  await win.webContents.executeJavaScript(`PJSeatLayoutEditor.applyDraftMove('papa-bar4',7)`);await delay(80);results.swapDraft=await metrics(win);await capture(win,'admin-seat-layout-swap-after-1440x900');await win.webContents.executeJavaScript(`cancelSeatLayout.click()`);
+  await win.webContents.executeJavaScript(`window.confirm=()=>true;editSeatLayout.click();resetSeatLayout.click()`);await delay(100);results.resetDraft=await metrics(win);await capture(win,'admin-seat-layout-reset-default-1440x900');await capture(win,'admin-seat-layout-mixed-status-1440x900');await win.webContents.executeJavaScript(`cancelSeatLayout.click()`);
+  const temporary=`${reportPath}.${process.pid}.tmp`;await fs.promises.mkdir(path.dirname(reportPath),{recursive:true});await fs.promises.writeFile(temporary,JSON.stringify(results,null,2));await fs.promises.rename(temporary,reportPath);
+ }finally{fs.rmSync(site,{recursive:true,force:true})}
+}
+runElectronVerification({app},main);

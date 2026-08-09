@@ -3,10 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+const seatLayout=require('../seat-layout');
 
 const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
+const layoutCss=fs.readFileSync(path.join(root,'seat-layout.css'),'utf8');
 
 function renderSeatManager(documents={}){
  const elements={
@@ -16,11 +18,11 @@ function renderSeatManager(documents={}){
  };
  const seatSnapshot={forEach(callback){Object.entries(documents).forEach(([id,data])=>callback({id,data:()=>data}));}};
  const emptySnapshot={docs:[]};
- const db={collection(name){return {onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}}}};
+ const db={collection(name){return {doc(){return {onSnapshot(success){success({exists:false})}}},onSnapshot(success){success(name==='seats'?seatSnapshot:emptySnapshot)}}}};
  const context={
   console,db,
-  document:{body:{classList:{add(){}}},getElementById(id){return elements[id]},querySelector(){return null}},
-  window:{top:null},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},
+  document:{body:{classList:{add(){},toggle(){}}},getElementById(id){return elements[id]},querySelector(){return null}},
+  window:{top:null,PJSeatLayout:seatLayout,addEventListener(){}},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},
   setInterval(){},
   firebase:{
    auth(){return {onAuthStateChanged(callback){callback({getIdTokenResult:async()=>({claims:{admin:true}})})},signOut:async()=>{}}},
@@ -34,7 +36,7 @@ function renderSeatManager(documents={}){
 
 function cards(html){
  return [...html.matchAll(/<button type="button" class="simple-seat ([^"]+)" data-seat-id="([^"]+)"/g)]
-  .map(([,status,id])=>({status,id}));
+  .map(([,classes,id])=>({status:classes.split(' ').at(-1),id}));
 }
 
 test('seat manager always renders the 13 real tables as independent cards',()=>{
@@ -46,14 +48,12 @@ test('seat manager always renders the 13 real tables as independent cards',()=>{
  assert.ok(rendered.every(card=>card.status==='empty'));
 });
 
-test('zones keep their fixed card counts with no merged zone card',()=>{
+test('unified board renders 18 slots, 13 seats, and five empty slots',()=>{
  const html=renderSeatManager();
- for(const [zone,count] of [['papa',2],['outdoor',4],['annex',4],['room',3]]){
-  const section=html.match(new RegExp(`<section class="simple-zone seat-zone-${zone}"[\\s\\S]*?<\\/section>`));
-  assert.ok(section,`${zone} zone is rendered`);
-  assert.equal(cards(section[0]).length,count);
- }
- assert.equal((html.match(/class="simple-zone/g)||[]).length,4);
+ assert.equal((html.match(/class="seat-slot /g)||[]).length,18);
+ assert.equal(cards(html).length,13);
+ assert.equal((html.match(/class="seat-slot empty-slot/g)||[]).length,5);
+ assert.doesNotMatch(html,/class="simple-zone/);
 });
 
 test('empty, occupied, and held updates preserve card identity and order',()=>{
@@ -97,15 +97,10 @@ test('state updates switch card classes without changing card order',()=>{
  assert.equal(released.find(card=>card.id==='papa-2').status,'empty');
 });
 
-test('desktop seat zones use compact 2/3-column grids with natural heights',()=>{
- assert.match(css,/\.cad-layout\{[^}]*display:flex[^}]*flex-wrap:wrap[^}]*width:min\(100%,950px\)[^}]*align-items:flex-start[^}]*align-content:flex-start[^}]*justify-content:center/);
- assert.match(css,/\.simple-zone\{width:470px/);
- assert.match(css,/\.seat-zone-papa\{width:310px\}/);
- assert.match(css,/\.simple-seat-grid\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)[^}]*width:100%[^}]*gap:10px[^}]*align-content:start[^}]*justify-content:stretch/);
- assert.match(css,/\.seat-zone-papa \.simple-seat-grid\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)\}/);
- assert.doesNotMatch(css,/grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/);
- assert.match(css,/\.simple-seat\{[^}]*max-width:150px/);
- assert.match(css,/\.simple-seat\{grid-column:auto/);
+test('desktop seat board uses the full-width fixed 6 by 3 grid',()=>{
+ assert.match(layoutCss,/\.cad-layout\{[^}]*display:grid[^}]*width:100%[^}]*grid-template-columns:repeat\(6,minmax\(0,1fr\)\)[^}]*grid-template-rows:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(layoutCss,/\.seat-slot \.simple-seat\{[^}]*max-width:none[^}]*height:100%[^}]*aspect-ratio:auto/);
+ assert.doesNotMatch(renderSeatManager(),/class="simple-zone/);
 });
 
 test('seat cards keep only the compact name, capacity, and status hierarchy',()=>{
