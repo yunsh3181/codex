@@ -10,11 +10,15 @@ const tablet = fs.readFileSync(path.join(root, 'styles/device-tablet.css'), 'utf
 const kiosk = fs.readFileSync(path.join(root, 'styles/device-kiosk21.css'), 'utf8');
 
 test('order review uses device-scoped compact grids without changing other product cards', () => {
-  for (const [layout, css] of [['phone', phone], ['tablet', tablet], ['kiosk21', kiosk]]) {
+  for (const [layout, css] of [['phone', phone], ['tablet', tablet]]) {
     assert.match(css, new RegExp(`html\\[data-layout="${layout}"\\] body\\[data-step="review"\\] \\.reviewOrderCard`));
     assert.match(css, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
     assert.match(css, new RegExp(`html\\[data-layout="${layout}"\\] body\\[data-step="review"\\] \\.cartPizzaPriceBreakdown`));
   }
+  assert.match(kiosk, /body\[data-step="review"\] \.reviewOrderCard\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto/);
+  assert.doesNotMatch(kiosk, /body\[data-step="review"\] \.reviewOrderCard\s*\{[\s\S]{0,180}?grid-template-columns:\s*repeat\(2/);
+  assert.match(kiosk, /body\[data-step="review"\][\s\S]*?word-break:\s*keep-all/);
+  assert.match(kiosk, /\.cartOrderActions button\s*\{[\s\S]*?min-width:\s*56px;[\s\S]*?min-height:\s*56px/);
   assert.doesNotMatch(`${phone}\n${tablet}\n${kiosk}`, /body\[data-step="(?:pizza|side|drink|topping)"\][^{]*\.reviewOrderCard/);
 });
 
