@@ -36,7 +36,6 @@ function expectedArtifacts(arch) {
   }
   return [
     path.join('dist', `PapaJohns-Kiosk-Setup-${version}-${arch}.exe`),
-    path.join('dist', `PapaJohns-Kiosk-Portable-${version}-${arch}.exe`),
     path.join('dist', `win-${arch}-unpacked`, 'PapaJohns-Kiosk.exe')
   ];
 }

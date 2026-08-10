@@ -446,7 +446,7 @@ test('updater admin UI renders hostile HTML as inert plain text', () => {
   assert.equal(rootNode.findAll('button').length, 3);
 });
 
-test('GitHub Release workflow publishes architecture-specific installers, blockmaps, and metadata', () => {
+test('GitHub Release workflow publishes only the immutable ia32 Setup channel', () => {
   const workflow = read('.github/workflows/windows-release.yml');
   const pkg = JSON.parse(read('package.json'));
   assert.equal(pkg.version, '1.2.24');
@@ -456,11 +456,11 @@ test('GitHub Release workflow publishes architecture-specific installers, blockm
     repo: 'codex',
     channel: 'latest'
   });
-  for (const arch of ['ia32', 'x64']) {
-    assert.ok(workflow.includes(`latest-${arch}.yml`));
-    assert.ok(workflow.includes(`*-${arch}.exe.blockmap`));
-  }
-  assert.match(workflow, /push:[\s\S]*tags:[\s\S]*"v\*"/);
+  assert.ok(workflow.includes('latest-ia32.yml'));
+  assert.ok(workflow.includes('*-ia32.exe.blockmap'));
+  assert.doesNotMatch(workflow, /latest-x64\.yml|\*-x64\.exe|push:\s*\n\s*tags:/);
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /cancel-in-progress: false/);
   assert.match(workflow, /test "\$RELEASE_TAG" = "v\$PACKAGE_VERSION"/);
   assert.match(workflow, /softprops\/action-gh-release@v2/);
 });
@@ -481,19 +481,20 @@ test('GitHub Release validation runs the complete suite inside an Xvfb display',
   assert.doesNotMatch(validate, /continue-on-error|\|\| true|--test-name-pattern|--test-skip-pattern/);
   assert.match(
     validate,
-    /ref: \$\{\{ github\.event_name == 'workflow_dispatch' && inputs\.tag \|\| github\.ref \}\}/
+    /ref: \$\{\{ inputs\.tag \}\}/
   );
   assert.match(validate, /test "\$RELEASE_TAG" = "v\$PACKAGE_VERSION"/);
   assert.match(build, /needs: validate/);
   assert.match(release, /needs: \[validate, build\]/);
-  for (const arch of ['ia32', 'x64']) {
-    assert.match(build, new RegExp(`arch: ${arch}`));
-    assert.ok(workflow.includes(`release/PapaJohns-Kiosk-Setup-*-${arch}.exe`));
-    assert.ok(workflow.includes(`release/PapaJohns-Kiosk-Setup-*-${arch}.exe.blockmap`));
-    assert.ok(workflow.includes(`release/latest-${arch}.yml`));
-  }
+  assert.doesNotMatch(build, /strategy:|matrix:|--x64/);
+  assert.match(build, /--win nsis --ia32 --publish never --config\.publish\.channel=latest-ia32/);
+  assert.ok(workflow.includes('release/PapaJohns-Kiosk-Setup-*-ia32.exe'));
+  assert.ok(workflow.includes('release/PapaJohns-Kiosk-Setup-*-ia32.exe.blockmap'));
+  assert.ok(workflow.includes('release/latest-ia32.yml'));
   assert.match(release, /softprops\/action-gh-release@v2/);
   assert.match(release, /fail_on_unmatched_files: true/);
+  assert.match(release, /gh release view/);
+  assert.match(release, /refusing duplicate publication or asset modification/);
 });
 
 console.log('Windows GitHub Release updater channels, safety gates, recovery, admin IPC, and release assets passed');
