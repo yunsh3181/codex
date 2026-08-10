@@ -1683,8 +1683,8 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage {
 
 html[data-layout="kiosk21"] body[data-step="review"] .reviewOrderCard {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 22px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 14px;
   margin: 10px 0;
   padding: 16px;
 }
@@ -1696,8 +1696,8 @@ html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions {
 
 html[data-layout="kiosk21"] body[data-step="review"] .cartPizzaPriceBreakdown {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 20px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
 }
 
 html[data-layout="kiosk21"] body[data-step="review"] .reviewAddMore {
@@ -1722,12 +1722,12 @@ html[data-layout="kiosk21"] body[data-step="review"] .reviewConfirmBtn {
 }
 
 html[data-layout="kiosk21"] body[data-step="review"] .cartOrderActions button {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 56px;
+  min-height: 56px;
 }
 
 html[data-layout="kiosk21"] body[data-step="review"].reviewCompact1 .reviewOrderList {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
 }
 

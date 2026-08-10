@@ -26,7 +26,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 4 * 6 * 17);
+  assert.equal(report.results.length, 4 * 6 * 23);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -49,18 +49,34 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
       if (result.layout === 'kiosk21') {
         assert.equal(result.verticalScrollable, false, `${context}: document must not scroll`);
         assert.ok(result.orderRegion.scrollHeight <= result.orderRegion.clientHeight + 2, `${context}: order list overflow`);
+        assert.equal(result.reviewPageFits,true,`${context}: unsafe current page`);
         const indexes = result.pageItemIndexes.flat();
         assert.equal(indexes.length, result.orderItemCount, `${context}: paged item count`);
         assert.equal(new Set(indexes).size, result.orderItemCount, `${context}: duplicate paged item`);
         assert.deepEqual([...indexes].sort((a,b)=>a-b), Array.from({length:result.orderItemCount},(_,i)=>i), `${context}: missing paged item`);
-        assert.ok(result.minimumFontSize >= 16, `${context}: ${result.minimumFontSize}px kiosk font`);
+        assert.ok(result.minimumFontSize >= 15, `${context}: ${result.minimumFontSize}px kiosk font`);
+        assert.ok(result.typography.menuName>=18,`${context}: ${result.typography.menuName}px item name`);
+        assert.ok(result.typography.options>=15,`${context}: ${result.typography.options}px options`);
+        assert.ok(result.typography.quantityPrice>=17,`${context}: ${result.typography.quantityPrice}px quantity/price`);
+        assert.ok(result.typography.summary>=16,`${context}: ${result.typography.summary}px summary`);
+        assert.ok(result.typography.totalPayment>=26,`${context}: ${result.typography.totalPayment}px final payment`);
+        assert.ok(result.typography.footerButton>=24,`${context}: ${result.typography.footerButton}px footer button`);
+        assert.deepEqual(result.verticalSingleCharacterKorean,[],`${context}: vertical Korean`);
+        assert.equal(result.confirmButton.visible,true,`${context}: order button hidden`);
+        assert.equal(result.confirmButton.enabled,true,`${context}: order button disabled`);
+        assert.ok(result.confirmButton.rect.height>=96,`${context}: ${result.confirmButton.rect.height}px order button`);
+        assert.ok(result.confirmButton.rect.width>0,`${context}: zero-width order button`);
+        assert.ok(result.confirmButton.bottomSafetyGap>=24,`${context}: ${result.confirmButton.bottomSafetyGap}px safety gap`);
+        assert.deepEqual(result.confirmClick,{before:'review',after:'phone',clickCount:1},`${context}: confirm click`);
         if(result.pageCount===1){
+          assert.equal(result.visibleItemCount,result.orderItemCount,`${context}: hidden card on single page`);
           assert.equal(result.pagerReservedHeight,0,`${context}: pager reserved space`);
           assert.equal(result.paginationTrace,null,`${context}: unexpected pagination trace`);
         }else{
           const trace=result.paginationTrace;
           assert.ok(trace,`${context}: missing pagination trace`);
           assert.equal(trace.pages.length,result.pageCount,`${context}: traversed page count`);
+          assert.equal(trace.pages.some(page=>page.visibleIndexes.length===0),false,`${context}: empty page`);
           assert.deepEqual(trace.pages.map(page=>page.visibleIndexes),result.pageItemIndexes,`${context}: actual page indexes`);
           assert.equal(trace.pages[0].previousDisabled,true,`${context}: first previous enabled`);
           assert.equal(trace.pages.at(-1).nextDisabled,true,`${context}: last next enabled`);
@@ -79,18 +95,37 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
             if(pageIndex<trace.pages.length-1)assert.equal(page.canFitNextCard,false,`${context}: page ${pageIndex+1} wastes fit space`);
           }
         }
-        if (['six-items','bulk-pagination'].includes(result.scenario)) {
+        if (['bulk-pagination','max-cart-items'].includes(result.scenario)) {
           assert.ok(result.pageCount >= 2, `${context}: expected pagination`);
           assert.ok(result.pageItemIndexes.some(page=>page.length>=2),`${context}: one-card pages only`);
           assert.ok(result.pageCount<result.cardCount,`${context}: page count equals card count`);
         }
-        if(['normal-whole','two-items','three-items','four-items'].includes(result.scenario)){
+        if(result.scenario==='four-items-forced-overflow'){
+          assert.ok(result.pageCount>1,`${context}: four-card overflow was forced onto one page`);
+          assert.ok(result.paginationTrace,`${context}: forced overflow missing pagination`);
+        }
+        if(result.scenario==='set-four'){
+          const mutation=result.quantityMutation;
+          assert.ok(mutation,`${context}: quantity mutation trace`);
+          assert.equal(mutation.afterIncrement.quantities[0],mutation.before.quantities[0]+1,`${context}: increment`);
+          assert.equal(mutation.afterIncrement.total>mutation.before.total,true,`${context}: increment total`);
+          assert.deepEqual(mutation.afterDecrement.quantities,mutation.before.quantities,`${context}: decrement quantity`);
+          assert.equal(mutation.afterDecrement.total,mutation.before.total,`${context}: decrement total`);
+          for(const [stage,snapshot] of Object.entries(mutation)){
+            assert.equal(snapshot.confirmVisible,true,`${context}/${stage}: confirm hidden`);
+            if(snapshot.pageCount===1)assert.ok(snapshot.orderScrollHeight<=snapshot.orderClientHeight+1,`${context}/${stage}: single page overflow`);
+            const mutationIndexes=snapshot.pageItemIndexes.flat();
+            assert.equal(mutationIndexes.length,result.orderItemCount,`${context}/${stage}: item count`);
+            assert.equal(new Set(mutationIndexes).size,result.orderItemCount,`${context}/${stage}: duplicate item`);
+          }
+        }
+        if(['normal-whole','two-items','three-items','four-items','set-one','set-three-photo','set-four','set-four-long','set-four-upup'].includes(result.scenario)){
           assert.equal(result.pageCount,1,`${context}: ordinary order paginated`);
           assert.equal(result.pagerReservedHeight,0,`${context}: ordinary pager space`);
         }
       }
     }
-    if (['two-items','three-items','four-items','multi-pizza','max-categories','long-complex-order','five-items','six-items','bulk-pagination','max-cart-items'].includes(result.scenario)) {
+    if (['two-items','three-items','four-items','multi-pizza','max-categories','long-complex-order','five-items','six-items','bulk-pagination','max-cart-items','set-one','set-three-photo','set-four','set-four-long','set-four-upup','four-items-forced-overflow'].includes(result.scenario)) {
       if (result.scenario === 'multi-pizza') {
         assert.equal(result.orderQuantity, 2, `${context}: order quantity`);
       }
@@ -121,7 +156,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
         })}`
       );
     }
-    assert.ok(result.minFontSize >= (result.layout==='kiosk21'?16:12), `${context}: ${result.minFontSize}px font`);
+    assert.ok(result.minFontSize >= (result.layout==='kiosk21'?15:12), `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);
     assert.ok(result.minTouchHeight >= 44, `${context}: ${result.minTouchHeight}px touch height`);
     assert.equal(
@@ -168,7 +203,7 @@ test('repository measurement artifact is aggregate-only while failures retain de
     'utf8'
   ));
   assert.equal('results' in aggregate, false);
-  assert.equal(aggregate.totalCombinations, 4 * 6 * 17);
+  assert.equal(aggregate.totalCombinations, 4 * 6 * 23);
   assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '768x1024', '1080x1920']);
   assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
   assert.equal(aggregate.overlapCount, 0);

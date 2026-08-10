@@ -31,6 +31,12 @@ const scenarios = [
   { name: 'set-2', promo: 'set', size: 'R', mode: 'single', set: 2, right: null },
   { name: 'set-3', promo: 'set', size: 'L', mode: 'single', set: 3, right: null },
   { name: 'set-4', promo: 'set', size: 'F', mode: 'single', set: 4, right: null },
+  { name: 'set-one', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, orderCount: 1 },
+  { name: 'set-three-photo', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, orderCount: 3 },
+  { name: 'set-four', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, orderCount: 4 },
+  { name: 'set-four-long', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, extras: true, crust: '치즈롤', left: 'P003', orderCount: 4 },
+  { name: 'set-four-upup', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, orderCount: 4, mixedUpUp: true },
+  { name: 'four-items-forced-overflow', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, extras: true, crust: '치즈롤', left: 'P003', orderCount: 4, artificialLong: true },
   { name: 'upup', promo: 'upup', size: 'F', mode: 'single', set: null, right: null },
   { name: 'happy-hour', promo: 'happy', size: 'R', mode: 'single', set: null, right: null },
   {
@@ -136,18 +142,32 @@ const fixtureScript = (locale, scenario) => `
       cartItems: []
     });
     const snapshot = orderSnapshot();
+    const snapshots = [snapshot];
+    if (${JSON.stringify(Boolean(scenario.mixedUpUp))}) {
+      Object.assign(state, { promo: 'upup', set: null, size: 'F', left: 'P003', crust: '치즈롤' });
+      snapshots.push(orderSnapshot());
+    }
     state.cartItems = Array.from(
       { length: document.documentElement.dataset.layout === 'kiosk21'
         ? ${JSON.stringify(scenario.orderCount || 1)}
         : document.documentElement.dataset.layout === 'phone'
           ? ${JSON.stringify(scenario.phoneOrderCount || 1)}
           : 1 },
-      () => ({ ...snapshot, qty: ${JSON.stringify(scenario.quantity || 1)} })
+      (_, index) => ({ ...snapshots[index % snapshots.length], qty: ${JSON.stringify(scenario.quantity || 1)} })
     );
     clearCurrentProduct();
     state.step = 'review';
     window.scrollTo(0, 0);
     render();
+    if (${JSON.stringify(Boolean(scenario.artificialLong))} && document.documentElement.dataset.layout === 'kiosk21') {
+      document.querySelectorAll('.reviewOrderCard').forEach((card, index) => {
+        const stress=document.createElement('p');
+        stress.className='reviewStressText';
+        stress.textContent=('장문 옵션 검증 ${'매우 긴 피자명과 치즈롤 토핑 사이드 음료 혜택 '.repeat(12)}' + (index + 1));
+        card.querySelector('.cartCategory')?.append(stress);
+      });
+      scheduleOrderReviewFit();
+    }
     document.getAnimations().forEach(animation => animation.finish());
   })()
 `;
@@ -174,8 +194,11 @@ const measureScript = `
       '.progress',
       '.progress .progressStep',
       '.langTopBtn span',
-      '.cartbar .cartmain',
-      '.cartbar .cartprice',
+      ...(root.dataset.layout === 'kiosk21' ? [
+        '.reviewBottomActions .reviewHomeBtn',
+        '.reviewBottomActions .reviewBackBtn',
+        '.reviewBottomActions .reviewDockConfirm',
+      ] : ['.cartbar .cartmain', '.cartbar .cartprice']),
       ...(isPhoneReview ? ['.brandName', '.brandLogo', '.reviewBrandTagline'] : []),
     ].join(', ');
     const requiredVisibleTargets = [...document.querySelectorAll(requiredSelector)];
@@ -198,7 +221,9 @@ const measureScript = `
       clientHeight: element.clientHeight,
       scrollHeight: element.scrollHeight,
     }));
-    const cartbarRect = document.querySelector('.cartbar')?.getBoundingClientRect();
+    const cartbarRect = (root.dataset.layout === 'kiosk21'
+      ? document.querySelector('.reviewBottomActions')
+      : document.querySelector('.cartbar'))?.getBoundingClientRect();
     const orderList = document.querySelector('.reviewOrderList');
     const brandRect = document.querySelector('.brand')?.getBoundingClientRect();
     const locationRect = document.querySelector('.brandName')?.getBoundingClientRect();
@@ -214,7 +239,8 @@ const measureScript = `
       width: value.width,
       height: value.height,
     } : null;
-    const stageChildren = [...document.querySelector('.stage').children];
+    const stageChildren = [...document.querySelector('.stage').children]
+      .filter(element => getComputedStyle(element).position !== 'fixed');
     const lastContent = stageChildren
       .map(element => ({ className: element.className, bottom: element.getBoundingClientRect().bottom }))
       .sort((left, right) => right.bottom - left.bottom)[0];
@@ -255,6 +281,7 @@ const measureScript = `
       orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
       compressionStage: Number(document.body.dataset.reviewCompression || 0),
       densityMode: document.body.dataset.reviewDensity || 'default',
+      reviewPageFits: document.body.dataset.reviewPageFits === 'true',
       pageCount: Array.isArray(reviewPages) ? reviewPages.length : 1,
       currentPage: Number(reviewPage || 0) + 1,
       visibleItemCount: [...document.querySelectorAll('.reviewOrderCard')].filter(card => !card.hidden).length,
@@ -280,11 +307,33 @@ const measureScript = `
       overlapCount: overlaps.length,
       typography: {
         title: fontSize('.title', 0),
-        menuName: fontSize('.cartPizzaToppingLine', 0),
-        options: fontSize('.cartPizzaMeta', 0),
-        quantityPrice: fontSize('.cartItemQuantity', 14),
-        totalPayment: fontSize('.reviewDiscountBox .final', 0),
+        menuName: fontSize('.cartPizzaCategory h2', 0),
+        options: fontSize('.cartItemSummary', fontSize('.cartPizzaMeta', 0)),
+        quantityPrice: fontSize('.cartItemPrice', fontSize('.cartItemQuantity', 17)),
+        summary: fontSize('.reviewDiscountBox .line', 0),
+        totalPayment: fontSize('.reviewDiscountBox .final strong', 0),
+        footerButton: fontSize('.reviewDockConfirm', fontSize('.reviewInlineConfirm', 0)),
       },
+      verticalSingleCharacterKorean: textTargets.filter(element => {
+        const text=element.textContent.trim();
+        if(!/[가-힣]{2,}/.test(text))return false;
+        const style=getComputedStyle(element);
+        const lineHeight=parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.2;
+        return element.getBoundingClientRect().width<=parseFloat(style.fontSize)*1.6&&
+          element.getBoundingClientRect().height>lineHeight*1.5;
+      }).map(element=>element.textContent.trim()),
+      confirmButton: (() => {
+        const button = root.dataset.layout === 'kiosk21'
+          ? document.querySelector('.reviewDockConfirm')
+          : document.querySelector('.reviewInlineConfirm');
+        const bounds = button?.getBoundingClientRect();
+        return {
+          rect: rect(bounds),
+          bottomSafetyGap: bounds ? innerHeight - bounds.bottom : 0,
+          visible: Boolean(bounds && bounds.width > 0 && bounds.height > 0),
+          enabled: Boolean(button && !button.disabled),
+        };
+      })(),
       clipped: clipped.map(element => ({
         text: element.textContent.trim(),
         tagName: element.tagName,
@@ -401,6 +450,67 @@ const paginationTraceScript = `
   })()
 `;
 
+const confirmClickScript = `
+  (() => {
+    if(document.documentElement.dataset.layout!=='kiosk21')return null;
+    const button=document.querySelector('.reviewDockConfirm')||document.querySelector('.reviewConfirmBtn');
+    let clickCount=0;
+    button.addEventListener('click',()=>{clickCount+=1});
+    const before=state.step;
+    button.click();
+    return {before,after:state.step,clickCount};
+  })()
+`;
+
+const quantityMutationScript = `
+  (async () => {
+    if(document.documentElement.dataset.layout!=='kiosk21'||state.cartItems.length!==4)return null;
+    const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const snapshot=()=>({
+      quantities:state.cartItems.map(item=>Number(item.qty||1)),
+      pageCount:reviewPages.length,
+      pageItemIndexes:reviewPages.map(page=>[...page]),
+      orderScrollHeight:document.querySelector('.reviewOrderList').scrollHeight,
+      orderClientHeight:document.querySelector('.reviewOrderList').clientHeight,
+      confirmVisible:(()=>{const rect=document.querySelector('.reviewDockConfirm').getBoundingClientRect();return rect.width>0&&rect.height>0})(),
+      total:reviewTotals().final,
+    });
+    const before=snapshot();
+    document.querySelector('.reviewOrderCard .cartOrderActions button:nth-child(2)').click();
+    await settle();
+    const afterIncrement=snapshot();
+    document.querySelector('.reviewOrderCard .cartOrderActions button:first-child').click();
+    await settle();
+    const afterDecrement=snapshot();
+    return {before,afterIncrement,afterDecrement};
+  })()
+`;
+
+const compressionTraceScript = `
+  (() => {
+    if(document.documentElement.dataset.layout!=='kiosk21')return null;
+    const body=document.body;
+    const list=document.querySelector('.reviewOrderList');
+    const cards=[...document.querySelectorAll('.reviewOrderCard')];
+    const pager=document.querySelector('.reviewPager');
+    body.classList.remove('reviewCompact1','reviewCompact2','reviewPaginated');
+    cards.forEach(card=>card.hidden=false);
+    if(pager)pager.hidden=true;
+    const read=stage=>{
+      const gap=parseFloat(getComputedStyle(list).rowGap)||0;
+      const usedHeight=cards.reduce((sum,card)=>sum+Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight)),0)+Math.max(0,cards.length-1)*gap;
+      return {stage,usedHeight,scrollHeight:list.scrollHeight,clientHeight:list.clientHeight,fits:list.scrollHeight<=list.clientHeight+1};
+    };
+    const stages=[read('default')];
+    body.classList.add('reviewCompact1');
+    stages.push(read('compact1'));
+    body.classList.add('reviewCompact2');
+    stages.push(read('compact2'));
+    fitOrderReview();
+    return stages;
+  })()
+`;
+
 runElectronVerification({ app }, async lifecycle => {
   if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({
@@ -426,7 +536,12 @@ runElectronVerification({ app }, async lifecycle => {
         await waitForLayout(window);
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
         const paginationTrace = await window.webContents.executeJavaScript(paginationTraceScript, true);
-        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace });
+        const compressionTrace = await window.webContents.executeJavaScript(compressionTraceScript, true);
+        const quantityMutation = scenario.name === 'set-four'
+          ? await window.webContents.executeJavaScript(quantityMutationScript, true)
+          : null;
+        const confirmClick = await window.webContents.executeJavaScript(confirmClickScript, true);
+        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace, compressionTrace, quantityMutation, confirmClick });
       }
     }
     if (captureScreenshots) {
@@ -435,6 +550,24 @@ runElectronVerification({ app }, async lifecycle => {
       await waitForLayout(window);
       await captureExact(window, viewport, 'after');
       if(viewport.name==='1080x1920'){
+        for (const [scenarioName, evidenceName] of [
+          ['set-three-photo','set-three-after'],
+          ['set-four','set-four-after'],
+          ['set-four-long','set-four-long-after'],
+          ['set-four-upup','set-four-upup-after'],
+        ]) {
+          const evidenceScenario=scenarios.find(scenario=>scenario.name===scenarioName);
+          await window.webContents.executeJavaScript(fixtureScript('ko',evidenceScenario),true);
+          await waitForLayout(window);
+          await captureExact(window,viewport,evidenceName);
+        }
+        const clickScenario=scenarios.find(scenario=>scenario.name==='set-four');
+        await window.webContents.executeJavaScript(fixtureScript('ko',clickScenario),true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'confirm-before-click');
+        await window.webContents.executeJavaScript(`document.querySelector('.reviewDockConfirm').click()`,true);
+        await waitForLayout(window);
+        await captureExact(window,viewport,'confirm-after-click');
         const normalScenario=scenarios.find(scenario=>scenario.name==='normal-whole');
         await window.webContents.executeJavaScript(fixtureScript('ko',normalScenario),true);
         await waitForLayout(window);

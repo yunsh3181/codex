@@ -10,11 +10,15 @@ const tablet = fs.readFileSync(path.join(root, 'styles/device-tablet.css'), 'utf
 const kiosk = fs.readFileSync(path.join(root, 'styles/device-kiosk21.css'), 'utf8');
 
 test('order review uses device-scoped compact grids without changing other product cards', () => {
-  for (const [layout, css] of [['phone', phone], ['tablet', tablet], ['kiosk21', kiosk]]) {
+  for (const [layout, css] of [['phone', phone], ['tablet', tablet]]) {
     assert.match(css, new RegExp(`html\\[data-layout="${layout}"\\] body\\[data-step="review"\\] \\.reviewOrderCard`));
     assert.match(css, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
     assert.match(css, new RegExp(`html\\[data-layout="${layout}"\\] body\\[data-step="review"\\] \\.cartPizzaPriceBreakdown`));
   }
+  assert.match(kiosk, /body\[data-step="review"\] \.reviewOrderCard\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto/);
+  assert.doesNotMatch(kiosk, /body\[data-step="review"\] \.reviewOrderCard\s*\{[\s\S]{0,180}?grid-template-columns:\s*repeat\(2/);
+  assert.match(kiosk, /body\[data-step="review"\][\s\S]*?word-break:\s*keep-all/);
+  assert.match(kiosk, /\.cartOrderActions button\s*\{[\s\S]*?min-width:\s*56px;[\s\S]*?min-height:\s*56px/);
   assert.doesNotMatch(`${phone}\n${tablet}\n${kiosk}`, /body\[data-step="(?:pizza|side|drink|topping)"\][^{]*\.reviewOrderCard/);
 });
 
@@ -69,4 +73,12 @@ test('review totals still derive discount and final payment from stored order am
   assert.match(source, /Math\.max\(0,normal-final\)/);
   assert.match(source, /class="line final"/);
   assert.match(source, /money\(totals\.final\)/);
+});
+
+test('kiosk single-page review requires a measured fit at every card count', () => {
+  const source = html.slice(html.indexOf('function fitOrderReview()'), html.indexOf('function changeReviewPage'));
+  assert.doesNotMatch(source, /cards\.length\s*<=\s*4\s*\|\|\s*fits\(\)/);
+  assert.match(source, /if\(fits\(\)\)reviewPages=\[cards\.map/);
+  assert.match(source, /reviewCompact1[\s\S]*?fits\(\)[\s\S]*?reviewCompact2[\s\S]*?fits\(\)/);
+  assert.match(source, /else\{[\s\S]*?reviewPaginated[\s\S]*?reviewPages\.push/);
 });
