@@ -129,12 +129,29 @@ test('corrupt gzip blockmap fails', () => withFixture('x64', value => {
   assert.match(result.stderr, /invalid blockmap/);
 }));
 
-test('blockmap JSON version other than 2 fails', () => withFixture('ia32', value => {
-  fs.writeFileSync(path.join(value.directory, value.blockmap), zlib.gzipSync(JSON.stringify({ version: 1, files: [] })));
-  const result = run('ia32', value.directory);
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /expected 2/);
-}));
+test('blockmap JSON accepts numeric 2 and electron-builder string "2"', () => {
+  for (const blockmapVersion of [2, '2']) {
+    withFixture('ia32', value => {
+      fs.writeFileSync(path.join(value.directory, value.blockmap), zlib.gzipSync(JSON.stringify({ version: blockmapVersion, files: [] })));
+      const result = run('ia32', value.directory);
+      assert.equal(result.status, 0, result.stderr);
+    });
+  }
+});
+
+for (const [name, blockmap] of [
+  ['missing version', { files: [] }],
+  ['empty version', { version: '', files: [] }],
+  ['non-numeric version', { version: 'two', files: [] }],
+  ['different version', { version: 1, files: [] }]
+]) {
+  test(`blockmap JSON ${name} fails`, () => withFixture('ia32', value => {
+    fs.writeFileSync(path.join(value.directory, value.blockmap), zlib.gzipSync(JSON.stringify(blockmap)));
+    const result = run('ia32', value.directory);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /expected 2/);
+  }));
+}
 
 test('portable or x64 top-level output fails an ia32 bundle', () => withFixture('ia32', value => {
   fs.writeFileSync(path.join(value.directory, `PapaJohns-Kiosk-Portable-${version}-ia32.exe`), 'unexpected');

@@ -63,7 +63,7 @@ if (process.exitCode) process.exit(process.exitCode);
 if (fs.statSync(files.blockmap).size === 0) fail(`empty blockmap: ${names.blockmap}`);
 try {
   const blockmap = JSON.parse(zlib.gunzipSync(fs.readFileSync(files.blockmap)).toString('utf8'));
-  if (blockmap.version !== 2) throw new Error(`version ${blockmap.version}, expected 2`);
+  if (Number(blockmap.version) !== 2) throw new Error(`version ${blockmap.version}, expected 2`);
   console.log(`PASS ${names.blockmap}: gzip, JSON, version 2`);
 } catch (error) {
   fail(`invalid blockmap ${names.blockmap}: ${error.message}`);
