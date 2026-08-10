@@ -2679,7 +2679,7 @@ function fitOrderReview(){
   const fits=()=>list.scrollHeight<=list.clientHeight+1;
   if(!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
   if(!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
-  if(cards.length<=4||fits())reviewPages=[cards.map((_,index)=>index)];
+  if(fits())reviewPages=[cards.map((_,index)=>index)];
   else{
    body.classList.add('reviewPaginated');
    if(pager)pager.hidden=false;
@@ -2712,6 +2712,9 @@ function fitOrderReview(){
   cards.forEach((card,index)=>card.hidden=!visible.has(index));
   const paginated=reviewPages.length>1;
   if(pager){pager.hidden=!paginated;pager.querySelector('.reviewPageStatus').textContent=`${reviewPage+1} / ${reviewPages.length}`;pager.querySelector('.reviewPagePrev').disabled=reviewPage===0;pager.querySelector('.reviewPageNext').disabled=reviewPage===reviewPages.length-1}
+  const currentPageFits=list.scrollHeight<=list.clientHeight+1;
+  document.querySelectorAll('.reviewConfirmBtn').forEach(button=>{button.disabled=!state.cartItems.length||!currentPageFits});
+  body.dataset.reviewPageFits=String(currentPageFits);
   body.dataset.reviewDensity=paginated?'pagination':Number(body.dataset.reviewCompression)?'compact':'default';
   list.scrollTo({top:0,left:0,behavior:'auto'});
   return Number(body.dataset.reviewCompression);
@@ -7410,6 +7413,7 @@ html[data-layout="kiosk21"] body[data-step="review"] .reviewBottomActions{positi
 html[data-layout="kiosk21"] body[data-step="review"] .reviewBottomActions button{min-width:0;height:96px;min-height:96px;border:0;border-radius:18px;color:#fff;background:var(--v10-green);font-size:24px;font-weight:1000;touch-action:manipulation}
 html[data-layout="kiosk21"] body[data-step="review"] .reviewBottomActions .reviewDockConfirm{position:relative;z-index:1;width:100%;margin:0;background:var(--r);box-shadow:0 9px 22px #d7192050}
 html:not([data-layout="kiosk21"]) .reviewBottomActions{display:none}
+html[data-layout="kiosk21"] body[data-step="review"] .reviewStressText{margin:4px 0 0;font-size:15px;line-height:1.2;word-break:keep-all}
 
 body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active{
   background:#03C75A!important;

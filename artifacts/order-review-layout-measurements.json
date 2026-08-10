@@ -27,6 +27,7 @@
     "set-four",
     "set-four-long",
     "set-four-upup",
+    "four-items-forced-overflow",
     "upup",
     "happy-hour",
     "multi-pizza",
@@ -37,7 +38,7 @@
     "bulk-pagination",
     "max-cart-items"
   ],
-  "totalCombinations": 528,
+  "totalCombinations": 552,
   "overlapCount": 0,
   "clippedTextCount": 0,
   "maxHorizontalOverflow": 0,
@@ -347,6 +348,68 @@
       "pages": []
     },
     {
+      "scenario": "four-items-forced-overflow",
+      "densityMode": "pagination",
+      "availableHeight": 1244,
+      "usedHeight": 1092,
+      "remainingHeight": 152,
+      "visibleIndexes": [
+        0,
+        1,
+        2
+      ],
+      "visibleCount": 3,
+      "minimumFontSize": 15,
+      "pageCount": 2,
+      "cardCount": 4,
+      "pagerReservedHeight": 92,
+      "canFitNextCard": false,
+      "pages": [
+        {
+          "page": 1,
+          "visibleIndexes": [
+            0,
+            1,
+            2
+          ],
+          "visibleCount": 3,
+          "availableHeight": 1244,
+          "usedHeight": 1092,
+          "remainingHeight": 152,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": true,
+          "nextDisabled": false,
+          "statusText": "1 / 2",
+          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 360,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액246,000원최종 결제금액246,000원"
+        },
+        {
+          "page": 2,
+          "visibleIndexes": [
+            3
+          ],
+          "visibleCount": 1,
+          "availableHeight": 1244,
+          "usedHeight": 360,
+          "remainingHeight": 884,
+          "overflow": 0,
+          "clipping": 0,
+          "previousDisabled": false,
+          "nextDisabled": true,
+          "statusText": "2 / 2",
+          "focusClass": "reviewPageStatus",
+          "pagerReservedHeight": 92,
+          "nextCardHeight": 0,
+          "canFitNextCard": false,
+          "totalsText": "상품 정상금액246,000원최종 결제금액246,000원"
+        }
+      ]
+    },
+    {
       "scenario": "upup",
       "densityMode": "default",
       "availableHeight": 1336,
@@ -644,14 +707,14 @@
   "protectedLayouts": {
     "kiosk": {
       "changed": true,
-      "combinations": 132,
+      "combinations": 138,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
     },
     "tablet": {
       "changed": false,
-      "combinations": 132,
+      "combinations": 138,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0

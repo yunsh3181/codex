@@ -36,6 +36,7 @@ const scenarios = [
   { name: 'set-four', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, orderCount: 4 },
   { name: 'set-four-long', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, extras: true, crust: '치즈롤', left: 'P003', orderCount: 4 },
   { name: 'set-four-upup', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, orderCount: 4, mixedUpUp: true },
+  { name: 'four-items-forced-overflow', promo: 'set', size: 'F', mode: 'single', set: 4, right: null, included: true, extras: true, crust: '치즈롤', left: 'P003', orderCount: 4, artificialLong: true },
   { name: 'upup', promo: 'upup', size: 'F', mode: 'single', set: null, right: null },
   { name: 'happy-hour', promo: 'happy', size: 'R', mode: 'single', set: null, right: null },
   {
@@ -158,6 +159,15 @@ const fixtureScript = (locale, scenario) => `
     state.step = 'review';
     window.scrollTo(0, 0);
     render();
+    if (${JSON.stringify(Boolean(scenario.artificialLong))} && document.documentElement.dataset.layout === 'kiosk21') {
+      document.querySelectorAll('.reviewOrderCard').forEach((card, index) => {
+        const stress=document.createElement('p');
+        stress.className='reviewStressText';
+        stress.textContent=('장문 옵션 검증 ${'매우 긴 피자명과 치즈롤 토핑 사이드 음료 혜택 '.repeat(12)}' + (index + 1));
+        card.querySelector('.cartCategory')?.append(stress);
+      });
+      scheduleOrderReviewFit();
+    }
     document.getAnimations().forEach(animation => animation.finish());
   })()
 `;
@@ -271,6 +281,7 @@ const measureScript = `
       orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
       compressionStage: Number(document.body.dataset.reviewCompression || 0),
       densityMode: document.body.dataset.reviewDensity || 'default',
+      reviewPageFits: document.body.dataset.reviewPageFits === 'true',
       pageCount: Array.isArray(reviewPages) ? reviewPages.length : 1,
       currentPage: Number(reviewPage || 0) + 1,
       visibleItemCount: [...document.querySelectorAll('.reviewOrderCard')].filter(card => !card.hidden).length,
@@ -451,6 +462,55 @@ const confirmClickScript = `
   })()
 `;
 
+const quantityMutationScript = `
+  (async () => {
+    if(document.documentElement.dataset.layout!=='kiosk21'||state.cartItems.length!==4)return null;
+    const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const snapshot=()=>({
+      quantities:state.cartItems.map(item=>Number(item.qty||1)),
+      pageCount:reviewPages.length,
+      pageItemIndexes:reviewPages.map(page=>[...page]),
+      orderScrollHeight:document.querySelector('.reviewOrderList').scrollHeight,
+      orderClientHeight:document.querySelector('.reviewOrderList').clientHeight,
+      confirmVisible:(()=>{const rect=document.querySelector('.reviewDockConfirm').getBoundingClientRect();return rect.width>0&&rect.height>0})(),
+      total:reviewTotals().final,
+    });
+    const before=snapshot();
+    document.querySelector('.reviewOrderCard .cartOrderActions button:nth-child(2)').click();
+    await settle();
+    const afterIncrement=snapshot();
+    document.querySelector('.reviewOrderCard .cartOrderActions button:first-child').click();
+    await settle();
+    const afterDecrement=snapshot();
+    return {before,afterIncrement,afterDecrement};
+  })()
+`;
+
+const compressionTraceScript = `
+  (() => {
+    if(document.documentElement.dataset.layout!=='kiosk21')return null;
+    const body=document.body;
+    const list=document.querySelector('.reviewOrderList');
+    const cards=[...document.querySelectorAll('.reviewOrderCard')];
+    const pager=document.querySelector('.reviewPager');
+    body.classList.remove('reviewCompact1','reviewCompact2','reviewPaginated');
+    cards.forEach(card=>card.hidden=false);
+    if(pager)pager.hidden=true;
+    const read=stage=>{
+      const gap=parseFloat(getComputedStyle(list).rowGap)||0;
+      const usedHeight=cards.reduce((sum,card)=>sum+Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight)),0)+Math.max(0,cards.length-1)*gap;
+      return {stage,usedHeight,scrollHeight:list.scrollHeight,clientHeight:list.clientHeight,fits:list.scrollHeight<=list.clientHeight+1};
+    };
+    const stages=[read('default')];
+    body.classList.add('reviewCompact1');
+    stages.push(read('compact1'));
+    body.classList.add('reviewCompact2');
+    stages.push(read('compact2'));
+    fitOrderReview();
+    return stages;
+  })()
+`;
+
 runElectronVerification({ app }, async lifecycle => {
   if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({
@@ -476,8 +536,12 @@ runElectronVerification({ app }, async lifecycle => {
         await waitForLayout(window);
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
         const paginationTrace = await window.webContents.executeJavaScript(paginationTraceScript, true);
+        const compressionTrace = await window.webContents.executeJavaScript(compressionTraceScript, true);
+        const quantityMutation = scenario.name === 'set-four'
+          ? await window.webContents.executeJavaScript(quantityMutationScript, true)
+          : null;
         const confirmClick = await window.webContents.executeJavaScript(confirmClickScript, true);
-        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace, confirmClick });
+        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace, compressionTrace, quantityMutation, confirmClick });
       }
     }
     if (captureScreenshots) {

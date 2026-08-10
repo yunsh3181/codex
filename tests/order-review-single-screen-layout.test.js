@@ -74,3 +74,11 @@ test('review totals still derive discount and final payment from stored order am
   assert.match(source, /class="line final"/);
   assert.match(source, /money\(totals\.final\)/);
 });
+
+test('kiosk single-page review requires a measured fit at every card count', () => {
+  const source = html.slice(html.indexOf('function fitOrderReview()'), html.indexOf('function changeReviewPage'));
+  assert.doesNotMatch(source, /cards\.length\s*<=\s*4\s*\|\|\s*fits\(\)/);
+  assert.match(source, /if\(fits\(\)\)reviewPages=\[cards\.map/);
+  assert.match(source, /reviewCompact1[\s\S]*?fits\(\)[\s\S]*?reviewCompact2[\s\S]*?fits\(\)/);
+  assert.match(source, /else\{[\s\S]*?reviewPaginated[\s\S]*?reviewPages\.push/);
+});
