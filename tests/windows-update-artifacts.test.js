@@ -13,6 +13,7 @@ const YAML = require('yaml');
 const root = path.resolve(__dirname, '..');
 const script = path.join(root, 'scripts', 'verify-windows-update-artifacts.js');
 const workflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'windows-distribution.yml'), 'utf8');
+const releaseWorkflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'windows-release.yml'), 'utf8');
 const version = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version;
 const RELEASE_VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 
@@ -35,16 +36,21 @@ function makePe(machine) {
 function fixture(arch) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), `windows-update-${arch}-`));
   const setup = `PapaJohns-Kiosk-Setup-${version}-${arch}.exe`;
-  const portable = `PapaJohns-Kiosk-Portable-${version}-${arch}.exe`;
   const blockmap = `${setup}.blockmap`;
   const yaml = `latest-${arch}.yml`;
   const unpacked = arch === 'ia32' ? 'win-ia32-unpacked' : 'win-unpacked';
   const setupBytes = Buffer.from(`setup-${arch}`);
   fs.writeFileSync(path.join(directory, setup), setupBytes);
-  fs.writeFileSync(path.join(directory, portable), Buffer.from(`portable-${arch}`));
   fs.writeFileSync(path.join(directory, blockmap), zlib.gzipSync(JSON.stringify({ version: 2, files: [] })));
   fs.mkdirSync(path.join(directory, unpacked), { recursive: true });
   fs.writeFileSync(path.join(directory, unpacked, 'PapaJohns-Kiosk.exe'), makePe(arch === 'ia32' ? 0x014c : 0x8664));
+  const appDirectory = path.join(directory, 'app-source');
+  const resourcesDirectory = path.join(directory, unpacked, 'resources');
+  fs.mkdirSync(appDirectory);
+  fs.mkdirSync(resourcesDirectory);
+  fs.writeFileSync(path.join(appDirectory, 'package.json'), JSON.stringify({ name: 'fixture', version }));
+  const packed = spawnSync(process.execPath, [path.join(root, 'node_modules', '@electron', 'asar', 'bin', 'asar.js'), 'pack', appDirectory, path.join(resourcesDirectory, 'app.asar')], { encoding: 'utf8' });
+  assert.equal(packed.status, 0, packed.stderr);
   const sha512 = crypto.createHash('sha512').update(setupBytes).digest('base64');
   fs.writeFileSync(path.join(directory, yaml), YAML.stringify({
     version,
@@ -52,7 +58,7 @@ function fixture(arch) {
     path: setup,
     sha512
   }));
-  return { directory, setup, portable, blockmap, yaml };
+  return { directory, setup, blockmap, yaml };
 }
 
 function run(arch, directory) {
@@ -68,18 +74,18 @@ function withFixture(arch, callback) {
   try { callback(value); } finally { fs.rmSync(value.directory, { recursive: true, force: true }); }
 }
 
-test('workflow builds and uploads strict architecture-specific update artifacts', () => {
-  assert.match(workflow, /electron-builder --win --ia32 --publish never --config\.publish\.channel=latest-ia32/);
-  assert.match(workflow, /electron-builder --win --x64 --publish never --config\.publish\.channel=latest-x64/);
-  for (const arch of ['ia32', 'x64']) {
-    assert.match(workflow, new RegExp(`dist/PapaJohns-Kiosk-Setup-\\*-${arch}\\.exe`));
-    assert.match(workflow, new RegExp(`dist/PapaJohns-Kiosk-Portable-\\*-${arch}\\.exe`));
-    assert.match(workflow, new RegExp(`dist/PapaJohns-Kiosk-Setup-\\*-${arch}\\.exe\\.blockmap`));
-    assert.ok(workflow.includes(`dist/latest-${arch}.yml`));
+test('workflows build and upload exactly three ia32 NSIS update artifacts', () => {
+  assert.match(workflow, /electron-builder --win nsis --ia32 --publish never --config\.publish\.channel=latest-ia32/);
+  assert.match(releaseWorkflow, /electron-builder --win nsis --ia32 --publish never --config\.publish\.channel=latest-ia32/);
+  for (const source of [workflow, releaseWorkflow]) {
+    assert.match(source, /release-assets/);
+    assert.match(source, /Count -ne 3/);
+    assert.match(source, /latest-ia32\.yml/);
+    assert.doesNotMatch(source, /--x64|latest-x64\.yml|Portable-\*/);
+    assert.doesNotMatch(source, /win-unpacked\//);
   }
-  assert.ok(workflow.includes('dist/win-ia32-unpacked/'));
-  assert.ok(workflow.includes('dist/win-unpacked/'));
-  assert.doesNotMatch(workflow, /dist\/latest\.yml/);
+  assert.doesNotMatch(releaseWorkflow, /push:\s*\n\s*tags:/);
+  assert.match(releaseWorkflow, /cancel-in-progress: false/);
 });
 
 for (const arch of ['ia32', 'x64']) {
@@ -121,6 +127,37 @@ test('corrupt gzip blockmap fails', () => withFixture('x64', value => {
   const result = run('x64', value.directory);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /invalid blockmap/);
+}));
+
+test('blockmap JSON accepts numeric 2 and electron-builder string "2"', () => {
+  for (const blockmapVersion of [2, '2']) {
+    withFixture('ia32', value => {
+      fs.writeFileSync(path.join(value.directory, value.blockmap), zlib.gzipSync(JSON.stringify({ version: blockmapVersion, files: [] })));
+      const result = run('ia32', value.directory);
+      assert.equal(result.status, 0, result.stderr);
+    });
+  }
+});
+
+for (const [name, blockmap] of [
+  ['missing version', { files: [] }],
+  ['empty version', { version: '', files: [] }],
+  ['non-numeric version', { version: 'two', files: [] }],
+  ['different version', { version: 1, files: [] }]
+]) {
+  test(`blockmap JSON ${name} fails`, () => withFixture('ia32', value => {
+    fs.writeFileSync(path.join(value.directory, value.blockmap), zlib.gzipSync(JSON.stringify(blockmap)));
+    const result = run('ia32', value.directory);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /expected 2/);
+  }));
+}
+
+test('portable or x64 top-level output fails an ia32 bundle', () => withFixture('ia32', value => {
+  fs.writeFileSync(path.join(value.directory, `PapaJohns-Kiosk-Portable-${version}-ia32.exe`), 'unexpected');
+  const result = run('ia32', value.directory);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /prohibited top-level artifacts/);
 }));
 
 test('release version consistency accepts supported patch releases', () => {

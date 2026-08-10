@@ -32,21 +32,18 @@ test('desktop shell prevents duplicate instances and display sleep', () => {
   assert.match(mainSource, /powerSaveBlocker\.stop\(powerSaveBlockerId\)/);
 });
 
-test('Windows build emits architecture-labelled NSIS and portable artifacts', () => {
+test('Windows default build emits architecture-labelled NSIS Setup only', () => {
   assert.match(
     packageJson.scripts['desktop:build:win'],
     /process\.platform !== 'win32'/
   );
   const targets = packageJson.build.win.target;
-  assert.deepEqual(targets, ['nsis', 'portable']);
+  assert.deepEqual(targets, ['nsis']);
   assert.match(packageJson.scripts['dist:win:x64'], /--x64/);
   assert.match(packageJson.scripts['dist:win:ia32'], /--ia32/);
   assert.equal(packageJson.build.nsis.artifactName, 'PapaJohns-Kiosk-Setup-${version}-${arch}.${ext}');
   assert.equal(packageJson.build.nsis.oneClick, false);
   assert.equal(packageJson.build.nsis.allowToChangeInstallationDirectory, true);
   assert.equal(packageJson.build.nsis.runAfterFinish, false);
-  assert.equal(
-    packageJson.build.portable.artifactName,
-    'PapaJohns-Kiosk-Portable-${version}-${arch}.${ext}'
-  );
+  assert.equal(packageJson.build.portable, undefined);
 });

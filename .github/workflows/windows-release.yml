@@ -1,9 +1,6 @@
 name: Windows release
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       tag:
@@ -13,6 +10,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: windows-release-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
   validate:
@@ -24,11 +25,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          ref: ${{ inputs.tag }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/electron
+          key: electron-linux-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: electron-linux-${{ runner.arch }}-
       - run: npm ci
       - name: Prepare Electron binary
         run: npx install-electron --no
@@ -42,20 +48,12 @@ jobs:
         shell: bash
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
-          RELEASE_TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          RELEASE_TAG="${{ inputs.tag }}"
           test "$RELEASE_TAG" = "v$PACKAGE_VERSION"
           echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
 
   build:
     needs: validate
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: ia32
-            unpacked: win-ia32-unpacked
-          - arch: x64
-            unpacked: win-unpacked
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -66,19 +64,46 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\electron\Cache
+            ~\AppData\Local\electron-builder\Cache
+          key: windows-electron-builder-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: windows-electron-builder-${{ runner.arch }}-
       - run: npm ci
-      - name: Build architecture-specific release
-        shell: bash
-        run: npx electron-builder --win --${{ matrix.arch }} --publish never -c.publish.channel=latest-${{ matrix.arch }}
-      - run: npm run verify:win:${{ matrix.arch }}
+      - name: Build ia32 NSIS release
+        run: npx electron-builder --win nsis --ia32 --publish never --config.publish.channel=latest-ia32
+      - run: npm run verify:win:ia32
+      - name: Verify ia32 update metadata and packaged application
+        run: node scripts/verify-windows-update-artifacts.js ia32
+      - name: Record Authenticode status and stage exactly three assets
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $expected = @(
+            "PapaJohns-Kiosk-Setup-$version-ia32.exe",
+            "PapaJohns-Kiosk-Setup-$version-ia32.exe.blockmap",
+            "latest-ia32.yml"
+          )
+          $topLevel = @(Get-ChildItem dist -File)
+          $unexpected = @($topLevel | Where-Object { $_.Name -match '(?i)portable|x64' -or ($_.Extension -eq '.exe' -and $_.Name -ne $expected[0]) })
+          if ($unexpected.Count -ne 0) { throw "Unexpected Windows artifacts: $($unexpected.Name -join ', ')" }
+          New-Item -ItemType Directory -Force release-assets | Out-Null
+          foreach ($name in $expected) {
+            $source = Join-Path dist $name
+            if (-not (Test-Path $source -PathType Leaf)) { throw "Missing release asset: $name" }
+            Copy-Item $source release-assets/$name
+          }
+          $assets = @(Get-ChildItem release-assets -File)
+          if ($assets.Count -ne 3 -or @(Compare-Object $expected $assets.Name).Count -ne 0) { throw "Release bundle must contain exactly the three expected files." }
+          Write-Host "The Setup EXE is an NSIS bootstrapper; PE Machine 0x014c is asserted on the packaged app executable inside win-ia32-unpacked."
+          Get-AuthenticodeSignature (Join-Path dist $expected[0]) | Format-List Status,StatusMessage,SignerCertificate
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-release-${{ matrix.arch }}
+          name: windows-release-ia32
           if-no-files-found: error
-          path: |
-            dist/PapaJohns-Kiosk-Setup-*-${{ matrix.arch }}.exe
-            dist/PapaJohns-Kiosk-Setup-*-${{ matrix.arch }}.exe.blockmap
-            dist/latest-${{ matrix.arch }}.yml
+          path: release-assets/
 
   release:
     needs: [validate, build]
@@ -86,9 +111,26 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: windows-release-*
+          name: windows-release-ia32
           path: release
-          merge-multiple: true
+      - name: Verify release bundle contains exactly three expected assets
+        shell: bash
+        run: |
+          VERSION="${{ needs.validate.outputs.tag }}"
+          VERSION="${VERSION#v}"
+          expected="$(printf '%s\n' "PapaJohns-Kiosk-Setup-$VERSION-ia32.exe" "PapaJohns-Kiosk-Setup-$VERSION-ia32.exe.blockmap" "latest-ia32.yml" | sort)"
+          actual="$(find release -maxdepth 1 -type f -printf '%f\n' | sort)"
+          test "$(find release -maxdepth 1 -type f | wc -l)" -eq 3
+          test "$actual" = "$expected"
+      - name: Refuse to modify an existing GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "${{ needs.validate.outputs.tag }}" --repo "${{ github.repository }}"; then
+            echo "Release ${{ needs.validate.outputs.tag }} already exists; refusing duplicate publication or asset modification." >&2
+            exit 1
+          fi
       - name: Publish GitHub Release assets
         uses: softprops/action-gh-release@v2
         with:
@@ -99,6 +141,3 @@ jobs:
             release/PapaJohns-Kiosk-Setup-*-ia32.exe
             release/PapaJohns-Kiosk-Setup-*-ia32.exe.blockmap
             release/latest-ia32.yml
-            release/PapaJohns-Kiosk-Setup-*-x64.exe
-            release/PapaJohns-Kiosk-Setup-*-x64.exe.blockmap
-            release/latest-x64.yml
