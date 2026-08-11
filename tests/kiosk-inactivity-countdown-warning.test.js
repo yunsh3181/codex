@@ -42,11 +42,12 @@ test('warning interaction is explicit and background activity cannot extend the 
 });
 
 test('all six locale files provide complete inactivity copy',()=>{
- assert.equal((html.match(/i18n\/(?:ko|en|ja|zh|vi|es)\.js\?v=44\.3/g)||[]).length,6);
  for(const locale of ['ko','en','ja','zh','vi','es']){
+  assert.match(html,new RegExp(`<script src="i18n/${locale}\\.js\\?v=44\\.4"><\\/script>`),locale);
   const source=fs.readFileSync(path.join(root,'i18n',`${locale}.js`),'utf8');
   assert.match(source,/inactivity:\{title:[\s\S]*?body:[\s\S]*?guide:[\s\S]*?continue:[\s\S]*?home:[\s\S]*?seconds:/,locale);
  }
+ assert.equal((html.match(/i18n\/(?:ko|en|ja|zh|vi|es)\.js\?v=/g)||[]).length,6);
 });
 
 test('safe PR 181 release path and protected seat conditions remain canonical',()=>{

@@ -86,9 +86,12 @@ test('idle transition installs a short click shield before unlocking the new scr
 });
 
 test('idle translations use a fresh cache key without changing unrelated assets',()=>{
- assert.match(html,/<script src="i18n\/ui\.js\?v=51"><\/script>/);
- assert.doesNotMatch(html,/<script src="i18n\/ui\.js\?v=50"><\/script>/);
+ assert.match(html,/<script src="i18n\/ui\.js\?v=52"><\/script>/);
+ assert.doesNotMatch(html,/<script src="i18n\/ui\.js\?v=51"><\/script>/);
  assert.equal((html.match(/i18n\/ui\.js\?v=/g)||[]).length,1);
+ assert.match(html,/<script src="i18n\/index\.js\?v=44\.2"><\/script>/);
+ assert.match(html,/<script src="bottle-seat-policy\.js\?v=1"><\/script>/);
+ assert.match(html,/<link rel="stylesheet" href="styles\/device-kiosk21\.css\?v=order-review-single-screen-v17">/);
 });
 
 test('central idle controller ignores programmatic events and protects persistence',()=>{
