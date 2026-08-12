@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -19,6 +19,7 @@ let initialOrdersLoaded=false;
 let requestedSeatEntryHandled=false;
 let publicDisplayBusinessDayBackfill=null;
 let seatExpiryTimer=null,seatExpiryDebounce=null,seatExpiryRunning=false;
+const pendingAdminSeatTargets=new Map();
 const adminClockBaseline={wall:Date.now(),monotonic:typeof performance!=='undefined'?performance.now():0};
 
 function hasValidBusinessDay(value){
@@ -142,7 +143,8 @@ function startRealtimeSubscriptions(){
  });
  unsubscribeSeats=db.collection('seats').onSnapshot(snapshot=>{
   seatDocuments={};
-  snapshot.forEach(doc=>seatDocuments[doc.id]=doc.data());
+ snapshot.forEach(doc=>seatDocuments[doc.id]=doc.data());
+  pendingAdminSeatTargets.forEach((target,id)=>{if(normalizeAdminSeatStatus(seatDocuments[id]?.status)===target){pendingAdminSeatTargets.delete(id);statusUpdateLocks.delete(`seat:${id}`)}});
   const badge=document.getElementById('seatOverviewConnection');
   if(badge){badge.textContent='실시간 연결';badge.className='live'}
   renderSeatOverview();
@@ -816,7 +818,7 @@ function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
  return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
-function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}
+function normalizedSeatStatus(status){return normalizeAdminSeatStatus(status)}
 function timestampMillis(value){if(value&&typeof value.toMillis==='function')return value.toMillis();if(value instanceof Date&&Number.isFinite(value.getTime()))return value.getTime();return null}
 function occupiedElapsedLabel(data,now=Date.now()){
  if(data?.status!=='occupied')return '';
@@ -830,11 +832,10 @@ function renderSeatOverview(){
   const data=seatDocuments[seat.id]||{},status=normalizedSeatStatus(data.status);
   const orderNumber=orderNumberLabel(data.orderNo||data.customerNumber||data.orderId||'');
   const elapsed=occupiedElapsedLabel(data);
-  const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}${elapsed?`<small class="seat-occupied-elapsed">${esc(elapsed)}</small>`:''}`;
-  const attributes=`class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}"`;
-  const action=status==='held'?'open-seat-order':['empty','occupied'].includes(status)?'toggle-seat':'';
-  const actionLabel=status==='empty'?'사용중으로 변경':status==='occupied'?'빈자리로 변경':status==='held'?'주문 상세보기':'상태 변경은 좌석 관리에서 가능합니다';
-  return `<button type="button" ${attributes}${action?` data-action="${action}"`:' disabled'} aria-label="${esc(seat.name)} ${seatStatusNames[status]}. ${actionLabel}">${content}</button>`;
+  const pending=statusUpdateLocks.has(`seat:${seat.id}`),actions=getAdminSeatActions(status);
+  const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${ADMIN_SEAT_STATUSES[status].label}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}${elapsed?`<small class="seat-occupied-elapsed">${esc(elapsed)}</small>`:''}`;
+  const buttons=status==='held'&&data.orderId?`<div class="admin-seat-actions"><button type="button" class="admin-seat-action empty" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} 주문 상세">주문 상세</button></div>`:actions.length?`<div class="admin-seat-actions" aria-busy="${pending}">${actions.map(action=>`<button type="button" class="admin-seat-action ${action.className}" data-action="transition-seat" data-seat-id="${esc(seat.id)}" data-seat-from="${status}" data-seat-to="${action.target}" ${pending?'disabled':''} aria-label="${esc(seat.name)} ${ADMIN_SEAT_STATUSES[status].label}. ${action.label}">${action.label}</button>`).join('')}</div>`:'';
+  return `<article class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} ${ADMIN_SEAT_STATUSES[status].label}">${content}${buttons}</article>`;
  }).join('');
 }
 function render(){
@@ -1326,8 +1327,8 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   openSeatOrderDetail(button.dataset.seatId,button);
   return;
  }
- if(action==='toggle-seat'){
-  await toggleOverviewSeat(button.dataset.seatId,button);
+ if(action==='transition-seat'){
+  await transitionOverviewSeat(button.dataset.seatId,button.dataset.seatFrom,button.dataset.seatTo,button);
   return;
  }
  if(action==='clear-seat'){
@@ -1406,50 +1407,20 @@ manualCustomerCallForm?.addEventListener('submit',async event=>{
 });
 
 async function clearSeat(id,button){
- const lockId=`seat:${id}`;
- if(!id||statusUpdateLocks.has(lockId))return false;
- const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
- if(!seat||!['held','occupied'].includes(normalizedSeatStatus(data.status)))return false;
- if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false;
- statusUpdateLocks.add(lockId);
- if(button){button.disabled=true;button.setAttribute('aria-busy','true')}
- try{
-  await db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true});
-  showAdminMessage(`${seat.name}을 빈자리로 변경했습니다.`);
-  return true;
- }catch(error){
-  console.error('좌석 비우기 실패',error);
-  showAdminMessage(`좌석 비우기 실패 (${error.code||'unknown'}): ${error.message}`,true);
-  return false;
- }finally{
-  statusUpdateLocks.delete(lockId);
-  if(button&&button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}
- }
+ const expected=normalizeAdminSeatStatus(seatDocuments[id]?.status);
+ if(!['occupied','reserved'].includes(expected))return false;
+ return transitionOverviewSeat(id,expected,'empty',button);
 }
 
-async function toggleOverviewSeat(id,button){
- const lockId=`seat:${id}`;
- const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
- const status=normalizedSeatStatus(data.status);
- if(!seat||!['empty','occupied'].includes(status)||statusUpdateLocks.has(lockId))return false;
- if(status==='occupied')return clearSeat(id,button);
- statusUpdateLocks.add(lockId);
- if(button){button.disabled=true;button.setAttribute('aria-busy','true')}
+async function transitionOverviewSeat(id,expected,target,button){
+ const lockId=`seat:${id}`,seat=ADMIN_SEATS.find(item=>item.id===id),metadata=getAdminSeatActions(expected).find(action=>action.target===target);
+ if(!seat||!metadata||statusUpdateLocks.has(lockId)||!confirm(metadata.confirmation))return false;
+ statusUpdateLocks.add(lockId);pendingAdminSeatTargets.set(id,target);renderSeatOverview();
  try{
-  await db.collection('seats').doc(id).set({
-   status:'occupied',
-   occupiedAt:firebase.firestore.FieldValue.serverTimestamp(),
-   updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-  },{merge:true});
-  showAdminMessage(`${seat.name}을 사용중으로 변경했습니다.`);
+  await transitionAdminSeatState({db,seatId:id,expectedStatus:expected,targetStatus:target,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,supportedSeatIds:ADMIN_SEATS.map(item=>item.id)});
   return true;
  }catch(error){
-  console.error('좌석 사용 시작 실패',error);
-  showAdminMessage(`좌석 사용 시작 실패 (${error.code||'unknown'}): ${error.message}`,true);
-  return false;
- }finally{
-  statusUpdateLocks.delete(lockId);
-  if(button&&button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}
+  pendingAdminSeatTargets.delete(id);statusUpdateLocks.delete(lockId);renderSeatOverview();console.error('좌석 상태 변경 실패',error);showAdminMessage(error.message||'좌석 상태를 변경하지 못했습니다.',true);return false;
  }
 }
 

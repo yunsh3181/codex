@@ -5,8 +5,38 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  const FORCE_COMPLETE_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking','ready']);
  const OCCUPIED_EXPIRY_MS=3*60*60*1000;
+ const ADMIN_SEAT_STATUSES=Object.freeze({empty:{label:'빈자리',actions:['occupy','reserve']},occupied:{label:'사용중',actions:['empty']},reserved:{label:'예약',actions:['occupy','empty']},held:{label:'주문중',actions:[]},unknown:{label:'확인 필요',actions:[]}});
+ const ADMIN_SEAT_ACTIONS=Object.freeze({
+  occupy:{label:'사용',target:'occupied',className:'occupy'},reserve:{label:'예약',target:'reserved',className:'reserve'},empty:{label:'빈자리',target:'empty',className:'empty'}
+ });
+ const ADMIN_SEAT_CONFIRMATIONS=Object.freeze({
+  'empty:occupied':'이 좌석을 사용중으로 변경할까요?','empty:reserved':'이 좌석을 예약으로 변경할까요?','reserved:occupied':'예약 좌석의 이용을 시작하고 사용중으로 변경할까요?','occupied:empty':'사용중인 좌석을 빈자리로 변경할까요?','reserved:empty':'예약을 취소하고 빈자리로 변경할까요?'
+ });
 
  function operationError(code,message){return Object.assign(new Error(message),{code})}
+ function normalizeAdminSeatStatus(status){return status==null||status==='empty'?'empty':Object.prototype.hasOwnProperty.call(ADMIN_SEAT_STATUSES,status)&&status!=='unknown'?status:'unknown'}
+ function getAdminSeatActions(status){const normalized=normalizeAdminSeatStatus(status);return ADMIN_SEAT_STATUSES[normalized].actions.map(key=>Object.freeze({key,...ADMIN_SEAT_ACTIONS[key],expected:normalized,confirmation:ADMIN_SEAT_CONFIRMATIONS[`${normalized}:${ADMIN_SEAT_ACTIONS[key].target}`]}))}
+ function adminSeatTransitionPayload(target,serverTimestamp){
+  const timestamp=serverTimestamp(),clearLease={heldBy:null,heldAt:null,heldUntil:null,partySize:null};
+  if(target==='occupied')return {status:'occupied',occupiedAt:timestamp,reservedAt:null,reservedBy:null,...clearLease,updatedAt:timestamp};
+  if(target==='reserved')return {status:'reserved',reservedAt:timestamp,reservedBy:'admin',occupiedAt:null,...clearLease,updatedAt:timestamp};
+  return {status:'empty',orderId:null,orderNo:null,partySize:null,groupId:null,occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,reservedAt:null,reservedBy:null,reservationName:null,reservationPartySize:null,reservationAt:null,reservationPhone:null,updatedAt:timestamp};
+ }
+ async function transitionAdminSeatState({db,seatId,expectedStatus,targetStatus,serverTimestamp,supportedSeatIds,validateTransition}){
+  const expected=normalizeAdminSeatStatus(expectedStatus),target=normalizeAdminSeatStatus(targetStatus),allowed=getAdminSeatActions(expected).some(action=>action.target===target);
+  if(!seatId||supportedSeatIds&&!supportedSeatIds.includes(seatId))throw operationError('seat/unsupported-id','지원하지 않는 좌석입니다.');
+  if(!allowed||['held','unknown'].includes(expected))throw operationError('seat/invalid-transition','허용되지 않는 좌석 상태 변경입니다.');
+  return db.runTransaction(async transaction=>{
+   const ref=db.collection('seats').doc(seatId),snapshot=await transaction.get(ref);
+   if(!snapshot.exists)throw operationError('seat/not-found','좌석 문서가 없습니다.');
+   const current=snapshot.data(),serverStatus=normalizeAdminSeatStatus(current.status);
+   if(serverStatus!==expected)throw operationError('seat/stale-state','다른 관리자가 좌석 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
+   if(current.orderId)throw operationError('seat/order-linked','주문과 연결된 좌석은 일반 상태 버튼으로 변경할 수 없습니다.');
+   if(validateTransition&&!validateTransition({seatId,currentStatus:serverStatus,targetStatus:target,current}))throw operationError('seat/policy-blocked','현재 운영 정책에서는 좌석 상태를 변경할 수 없습니다.');
+   transaction.set(ref,adminSeatTransitionPayload(target,serverTimestamp),{merge:true});
+   return {seatId,from:expected,to:target,seatWrites:1,orderWrites:0,publicOrderDisplayWrites:0,paymentCalls:0};
+  });
+ }
  function timestampMillis(value){
   if(value==null)return null;
   if(typeof value.toMillis==='function'){const millis=value.toMillis();return Number.isFinite(millis)?millis:null}
@@ -115,5 +145,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });

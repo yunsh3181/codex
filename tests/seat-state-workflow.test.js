@@ -6,6 +6,7 @@ const root=path.resolve(__dirname,'..');
 const kiosk=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
 const seats=fs.readFileSync(path.join(root,'seats.js'),'utf8');
+const adminOperations=fs.readFileSync(path.join(root,'admin-operations.js'),'utf8');
 const seatCss=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 const adminCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 const ko=fs.readFileSync(path.join(root,'i18n/ko.js'),'utf8');
@@ -24,9 +25,9 @@ assert.ok(kiosk.includes("window.addEventListener('beforeunload'"),'browser unlo
 assert.ok(kiosk.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'payment keeps dine-in seats in ordering state');
 assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'payment no longer marks a seat in use');
 
-assert.strictEqual([...seats.matchAll(/const statusNames=\{([^}]+)\}/g)].length,1,'seat manager has one canonical status map');
-for(const label of ['빈자리','주문중','사용중'])assert.ok(seats.includes(label),`seat manager displays ${label}`);
-assert.ok(seats.includes("function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}"),'missing and unknown statuses use distinct safe fallbacks');
+assert.ok(seats.includes('const statusNames=Object.fromEntries(Object.entries(ADMIN_SEAT_STATUSES)'),'seat manager derives its status map from the shared canonical policy');
+for(const label of ['빈자리','주문중','사용중','예약','확인 필요'])assert.ok(adminOperations.includes(label),`shared seat policy displays ${label}`);
+assert.ok(seats.includes('function normalizedSeatStatus(status){return normalizeAdminSeatStatus(status)}'),'missing and unknown statuses use the shared safe normalization');
 for(const [zone,background,border,color] of [['papa','#eef6ff','#3b82f6','#1d4f91'],['outdoor','#edf9f0','#3b9b5f','#176b35'],['annex','#fff1f1','#dc4c52','#9f2028'],['room','#fff6e8','#ee9b2e','#9a5700']])assert.ok(seatCss.includes(`.seat-zone-${zone} .simple-seat{background:${background};border-color:${border};color:${color}}`),`${zone} keeps its zone palette`);
 assert.ok(seatCss.includes('.simple-seat.held em i{background:#d97706}'),'ordering seats use an orange status dot');
 assert.ok(seatCss.includes('.simple-seat.occupied em i{background:#c62828}'),'in-use seats use a red status dot');
