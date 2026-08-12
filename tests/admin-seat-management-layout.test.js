@@ -11,6 +11,7 @@ const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 const adminCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 const layoutCss=fs.readFileSync(path.join(root,'seat-layout.css'),'utf8');
+const seatHtml=fs.readFileSync(path.join(root,'seat/index.html'),'utf8');
 
 function renderSeatManager(documents={}){
  const elements={
@@ -110,6 +111,14 @@ test('seat names and shared actions reserve compact non-overlapping rows',()=>{
  assert.match(layoutCss,/\.seat-slot \.simple-seat-shell\{[^}]*gap:3px/);
  assert.match(adminCss,/\.admin-seat-actions\{[^}]*gap:2px[^}]*margin-top:auto/);
  assert.match(adminCss,/\.admin-seat-action\{[^}]*min-height:20px[^}]*padding:2px 4px[^}]*font:900 10px\/1 inherit[^}]*white-space:nowrap/);
+});
+
+test('seat manager loads only the refreshed shared CSS cache keys',()=>{
+ assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.1/g)||[]).length,1);
+ assert.equal((seatHtml.match(/seat-layout\.css\?v=2/g)||[]).length,1);
+ assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.0/g)||[]).length,0);
+ assert.equal((seatHtml.match(/seat-layout\.css\?v=1(?:\D|$)/g)||[]).length,0);
+ for(const key of ['seats.css?v=43.7.1.3','seats-mobile.css?v=43.7.1.1','bottle-seat-policy.css?v=1'])assert.equal((seatHtml.match(new RegExp(key.replace(/[.?]/g,'\\$&'),'g'))||[]).length,1,`${key} remains unchanged`);
 });
 
 test('seat cards keep only the compact name, capacity, and status hierarchy',()=>{
