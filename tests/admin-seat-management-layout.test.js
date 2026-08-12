@@ -9,6 +9,7 @@ const operations=require('../admin-operations');
 const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'seats.css'),'utf8');
+const adminCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 const layoutCss=fs.readFileSync(path.join(root,'seat-layout.css'),'utf8');
 
 function renderSeatManager(documents={}){
@@ -102,6 +103,13 @@ test('desktop seat board uses the full-width fixed 6 by 3 grid',()=>{
  assert.match(layoutCss,/\.cad-layout\{[^}]*display:grid[^}]*width:100%[^}]*grid-template-columns:repeat\(6,minmax\(0,1fr\)\)[^}]*grid-template-rows:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(layoutCss,/\.seat-slot \.simple-seat\{[^}]*max-width:none[^}]*height:100%[^}]*aspect-ratio:auto/);
  assert.doesNotMatch(renderSeatManager(),/class="simple-zone/);
+});
+
+test('seat names and shared actions reserve compact non-overlapping rows',()=>{
+ assert.match(layoutCss,/\.seat-slot \.simple-seat strong\{[^}]*min-height:40px[^}]*word-break:keep-all[^}]*overflow-wrap:normal[^}]*-webkit-line-clamp:2/);
+ assert.match(layoutCss,/\.seat-slot \.simple-seat-shell\{[^}]*gap:3px/);
+ assert.match(adminCss,/\.admin-seat-actions\{[^}]*gap:2px[^}]*margin-top:auto/);
+ assert.match(adminCss,/\.admin-seat-action\{[^}]*min-height:20px[^}]*padding:2px 4px[^}]*font:900 10px\/1 inherit[^}]*white-space:nowrap/);
 });
 
 test('seat cards keep only the compact name, capacity, and status hierarchy',()=>{
