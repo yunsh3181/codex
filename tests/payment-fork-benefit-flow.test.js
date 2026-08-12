@@ -8,7 +8,7 @@ const vm=require('node:vm');
 
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
+const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8').replace(/const autoReadyCoordinator=createAutoReadyCoordinator\([\s\S]*?function reconcileAutoReadyOrders\(list\)\{autoReadyCoordinator\.reconcile\(list\)\}\n/,'');
 
 function customerHarness(){
  const classList={add(){},remove(){},toggle(){}};

@@ -47,6 +47,38 @@
  }
  function validPreparationMinutes(value){return Number.isInteger(value)&&value>=5&&value<=60&&value%5===0}
  function sameTimestamp(left,right){const a=timestampMillis(left),b=timestampMillis(right);return a!==null&&b!==null&&a===b}
+ const AUTO_READY_RETRY_MS=15000;
+ const TRANSIENT_FIRESTORE_CODES=new Set(['unavailable','aborted','deadline-exceeded','resource-exhausted','internal','unknown']);
+ const TERMINAL_AUTO_READY_CODES=new Set(['order/stale-state','order/stale-timer','order/not-found']);
+ function firestoreErrorCode(error){return String(error?.code||'').replace(/^firestore\//,'')}
+ function autoReadyIdentity(order){const due=timestampMillis(order?.readyDueAt),started=timestampMillis(order?.preparationStartedAt);return due===null||started===null?null:`${due}:${started}`}
+ function autoReadyEligible(order){return order?.orderType==='takeout'&&order?.status==='cooking'&&order?.autoReadyEnabled===true&&autoReadyIdentity(order)!==null}
+ function createAutoReadyCoordinator({execute,getCurrentOrder,setTimer=setTimeout,clearTimer=clearTimeout,now=Date.now,onPermanentError=()=>{},retryMs=AUTO_READY_RETRY_MS}){
+  const timers=new Map(),locks=new Set(),reported=new Set(),completed=new Set();
+  function cancel(id){const entry=timers.get(String(id));if(entry)clearTimer(entry.timer);timers.delete(String(id))}
+  function currentMatches(id,identity){const current=getCurrentOrder(String(id));return autoReadyEligible(current)&&autoReadyIdentity(current)===identity?current:null}
+  function schedule(order,delay){const id=String(order.id),identity=autoReadyIdentity(order);if(!identity||timers.has(id))return false;const timer=setTimer(()=>{const entry=timers.get(id);if(!entry||entry.identity!==identity)return false;timers.delete(id);return run(order,identity)},Math.max(0,Math.min(delay,2147483647)));timers.set(id,{timer,identity,delay:Math.max(0,delay)});return true}
+  async function run(order,identity=autoReadyIdentity(order)){
+   const id=String(order?.id||'');if(!id||locks.has(id)||!currentMatches(id,identity))return false;
+   locks.add(id);
+   try{await execute(order);reported.delete(`${id}:${identity}`);completed.add(`${id}:${identity}`);return true}
+   catch(error){
+    const code=firestoreErrorCode(error),current=currentMatches(id,identity);
+    if(!current||TERMINAL_AUTO_READY_CODES.has(code))return false;
+    if(code==='order/deadline-pending'){schedule(current,Math.max(0,timestampMillis(current.readyDueAt)-now()));return false}
+    if(TRANSIENT_FIRESTORE_CODES.has(code)){schedule(current,Math.max(retryMs,AUTO_READY_RETRY_MS));return false}
+    const reportKey=`${id}:${identity}`;if(!reported.has(reportKey)){reported.add(reportKey);onPermanentError(error,current)}return false;
+   }finally{locks.delete(id)}
+  }
+  function reconcile(list){
+   const eligible=new Map((list||[]).filter(autoReadyEligible).map(order=>[String(order.id),order]));
+   timers.forEach((entry,id)=>{const order=eligible.get(id);if(!order||entry.identity!==autoReadyIdentity(order))cancel(id)});
+   reported.forEach(key=>{const split=key.indexOf(':'),id=key.slice(0,split),identity=key.slice(split+1);if(!eligible.has(id)||autoReadyIdentity(eligible.get(id))!==identity)reported.delete(key)});
+   completed.forEach(key=>{const split=key.indexOf(':'),id=key.slice(0,split),identity=key.slice(split+1);if(!eligible.has(id)||autoReadyIdentity(eligible.get(id))!==identity)completed.delete(key)});
+   eligible.forEach((order,id)=>{const key=`${id}:${autoReadyIdentity(order)}`;if(!timers.has(id)&&!locks.has(id)&&!completed.has(key)&&!reported.has(key))schedule(order,Math.max(0,timestampMillis(order.readyDueAt)-now()))});
+  }
+  return {reconcile,run,cancel,timers,locks,reported,completed};
+ }
  async function startTakeoutPreparationTransaction({db,orderId,preparationMinutes,serverTimestamp,timestampFromMillis,nowMillis=Date.now(),adminId='admin',resolveBusinessDay=order=>order.businessDay}){
   if(!orderId||!validPreparationMinutes(preparationMinutes)||!Number.isFinite(nowMillis)||typeof timestampFromMillis!=='function')throw operationError('order/invalid-preparation','조리시간은 5분부터 60분까지 5분 단위로 선택해 주세요.');
   return db.runTransaction(async transaction=>{
@@ -180,5 +212,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,validPreparationMinutes,sameTimestamp,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,AUTO_READY_RETRY_MS,TRANSIENT_FIRESTORE_CODES,TERMINAL_AUTO_READY_CODES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,validPreparationMinutes,sameTimestamp,firestoreErrorCode,autoReadyIdentity,autoReadyEligible,createAutoReadyCoordinator,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });

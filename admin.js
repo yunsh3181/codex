@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -989,28 +989,15 @@ async function setStatus(id,status,button){
  }
 }
 
-const autoReadyTimers=new Map(),autoReadyLocks=new Set();
 if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&order.status==='cooking'&&order.autoReadyEnabled===true))render()},15000);
-function autoReadyTimerIdentity(order){return `${timestampMillis(order?.readyDueAt)}:${timestampMillis(order?.preparationStartedAt)}`}
-async function runAutoReady(order){
- if(!order||autoReadyLocks.has(order.id))return false;
- autoReadyLocks.add(order.id);
- try{
-  await autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});
-  return true;
- }catch(error){if(!['order/stale-state','order/stale-timer','order/deadline-pending','order/not-found'].includes(error.code))console.error('포장 주문 자동 완료 실패',error);return false}
- finally{autoReadyLocks.delete(order.id)}
-}
-function reconcileAutoReadyOrders(list){
- const eligible=new Map((list||[]).filter(order=>order.orderType==='takeout'&&order.status==='cooking'&&order.autoReadyEnabled===true&&timestampMillis(order.readyDueAt)!==null).map(order=>[String(order.id),order]));
- autoReadyTimers.forEach((entry,id)=>{const order=eligible.get(id);if(!order||entry.identity!==autoReadyTimerIdentity(order)){clearTimeout(entry.timer);autoReadyTimers.delete(id)}});
- eligible.forEach((order,id)=>{
-  if(autoReadyTimers.has(id)||autoReadyLocks.has(id))return;
-  const identity=autoReadyTimerIdentity(order),delay=Math.max(0,timestampMillis(order.readyDueAt)-Date.now());
-  const timer=setTimeout(()=>{autoReadyTimers.delete(id);runAutoReady(order)},Math.min(delay,2147483647));
-  autoReadyTimers.set(id,{timer,identity});
- });
-}
+const autoReadyCoordinator=createAutoReadyCoordinator({
+ getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),
+ execute:order=>autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey}),
+ onPermanentError:(error,order)=>{console.error('포장 주문 자동 완료 실패',error);showAdminMessage(`${adminOrderNumberLabel(order)}번 자동 조리완료 실패 (${error.code||'unknown'}): 수동 조리완료를 확인해 주세요.`,true)}
+});
+const autoReadyTimers=autoReadyCoordinator.timers,autoReadyLocks=autoReadyCoordinator.locks;
+function runAutoReady(order){return autoReadyCoordinator.run(order)}
+function reconcileAutoReadyOrders(list){autoReadyCoordinator.reconcile(list)}
 
 let preparationOrderId=null,preparationMinutes=15,preparationReturnFocus=null,preparationBusy=false;
 const preparationTimeModal=typeof document==='undefined'?null:document.getElementById('preparationTimeModal');

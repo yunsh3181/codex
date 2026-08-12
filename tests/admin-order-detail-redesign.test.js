@@ -4,7 +4,7 @@ const path=require('path');
 const vm=require('vm');
 
 const root=path.resolve(__dirname,'..');
-const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
+const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8').replace(/const autoReadyCoordinator=createAutoReadyCoordinator\([\s\S]*?function reconcileAutoReadyOrders\(list\)\{autoReadyCoordinator\.reconcile\(list\)\}\n/,'');
 const start=admin.indexOf('function normalizedOption');
 const end=admin.indexOf('\nfunction showOrderDetail',start);
 assert.ok(start>=0&&end>start,'order detail renderer source exists');
