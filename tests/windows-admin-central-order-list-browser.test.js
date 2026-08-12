@@ -11,6 +11,10 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  const run=spawnElectronVerificationSync(['scripts/verify-admin-central-order-list.js'],{cwd:root,encoding:'utf8',env:{...process.env,ADMIN_CENTRAL_REPORT:report,ADMIN_CENTRAL_SCREENSHOT_DIR:screens,ELECTRON_DISABLE_SECURITY_WARNINGS:'true'},timeout:110000,maxBuffer:10*1024*1024});
  assertElectronSucceeded(assert,run,report);
  const result=JSON.parse(fs.readFileSync(report,'utf8'));
+ assert.equal(result.seatReservationSync.initial.status,'예약');assert.match(result.seatReservationSync.initial.className,/\breserved\b/);assert.equal(result.seatReservationSync.initial.disabled,true);
+ assert.equal(result.seatReservationSync.cancelled.status,'빈자리');assert.match(result.seatReservationSync.cancelled.className,/\bempty\b/);assert.equal(result.seatReservationSync.cancelled.disabled,false);
+ assert.deepEqual(result.seatReservationSync.reserved,result.seatReservationSync.initial);
+ assert.equal(result.seatReservationSync.initial.cards,13);assert.equal(new Set(result.seatReservationSync.initial.order).size,13);assert.equal(result.seatReservationSync.initial.transactions,0);assert.equal(result.seatReservationSync.initial.writes,0);
  assert.deepEqual(result.singleClick,{id:'fixture-32',selected:true,aria:'true',modalHidden:true,sameNode:true,focused:true});
  assert.equal(result.doubleClick.opens,1);assert.equal(result.doubleClick.modalHidden,false);assert.match(result.doubleClick.title,/32번/);assert.match(result.doubleClick.reservation,/예약시간/);assert.match(result.doubleClick.split,/식권대장/);
  assert.deepEqual(result.closeX,{hidden:true,focusId:'fixture-32'});assert.deepEqual(result.enter,{opened:true,closed:true,focusId:'fixture-32'});assert.deepEqual(result.detailButton,{opened:true,closed:true});

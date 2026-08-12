@@ -47,16 +47,19 @@ for(const [zone,colors] of Object.entries({papa:['#eef6ff','#3b82f6','#1d4f91'],
 }
 assert.ok(css.includes('.seat-overview-card.empty,.seat-overview-card.held{background:#fff;border-color:#d1d5db;color:#1f2937}'),'unused dashboard seats override zone colors with the white neutral palette');
 assert.ok(css.includes('.seat-overview-card.occupied{background:#fff1f1;border-color:#ef4444;color:#7f1d1d}'),'occupied dashboard seats override zone colors with the red tint');
+assert.ok(css.includes('.seat-overview-card.reserved{background:#f3e8ff;border-color:#8b5cf6;color:#581c87}'),'reserved dashboard seats reuse the manager reservation palette');
+assert.ok(css.includes('.seat-overview-card.unknown{background:#f1f5f9;border-color:#64748b;color:#334155}'),'unknown dashboard seats use the safe fallback palette');
 assert.ok(css.includes('.seat-overview-card.occupied:is(button):hover{background:#fff1f1;border-color:#dc2626}'),'occupied hover preserves its red tint');
 assert.ok(admin.includes('class="seat-overview-card seat-zone-${seat.zone} ${status}"'),'zone and state classes are independently rendered');
 assert.ok(admin.includes('style="grid-row-start:${seat.row};grid-column-start:${seat.column}"'),'real seat cards receive explicit grid positions');
 assert.ok(css.indexOf('.seat-overview-card.empty,.seat-overview-card.held{')>css.indexOf('.seat-overview-card.seat-zone-room{'),'state colors override every zone palette');
-for(const pair of ["empty:'빈자리'","occupied:'사용중'","held:'주문중'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("const action=status==='held'?'open-seat-order':'toggle-seat'"),'empty and occupied seats share the overview toggle action while held seats retain order detail');
-assert.ok(admin.includes('`<button type="button" ${attributes} data-action="${action}"'),'all overview seats render as accessible action buttons');
+for(const pair of ["empty:'빈자리'","held:'주문중'","occupied:'사용중'","reserved:'예약'","unknown:'확인 필요'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
+assert.ok(admin.includes("function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}"),'reserved remains first-class while missing and unknown statuses retain safe compatibility');
+assert.ok(admin.includes("const action=status==='held'?'open-seat-order':['empty','occupied'].includes(status)?'toggle-seat':''"),'reserved and unknown seats are display-only while existing empty, occupied, and held actions remain');
+assert.ok(admin.includes('`<button type="button" ${attributes}${action?` data-action="${action}"`:\' disabled\'} aria-label='),'all overview seats remain accessible buttons while display-only states are disabled');
 assert.ok(admin.includes('data-action="clear-seat" data-seat-id="${esc(seatId)}"'),'seat clearing remains available from the linked order detail');
 assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
-assert.ok(admin.includes("normalizedSeatStatus(data.status)==='empty'"),'only non-empty seats can be cleared');
+assert.ok(admin.includes("!['held','occupied'].includes(normalizedSeatStatus(data.status))"),'reserved and unknown seats cannot be cleared by the order dashboard');
 assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
 assert.ok(admin.includes("if(button){button.disabled=true;button.setAttribute('aria-busy','true')}"),'seat clearing disables and marks its action busy to prevent duplicate activation');
 assert.ok(admin.includes("button.disabled=false;button.removeAttribute('aria-busy')"),'seat clearing restores the card after processing');

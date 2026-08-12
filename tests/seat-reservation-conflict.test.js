@@ -18,6 +18,18 @@ test('reserved is a first-class manager state with conditional transactions',()=
  for(const field of ['heldBy:null','heldAt:null','heldUntil:null','partySize:null'])assert.match(manager,new RegExp(field));
 });
 
+test('order dashboard preserves realtime reserved snapshots without corrective writes',()=>{
+ const dashboard=fs.readFileSync(path.join(root,'admin.js'),'utf8');
+ const dashboardCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
+ assert.match(dashboard,/function normalizedSeatStatus\(status\)\{return status==null\|\|status==='empty'\?'empty':\['held','occupied','reserved'\]\.includes\(status\)\?status:'unknown'\}/);
+ assert.match(dashboard,/reserved:'예약'/);
+ assert.match(dashboardCss,/\.seat-overview-card\.reserved\{background:#f3e8ff;border-color:#8b5cf6;color:#581c87\}/);
+ assert.match(dashboard,/unsubscribeSeats=db\.collection\('seats'\)\.onSnapshot\(snapshot=>\{/);
+ const listener=dashboard.match(/unsubscribeSeats=db\.collection\('seats'\)\.onSnapshot\(snapshot=>\{[\s\S]*?\n \},error=>\{/)?.[0]||'';
+ assert.doesNotMatch(listener,/\.set\(|\.update\(|runTransaction/);
+ assert.match(dashboard,/!\['empty','occupied'\]\.includes\(status\)/);
+});
+
 test('reserved customer seats are visible and cannot be selected',()=>{
  assert.match(kiosk,/doc\?\.status==='reserved'\|\|doc\?\.status==='occupied'/);
  assert.match(kiosk,/seatStatus:d\.status==='reserved'\?'reserved'/);
