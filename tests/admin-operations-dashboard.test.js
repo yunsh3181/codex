@@ -53,16 +53,18 @@ assert.ok(css.includes('.seat-overview-card.occupied:is(button):hover{background
 assert.ok(admin.includes('class="seat-overview-card seat-zone-${seat.zone} ${status}"'),'zone and state classes are independently rendered');
 assert.ok(admin.includes('style="grid-row-start:${seat.row};grid-column-start:${seat.column}"'),'real seat cards receive explicit grid positions');
 assert.ok(css.indexOf('.seat-overview-card.empty,.seat-overview-card.held{')>css.indexOf('.seat-overview-card.seat-zone-room{'),'state colors override every zone palette');
-for(const pair of ["empty:'빈자리'","held:'주문중'","occupied:'사용중'","reserved:'예약'","unknown:'확인 필요'"])assert.ok(admin.includes(pair),`${pair} is explicit`);
-assert.ok(admin.includes("function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}"),'reserved remains first-class while missing and unknown statuses retain safe compatibility');
-assert.ok(admin.includes("const action=status==='held'?'open-seat-order':['empty','occupied'].includes(status)?'toggle-seat':''"),'reserved and unknown seats are display-only while existing empty, occupied, and held actions remain');
-assert.ok(admin.includes('`<button type="button" ${attributes}${action?` data-action="${action}"`:\' disabled\'} aria-label='),'all overview seats remain accessible buttons while display-only states are disabled');
+assert.ok(admin.includes('normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState'),'dashboard imports all shared seat policy functions');
+assert.ok(admin.includes('function normalizedSeatStatus(status){return normalizeAdminSeatStatus(status)}'),'dashboard delegates normalization to the shared policy');
+assert.ok(admin.includes('const pending=statusUpdateLocks.has(`seat:${seat.id}`),actions=getAdminSeatActions(status)'),'dashboard obtains its complete action list from shared metadata');
+assert.ok(admin.includes("status==='held'&&data.orderId"),'held exposes only the existing linked-order detail path');
+assert.ok(admin.includes("actions.length?`<div class=\"admin-seat-actions\""),'empty, occupied, and reserved actions share the common wrapper');
+assert.ok(admin.includes('await transitionAdminSeatState({db,seatId:id,expectedStatus:expected,targetStatus:target'),'dashboard mutations use the production transaction helper');
 assert.ok(admin.includes('data-action="clear-seat" data-seat-id="${esc(seatId)}"'),'seat clearing remains available from the linked order detail');
 assert.ok(admin.includes("const content=`<strong>${esc(seat.name)}</strong>"),'the card contains only seat name, status, and optional order number');
-assert.ok(admin.includes("!['held','occupied'].includes(normalizedSeatStatus(data.status))"),'reserved and unknown seats cannot be cleared by the order dashboard');
-assert.ok(admin.includes("if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false"),'seat clearing asks for confirmation');
-assert.ok(admin.includes("if(button){button.disabled=true;button.setAttribute('aria-busy','true')}"),'seat clearing disables and marks its action busy to prevent duplicate activation');
-assert.ok(admin.includes("button.disabled=false;button.removeAttribute('aria-busy')"),'seat clearing restores the card after processing');
+assert.ok(admin.includes("if(!['occupied','reserved'].includes(expected))return false"),'held and unknown cannot use the linked-detail clear path');
+assert.ok(admin.includes('!confirm(metadata.confirmation)'),'confirmation copy comes from shared action metadata');
+assert.ok(admin.includes('pendingAdminSeatTargets.set(id,target);renderSeatOverview()'),'dashboard locks all card actions until the target snapshot arrives');
+assert.ok(admin.includes('pendingAdminSeatTargets.delete(id);statusUpdateLocks.delete(lockId);renderSeatOverview()'),'failed transactions restore the latest snapshot state without optimistic mutation');
 assert.ok(admin.includes("event.target.closest('button[data-action]')"),'native button click and Enter/Space activation reuse the delegated clear-seat action');
 const releaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0]||'';
 const clearSource=admin.match(/async function clearSeat[\s\S]*?\n\}/)?.[0]||'';
@@ -73,7 +75,7 @@ assert.deepStrictEqual(releaseKeys,allowedReleaseFields,'shared release payload 
 for(const forbidden of ['groupSize','groupLabel','groupTableCount','reservationName','reservationPartySize','reservationAt','reservationPhone']){
  assert.ok(!releaseSource.includes(`${forbidden}:`),`${forbidden} is not synthesized by seat release`);
 }
-assert.ok(clearSource.includes("db.collection('seats').doc(id).set(seatReleasePayload(),{merge:true})"),'manual clearing reuses the shared release payload');
+assert.ok(clearSource.includes("return transitionOverviewSeat(id,expected,'empty',button)"),'manual clearing delegates to the shared transition path');
 assert.ok(setStatusSource.includes('transaction.set(ref,seatReleasePayload(),{merge:true})'),'automatic dine-in release reuses the same payload');
 assert.ok(!clearSource.includes("collection('orders')"),'seat clearing never changes an order');
 assert.ok(rules.includes('match /seats/{seatId}')&&rules.includes('allow create: if isAdmin();'),'existing admin-only seat mutation policy remains');

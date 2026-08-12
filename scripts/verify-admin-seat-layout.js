@@ -12,7 +12,7 @@ fs.mkdirSync(userData,{recursive:true});app.setPath('userData',userData);app.dis
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function exportSite(target){
  for(const dir of ['seat','tests/fixtures'])fs.mkdirSync(path.join(target,dir),{recursive:true});
- for(const file of ['admin.css','seats.css','seats-mobile.css','bottle-seat-policy.css','bottle-seat-policy.js','seat-layout.css','seat-layout.js','seats.js'])fs.copyFileSync(path.join(root,file),path.join(target,file));
+ for(const file of ['admin.css','admin-operations.js','seats.css','seats-mobile.css','bottle-seat-policy.css','bottle-seat-policy.js','seat-layout.css','seat-layout.js','seats.js'])fs.copyFileSync(path.join(root,file),path.join(target,file));
  fs.copyFileSync(path.join(root,'tests/fixtures/seat-layout-browser-runtime.js'),path.join(target,'tests/fixtures/seat-layout-browser-runtime.js'));
  let html=fs.readFileSync(path.join(root,'seat/index.html'),'utf8');
  html=html.replace(/<script src="https:\/\/www\.gstatic\.com[^>]+><\/script>/g,'').replace(/<script src="\.\.\/firebase-config\.js[^>]+><\/script>/,'<script src="../tests/fixtures/seat-layout-browser-runtime.js"></script>');

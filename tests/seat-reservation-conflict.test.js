@@ -8,26 +8,25 @@ const kiosk=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const manager=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
 
-test('reserved is a first-class manager state with conditional transactions',()=>{
- assert.match(manager,/statusNames=\{[^}]*reserved:'예약'/);
- assert.match(manager,/transitionReservation\(id,'reservable','reserved'\)/);
- assert.match(manager,/transitionReservation\(id,'reserved','empty'\)/);
- assert.match(manager,/db\.runTransaction/);
- assert.match(manager,/const current=saved\.status==null\?'empty':saved\.status/);
- assert.match(manager,/current==='held'&&!saved\.orderId/);
- for(const field of ['heldBy:null','heldAt:null','heldUntil:null','partySize:null'])assert.match(manager,new RegExp(field));
+test('reserved is a first-class manager state through the shared transaction policy',()=>{
+ assert.match(manager,/ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState/);
+ assert.match(manager,/runSeatAction\(id,expected,target\)/);
+ assert.match(manager,/await transitionAdminSeatState/);
+ assert.match(manager,/pendingSeatTargets\.set\(id,target\)/);
+ assert.match(manager,/targetStatus==='empty'\|\|bottleActionAllowed\(id\)/);
+ assert.doesNotMatch(manager,/transitionReservation|current==='held'/);
 });
 
 test('order dashboard preserves realtime reserved snapshots without corrective writes',()=>{
  const dashboard=fs.readFileSync(path.join(root,'admin.js'),'utf8');
  const dashboardCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
- assert.match(dashboard,/function normalizedSeatStatus\(status\)\{return status==null\|\|status==='empty'\?'empty':\['held','occupied','reserved'\]\.includes\(status\)\?status:'unknown'\}/);
- assert.match(dashboard,/reserved:'예약'/);
+ assert.match(dashboard,/function normalizedSeatStatus\(status\)\{return normalizeAdminSeatStatus\(status\)\}/);
+ assert.match(dashboard,/ADMIN_SEAT_STATUSES/);
  assert.match(dashboardCss,/\.seat-overview-card\.reserved\{background:#f3e8ff;border-color:#8b5cf6;color:#581c87\}/);
  assert.match(dashboard,/unsubscribeSeats=db\.collection\('seats'\)\.onSnapshot\(snapshot=>\{/);
  const listener=dashboard.match(/unsubscribeSeats=db\.collection\('seats'\)\.onSnapshot\(snapshot=>\{[\s\S]*?\n \},error=>\{/)?.[0]||'';
  assert.doesNotMatch(listener,/\.set\(|\.update\(|runTransaction/);
- assert.match(dashboard,/!\['empty','occupied'\]\.includes\(status\)/);
+ assert.match(dashboard,/actions=getAdminSeatActions\(status\)/);
 });
 
 test('reserved customer seats are visible and cannot be selected',()=>{

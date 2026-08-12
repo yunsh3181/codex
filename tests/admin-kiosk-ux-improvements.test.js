@@ -50,11 +50,11 @@ test('admin detail keeps the unified menu, payment, and call layout behind the c
  assert.match(adminCss,/\.main-customer-call\{[^}]*linear-gradient\(100deg,#5f45c9,#834ce1,#6550c9\)/);
 });
 
-test('admin seat overview toggles empty and occupied seats',()=>{
- assert.match(admin,/const action=status==='held'\?'open-seat-order':\['empty','occupied'\]\.includes\(status\)\?'toggle-seat':''/);
- assert.match(admin,/if\(!seat\|\|!\['empty','occupied'\]\.includes\(status\)\|\|statusUpdateLocks\.has\(lockId\)\)return false/);
- assert.match(admin,/async function toggleOverviewSeat/);
- assert.match(admin,/status:'occupied'/);
- assert.match(admin,/if\(status==='occupied'\)return clearSeat\(id,button\)/);
- assert.match(admin,/action==='toggle-seat'/);
+test('admin seat overview uses the shared guarded state controls',()=>{
+ assert.match(admin,/normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState/);
+ assert.match(admin,/actions=getAdminSeatActions\(status\)/);
+ assert.match(admin,/async function transitionOverviewSeat/);
+ assert.match(admin,/await transitionAdminSeatState\(\{db,seatId:id,expectedStatus:expected,targetStatus:target/);
+ assert.match(admin,/status==='held'&&data\.orderId/);
+ assert.match(admin,/action==='transition-seat'/);
 });

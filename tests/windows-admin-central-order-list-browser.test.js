@@ -11,8 +11,8 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  const run=spawnElectronVerificationSync(['scripts/verify-admin-central-order-list.js'],{cwd:root,encoding:'utf8',env:{...process.env,ADMIN_CENTRAL_REPORT:report,ADMIN_CENTRAL_SCREENSHOT_DIR:screens,ELECTRON_DISABLE_SECURITY_WARNINGS:'true'},timeout:110000,maxBuffer:10*1024*1024});
  assertElectronSucceeded(assert,run,report);
  const result=JSON.parse(fs.readFileSync(report,'utf8'));
- assert.equal(result.seatReservationSync.initial.status,'예약');assert.match(result.seatReservationSync.initial.className,/\breserved\b/);assert.equal(result.seatReservationSync.initial.disabled,true);
- assert.equal(result.seatReservationSync.cancelled.status,'빈자리');assert.match(result.seatReservationSync.cancelled.className,/\bempty\b/);assert.equal(result.seatReservationSync.cancelled.disabled,false);
+ assert.equal(result.seatReservationSync.initial.status,'예약');assert.match(result.seatReservationSync.initial.className,/\breserved\b/);assert.equal(result.seatReservationSync.initial.disabled,undefined);
+ assert.equal(result.seatReservationSync.cancelled.status,'빈자리');assert.match(result.seatReservationSync.cancelled.className,/\bempty\b/);assert.equal(result.seatReservationSync.cancelled.disabled,undefined);
  assert.deepEqual(result.seatReservationSync.reserved,result.seatReservationSync.initial);
  assert.equal(result.seatReservationSync.initial.cards,13);assert.equal(new Set(result.seatReservationSync.initial.order).size,13);assert.equal(result.seatReservationSync.initial.transactions,0);assert.equal(result.seatReservationSync.initial.writes,0);
  assert.deepEqual(result.singleClick,{id:'fixture-32',selected:true,aria:'true',modalHidden:true,sameNode:true,focused:true});

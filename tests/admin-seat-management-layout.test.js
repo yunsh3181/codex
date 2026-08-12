@@ -4,6 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const seatLayout=require('../seat-layout');
+const operations=require('../admin-operations');
 
 const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'seats.js'),'utf8');
@@ -22,7 +23,7 @@ function renderSeatManager(documents={}){
  const context={
   console,db,
   document:{body:{classList:{add(){},toggle(){}}},getElementById(id){return elements[id]},querySelector(){return null}},
-  window:{top:null,PJSeatLayout:seatLayout,addEventListener(){}},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},
+  PJAdminOperations:operations,window:{top:null,PJSeatLayout:seatLayout,PJAdminOperations:operations,PJ_BOTTLE_SEAT_POLICY:{SUPPORTED_END_YEAR:2030,isBottleSeat:()=>false,getBottleSeatAvailability:()=>({available:true,reason:'open'}),millisecondsUntilNextBoundary:()=>86400000},addEventListener(){}},location:{replace(){}},alert(){},confirm(){return false},prompt(){return null},clearTimeout(){},setTimeout(){},
   setInterval(){},
   firebase:{
    auth(){return {onAuthStateChanged(callback){callback({getIdTokenResult:async()=>({claims:{admin:true}})})},signOut:async()=>{}}},
@@ -35,8 +36,8 @@ function renderSeatManager(documents={}){
 }
 
 function cards(html){
- return [...html.matchAll(/<button type="button" class="simple-seat ([^"]+)" data-seat-id="([^"]+)"/g)]
-  .map(([,classes,id])=>({status:classes.split(' ').at(-1),id}));
+ return [...html.matchAll(/data-layout-seat-id="([^"]+)"[^>]*>[\s\S]*?<div class="simple-seat ([^"]+)"/g)]
+  .map(([,id,classes])=>({status:classes.split(' ').at(-1),id}));
 }
 
 test('seat manager always renders the 13 real tables as independent cards',()=>{
@@ -110,5 +111,5 @@ test('seat cards keep only the compact name, capacity, and status hierarchy',()=
  });
  assert.equal((html.match(/class="simple-seat /g)||[]).length,13);
  assert.match(html,/<strong>커플석<\/strong><span>최대 2인<\/span><em><i aria-hidden="true"><\/i>사용중<\/em>/);
- assert.doesNotMatch(html,/터치하면|터치해서|줄서기 \d+팀|<small>/);
+ assert.doesNotMatch(html,/터치하면|터치해서|줄서기 \d+팀/);
 });
