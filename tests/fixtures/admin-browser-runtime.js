@@ -20,7 +20,7 @@
  function auth(){return authObject}auth.onAuthStateChanged=authObject.onAuthStateChanged.bind(authObject);
  window.firebase={initializeApp(){},firestore:()=>db,auth};
  window.firebase.firestore.FieldValue={serverTimestamp:()=>new Date(),delete:()=>null};
- window.firebase.firestore.Timestamp={now:()=>new Date(),fromMillis:value=>new Date(value)};
+ window.firebase.firestore.Timestamp={now:()=>new Date(),fromMillis:value=>({toMillis:()=>value,toDate:()=>new Date(value)})};
  window.PJAdminVisualFixture={emit:emitOrders,add(order){records.push({...order});emitOrders()},remove(id){records=records.filter(order=>order.id!==id);emitOrders()},setSeat(id,data){seatRecords.set(id,{...data});emitSeats()},seat(id){return {...seatRecords.get(id)}},get transactionCalls(){return transactionCalls},get records(){return records.map(order=>({...order}))}};
  window.__PJ_FIXTURE_DB__=db;
  window.__PJ_FIXTURE_AUTH__=authObject;
