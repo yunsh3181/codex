@@ -378,7 +378,7 @@ const ADMIN_SEATS=[
  {id:'room-2',name:'룸2',zone:'room',row:6,column:2},
  {id:'room-3',name:'룸3',zone:'room',row:6,column:3}
 ];
-const seatStatusNames={empty:'빈자리',occupied:'사용중',held:'주문중'};
+const seatStatusNames={empty:'빈자리',held:'주문중',occupied:'사용중',reserved:'예약',unknown:'확인 필요'};
 let seatDocuments={};
 const formatTime=value=>{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return '-';return new Intl.DateTimeFormat('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d)};
 const dateValue=value=>value?.toMillis?value.toMillis():value?.seconds?value.seconds*1000:Number(new Date(value||0))||0;
@@ -816,7 +816,7 @@ function manualCustomerCallCard(call){
  const ready=call.displayStatus==='ready';
  return `<article class="takeout-small manual" data-manual-call-id="${esc(call.id)}"><div class="takeout-small-number">${esc(orderNumberLabel(call.orderNumber))}</div><span class="manual-badge">대면접수</span><strong>대면 포장</strong><span>현재 상태 · ${ready?'조리완료':'조리중'}</span><span>접수 시각 ${formatTime(call.createdAt)}</span><button type="button" class="${ready?'pickup':'ready'}" data-action="set-manual-status" data-call-id="${esc(call.id)}" data-status="${ready?'picked-up':'ready'}">${ready?'픽업완료':'조리완료'}</button></article>`;
 }
-function normalizedSeatStatus(status){return status==='occupied'?'occupied':status==='held'?'held':'empty'}
+function normalizedSeatStatus(status){return status==null||status==='empty'?'empty':['held','occupied','reserved'].includes(status)?status:'unknown'}
 function timestampMillis(value){if(value&&typeof value.toMillis==='function')return value.toMillis();if(value instanceof Date&&Number.isFinite(value.getTime()))return value.getTime();return null}
 function occupiedElapsedLabel(data,now=Date.now()){
  if(data?.status!=='occupied')return '';
@@ -832,9 +832,9 @@ function renderSeatOverview(){
   const elapsed=occupiedElapsedLabel(data);
   const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${seatStatusNames[status]}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}${elapsed?`<small class="seat-occupied-elapsed">${esc(elapsed)}</small>`:''}`;
   const attributes=`class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}"`;
-  const action=status==='held'?'open-seat-order':'toggle-seat';
-  const actionLabel=status==='empty'?'사용중으로 변경':status==='occupied'?'빈자리로 변경':'주문 상세보기';
-  return `<button type="button" ${attributes} data-action="${action}" aria-label="${esc(seat.name)} ${seatStatusNames[status]}. ${actionLabel}">${content}</button>`;
+  const action=status==='held'?'open-seat-order':['empty','occupied'].includes(status)?'toggle-seat':'';
+  const actionLabel=status==='empty'?'사용중으로 변경':status==='occupied'?'빈자리로 변경':status==='held'?'주문 상세보기':'상태 변경은 좌석 관리에서 가능합니다';
+  return `<button type="button" ${attributes}${action?` data-action="${action}"`:' disabled'} aria-label="${esc(seat.name)} ${seatStatusNames[status]}. ${actionLabel}">${content}</button>`;
  }).join('');
 }
 function render(){
@@ -1409,7 +1409,7 @@ async function clearSeat(id,button){
  const lockId=`seat:${id}`;
  if(!id||statusUpdateLocks.has(lockId))return false;
  const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
- if(!seat||normalizedSeatStatus(data.status)==='empty')return false;
+ if(!seat||!['held','occupied'].includes(normalizedSeatStatus(data.status)))return false;
  if(!confirm('이 좌석을 빈자리로 변경할까요?'))return false;
  statusUpdateLocks.add(lockId);
  if(button){button.disabled=true;button.setAttribute('aria-busy','true')}
@@ -1431,7 +1431,7 @@ async function toggleOverviewSeat(id,button){
  const lockId=`seat:${id}`;
  const seat=ADMIN_SEATS.find(item=>item.id===id),data=seatDocuments[id]||{};
  const status=normalizedSeatStatus(data.status);
- if(!seat||status==='held'||statusUpdateLocks.has(lockId))return false;
+ if(!seat||!['empty','occupied'].includes(status)||statusUpdateLocks.has(lockId))return false;
  if(status==='occupied')return clearSeat(id,button);
  statusUpdateLocks.add(lockId);
  if(button){button.disabled=true;button.setAttribute('aria-busy','true')}

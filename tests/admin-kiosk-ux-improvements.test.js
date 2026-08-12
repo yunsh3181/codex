@@ -51,7 +51,8 @@ test('admin detail keeps the unified menu, payment, and call layout behind the c
 });
 
 test('admin seat overview toggles empty and occupied seats',()=>{
- assert.match(admin,/const action=status==='held'\?'open-seat-order':'toggle-seat'/);
+ assert.match(admin,/const action=status==='held'\?'open-seat-order':\['empty','occupied'\]\.includes\(status\)\?'toggle-seat':''/);
+ assert.match(admin,/if\(!seat\|\|!\['empty','occupied'\]\.includes\(status\)\|\|statusUpdateLocks\.has\(lockId\)\)return false/);
  assert.match(admin,/async function toggleOverviewSeat/);
  assert.match(admin,/status:'occupied'/);
  assert.match(admin,/if\(status==='occupied'\)return clearSeat\(id,button\)/);
