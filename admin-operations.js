@@ -45,6 +45,41 @@
   const millis=value instanceof Date?value.getTime():typeof value==='number'?value:NaN;
   return Number.isFinite(millis)?millis:null;
  }
+ function validPreparationMinutes(value){return Number.isInteger(value)&&value>=5&&value<=60&&value%5===0}
+ function sameTimestamp(left,right){const a=timestampMillis(left),b=timestampMillis(right);return a!==null&&b!==null&&a===b}
+ async function startTakeoutPreparationTransaction({db,orderId,preparationMinutes,serverTimestamp,timestampFromMillis,nowMillis=Date.now(),adminId='admin',resolveBusinessDay=order=>order.businessDay}){
+  if(!orderId||!validPreparationMinutes(preparationMinutes)||!Number.isFinite(nowMillis)||typeof timestampFromMillis!=='function')throw operationError('order/invalid-preparation','조리시간은 5분부터 60분까지 5분 단위로 선택해 주세요.');
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
+   if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...snapshot.data()};
+   if(order.orderType!=='takeout')throw operationError('order/invalid-transition','포장 주문만 조리시간을 설정할 수 있습니다.');
+   if(!['payment_pending','new'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
+   const businessDay=resolveBusinessDay(order);
+   if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
+   const timestamp=serverTimestamp(),readyDueAt=timestampFromMillis(nowMillis+preparationMinutes*60*1000),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   transaction.update(orderRef,{status:'cooking',preparationMinutes,preparationStartedAt:timestamp,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   return {order,status:'cooking',preparationMinutes,readyDueAt,orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+  });
+ }
+ async function autoCompleteTakeoutTransaction({db,orderId,expectedReadyDueAt,expectedPreparationStartedAt,nowMillis=Date.now(),serverTimestamp,adminId='admin',resolveBusinessDay=order=>order.businessDay}){
+  if(!orderId||timestampMillis(expectedReadyDueAt)===null||!Number.isFinite(nowMillis))throw operationError('order/invalid-request','자동 완료 주문 정보가 올바르지 않습니다.');
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
+   if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...snapshot.data()};
+   if(order.orderType!=='takeout'||order.status!=='cooking'||order.autoReadyEnabled!==true)throw operationError('order/stale-state','자동 완료 대상 주문 상태가 변경되었습니다.');
+   if(!sameTimestamp(order.readyDueAt,expectedReadyDueAt)||(expectedPreparationStartedAt!=null&&!sameTimestamp(order.preparationStartedAt,expectedPreparationStartedAt)))throw operationError('order/stale-timer','조리 완료 예정 시간이 변경되었습니다.');
+   if(timestampMillis(order.readyDueAt)>nowMillis)throw operationError('order/deadline-pending','아직 조리 완료 예정 시간이 되지 않았습니다.');
+   const businessDay=resolveBusinessDay(order);
+   if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
+   const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+  });
+ }
  function orderSeatIds(order){
   const seat=order?.seat,tables=Array.isArray(seat?.tables)?seat.tables.filter(Boolean):[];
   if(tables.length)return Array.from(new Set(tables));
@@ -95,7 +130,7 @@
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
    const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
-   transaction.update(orderRef,{status:'ready',updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
+   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
    transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
    return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
@@ -145,5 +180,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,validPreparationMinutes,sameTimestamp,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });

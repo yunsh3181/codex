@@ -29,6 +29,8 @@ if(!emulatorAvailable){test('admin takeout production transactions and rules mat
  const createCounterChanged=(db,number,status,change,mutations=[])=>operations.createCounterTakeoutTransaction({db:compatDb(db,mutations,(path,data)=>change(path,{...data})),orderNumber:number,status,businessDay:'2026-08-08',serverTimestamp,adminId:'admin-one'});
  const complete=(db,value,mutations=[])=>operations.completeTakeoutTransaction({db:compatDb(db,mutations),orderId:value.id,expectedStatus:value.status,serverTimestamp,adminId:'admin-one'});
  const pickup=(db,value,mutations=[],adminId='admin-one')=>operations.completeTakeoutPickupTransaction({db:compatDb(db,mutations),orderId:value.id,expectedStatus:value.status,serverTimestamp,adminId});
+ const startPreparation=(db,id,minutes,now,mutations=[])=>operations.startTakeoutPreparationTransaction({db:compatDb(db,mutations),orderId:id,preparationMinutes:minutes,nowMillis:now,serverTimestamp,timestampFromMillis:Timestamp.fromMillis,adminId:'admin-one',resolveBusinessDay:()=> '2026-08-08'});
+ const autoComplete=(db,order,now,mutations=[])=>operations.autoCompleteTakeoutTransaction({db:compatDb(db,mutations),orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:now,serverTimestamp,adminId:'admin-one',resolveBusinessDay:()=> '2026-08-08'});
 
  test('A-D. administrator valid creates and legacy rules remain allowed',async()=>{
   await assertSucceeds(createCounter(adminDb(),'4101','cooking'));
@@ -113,5 +115,36 @@ if(!emulatorAvailable){test('admin takeout production transactions and rules mat
   const value=takeout('takeout-pickup-user-6161','ready');await seedTakeout(value);
   await assertFails(updateDoc(ref(userDb(),'orders',value.id),{status:'completed',pickedUpAt:serverTimestamp(),pickedUpBy:'ordinary-user'}));
   await assertFails(deleteDoc(ref(userDb(),'publicOrderDisplays',value.id)));assert.equal((await read(adminDb(),'orders',value.id)).status,'ready');assert.ok(await read(adminDb(),'publicOrderDisplays',value.id));
+ });
+ test('prep A-B. payment_pending and new takeout orders start cooking with an exact deadline',async()=>{
+  const now=1770000000000;
+  for(const [index,status] of ['payment_pending','new'].entries()){
+   const id=`prep-start-${status}`;await seedTakeout(takeout(id,status));
+   const mutations=[],result=await startPreparation(adminDb(),id,15,now,mutations),order=await read(adminDb(),'orders',id);
+   assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);assert.equal(order.status,'cooking');assert.equal(order.preparationMinutes,15);assert.ok(order.preparationStartedAt);assert.equal(order.readyDueAt.toMillis(),now+15*60000);assert.equal(order.autoReadyEnabled,true);assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);assert.equal(index>=0,true);
+  }
+ });
+ test('prep C-D. dine-in and invalid preparation values commit zero writes',async()=>{
+  assert.equal(operations.validPreparationMinutes(5),true);assert.equal(operations.validPreparationMinutes(60),true);
+  for(const value of [0,-5,6,61,'15',null,NaN]){const mutations=[];await assert.rejects(startPreparation(adminDb(),'missing',value,1770000000000,mutations),{code:'order/invalid-preparation'});assert.equal(mutations.length,0)}
+  const id='prep-dinein';await seedTakeout(takeout(id,'payment_pending'));await updateDoc(ref(adminDb(),'orders',id),{orderType:'dinein'});const mutations=[];await assert.rejects(startPreparation(adminDb(),id,15,1770000000000,mutations),{code:'order/invalid-transition'});assert.equal(mutations.length,0);
+ });
+ test('prep F. concurrent administrators establish only one deadline',async()=>{
+  const id='prep-concurrent';await seedTakeout(takeout(id,'payment_pending'));const results=await Promise.allSettled([startPreparation(adminDb(),id,10,1770000000000),startPreparation(adminDb('admin-two'),id,25,1770000000000)]),order=await read(adminDb(),'orders',id);
+  assert.equal(results.filter(result=>result.status==='fulfilled').length,1);assert.equal(results.filter(result=>result.status==='rejected').length,1);assert.equal(order.status,'cooking');assert.ok([10,25].includes(order.preparationMinutes));
+ });
+ test('auto G-I. deadline before, at, and after follows the production transaction boundary',async()=>{
+  const due=1770000900000;
+  for(const [suffix,now,success] of [['before',due-1,false],['at',due,true],['after',due+1,true]]){
+   const id=`auto-${suffix}`;await seedTakeout(takeout(id,'cooking'));await updateDoc(ref(adminDb(),'orders',id),{autoReadyEnabled:true,readyDueAt:Timestamp.fromMillis(due),preparationStartedAt:Timestamp.fromMillis(due-900000)});const order=await read(adminDb(),'orders',id),mutations=[];
+   if(success){const result=await autoComplete(adminDb(),{id,...order},now,mutations);assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal((await read(adminDb(),'orders',id)).status,'ready');assert.equal((await read(adminDb(),'publicOrderDisplays',id)).displayStatus,'ready')}else{await assert.rejects(autoComplete(adminDb(),{id,...order},now,mutations),{code:'order/deadline-pending'});assert.equal(mutations.length,0)}
+  }
+ });
+ test('auto J-N. races, stale states/timers, catch-up, and repeated snapshots complete once',async()=>{
+  const due=1770000900000,start=Timestamp.fromMillis(due-900000),id='auto-race';await seedTakeout(takeout(id,'cooking'));await updateDoc(ref(adminDb(),'orders',id),{autoReadyEnabled:true,readyDueAt:Timestamp.fromMillis(due),preparationStartedAt:start});const order={id,...await read(adminDb(),'orders',id)};
+  const race=await Promise.allSettled([autoComplete(adminDb(),order,due),complete(adminDb(),takeout(id,'cooking'))]);assert.equal(race.filter(result=>result.status==='fulfilled').length,1);assert.equal((await read(adminDb(),'orders',id)).status,'ready');assert.equal((await read(adminDb(),'publicOrderDisplays',id)).displayStatus,'ready');
+  for(const status of ['ready','completed','cancelled']){const staleId=`auto-stale-${status}`;await seedTakeout(takeout(staleId,status));const mutations=[];await assert.rejects(operations.autoCompleteTakeoutTransaction({db:compatDb(adminDb(),mutations),orderId:staleId,expectedReadyDueAt:Timestamp.fromMillis(due),nowMillis:due,serverTimestamp}),{code:'order/stale-state'});assert.equal(mutations.length,0)}
+  const changedId='auto-changed-deadline';await seedTakeout(takeout(changedId,'cooking'));await updateDoc(ref(adminDb(),'orders',changedId),{autoReadyEnabled:true,readyDueAt:Timestamp.fromMillis(due+60000),preparationStartedAt:start});const changedMutations=[];await assert.rejects(operations.autoCompleteTakeoutTransaction({db:compatDb(adminDb(),changedMutations),orderId:changedId,expectedReadyDueAt:Timestamp.fromMillis(due),expectedPreparationStartedAt:start,nowMillis:due+60000,serverTimestamp}),{code:'order/stale-timer'});assert.equal(changedMutations.length,0);
+  const catchupId='auto-catchup';await seedTakeout(takeout(catchupId,'cooking'));await updateDoc(ref(adminDb(),'orders',catchupId),{autoReadyEnabled:true,readyDueAt:Timestamp.fromMillis(due),preparationStartedAt:start});const catchup={id:catchupId,...await read(adminDb(),'orders',catchupId)},repeated=await Promise.allSettled([autoComplete(adminDb(),catchup,due+5000),autoComplete(adminDb('admin-two'),catchup,due+5000),autoComplete(adminDb(),catchup,due+5000)]);assert.equal(repeated.filter(result=>result.status==='fulfilled').length,1);assert.equal((await read(adminDb(),'orders',catchupId)).status,'ready');assert.equal((await getDocs(collection(adminDb(),'publicOrderDisplays'))).docs.filter(doc=>doc.id===catchupId).length,1);
  });
 }
