@@ -89,6 +89,14 @@
     <section id="customersPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>고객 통계</h2><input id="customerSearch" placeholder="전화번호 뒤 4자리 검색"></div><div id="customerSummary" class="analytics-summary"></div><div id="customerList" class="data-list"></div></section>
     <section id="recommendationsPanel" class="analytics-panel" hidden><div class="analytics-head"><h2>추천 성과</h2></div><div id="recommendationSummary" class="analytics-summary"></div><div id="recommendationList" class="data-list"></div></section>
   </main>
+  <div id="preparationTimeModal" class="settings-modal preparation-time-modal" hidden>
+    <section class="settings-panel preparation-time-panel" role="dialog" aria-modal="true" aria-labelledby="preparationTimeTitle" aria-describedby="preparationTimeDescription">
+      <div class="settings-body"><h2 id="preparationTimeTitle">포장 주문 조리시간</h2><p id="preparationTimeDescription">결제를 완료하고 조리를 시작할 시간을 선택하세요.</p>
+        <div class="preparation-stepper" role="group" aria-label="조리시간 선택"><button type="button" id="decreasePreparationTime" aria-label="조리시간 5분 감소">−</button><output id="preparationTimeValue" aria-live="polite">15분</output><button type="button" id="increasePreparationTime" aria-label="조리시간 5분 증가">+</button></div>
+        <div class="settings-actions"><button type="button" id="cancelPreparationTime" class="secondary-button">취소</button><button type="button" id="confirmPreparationTime" class="primary-button">결제완료 및 조리 시작</button></div>
+      </div>
+    </section>
+  </div>
   <div id="takeoutCompleteModal" class="settings-modal" hidden>
     <section class="settings-panel takeout-complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="takeoutCompleteTitle"><div class="settings-body"><h2 id="takeoutCompleteTitle">포장 주문을 완료할까요?</h2><p id="takeoutCompleteDescription"></p><div class="settings-actions"><button type="button" id="cancelTakeoutComplete" class="secondary-button">취소</button><button type="button" id="confirmTakeoutComplete" class="primary-button">주문 완료</button></div></div></section>
   </div>

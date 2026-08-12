@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -117,6 +117,7 @@ function startRealtimeSubscriptions(){
  backfillPublicDisplayBusinessDays(receivedOrders);
  const now=new Date();
  refreshVisibleOrders(now);
+ reconcileAutoReadyOrders(receivedOrders);
  if(!initialLoad)notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)));
  if(soundEnabled&&hasUnacceptedOrders())startNewOrderRepeat();
  else if(!hasUnacceptedOrders())stopNewOrderRepeat();
@@ -761,8 +762,8 @@ function classifyCurrentSeatOrderMismatch(order,seats=seatDocuments){return clas
 function centralPaymentAction(order){
  const mismatch=classifyCurrentSeatOrderMismatch(order);
  if(mismatch.forceEligible){const enabled=Boolean(forceConfirmationValue(order));return `<button type="button" class="central-status-action force-complete" data-action="force-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 강제완료" ${enabled?'':'disabled aria-disabled="true" title="주문번호를 확인할 수 없어 상세 확인이 필요합니다."'}>강제완료</button>`}
- if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted" data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
- if(order?.orderType==='takeout'&&['accepted','paid','cooking'].includes(order?.status))return `<button type="button" class="central-status-action takeout-complete" data-action="confirm-takeout-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 주문 완료">주문 완료</button>`;
+ if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="${order.orderType==='takeout'?'select-preparation-time':'set-status'}" data-order-id="${esc(order.id)}" data-status="accepted" ${order.orderType==='takeout'?'':'data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?"'} aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
+ if(order?.orderType==='takeout'&&['accepted','paid','cooking'].includes(order?.status)){let label='주문 완료';if(order.status==='cooking'&&order.autoReadyEnabled===true){const due=order.readyDueAt&&typeof order.readyDueAt.toMillis==='function'?order.readyDueAt.toMillis():null;if(Number.isFinite(due)){const remaining=due-Date.now();label=remaining<=0?'조리완료 처리 중':remaining<60000?'조리중 · 1분 미만':`조리중 · ${Math.ceil(remaining/60000)}분 남음`}}return `<button type="button" class="central-status-action takeout-complete" data-action="confirm-takeout-complete" data-order-id="${esc(order.id)}" title="수동 조리완료" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 조리완료">${esc(label)}</button>`}
  if(order?.orderType==='takeout'&&order?.status==='ready')return `<button type="button" class="central-status-action takeout-pickup" data-action="confirm-takeout-pickup" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 픽업 완료">픽업 완료</button>`;
  if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
  if(order?.status==='cancelled')return '<span class="central-status-badge payment-cancelled" aria-label="결제 상태 취소">취소</span>';
@@ -986,6 +987,36 @@ async function setStatus(id,status,button){
   statusUpdateLocks.delete(id);
   if(button&&button.isConnected){button.disabled=false;button.textContent=originalText;button.removeAttribute('aria-busy')}
  }
+}
+
+if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&order.status==='cooking'&&order.autoReadyEnabled===true))render()},15000);
+const autoReadyCoordinator=createAutoReadyCoordinator({
+ getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),
+ execute:order=>autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey}),
+ onPermanentError:(error,order)=>{console.error('포장 주문 자동 완료 실패',error);showAdminMessage(`${adminOrderNumberLabel(order)}번 자동 조리완료 실패 (${error.code||'unknown'}): 수동 조리완료를 확인해 주세요.`,true)}
+});
+const autoReadyTimers=autoReadyCoordinator.timers,autoReadyLocks=autoReadyCoordinator.locks;
+function runAutoReady(order){return autoReadyCoordinator.run(order)}
+function reconcileAutoReadyOrders(list){autoReadyCoordinator.reconcile(list)}
+
+let preparationOrderId=null,preparationMinutes=15,preparationReturnFocus=null,preparationBusy=false;
+const preparationTimeModal=typeof document==='undefined'?null:document.getElementById('preparationTimeModal');
+const preparationTimeValue=typeof document==='undefined'?null:document.getElementById('preparationTimeValue');
+const decreasePreparationTime=typeof document==='undefined'?null:document.getElementById('decreasePreparationTime');
+const increasePreparationTime=typeof document==='undefined'?null:document.getElementById('increasePreparationTime');
+const confirmPreparationTime=typeof document==='undefined'?null:document.getElementById('confirmPreparationTime');
+function syncPreparationTime(){preparationTimeValue.textContent=`${preparationMinutes}분`;decreasePreparationTime.disabled=preparationMinutes<=5;increasePreparationTime.disabled=preparationMinutes>=60}
+function openPreparationTimeModal(order,trigger=document.activeElement){
+ if(!order||order.orderType!=='takeout'||!['payment_pending','new'].includes(order.status))return false;
+ preparationOrderId=order.id;preparationMinutes=15;preparationReturnFocus=trigger;preparationBusy=false;syncPreparationTime();preparationTimeModal.hidden=false;document.body.classList.add('preparation-time-open');decreasePreparationTime.focus();return true;
+}
+function closePreparationTimeModal({restoreFocus=true}={}){if(preparationBusy||preparationTimeModal?.hidden)return false;preparationTimeModal.hidden=true;document.body.classList.remove('preparation-time-open');preparationOrderId=null;if(restoreFocus&&preparationReturnFocus?.isConnected)preparationReturnFocus.focus();preparationReturnFocus=null;return true}
+async function confirmPreparationStart(){
+ if(preparationBusy||!preparationOrderId)return;
+ preparationBusy=true;confirmPreparationTime.disabled=true;const original=confirmPreparationTime.textContent;confirmPreparationTime.textContent='처리 중…';
+ try{await startTakeoutPreparationTransaction({db,orderId:preparationOrderId,preparationMinutes,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,timestampFromMillis:firebase.firestore.Timestamp.fromMillis,nowMillis:Date.now(),adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});preparationBusy=false;closePreparationTimeModal({restoreFocus:false});stopNewOrderRepeat();showAdminMessage('결제를 완료하고 조리를 시작했습니다.')}
+ catch(error){preparationBusy=false;showAdminMessage(`조리 시작 실패 (${error.code||'unknown'}): ${error.message}`,true)}
+ finally{confirmPreparationTime.disabled=false;confirmPreparationTime.textContent=original}
 }
 
 let forceCompleteOrderId=null,forceCompleteReturnFocus=null,forceCompleteBusy=false;
@@ -1316,6 +1347,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   await setStatus(button.dataset.orderId,button.dataset.status,button);
   return;
  }
+ if(action==='select-preparation-time'){openPreparationTimeModal(orderById(button.dataset.orderId),button);return}
  if(action==='confirm-takeout-complete'){openTakeoutCompleteModal(orderById(button.dataset.orderId),button);return}
  if(action==='confirm-takeout-pickup'){openTakeoutPickupModal(orderById(button.dataset.orderId),button);return}
  if(action==='force-complete'){openForceCompleteModal(orderById(button.dataset.orderId),button);return}
@@ -1347,6 +1379,16 @@ document.getElementById('ordersPanel')?.addEventListener('keydown',event=>{
  event.preventDefault();openOrderDetail(trigger.dataset.orderId,trigger);
 });
 closeOrderDetailButton?.addEventListener('click',closeOrderDetail);
+decreasePreparationTime?.addEventListener('click',()=>{preparationMinutes=Math.max(5,preparationMinutes-5);syncPreparationTime()});
+increasePreparationTime?.addEventListener('click',()=>{preparationMinutes=Math.min(60,preparationMinutes+5);syncPreparationTime()});
+document.getElementById('cancelPreparationTime')?.addEventListener('click',()=>closePreparationTimeModal());
+confirmPreparationTime?.addEventListener('click',confirmPreparationStart);
+preparationTimeModal?.addEventListener('keydown',event=>{
+ if(event.key==='Escape'){event.preventDefault();closePreparationTimeModal();return}
+ if(event.key!=='Tab')return;
+ const focusable=Array.from(preparationTimeModal.querySelectorAll('button:not(:disabled)')),first=focusable[0],last=focusable[focusable.length-1];
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+});
 confirmTakeoutComplete?.addEventListener('click',completeTakeoutFromModal);
 document.getElementById('cancelTakeoutComplete')?.addEventListener('click',closeTakeoutCompleteModal);
 takeoutCompleteModal?.addEventListener('click',event=>{if(event.target===takeoutCompleteModal)closeTakeoutCompleteModal()});

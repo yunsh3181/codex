@@ -35,7 +35,7 @@ for(const [customerNumber,language] of [['P1234','en'],['D5678','es'],['P9012','
 assert.doesNotMatch(markup('completed'),/data-action="set-status"/, 'completed orders have no further status action');
 assert.match(markup('completed'),/data-action="call-customer"/, 'completed orders keep the existing repeatable call action');
 
-const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\ndocument\.getElementById\('ordersPanel'\)/)?.[0].replace(/\n\ndocument\.getElementById\('ordersPanel'\)[\s\S]*/,'');
+const setStatusSource=admin.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n}\n\nif\(typeof setInterval/)?.[0].replace(/\n\nif\(typeof setInterval[\s\S]*/,'');
 const seatReleaseSource=admin.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0];
 const statusBlock=`${seatReleaseSource||''}\nconst statusUpdateLocks=new Set();\n${setStatusSource||''}`;
 assert.ok(statusBlock,'status update implementation exists');
