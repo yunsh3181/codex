@@ -20,6 +20,9 @@ assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto;width:
 assert.ok(css.includes('.seat-overview-card{display:flex;grid-column:auto'),'empty seat status never inherits the generic full-row empty-state placement');
 assert.ok(!css.includes('.seat-overview-card{display:flex;min-width:0;height:88px'),'seat cards no longer use the fixed 88px height');
 assert.ok(css.includes('word-break:keep-all')&&css.includes('-webkit-line-clamp:2'),'long Korean seat names remain readable on at most two lines');
+assert.ok(css.includes('min-height:30px')&&css.includes('overflow-wrap:normal'),'dashboard seat names reserve two readable lines without per-character Korean wrapping');
+assert.ok(css.includes('.admin-seat-actions{display:flex;width:100%;min-width:0;align-items:center;justify-content:center;gap:2px;margin-top:auto}'),'shared seat actions stay on the card bottom row with the compact gap');
+assert.ok(css.includes('min-height:20px')&&css.includes('padding:2px 4px')&&css.includes('font:900 10px/1 inherit'),'shared seat actions retain the minimum readable compact geometry');
 assert.ok(css.includes('@media(max-width:1300px)')&&css.includes('.seat-overview-grid{grid-template-columns:repeat(3,minmax(0,1fr))}'),'1300px breakpoint preserves three columns');
 assert.ok(css.includes('@media(max-width:768px)'),'narrow layout rules remain scoped');
 assert.ok(!css.includes('grid-template-columns:repeat(2,70px)'),'seat overview never falls back to a two-column fixed list');
