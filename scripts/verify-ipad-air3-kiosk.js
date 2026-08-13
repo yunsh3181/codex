@@ -51,7 +51,8 @@ const measure = `(()=>{
  const visible=e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
  const rect=e=>{const r=e.getBoundingClientRect();return {left:+r.left.toFixed(2),top:+r.top.toFixed(2),right:+r.right.toFixed(2),bottom:+r.bottom.toFixed(2),width:+r.width.toFixed(2),height:+r.height.toFixed(2)}};
  const text=[...document.querySelectorAll('h1,h2,h3,p,strong,span')].filter(e=>visible(e)&&!e.classList.contains('srOnly'));
- const clipped=text.filter(e=>e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1).map(e=>({tag:e.tagName,className:e.className,text:e.textContent.trim().slice(0,80),client:[e.clientWidth,e.clientHeight],scroll:[e.scrollWidth,e.scrollHeight]}));
+ const clipsAxis=value=>/^(hidden|clip|auto|scroll)$/.test(value);
+ const clipped=text.filter(e=>{const s=getComputedStyle(e);return (e.scrollWidth>e.clientWidth+1&&clipsAxis(s.overflowX))||(e.scrollHeight>e.clientHeight+1&&clipsAxis(s.overflowY))}).map(e=>({tag:e.tagName,className:e.className,text:e.textContent.trim().slice(0,80),client:[e.clientWidth,e.clientHeight],scroll:[e.scrollWidth,e.scrollHeight]}));
  const groups=[...document.querySelectorAll('.grid,.areaGrid,.darkSetGrid,.reviewBottomActions,.modalBtns')].filter(visible),overlaps=[];
  for(const g of groups){const kids=[...g.children].filter(visible);for(let i=0;i<kids.length;i++)for(let j=i+1;j<kids.length;j++){const a=kids[i].getBoundingClientRect(),b=kids[j].getBoundingClientRect();if(a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1)overlaps.push([kids[i].className,kids[j].className])}}
  const action=document.querySelector('.selectionFooterCard,.partyNext,.optionContinue,.reviewBottomActions');
