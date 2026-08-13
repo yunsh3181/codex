@@ -992,14 +992,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 812,
-          "scrollHeight": 812,
+          "clientHeight": 794,
+          "scrollHeight": 794,
           "left": 0,
           "top": 156,
           "right": 834,
-          "bottom": 968.47,
+          "bottom": 950.47,
           "width": 834,
-          "height": 812.47
+          "height": 794.47
         },
         "header": {
           "left": 0,
@@ -1127,43 +1127,43 @@
             "text": "2인 추천2인 세트레귤러 전용피자 + 파스타 + 작은 음료24,000원선",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 320.47,
             "right": 762,
-            "bottom": 466.47,
+            "bottom": 460.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "3인 추천3인 세트라지 전용피자 + 사이드 1종 + 큰 음료33,000원",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 475.47,
+            "top": 469.47,
             "right": 762,
-            "bottom": 621.47,
+            "bottom": 609.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "가장 인기BEST4인 세트패밀리 전용피자 + 사이드 2종 + 큰 음료42",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 630.47,
+            "top": 618.47,
             "right": 762,
-            "bottom": 776.47,
+            "bottom": 758.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "처음으로",
@@ -6970,14 +6970,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 811,
-          "scrollHeight": 811,
+          "clientHeight": 793,
+          "scrollHeight": 793,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 966.47,
+          "bottom": 948.47,
           "width": 834,
-          "height": 811.47
+          "height": 793.47
         },
         "header": {
           "left": 0,
@@ -7105,43 +7105,43 @@
             "text": "Recommended for 22-person SetRegular onl",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 318.47,
             "right": 762,
-            "bottom": 464.47,
+            "bottom": 458.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Recommended for 33-person SetLarge onlyP",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 473.47,
+            "top": 467.47,
             "right": 762,
-            "bottom": 619.47,
+            "bottom": 607.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Most popularBEST4-person SetFamily onlyP",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 628.47,
+            "top": 616.47,
             "right": 762,
-            "bottom": 774.47,
+            "bottom": 756.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Start over",
@@ -12948,14 +12948,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 829,
-          "scrollHeight": 829,
+          "clientHeight": 811,
+          "scrollHeight": 811,
           "left": 0,
           "top": 159,
           "right": 834,
-          "bottom": 988.47,
+          "bottom": 970.47,
           "width": 834,
-          "height": 829.47
+          "height": 811.47
         },
         "header": {
           "left": 0,
@@ -13083,43 +13083,43 @@
             "text": "2名おすすめ2名セットレギュラー専用ピザ + パスタ + 小さいドリンク₩24,",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 328.47,
             "right": 762,
-            "bottom": 474.47,
+            "bottom": 468.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "3名おすすめ3名セットラージ専用ピザ + サイド1品 + 大きいドリンク₩33,",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 483.47,
+            "top": 477.47,
             "right": 762,
-            "bottom": 629.47,
+            "bottom": 617.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "一番人気BEST4名セットファミリー専用ピザ + サイド2品 + 大きいドリンク",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 638.47,
+            "top": 626.47,
             "right": 762,
-            "bottom": 784.47,
+            "bottom": 766.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "最初へ",
@@ -18926,14 +18926,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 823,
-          "scrollHeight": 823,
+          "clientHeight": 805,
+          "scrollHeight": 805,
           "left": 0,
           "top": 158,
           "right": 834,
-          "bottom": 981.47,
+          "bottom": 963.47,
           "width": 834,
-          "height": 823.47
+          "height": 805.47
         },
         "header": {
           "left": 0,
@@ -19061,43 +19061,43 @@
             "text": "2人推荐2人套餐仅限Regular披萨 + 意面 + 小饮料₩24,000选择 ",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 325.47,
             "right": 762,
-            "bottom": 471.47,
+            "bottom": 465.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "3人推荐3人套餐仅限Large披萨 + 1份小食 + 大饮料₩33,000选择 ",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 480.47,
+            "top": 474.47,
             "right": 762,
-            "bottom": 626.47,
+            "bottom": 614.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "最受欢迎BEST4人套餐仅限Family披萨 + 2份小食 + 大饮料₩42,0",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 635.47,
+            "top": 623.47,
             "right": 762,
-            "bottom": 781.47,
+            "bottom": 763.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "返回首页",
@@ -24904,14 +24904,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 811,
-          "scrollHeight": 811,
+          "clientHeight": 793,
+          "scrollHeight": 793,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 966.47,
+          "bottom": 948.47,
           "width": 834,
-          "height": 811.47
+          "height": 793.47
         },
         "header": {
           "left": 0,
@@ -25039,43 +25039,43 @@
             "text": "Gợi ý cho 2Set 2 ngườiChỉ RegularPizza +",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 318.47,
             "right": 762,
-            "bottom": 464.47,
+            "bottom": 458.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Gợi ý cho 3Set 3 ngườiChỉ LargePizza + 1",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 473.47,
+            "top": 467.47,
             "right": 762,
-            "bottom": 619.47,
+            "bottom": 607.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Phổ biến nhấtBESTSet 4 ngườiChỉ FamilyPi",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 628.47,
+            "top": 616.47,
             "right": 762,
-            "bottom": 774.47,
+            "bottom": 756.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Về đầu",
@@ -30882,14 +30882,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 811,
-          "scrollHeight": 811,
+          "clientHeight": 793,
+          "scrollHeight": 793,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 966.47,
+          "bottom": 948.47,
           "width": 834,
-          "height": 811.47
+          "height": 793.47
         },
         "header": {
           "left": 0,
@@ -31017,43 +31017,43 @@
             "text": "Recomendado para 2Set para 2Solo Regular",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
             "top": 318.47,
             "right": 762,
-            "bottom": 464.47,
+            "bottom": 458.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Recomendado para 3Set para 3Solo LargePi",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 473.47,
+            "top": 467.47,
             "right": 762,
-            "bottom": 619.47,
+            "bottom": 607.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Más popularBESTSet para 4Solo FamilyPizz",
             "css": {
               "width": "690px",
-              "height": "146px",
+              "height": "140px",
               "boxSizing": "border-box"
             },
             "left": 72,
-            "top": 628.47,
+            "top": 616.47,
             "right": 762,
-            "bottom": 774.47,
+            "bottom": 756.47,
             "width": 690,
-            "height": 146
+            "height": 140
           },
           {
             "text": "Volver al inicio",
