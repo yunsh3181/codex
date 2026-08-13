@@ -2742,6 +2742,7 @@ function scheduleOrderReviewFit(){
  if(typeof requestAnimationFrame!=='function'){fitOrderReview();return}
  if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(reviewFitFrame);
  reviewFitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitOrderReview));
+ if(document.fonts?.ready)document.fonts.ready.then(()=>{if(state.step==='review')reviewFitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitOrderReview))});
 }
 const KIOSK_VALID_STEPS=new Set([...flow,...KIOSK_SPECIAL_STEPS]);
 function recoverUnknownKioskStep(){
