@@ -109,14 +109,14 @@ test('desktop seat board uses the full-width fixed 6 by 3 grid',()=>{
 test('seat names and shared actions reserve compact non-overlapping rows',()=>{
  assert.match(layoutCss,/\.seat-slot \.simple-seat strong\{[^}]*min-height:40px[^}]*word-break:keep-all[^}]*overflow-wrap:normal[^}]*-webkit-line-clamp:2/);
  assert.match(layoutCss,/\.seat-slot \.simple-seat-shell\{[^}]*gap:3px/);
- assert.match(adminCss,/\.admin-seat-actions\{[^}]*gap:2px[^}]*margin-top:auto/);
- assert.match(adminCss,/\.admin-seat-action\{[^}]*min-height:20px[^}]*padding:2px 4px[^}]*font:900 10px\/1 inherit[^}]*white-space:nowrap/);
+ assert.match(adminCss,/\.admin-seat-actions\{[^}]*gap:1px[^}]*margin-top:auto/);
+ assert.match(adminCss,/\.admin-seat-action\{[^}]*min-height:16px[^}]*border-radius:4px[^}]*padding:1px 2px[^}]*font-size:8px[^}]*line-height:1[^}]*white-space:nowrap/);
 });
 
 test('seat manager loads only the refreshed shared CSS cache keys',()=>{
- assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.1/g)||[]).length,1);
+ assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.2/g)||[]).length,1);
  assert.equal((seatHtml.match(/seat-layout\.css\?v=2/g)||[]).length,1);
- assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.0/g)||[]).length,0);
+ assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.1/g)||[]).length,0);
  assert.equal((seatHtml.match(/seat-layout\.css\?v=1(?:\D|$)/g)||[]).length,0);
  for(const key of ['seats.css?v=43.7.1.3','seats-mobile.css?v=43.7.1.1','bottle-seat-policy.css?v=1'])assert.equal((seatHtml.match(new RegExp(key.replace(/[.?]/g,'\\$&'),'g'))||[]).length,1,`${key} remains unchanged`);
 });
