@@ -33,7 +33,7 @@
   body[data-step="setChoice"] .darkSetPage{padding:8px 24px!important}
   body[data-step="setChoice"] .darkSetTitle{min-height:52px!important;line-height:1.25!important;overflow:visible}
   body[data-step="setChoice"] .darkSetGrid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important;max-width:690px!important;margin-inline:auto!important}
-  body[data-step="setChoice"] .darkSetGrid .darkSetCard{grid-column:1!important;display:grid!important;grid-template-columns:105px minmax(0,1fr) auto!important;grid-template-rows:auto auto auto!important;align-items:center!important;min-height:151px!important;height:151px!important;padding:12px 18px!important;column-gap:14px!important;overflow:visible!important;text-align:left!important}
+  body[data-step="setChoice"] .darkSetGrid .darkSetCard{grid-column:1!important;display:grid!important;grid-template-columns:105px minmax(0,1fr) auto!important;grid-template-rows:auto auto auto!important;align-items:center!important;min-height:146px!important;height:146px!important;padding:10px 18px!important;column-gap:14px!important;overflow:visible!important;text-align:left!important}
   body[data-step="setChoice"] .darkSetCard .darkSetBadge{grid-row:1/4;align-self:center!important;min-height:44px;margin:0!important}
   body[data-step="setChoice"] .darkSetCard h2{grid-column:2;min-height:34px;margin:0!important;font-size:25px!important;line-height:1.25!important;overflow:visible;word-break:keep-all}
   body[data-step="setChoice"] .darkSetSize{grid-column:2}
