@@ -2231,12 +2231,12 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=44.4"></script>
-<script src="i18n/en.js?v=44.4"></script>
-<script src="i18n/ja.js?v=44.4"></script>
-<script src="i18n/zh.js?v=44.4"></script>
-<script src="i18n/vi.js?v=44.4"></script>
-<script src="i18n/es.js?v=44.4"></script>
+<script src="i18n/ko.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/en.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/ja.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/zh.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/vi.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/es.js?v=ipad-review-reset-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
@@ -2666,6 +2666,7 @@ function reviewContentOverflows(){
  const availableBottom=cartbar?.getBoundingClientRect().top??innerHeight;
  return root.scrollWidth>innerWidth||root.scrollHeight>innerHeight||stageBottom>availableBottom+1;
 }
+function isIpadAir3PortraitViewport(){return typeof matchMedia==='function'&&matchMedia('(min-width:833px) and (max-width:835px) and (min-height:1111px) and (max-height:1113px) and (orientation:portrait)').matches}
 function fitOrderReview(){
  const body=document.body;
  if(!body?.classList)return 0;
@@ -2673,7 +2674,7 @@ function fitOrderReview(){
  body.dataset.reviewCompression='0';
  if(state.step!=='review')return 0;
  if(document.documentElement.dataset?.layout==='phone')return 0;
- if(document.documentElement.dataset?.layout==='kiosk21'){
+ if(document.documentElement.dataset?.layout==='kiosk21'||isIpadAir3PortraitViewport()){
   const list=document.querySelector('.reviewOrderList');
   const cards=[...document.querySelectorAll('.reviewOrderCard')];
   const pager=document.querySelector('.reviewPager');
@@ -3441,13 +3442,18 @@ function requestReviewReset(){if(state.step!=='review'||state.modal)return;state
 function cancelReviewReset(){if(state.modal!=='reviewResetConfirm')return;state.modal=null;render()}
 let reviewResetInProgress=false;
 async function confirmReviewReset(){
- if(state.modal!=='reviewResetConfirm'||reviewResetInProgress)return;
+ if(state.modal!=='reviewResetConfirm'||reviewResetInProgress||mobileOrderSubmitting||seatOrderCommitStarted||state.firebaseOrderId)return;
  reviewResetInProgress=true;
  const heldSeats=!state.firebaseOrderId?[...state.selectedTables]:[];
- try{if(heldSeats.length)await releaseSeats(heldSeats)}catch(error){console.warn('주문 초기화 좌석 해제 실패',error)}
- reset('idle',{skipRelease:true});
- reviewResetInProgress=false;
- render()
+ try{
+  if(heldSeats.length)await releaseSeats(heldSeats);
+  reset('idle',{skipRelease:true});
+  render()
+ }catch(error){
+  console.warn('주문 초기화 좌석 해제 실패',error);
+  state.modal='reviewResetConfirm';
+  render()
+ }finally{reviewResetInProgress=false}
 }
 function setSideNeed(){return state.set===4?2:1}
 function setSideBaseComplete(){return !!state.set&&sum(state.setSides)===setSideNeed()}
@@ -3749,7 +3755,7 @@ function chooseFinalUpsell(type){
 }
 
 function modalView(){
-if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('nav.home')}</h2><p>${t('review.confirmNote')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('ui.common.cancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('ui.common.confirm')}</button></div></div></div>`;
+if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('review.resetTitle')}</h2><p>${t('review.resetBody')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('review.resetCancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('review.resetConfirm')}</button></div></div></div>`;
 if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='bottleHoursConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true"><h2>${bottleReason()}</h2><p>${bottleCopy().conflict}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmBottleHoursConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='happyRecommendation')return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="happyRecommendationTitle"><div class="benefitHelperIcon">${uiIcon("clock")}</div><h2 id="happyRecommendationTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.available',{benefit:benefitName('happy')})}</p><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${benefitName('takeout')}<br>${t('ui.sizeScreen.discountUnavailable')}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(SETTINGS.HAPPY_PRICE)}</div></div><div class="benefitActions"><button class="benefitApply" onclick="changeToHappyHour()">${t('ui.recommendation.apply')}</button><button class="keepBenefit" onclick="keepTakeoutRegular()">${t('ui.recommendation.keep')}</button></div></div></div>`;
@@ -3933,6 +3939,7 @@ document.addEventListener('click',function(event){
  handlePaymentSubmit(event);
 },true);
 document.addEventListener('keydown',function(event){
+ if(event.key==='Escape'&&state.modal==='reviewResetConfirm'){event.preventDefault();cancelReviewReset();return}
  if((event.key==='Enter'||event.key===' ')&&document.activeElement&&document.activeElement.matches('#paymentSubmitBtn,[data-action="submit-order"]')){
   handlePaymentSubmit(event);
  }

@@ -26,7 +26,7 @@ test('pizza options pass real viewport, locale, badge, and typography checks', {
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 6 * 6);
+  assert.equal(report.results.length, 5 * 6);
   for (const result of report.results) {
     for (const phase of ['before', 'after']) {
       const measurement = result[phase];

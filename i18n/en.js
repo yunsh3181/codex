@@ -27,3 +27,4 @@ window.PJ_I18N_LOCALES.en={
     done:{title:'Your order has been received',orderLabel:'Order number · last 4 digits of phone',paymentRequired:'Please pay by {payment} at the counter',paymentMethodPhrase:{cash:'cash',card:'credit card',meal_ticket:'Meal Ticket Ledger',bizle:'Zero Pay'},paymentGuide:'Pizza making starts after payment is complete.',reserveTime:'Reservation time {time}',guide:'Please check your order number and come to the counter.',home:'Start over'}
   };
 window.PJ_I18N_LOCALES.en.party.label='Guests';
+Object.assign(window.PJ_I18N_LOCALES.en.review,{resetTitle:'Return to start',resetBody:'Your current order will be deleted. Would you like to return to the start screen?',resetCancel:'Cancel',resetConfirm:'Return to start'});

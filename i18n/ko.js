@@ -38,3 +38,4 @@ window.PJ_I18N_LOCALES.ko={
     phone:{title:'전화번호를 입력해 주세요',subtitle:'010은 고정입니다. 뒤 8자리를 모두 입력해 주세요.',clear:'전체삭제',orderNumber:'주문번호(전화번호 뒤 4자리):',invalid:'전화번호 뒤 8자리를 정확히 입력해 주세요.',next:'결제수단 선택'},
     done:{title:'주문이 접수되었습니다',orderLabel:'주문번호 · 전화번호 뒤 4자리',paymentRequired:'{payment} 카운터에서 결제해 주세요',paymentMethodPhrase:{cash:'현금으로',card:'신용카드로',meal_ticket:'식권대장으로',bizle:'제로페이로'},paymentGuide:'결제 완료 후 피자 제조가 시작됩니다.',reserveTime:'예약시간 {time}',guide:'주문번호를 확인하시고 카운터로 와 주세요.',home:'처음으로'}
   };
+Object.assign(window.PJ_I18N_LOCALES.ko.review,{resetTitle:'처음으로 이동',resetBody:'현재 주문 내용이 모두 삭제됩니다. 처음 화면으로 이동하시겠습니까?',resetCancel:'취소',resetConfirm:'처음으로 이동'});
