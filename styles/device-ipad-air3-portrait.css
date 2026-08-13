@@ -7,7 +7,7 @@
   body[data-step] :is(.qty,.setQty,.drinkQty,.v3DrinkRow) button{box-sizing:border-box!important;width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important}
   html[data-layout="tablet"] body[data-step="side"] .stage .sideMenuCard .qty button{width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important}
   body .stage{overflow:hidden!important;padding-top:12px!important;padding-bottom:calc(116px + env(safe-area-inset-bottom))!important}
-  body .stage>:where(.title,.darkBenefitTitle,.darkSetTitle){margin-top:0!important;margin-bottom:8px!important}
+  body .stage>:where(.title,.darkBenefitTitle,.darkSetTitle){margin-top:0!important;margin-bottom:8px!important;line-height:1.25!important;overflow:visible}
   body .stage>:where(.sub,.darkBenefitSub,.darkSetSub){margin-top:0!important;margin-bottom:10px!important}
 
   body[data-step="party"] .stage{padding-top:8px!important}
