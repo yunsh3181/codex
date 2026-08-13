@@ -72,9 +72,10 @@ runElectronVerification({app},async lifecycle=>{
  win.setContentSize(834,1112);await win.loadFile(path.join(root,'index.html'));
  let partyBaseline=null;
  for(const locale of locales){for(const [name,values] of scenarios){await win.webContents.executeJavaScript(fixture(locale,values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:'834x1112',locale,scenario:name,metrics});if(capture&&locale==='ko'&&['party-2','area','set-choice','set-4-next','pizza-first','topping-selected','review-normal','review-reset-modal'].includes(name))await shot(win,`ipad-air3-${name}-834x1112`,834,1112)}}
- win.setContentSize(832,1112);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='party-2')[1]),true);await wait(win);
+ await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='party-2')[1]),true);await wait(win);
+ await win.webContents.executeJavaScript(`document.querySelector('link[href*="device-ipad-air3-portrait.css"]').disabled=true`,true);await wait(win);
  const partyBefore=await win.webContents.executeJavaScript(`(()=>{const q=s=>{const r=document.querySelector(s).getBoundingClientRect();return {width:r.width,height:r.height}};return {button:q('.partyStepBtn'),count:q('.partyCountDisplay')}})()`,true);
- win.setContentSize(834,1112);await wait(win);
+ await win.webContents.executeJavaScript(`document.querySelector('link[href*="device-ipad-air3-portrait.css"]').disabled=false`,true);await wait(win);
  const partyAfter=await win.webContents.executeJavaScript(`(()=>{const q=s=>{const r=document.querySelector(s).getBoundingClientRect();return {width:r.width,height:r.height}};return {button:q('.partyStepBtn'),count:q('.partyCountDisplay')}})()`,true);
  partyBaseline={before:partyBefore,after:partyAfter};
  const resetBehavior=await win.webContents.executeJavaScript(`(async()=>{
