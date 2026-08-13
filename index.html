@@ -3434,9 +3434,21 @@ function bar(){if(['home','done'].includes(state.step))return '';const reviewOrd
 
 const standardBar=bar;
 bar=function(){
- if(state.step==='review')return `<nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewHomeBtn" onclick="reset();render()">${t('nav.home')}</button><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
+ if(state.step==='review')return `<nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewHomeBtn" onclick="requestReviewReset()">${t('nav.home')}</button><button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
  return standardBar();
 };
+function requestReviewReset(){if(state.step!=='review'||state.modal)return;state.modal='reviewResetConfirm';render()}
+function cancelReviewReset(){if(state.modal!=='reviewResetConfirm')return;state.modal=null;render()}
+let reviewResetInProgress=false;
+async function confirmReviewReset(){
+ if(state.modal!=='reviewResetConfirm'||reviewResetInProgress)return;
+ reviewResetInProgress=true;
+ const heldSeats=!state.firebaseOrderId?[...state.selectedTables]:[];
+ try{if(heldSeats.length)await releaseSeats(heldSeats)}catch(error){console.warn('주문 초기화 좌석 해제 실패',error)}
+ reset('idle',{skipRelease:true});
+ reviewResetInProgress=false;
+ render()
+}
 function setSideNeed(){return state.set===4?2:1}
 function setSideBaseComplete(){return !!state.set&&sum(state.setSides)===setSideNeed()}
 function setDrinkBaseComplete(){return !!state.set&&!!state.setDrink}
@@ -3737,6 +3749,7 @@ function chooseFinalUpsell(type){
 }
 
 function modalView(){
+if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('nav.home')}</h2><p>${t('review.confirmNote')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('ui.common.cancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='bottleHoursConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true"><h2>${bottleReason()}</h2><p>${bottleCopy().conflict}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmBottleHoursConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='happyRecommendation')return `<div class="backdrop"><div class="benefitHelperModal" role="dialog" aria-modal="true" aria-labelledby="happyRecommendationTitle"><div class="benefitHelperIcon">${uiIcon("clock")}</div><h2 id="happyRecommendationTitle">${t('ui.recommendation.title')}</h2><p>${t('ui.recommendation.available',{benefit:benefitName('happy')})}</p><div class="benefitCompare"><div class="benefitCompareBox"><strong>${t('ui.recommendation.currentBenefit')}</strong>${benefitName('takeout')}<br>${t('ui.sizeScreen.discountUnavailable')}</div><div class="benefitCompareBox"><strong>${t('ui.recommendation.afterBenefit')}</strong>${money(SETTINGS.HAPPY_PRICE)}</div></div><div class="benefitActions"><button class="benefitApply" onclick="changeToHappyHour()">${t('ui.recommendation.apply')}</button><button class="keepBenefit" onclick="keepTakeoutRegular()">${t('ui.recommendation.keep')}</button></div></div></div>`;
@@ -7413,3 +7426,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
+<link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-portrait-v1">

@@ -26,7 +26,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 4 * 6 * 23);
+  assert.equal(report.results.length, 6 * 6 * 23);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -203,8 +203,8 @@ test('repository measurement artifact is aggregate-only while failures retain de
     'utf8'
   ));
   assert.equal('results' in aggregate, false);
-  assert.equal(aggregate.totalCombinations, 4 * 6 * 23);
-  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '768x1024', '1080x1920']);
+  assert.equal(aggregate.totalCombinations, 6 * 6 * 23);
+  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '834x1112', '1112x834', '768x1024', '1080x1920']);
   assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
   assert.equal(aggregate.overlapCount, 0);
   assert.equal(aggregate.clippedTextCount, 0);
