@@ -18,7 +18,7 @@ function action(status,target,id='papa-2'){return {disabled:false,dataset:{seatI
 function papaCard(output){return output.slice(output.indexOf('data-layout-seat-id="papa-2"'),output.indexOf('data-layout-seat-id="papa-bar4"'))}
 
 test('seat manager loads the shared production policy and common stylesheet',()=>{
- assert.match(html,/admin\.css\?v=48\.0\.2/);assert.match(html,/admin-operations\.js\?v=48\.0\.0/);assert.match(html,/admin-operations[^]*seats\.js/);
+ assert.match(html,/admin\.css\?v=48\.0\.3/);assert.doesNotMatch(html,/admin\.css\?v=48\.0\.2/);assert.match(html,/admin-operations\.js\?v=48\.0\.0/);assert.match(html,/admin-operations[^]*seats\.js/);
  assert.match(source,/normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState/);assert.doesNotMatch(source,/async function transitionReservation/);assert.doesNotMatch(source,/async function updateSeat/);
 });
 test('empty renders ordered use and reservation controls for every stable card',()=>{
