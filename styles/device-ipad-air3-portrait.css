@@ -65,6 +65,7 @@
   body[data-step="review"] .reviewItemsPane{display:grid;min-height:0;grid-template-rows:minmax(0,1fr) auto;overflow:hidden}
   body[data-step="review"] .reviewOrderList{display:flex;min-height:0;grid-template-columns:minmax(0,1fr)!important;gap:8px;flex-direction:column;overflow:hidden!important}
   body[data-step="review"] .reviewOrderCard{min-width:0!important;flex:0 0 auto}
+  body[data-step="review"] .reviewOrderCard[hidden]{display:none!important}
   body[data-step="review"] .cartItemName{min-width:80px;word-break:keep-all;overflow-wrap:normal}
   body[data-step="review"] .reviewSummaryPane{min-width:0;overflow:hidden}
   body[data-step="review"] .reviewAddMoreGrid{grid-template-columns:1fr!important}
