@@ -2682,10 +2682,12 @@ function fitOrderReview(){
   if(pager)pager.hidden=true;
   cards.forEach(card=>card.hidden=false);
   reviewPages=[];
+  const ipadPortrait=isIpadAir3PortraitViewport();
   const fits=()=>list.scrollHeight<=list.clientHeight+1;
-  if(!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
-  if(!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
-  if(fits())reviewPages=[cards.map((_,index)=>index)];
+  if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
+  if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
+  if(ipadPortrait&&cards.length>1)reviewPages=cards.map((_,index)=>[index]);
+  else if(fits())reviewPages=[cards.map((_,index)=>index)];
   else{
    body.classList.add('reviewPaginated');
    if(pager)pager.hidden=false;
