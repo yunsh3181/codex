@@ -1216,14 +1216,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1022,
-          "scrollHeight": 1022,
+          "clientHeight": 1051,
+          "scrollHeight": 1051,
           "left": 0,
           "top": 156,
           "right": 834,
-          "bottom": 1177.63,
+          "bottom": 1206.8,
           "width": 834,
-          "height": 1021.63
+          "height": 1050.8
         },
         "header": {
           "left": 0,
@@ -1243,9 +1243,9 @@
         },
         "action": {
           "left": 24,
-          "top": 985.63,
+          "top": 1014.8,
           "right": 810,
-          "bottom": 1043.63,
+          "bottom": 1072.8,
           "width": 786,
           "height": 58
         },
@@ -1362,9 +1362,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 318.83,
+            "top": 333,
             "right": 407,
-            "bottom": 450.83,
+            "bottom": 465,
             "width": 370,
             "height": 132
           },
@@ -1376,9 +1376,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 318.83,
+            "top": 333,
             "right": 797,
-            "bottom": 450.83,
+            "bottom": 465,
             "width": 370,
             "height": 132
           },
@@ -1386,43 +1386,43 @@
             "text": "✓오리지널기본 도우의 쫄깃하고 담백한 맛추가금 없음",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 513.83,
+            "top": 528,
             "right": 797,
-            "bottom": 660.09,
+            "bottom": 679.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "치즈롤호불호 없는 부드러운 치즈 크러스트+ 4,000원",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 670.09,
+            "top": 689.27,
             "right": 797,
-            "bottom": 812.36,
+            "bottom": 836.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "골드링달콤한 고구마와 치즈가 어우러진 크러스트+ 4,000원",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 822.36,
+            "top": 846.53,
             "right": 797,
-            "bottom": 964.63,
+            "bottom": 993.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "피자 선택하기 →",
@@ -1432,9 +1432,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 985.63,
+            "top": 1014.8,
             "right": 810,
-            "bottom": 1043.63,
+            "bottom": 1072.8,
             "width": 786,
             "height": 58
           },
@@ -1489,14 +1489,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1022,
-          "scrollHeight": 1022,
+          "clientHeight": 1051,
+          "scrollHeight": 1051,
           "left": 0,
           "top": 156,
           "right": 834,
-          "bottom": 1177.63,
+          "bottom": 1206.8,
           "width": 834,
-          "height": 1021.63
+          "height": 1050.8
         },
         "header": {
           "left": 0,
@@ -1516,9 +1516,9 @@
         },
         "action": {
           "left": 24,
-          "top": 985.63,
+          "top": 1014.8,
           "right": 810,
-          "bottom": 1043.63,
+          "bottom": 1072.8,
           "width": 786,
           "height": 58
         },
@@ -1635,9 +1635,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 318.83,
+            "top": 333,
             "right": 407,
-            "bottom": 450.83,
+            "bottom": 465,
             "width": 370,
             "height": 132
           },
@@ -1649,9 +1649,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 318.83,
+            "top": 333,
             "right": 797,
-            "bottom": 450.83,
+            "bottom": 465,
             "width": 370,
             "height": 132
           },
@@ -1659,43 +1659,43 @@
             "text": "✓오리지널기본 도우의 쫄깃하고 담백한 맛추가금 없음",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 513.83,
+            "top": 528,
             "right": 797,
-            "bottom": 660.09,
+            "bottom": 679.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "치즈롤호불호 없는 부드러운 치즈 크러스트+ 5,000원",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 670.09,
+            "top": 689.27,
             "right": 797,
-            "bottom": 812.36,
+            "bottom": 836.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "골드링달콤한 고구마와 치즈가 어우러진 크러스트+ 5,000원",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 822.36,
+            "top": 846.53,
             "right": 797,
-            "bottom": 964.63,
+            "bottom": 993.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "피자 선택하기 →",
@@ -1705,9 +1705,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 985.63,
+            "top": 1014.8,
             "right": 810,
-            "bottom": 1043.63,
+            "bottom": 1072.8,
             "width": 786,
             "height": 58
           },
@@ -7642,14 +7642,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -7669,9 +7669,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -7788,9 +7788,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -7802,9 +7802,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -7812,43 +7812,43 @@
             "text": "✓OriginalClassic chewy and savory doughN",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollSoft crust filled with cheese",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingSweet potato and cheese crust+ ",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Choose pizza →",
@@ -7858,9 +7858,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -7915,14 +7915,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -7942,9 +7942,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -8061,9 +8061,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -8075,9 +8075,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -8085,43 +8085,43 @@
             "text": "✓OriginalClassic chewy and savory doughN",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollSoft crust filled with cheese",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingSweet potato and cheese crust+ ",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Choose pizza →",
@@ -8131,9 +8131,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -12680,9 +12680,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 24,
+            "left": 22,
             "top": 91,
-            "right": 810,
+            "right": 808,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -12694,9 +12694,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 818,
+            "left": 816,
             "top": 91,
-            "right": 1604,
+            "right": 1602,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -12708,9 +12708,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 1612,
+            "left": 1610,
             "top": 91,
-            "right": 2398,
+            "right": 2396,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -12722,9 +12722,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 2406,
+            "left": 2404,
             "top": 91,
-            "right": 3192,
+            "right": 3190,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -12736,9 +12736,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3200,
+            "left": 3198,
             "top": 91,
-            "right": 3986,
+            "right": 3984,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -12750,9 +12750,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3994,
+            "left": 3992,
             "top": 90,
-            "right": 4124.69,
+            "right": 4122.69,
             "bottom": 142,
             "width": 130.69,
             "height": 52
@@ -14068,14 +14068,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1045,
-          "scrollHeight": 1045,
+          "clientHeight": 1074,
+          "scrollHeight": 1074,
           "left": 0,
           "top": 159,
           "right": 834,
-          "bottom": 1203.63,
+          "bottom": 1232.8,
           "width": 834,
-          "height": 1044.63
+          "height": 1073.8
         },
         "header": {
           "left": 0,
@@ -14095,9 +14095,9 @@
         },
         "action": {
           "left": 24,
-          "top": 1005.63,
+          "top": 1034.8,
           "right": 810,
-          "bottom": 1069.63,
+          "bottom": 1098.8,
           "width": 786,
           "height": 64
         },
@@ -14214,9 +14214,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 332.83,
+            "top": 347,
             "right": 407,
-            "bottom": 464.83,
+            "bottom": 479,
             "width": 370,
             "height": 132
           },
@@ -14228,9 +14228,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 332.83,
+            "top": 347,
             "right": 797,
-            "bottom": 464.83,
+            "bottom": 479,
             "width": 370,
             "height": 132
           },
@@ -14238,43 +14238,43 @@
             "text": "✓Originalもちもちした香ばしい定番生地追加料金なし",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 533.83,
+            "top": 548,
             "right": 797,
-            "bottom": 680.09,
+            "bottom": 699.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese Rollチーズ入りのやわらかいクラスト+ ₩4,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 690.09,
+            "top": 709.27,
             "right": 797,
-            "bottom": 832.36,
+            "bottom": 856.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold Ringさつまいもとチーズのクラスト+ ₩4,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 842.36,
+            "top": 866.53,
             "right": 797,
-            "bottom": 984.63,
+            "bottom": 1013.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "ピザを選ぶ →",
@@ -14284,9 +14284,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 1005.63,
+            "top": 1034.8,
             "right": 810,
-            "bottom": 1069.63,
+            "bottom": 1098.8,
             "width": 786,
             "height": 64
           },
@@ -14341,14 +14341,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1045,
-          "scrollHeight": 1045,
+          "clientHeight": 1074,
+          "scrollHeight": 1074,
           "left": 0,
           "top": 159,
           "right": 834,
-          "bottom": 1203.63,
+          "bottom": 1232.8,
           "width": 834,
-          "height": 1044.63
+          "height": 1073.8
         },
         "header": {
           "left": 0,
@@ -14368,9 +14368,9 @@
         },
         "action": {
           "left": 24,
-          "top": 1005.63,
+          "top": 1034.8,
           "right": 810,
-          "bottom": 1069.63,
+          "bottom": 1098.8,
           "width": 786,
           "height": 64
         },
@@ -14487,9 +14487,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 332.83,
+            "top": 347,
             "right": 407,
-            "bottom": 464.83,
+            "bottom": 479,
             "width": 370,
             "height": 132
           },
@@ -14501,9 +14501,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 332.83,
+            "top": 347,
             "right": 797,
-            "bottom": 464.83,
+            "bottom": 479,
             "width": 370,
             "height": 132
           },
@@ -14511,43 +14511,43 @@
             "text": "✓Originalもちもちした香ばしい定番生地追加料金なし",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 533.83,
+            "top": 548,
             "right": 797,
-            "bottom": 680.09,
+            "bottom": 699.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese Rollチーズ入りのやわらかいクラスト+ ₩5,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 690.09,
+            "top": 709.27,
             "right": 797,
-            "bottom": 832.36,
+            "bottom": 856.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold Ringさつまいもとチーズのクラスト+ ₩5,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 842.36,
+            "top": 866.53,
             "right": 797,
-            "bottom": 984.63,
+            "bottom": 1013.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "ピザを選ぶ →",
@@ -14557,9 +14557,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 1005.63,
+            "top": 1034.8,
             "right": 810,
-            "bottom": 1069.63,
+            "bottom": 1098.8,
             "width": 786,
             "height": 64
           },
@@ -20522,14 +20522,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1037,
-          "scrollHeight": 1037,
+          "clientHeight": 1066,
+          "scrollHeight": 1066,
           "left": 0,
           "top": 158,
           "right": 834,
-          "bottom": 1194.63,
+          "bottom": 1223.8,
           "width": 834,
-          "height": 1036.63
+          "height": 1065.8
         },
         "header": {
           "left": 0,
@@ -20549,9 +20549,9 @@
         },
         "action": {
           "left": 24,
-          "top": 998.63,
+          "top": 1027.8,
           "right": 810,
-          "bottom": 1060.63,
+          "bottom": 1089.8,
           "width": 786,
           "height": 62
         },
@@ -20668,9 +20668,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 327.83,
+            "top": 342,
             "right": 407,
-            "bottom": 459.83,
+            "bottom": 474,
             "width": 370,
             "height": 132
           },
@@ -20682,9 +20682,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 327.83,
+            "top": 342,
             "right": 797,
-            "bottom": 459.83,
+            "bottom": 474,
             "width": 370,
             "height": 132
           },
@@ -20692,43 +20692,43 @@
             "text": "✓Original经典弹韧香浓面团无需加价",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 526.83,
+            "top": 541,
             "right": 797,
-            "bottom": 673.09,
+            "bottom": 692.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese Roll柔软芝士夹心饼边+ ₩4,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 683.09,
+            "top": 702.27,
             "right": 797,
-            "bottom": 825.36,
+            "bottom": 849.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold Ring红薯与芝士饼边+ ₩4,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 835.36,
+            "top": 859.53,
             "right": 797,
-            "bottom": 977.63,
+            "bottom": 1006.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "选择披萨 →",
@@ -20738,9 +20738,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 998.63,
+            "top": 1027.8,
             "right": 810,
-            "bottom": 1060.63,
+            "bottom": 1089.8,
             "width": 786,
             "height": 62
           },
@@ -20795,14 +20795,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1037,
-          "scrollHeight": 1037,
+          "clientHeight": 1066,
+          "scrollHeight": 1066,
           "left": 0,
           "top": 158,
           "right": 834,
-          "bottom": 1194.63,
+          "bottom": 1223.8,
           "width": 834,
-          "height": 1036.63
+          "height": 1065.8
         },
         "header": {
           "left": 0,
@@ -20822,9 +20822,9 @@
         },
         "action": {
           "left": 24,
-          "top": 998.63,
+          "top": 1027.8,
           "right": 810,
-          "bottom": 1060.63,
+          "bottom": 1089.8,
           "width": 786,
           "height": 62
         },
@@ -20941,9 +20941,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 327.83,
+            "top": 342,
             "right": 407,
-            "bottom": 459.83,
+            "bottom": 474,
             "width": 370,
             "height": 132
           },
@@ -20955,9 +20955,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 327.83,
+            "top": 342,
             "right": 797,
-            "bottom": 459.83,
+            "bottom": 474,
             "width": 370,
             "height": 132
           },
@@ -20965,43 +20965,43 @@
             "text": "✓Original经典弹韧香浓面团无需加价",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 526.83,
+            "top": 541,
             "right": 797,
-            "bottom": 673.09,
+            "bottom": 692.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese Roll柔软芝士夹心饼边+ ₩5,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 683.09,
+            "top": 702.27,
             "right": 797,
-            "bottom": 825.36,
+            "bottom": 849.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold Ring红薯与芝士饼边+ ₩5,000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 835.36,
+            "top": 859.53,
             "right": 797,
-            "bottom": 977.63,
+            "bottom": 1006.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "选择披萨 →",
@@ -21011,9 +21011,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 998.63,
+            "top": 1027.8,
             "right": 810,
-            "bottom": 1060.63,
+            "bottom": 1089.8,
             "width": 786,
             "height": 62
           },
@@ -26948,14 +26948,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -26975,9 +26975,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -27094,9 +27094,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -27108,9 +27108,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -27118,43 +27118,43 @@
             "text": "✓OriginalBột truyền thống dai mềm, thơm ",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollViền mềm nhân phô mai+ ₩4.000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingViền khoai lang và phô mai+ ₩4.",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Chọn pizza →",
@@ -27164,9 +27164,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -27221,14 +27221,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -27248,9 +27248,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -27367,9 +27367,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -27381,9 +27381,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -27391,43 +27391,43 @@
             "text": "✓OriginalBột truyền thống dai mềm, thơm ",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollViền mềm nhân phô mai+ ₩5.000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingViền khoai lang và phô mai+ ₩5.",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Chọn pizza →",
@@ -27437,9 +27437,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -32014,9 +32014,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 24,
+            "left": 22,
             "top": 91,
-            "right": 810,
+            "right": 808,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -32028,9 +32028,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 818,
+            "left": 816,
             "top": 91,
-            "right": 1604,
+            "right": 1602,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -32042,9 +32042,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 1612,
+            "left": 1610,
             "top": 91,
-            "right": 2398,
+            "right": 2396,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -32056,9 +32056,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 2406,
+            "left": 2404,
             "top": 91,
-            "right": 3192,
+            "right": 3190,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -32070,9 +32070,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3200,
+            "left": 3198,
             "top": 91,
-            "right": 3986,
+            "right": 3984,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -32084,9 +32084,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3994,
+            "left": 3992,
             "top": 90,
-            "right": 4164.66,
+            "right": 4162.66,
             "bottom": 142,
             "width": 170.66,
             "height": 52
@@ -33402,14 +33402,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -33429,9 +33429,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -33548,9 +33548,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -33562,9 +33562,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -33572,43 +33572,43 @@
             "text": "✓OriginalMasa clásica, sabrosa y elástic",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollBorde suave relleno de queso+",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingBorde de batata y queso+ ₩4000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Elegir pizza →",
@@ -33618,9 +33618,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -33675,14 +33675,14 @@
           "scrollHeight": 1112
         },
         "stage": {
-          "clientHeight": 1021,
-          "scrollHeight": 1021,
+          "clientHeight": 1050,
+          "scrollHeight": 1050,
           "left": 0,
           "top": 155,
           "right": 834,
-          "bottom": 1175.63,
+          "bottom": 1204.8,
           "width": 834,
-          "height": 1020.63
+          "height": 1049.8
         },
         "header": {
           "left": 0,
@@ -33702,9 +33702,9 @@
         },
         "action": {
           "left": 24,
-          "top": 984.63,
+          "top": 1013.8,
           "right": 810,
-          "bottom": 1041.63,
+          "bottom": 1070.8,
           "width": 786,
           "height": 57
         },
@@ -33821,9 +33821,9 @@
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 317.83,
+            "top": 332,
             "right": 407,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -33835,9 +33835,9 @@
               "boxSizing": "border-box"
             },
             "left": 427,
-            "top": 317.83,
+            "top": 332,
             "right": 797,
-            "bottom": 449.83,
+            "bottom": 464,
             "width": 370,
             "height": 132
           },
@@ -33845,43 +33845,43 @@
             "text": "✓OriginalMasa clásica, sabrosa y elástic",
             "css": {
               "width": "760px",
-              "height": "146.266px",
+              "height": "151.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 512.83,
+            "top": 527,
             "right": 797,
-            "bottom": 659.09,
+            "bottom": 678.27,
             "width": 760,
-            "height": 146.27
+            "height": 151.27
           },
           {
             "text": "Cheese RollBorde suave relleno de queso+",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 669.09,
+            "top": 688.27,
             "right": 797,
-            "bottom": 811.36,
+            "bottom": 835.53,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Gold RingBorde de batata y queso+ ₩5000",
             "css": {
               "width": "760px",
-              "height": "142.266px",
+              "height": "147.266px",
               "boxSizing": "border-box"
             },
             "left": 37,
-            "top": 821.36,
+            "top": 845.53,
             "right": 797,
-            "bottom": 963.63,
+            "bottom": 992.8,
             "width": 760,
-            "height": 142.27
+            "height": 147.27
           },
           {
             "text": "Elegir pizza →",
@@ -33891,9 +33891,9 @@
               "boxSizing": "border-box"
             },
             "left": 24,
-            "top": 984.63,
+            "top": 1013.8,
             "right": 810,
-            "bottom": 1041.63,
+            "bottom": 1070.8,
             "width": 786,
             "height": 57
           },
@@ -37845,9 +37845,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 22,
+            "left": 24,
             "top": 91,
-            "right": 808,
+            "right": 810,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -37859,9 +37859,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 816,
+            "left": 818,
             "top": 91,
-            "right": 1602,
+            "right": 1604,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -37873,9 +37873,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 1610,
+            "left": 1612,
             "top": 91,
-            "right": 2396,
+            "right": 2398,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -37887,9 +37887,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 2404,
+            "left": 2406,
             "top": 91,
-            "right": 3190,
+            "right": 3192,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -37901,9 +37901,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3198,
+            "left": 3200,
             "top": 91,
-            "right": 3984,
+            "right": 3986,
             "bottom": 143,
             "width": 786,
             "height": 52
@@ -37915,9 +37915,9 @@
               "height": "52px",
               "boxSizing": "border-box"
             },
-            "left": 3992,
+            "left": 3994,
             "top": 90,
-            "right": 4115.36,
+            "right": 4117.36,
             "bottom": 142,
             "width": 123.36,
             "height": 52
