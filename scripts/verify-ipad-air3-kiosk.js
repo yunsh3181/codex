@@ -50,6 +50,10 @@ const safariActionScenarios = scenarios.filter(([name]) => [
   'topping-add','topping-selected','side-included','side-extra',
   'drink-included','drink-extra','accompaniment'
 ].includes(name));
+const safariScrollScenarios = scenarios.filter(([name]) => [
+  'topping-add','topping-selected','side-included','drink-included',
+  'accompaniment','pizza-first','review-normal','review-long'
+].includes(name));
 const wait = win => win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`, true);
 const fixture = (locale, values) => `(()=>{PJ_I18N.setLanguage(${JSON.stringify(locale)});reset('idle',{skipRelease:true});Object.assign(state,${JSON.stringify(values)});render();window.scrollTo(0,0)})()`;
 const measure = `(()=>{
@@ -64,13 +68,37 @@ const measure = `(()=>{
  const ar=action&&visible(action)?rect(action):null;
  const touch=[...document.querySelectorAll('button,[role="button"]')].filter(visible).map(e=>({text:e.textContent.trim().slice(0,40),css:{width:getComputedStyle(e).width,height:getComputedStyle(e).height,boxSizing:getComputedStyle(e).boxSizing},...rect(e)}));
  const verticalText=text.filter(e=>e.textContent.trim().length>3&&e.getBoundingClientRect().width<parseFloat(getComputedStyle(e).fontSize)*1.35).map(e=>e.textContent.trim().slice(0,40));
- const stage=document.querySelector('.stage'),head=document.querySelector('.head'),footer=document.querySelector('.selectionFooter,.reviewBottomActions,.cartbar'),actionArea=document.querySelector('.selectionFooter');
+ const stage=document.querySelector('.stage'),head=document.querySelector('.head'),progress=document.querySelector('.progress'),footer=document.querySelector('.selectionFooter,.reviewBottomActions,.cartbar'),actionArea=document.querySelector('.selectionFooter');
  const cartbar=document.querySelector('.cartbar'),selectionFooter=document.querySelector('.selectionFooter');
  const stackOverlap=cartbar&&selectionFooter&&visible(cartbar)&&visible(selectionFooter)?(()=>{const a=cartbar.getBoundingClientRect(),b=selectionFooter.getBoundingClientRect();return +(Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))*Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))).toFixed(2)})():0;
  const viewportViolations=[...document.querySelectorAll('.partyNext,.areaCard,.areaPolicyGuide,.occupancyNote,body[data-step="area"] .seatRuleNotice,body[data-step="type"] .card,.darkSetCard,.optionContinue,.selectionFooter,.reviewOrderCard:not([hidden]),.reviewBottomActions')].filter(visible).filter(e=>{const r=e.getBoundingClientRect();return r.left<0||r.right>innerWidth+1||r.top<0||r.bottom>innerHeight+1}).map(e=>({className:e.className,...rect(e)}));
- return {viewport:{width:innerWidth,height:innerHeight},visualViewport:window.visualViewport?{width:+visualViewport.width.toFixed(2),height:+visualViewport.height.toFixed(2),offsetLeft:+visualViewport.offsetLeft.toFixed(2),offsetTop:+visualViewport.offsetTop.toFixed(2)}:null,layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight},stage:stage?{clientHeight:stage.clientHeight,scrollHeight:stage.scrollHeight,...rect(stage)}:null,header:head?rect(head):null,footer:footer&&visible(footer)?rect(footer):null,actionArea:actionArea&&visible(actionArea)?rect(actionArea):null,action:ar,centerError:ar?+Math.abs((ar.left+ar.right)/2-innerWidth/2).toFixed(2):null,actionAreaCenterError:ar&&actionArea?+Math.abs((ar.left+ar.right-actionArea.getBoundingClientRect().left-actionArea.getBoundingClientRect().right)/2).toFixed(2):null,stackOverlap,clipped,overlaps,verticalText,viewportViolations,touchFailures:touch.filter(x=>x.width<44||x.height<44),touch,portraitMediaMatch:matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,portraitRuleActive:[...document.styleSheets].some(s=>s.href&&s.href.includes('device-ipad-air3-portrait')&&!s.disabled)&&matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,scaleApplied:getComputedStyle(document.body).transform!=='none'||getComputedStyle(document.querySelector('.app')).transform!=='none'}
+ return {viewport:{width:innerWidth,height:innerHeight},visualViewport:window.visualViewport?{width:+visualViewport.width.toFixed(2),height:+visualViewport.height.toFixed(2),offsetLeft:+visualViewport.offsetLeft.toFixed(2),offsetTop:+visualViewport.offsetTop.toFixed(2)}:null,layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight},stage:stage?{clientHeight:stage.clientHeight,scrollHeight:stage.scrollHeight,...rect(stage)}:null,header:head?rect(head):null,progress:progress&&visible(progress)?rect(progress):null,footer:footer&&visible(footer)?rect(footer):null,actionArea:actionArea&&visible(actionArea)?rect(actionArea):null,action:ar,centerError:ar?+Math.abs((ar.left+ar.right)/2-innerWidth/2).toFixed(2):null,actionAreaCenterError:ar&&actionArea?+Math.abs((ar.left+ar.right-actionArea.getBoundingClientRect().left-actionArea.getBoundingClientRect().right)/2).toFixed(2):null,stackOverlap,actionProgressOverlap:ar&&progress?Math.max(0,Math.min(ar.bottom,progress.getBoundingClientRect().bottom)-Math.max(ar.top,progress.getBoundingClientRect().top)):0,clipped,overlaps,verticalText,viewportViolations,touchFailures:touch.filter(x=>x.width<44||x.height<44),touch,portraitMediaMatch:matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,portraitRuleActive:[...document.styleSheets].some(s=>s.href&&s.href.includes('device-ipad-air3-portrait')&&!s.disabled)&&matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,scaleApplied:getComputedStyle(document.body).transform!=='none'||getComputedStyle(document.querySelector('.app')).transform!=='none'}
 })()`;
 async function shot(win,name,width,height){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});const image=nativeImage.createFromBuffer(Buffer.from(png.data,'base64'));if(image.getSize().width!==width||image.getSize().height!==height)throw new Error(`${name}: screenshot size`);fs.writeFileSync(path.join(screenshotDir,`${name}.png`),image.toPNG())}
+async function exerciseStageScroll(win,{wheel=true,touch=true}={}){
+ const before=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.stage'),s=getComputedStyle(e),r=e.getBoundingClientRect(),action=document.querySelector('.selectionFooter,.reviewBottomActions'),cart=document.querySelector('.cartbar'),ar=action?.getBoundingClientRect(),cr=cart?.getBoundingClientRect();e.scrollTop=0;return {clientHeight:e.clientHeight,scrollHeight:e.scrollHeight,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom},usableBottom:Math.min(r.bottom,ar?.top??r.bottom,cr?.top??r.bottom),styles:{overflowX:s.overflowX,overflowY:s.overflowY,webkitOverflowScrolling:s.webkitOverflowScrolling,touchAction:s.touchAction}}})()`,true);
+ const x=Math.round((before.rect.left+before.rect.right)/2),y=Math.round(Math.min(before.rect.top+200,before.usableBottom-40));
+ await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false});
+ let wheelTop=0;
+ for(const point of wheel?[{x,y},{x:Math.round(before.rect.left+12),y:Math.round(before.rect.top+40)},{x:Math.round(before.rect.right-12),y:Math.round(before.rect.top+40)}]:[]){
+  win.webContents.sendInputEvent({type:'mouseMove',...point});
+  win.webContents.sendInputEvent({type:'mouseWheel',...point,deltaX:0,deltaY:-360,wheelTicksX:0,wheelTicksY:-3,hasPreciseScrollingDeltas:true,canScroll:true});
+  await new Promise(resolve=>setTimeout(resolve,120));await wait(win);
+  wheelTop=await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true);
+  if(wheelTop>0)break;
+ }
+ await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=0`,true);
+ if(touch){
+  await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+  await win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:y+120,id:1,radiusX:2,radiusY:2,force:1}]});
+  await win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-120,id:1,radiusX:2,radiusY:2,force:1}]});
+  await win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await wait(win);
+  await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false});
+ }
+ const touchTop=touch?await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true):0;
+ const end=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.stage');e.scrollTop=e.scrollHeight;const action=document.querySelector('.selectionFooter,.reviewBottomActions'),er=e.getBoundingClientRect(),ar=action?.getBoundingClientRect();const candidates=[...e.querySelectorAll('.card:not(.selectionFooterCard),.reviewOrderCard:not([hidden]),.reviewSummaryPane,.reviewPager:not([hidden])')].filter(x=>{const s=getComputedStyle(x),r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0});const last=candidates.sort((a,b)=>a.getBoundingClientRect().bottom-b.getBoundingClientRect().bottom).at(-1);const lr=last?.getBoundingClientRect();return {scrollTop:e.scrollTop,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),lastBottom:lr?+lr.bottom.toFixed(2):null,visibleBottom:+Math.min(er.bottom,ar?.top??er.bottom).toFixed(2)}})()`,true);
+ return {...before,wheelTop,touchTop,...end};
+}
 
 runElectronVerification({app},async lifecycle=>{
  lifecycle.expectReport(reportPath);
@@ -107,8 +135,20 @@ runElectronVerification({app},async lifecycle=>{
   win.setContentSize(834,height);await wait(win);
   for(const [name,values] of safariActionScenarios){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);safariResults.push({viewport:`834x${height}`,locale:'ko',scenario:name,metrics});if(capture&&['topping-selected','side-included','drink-included','accompaniment'].includes(name))await shot(win,`ipad-air3-safari-${name}-834x${height}`,834,height)}
  }
+ const scrollResults=[];
+ const wheelWin=lifecycle.trackWindow(new BrowserWindow({show:false,frame:false,useContentSize:true,webPreferences:{contextIsolation:true,offscreen:true,sandbox:true}}),'wheel-window');
+ lifecycle.attachDebugger('1.3',wheelWin);wheelWin.setContentSize(834,1112);await wheelWin.loadFile(path.join(root,'index.html'));
+ for(const height of safariHeights){
+  win.setContentSize(834,height);wheelWin.setContentSize(834,height);await wait(win);await wait(wheelWin);
+  for(const [name,values] of safariScrollScenarios){
+   await win.webContents.executeJavaScript(fixture('ko',values),true);await wheelWin.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);await wait(wheelWin);
+   const touchScroll=await exerciseStageScroll(win,{wheel:false}),wheelScroll=await exerciseStageScroll(wheelWin,{touch:false});
+   scrollResults.push({viewport:`834x${height}`,scenario:name,scroll:{...touchScroll,wheelTop:wheelScroll.wheelTop},metrics:await win.webContents.executeJavaScript(measure,true)})
+  }
+ }
  const dynamicResults=[];
- for(const height of [1112,980,940,1000]){win.setContentSize(834,height);await wait(win);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);dynamicResults.push({viewport:`834x${height}`,metrics:await win.webContents.executeJavaScript(measure,true)})}
+ win.setContentSize(834,1112);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=180`,true);
+ for(const height of [1112,980,940,1000]){win.setContentSize(834,height);await wait(win);dynamicResults.push({viewport:`834x${height}`,scrollTop:await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true),metrics:await win.webContents.executeJavaScript(measure,true)})}
  win.setContentSize(834,940);await wait(win);
  const clickCases=[];
  for(const [name,values,expected] of [
@@ -122,5 +162,5 @@ runElectronVerification({app},async lifecycle=>{
  ]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const actual=await win.webContents.executeJavaScript(`(()=>{let clicks=0;const button=document.querySelector('.selectionFooterCard');button.addEventListener('click',()=>clicks++,{once:true});button.click();return {clicks,step:state.step,modal:state.modal}})()`,true);clickCases.push({scenario:name,expected,actual})}
  win.setContentSize(1112,834);await win.loadFile(path.join(root,'index.html'));
  for(const [name,values] of [['landscape-review',scenarios.find(x=>x[0]==='review-normal')[1]],['landscape-pizza-options',{step:'pizzaOptions',orderType:'takeout',orderTiming:'now',promo:'normal',size:'L',dough:'오리지널',crust:'오리지널'}]]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:'1112x834',locale:'ko',scenario:name,metrics});if(capture)await shot(win,`ipad-air3-${name}-1112x834`,1112,834)}
- const report={viewports:['834x1112','834x1000','834x980','834x940','1112x834'],locales,partyBaseline,resetBehavior,reviewNavigation,safariResults,dynamicResults,clickCases,results};await lifecycle.writeReportAtomically(reportPath,report);
+ const report={viewports:['834x1112','834x1000','834x980','834x940','1112x834'],locales,partyBaseline,resetBehavior,reviewNavigation,safariResults,scrollResults,dynamicResults,clickCases,results};await lifecycle.writeReportAtomically(reportPath,report);
 });

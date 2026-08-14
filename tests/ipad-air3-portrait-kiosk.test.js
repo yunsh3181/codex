@@ -17,13 +17,15 @@ test('iPad Air 3 portrait overrides survive Safari visual viewport changes', () 
   assert.match(css, /env\(safe-area-inset-bottom\)/);
   assert.match(css, /100dvh/);
   assert.match(css, /100svh/);
+  assert.match(css, /body \.app\{[^}]*display:flex!important[^}]*height:100dvh!important[^}]*min-height:0!important[^}]*overflow:hidden!important/);
+  assert.match(css, /body \.stage\{[^}]*min-height:0!important[^}]*overflow-x:hidden!important[^}]*overflow-y:auto!important[^}]*-webkit-overflow-scrolling:touch[^}]*touch-action:pan-y/);
   assert.match(css, /left:max\(24px,env\(safe-area-inset-left\)\)/);
   assert.match(css, /right:max\(24px,env\(safe-area-inset-right\)\)/);
   assert.doesNotMatch(css, /left:50%/);
 });
 
 test('iPad order flow uses shared actions and safe review reset', () => {
-  assert.match(html, /device-ipad-air3-portrait\.css\?v=ipad-air3-safari-actions-v2/);
+  assert.match(html, /device-ipad-air3-portrait\.css\?v=ipad-air3-safari-scroll-v3/);
   assert.match(html, /reviewBackBtn[\s\S]*reviewHomeBtn[\s\S]*reviewDockConfirm/);
   assert.match(html, /onclick="requestReviewReset\(\)"/);
   assert.match(html, /state\.modal='reviewResetConfirm'/);
