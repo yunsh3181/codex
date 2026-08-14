@@ -62,7 +62,7 @@
   body:is([data-step="topping"],[data-step="side"],[data-step="drink"],[data-step="accompaniment"]) .selectionFooterCard{width:100%!important;min-height:64px!important;margin-inline:auto!important}
   body:is([data-step="topping"],[data-step="side"],[data-step="drink"],[data-step="accompaniment"]) .selectionFooterCard h2{height:48px;min-height:48px;line-height:48px!important;overflow:visible}
 
-  body[data-step="review"] .stage{display:block;height:auto!important;min-height:0!important;margin-bottom:calc(247px + env(safe-area-inset-bottom))!important;padding:12px 24px!important}
+  body[data-step="review"] .stage{display:block;height:auto!important;min-height:0!important;margin-bottom:calc(263px + env(safe-area-inset-bottom))!important;padding:12px 24px!important}
   body[data-step="review"] .reviewKioskHeader{flex:0 0 auto}
   body[data-step="review"] .reviewKioskLayout{display:block;min-height:0}
   body[data-step="review"] .reviewItemsPane{display:block;min-height:0;overflow:visible}
