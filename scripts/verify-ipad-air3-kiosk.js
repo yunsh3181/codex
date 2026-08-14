@@ -55,6 +55,7 @@ const safariScrollScenarios = scenarios.filter(([name]) => [
   'accompaniment','pizza-first','review-normal','review-long'
 ].includes(name));
 const wait = win => win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`, true);
+const resize = async(win,width,height)=>{for(let attempt=0;attempt<20;attempt++){win.setContentSize(width,height);await wait(win);const actual=await win.webContents.executeJavaScript(`({width:innerWidth,height:innerHeight})`,true);if(actual.width===width&&actual.height===height)return actual;await new Promise(resolve=>setTimeout(resolve,50))}throw new Error(`viewport resize did not settle at ${width}x${height}`)};
 const fixture = (locale, values) => `(()=>{PJ_I18N.setLanguage(${JSON.stringify(locale)});reset('idle',{skipRelease:true});Object.assign(state,${JSON.stringify(values)});render();window.scrollTo(0,0)})()`;
 const measure = `(()=>{
  const visible=e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0};
@@ -147,8 +148,8 @@ runElectronVerification({app},async lifecycle=>{
   }
  }
  const dynamicResults=[];
- win.setContentSize(834,1112);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=180`,true);
- for(const height of [1112,980,940,1000]){win.setContentSize(834,height);await wait(win);dynamicResults.push({viewport:`834x${height}`,scrollTop:await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true),metrics:await win.webContents.executeJavaScript(measure,true)})}
+ await resize(win,834,1112);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=180`,true);
+ for(const height of [1112,980,940,1000]){await resize(win,834,height);dynamicResults.push({viewport:`834x${height}`,scrollTop:await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true),metrics:await win.webContents.executeJavaScript(measure,true)})}
  win.setContentSize(834,940);await wait(win);
  const clickCases=[];
  for(const [name,values,expected] of [
