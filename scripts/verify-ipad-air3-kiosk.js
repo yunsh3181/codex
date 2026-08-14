@@ -45,6 +45,11 @@ const scenarios = [
   ['review-long',{step:'review',orderType:'takeout',orderTiming:'now',cartItems:Array.from({length:8},()=>order(4,2,true))}],
   ['review-reset-modal',{step:'review',orderType:'takeout',orderTiming:'now',cartItems:[order()],modal:'reviewResetConfirm'}]
 ];
+const safariHeights = [1112, 1000, 980, 940];
+const safariActionScenarios = scenarios.filter(([name]) => [
+  'topping-add','topping-selected','side-included','side-extra',
+  'drink-included','drink-extra','accompaniment'
+].includes(name));
 const wait = win => win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`, true);
 const fixture = (locale, values) => `(()=>{PJ_I18N.setLanguage(${JSON.stringify(locale)});reset('idle',{skipRelease:true});Object.assign(state,${JSON.stringify(values)});render();window.scrollTo(0,0)})()`;
 const measure = `(()=>{
@@ -59,9 +64,11 @@ const measure = `(()=>{
  const ar=action&&visible(action)?rect(action):null;
  const touch=[...document.querySelectorAll('button,[role="button"]')].filter(visible).map(e=>({text:e.textContent.trim().slice(0,40),css:{width:getComputedStyle(e).width,height:getComputedStyle(e).height,boxSizing:getComputedStyle(e).boxSizing},...rect(e)}));
  const verticalText=text.filter(e=>e.textContent.trim().length>3&&e.getBoundingClientRect().width<parseFloat(getComputedStyle(e).fontSize)*1.35).map(e=>e.textContent.trim().slice(0,40));
- const stage=document.querySelector('.stage'),head=document.querySelector('.head'),footer=document.querySelector('.selectionFooter,.reviewBottomActions,.cartbar');
+ const stage=document.querySelector('.stage'),head=document.querySelector('.head'),footer=document.querySelector('.selectionFooter,.reviewBottomActions,.cartbar'),actionArea=document.querySelector('.selectionFooter');
+ const cartbar=document.querySelector('.cartbar'),selectionFooter=document.querySelector('.selectionFooter');
+ const stackOverlap=cartbar&&selectionFooter&&visible(cartbar)&&visible(selectionFooter)?(()=>{const a=cartbar.getBoundingClientRect(),b=selectionFooter.getBoundingClientRect();return +(Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top))*Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))).toFixed(2)})():0;
  const viewportViolations=[...document.querySelectorAll('.partyNext,.areaCard,.areaPolicyGuide,.occupancyNote,body[data-step="area"] .seatRuleNotice,body[data-step="type"] .card,.darkSetCard,.optionContinue,.selectionFooter,.reviewOrderCard:not([hidden]),.reviewBottomActions')].filter(visible).filter(e=>{const r=e.getBoundingClientRect();return r.left<0||r.right>innerWidth+1||r.top<0||r.bottom>innerHeight+1}).map(e=>({className:e.className,...rect(e)}));
- return {viewport:{width:innerWidth,height:innerHeight},layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight},stage:stage?{clientHeight:stage.clientHeight,scrollHeight:stage.scrollHeight,...rect(stage)}:null,header:head?rect(head):null,footer:footer&&visible(footer)?rect(footer):null,action:ar,centerError:ar?+Math.abs((ar.left+ar.right)/2-innerWidth/2).toFixed(2):null,clipped,overlaps,verticalText,viewportViolations,touchFailures:touch.filter(x=>x.width<44||x.height<44),touch,portraitMediaMatch:matchMedia('(min-width:833px) and (max-width:835px) and (min-height:1111px) and (max-height:1113px) and (orientation:portrait)').matches,portraitRuleActive:[...document.styleSheets].some(s=>s.href&&s.href.includes('device-ipad-air3-portrait')&&!s.disabled)&&innerWidth===834&&innerHeight===1112,scaleApplied:getComputedStyle(document.body).transform!=='none'||getComputedStyle(document.querySelector('.app')).transform!=='none'}
+ return {viewport:{width:innerWidth,height:innerHeight},visualViewport:window.visualViewport?{width:+visualViewport.width.toFixed(2),height:+visualViewport.height.toFixed(2),offsetLeft:+visualViewport.offsetLeft.toFixed(2),offsetTop:+visualViewport.offsetTop.toFixed(2)}:null,layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight},stage:stage?{clientHeight:stage.clientHeight,scrollHeight:stage.scrollHeight,...rect(stage)}:null,header:head?rect(head):null,footer:footer&&visible(footer)?rect(footer):null,actionArea:actionArea&&visible(actionArea)?rect(actionArea):null,action:ar,centerError:ar?+Math.abs((ar.left+ar.right)/2-innerWidth/2).toFixed(2):null,actionAreaCenterError:ar&&actionArea?+Math.abs((ar.left+ar.right-actionArea.getBoundingClientRect().left-actionArea.getBoundingClientRect().right)/2).toFixed(2):null,stackOverlap,clipped,overlaps,verticalText,viewportViolations,touchFailures:touch.filter(x=>x.width<44||x.height<44),touch,portraitMediaMatch:matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,portraitRuleActive:[...document.styleSheets].some(s=>s.href&&s.href.includes('device-ipad-air3-portrait')&&!s.disabled)&&matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches,scaleApplied:getComputedStyle(document.body).transform!=='none'||getComputedStyle(document.querySelector('.app')).transform!=='none'}
 })()`;
 async function shot(win,name,width,height){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});const image=nativeImage.createFromBuffer(Buffer.from(png.data,'base64'));if(image.getSize().width!==width||image.getSize().height!==height)throw new Error(`${name}: screenshot size`);fs.writeFileSync(path.join(screenshotDir,`${name}.png`),image.toPNG())}
 
@@ -95,7 +102,25 @@ runElectronVerification({app},async lifecycle=>{
  })()`,true);
  await win.webContents.executeJavaScript(fixture('ko',{step:'review',orderType:'takeout',orderTiming:'now',promo:'set',set:3,size:'L',mode:'single',left:'P001',crust:'치즈롤',toppings:{T001:1},cartItems:[order(3,2)]}),true);await wait(win);
  const reviewNavigation=await win.webContents.executeJavaScript(`(()=>{const before=JSON.stringify({cartItems:state.cartItems,set:state.set,left:state.left,crust:state.crust,toppings:state.toppings,total:reviewTotals().final});prevStep();const after=JSON.stringify({cartItems:state.cartItems,set:state.set,left:state.left,crust:state.crust,toppings:state.toppings,total:reviewTotals().final});state.step='review';render();return {preserved:before===after,previousStep:'promo',returned:state.step==='review',confirmTarget:document.querySelector('.reviewDockConfirm')?.getAttribute('onclick')}})()`,true);
+ const safariResults=[];
+ for(const height of safariHeights){
+  win.setContentSize(834,height);await wait(win);
+  for(const [name,values] of safariActionScenarios){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);safariResults.push({viewport:`834x${height}`,locale:'ko',scenario:name,metrics});if(capture&&['topping-selected','side-included','drink-included','accompaniment'].includes(name))await shot(win,`ipad-air3-safari-${name}-834x${height}`,834,height)}
+ }
+ const dynamicResults=[];
+ for(const height of [1112,980,940,1000]){win.setContentSize(834,height);await wait(win);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);dynamicResults.push({viewport:`834x${height}`,metrics:await win.webContents.executeJavaScript(measure,true)})}
+ win.setContentSize(834,940);await wait(win);
+ const clickCases=[];
+ for(const [name,values,expected] of [
+  ['topping-add',scenarios.find(x=>x[0]==='topping-add')[1],{step:'side',modal:null}],
+  ['topping-selected',scenarios.find(x=>x[0]==='topping-selected')[1],{step:'side',modal:null}],
+  ['side-included',scenarios.find(x=>x[0]==='side-included')[1],{step:'side',modal:'setSideUpsell'}],
+  ['side-extra',scenarios.find(x=>x[0]==='side-extra')[1],{step:'drink',modal:null}],
+  ['drink-included',scenarios.find(x=>x[0]==='drink-included')[1],{step:'drink',modal:'setDrinkUpsell'}],
+  ['drink-extra',scenarios.find(x=>x[0]==='drink-extra')[1],{step:'accompaniment',modal:null}],
+  ['accompaniment',scenarios.find(x=>x[0]==='accompaniment')[1],{step:'accompaniment',modal:'betterBenefit'}]
+ ]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const actual=await win.webContents.executeJavaScript(`(()=>{let clicks=0;const button=document.querySelector('.selectionFooterCard');button.addEventListener('click',()=>clicks++,{once:true});button.click();return {clicks,step:state.step,modal:state.modal}})()`,true);clickCases.push({scenario:name,expected,actual})}
  win.setContentSize(1112,834);await win.loadFile(path.join(root,'index.html'));
  for(const [name,values] of [['landscape-review',scenarios.find(x=>x[0]==='review-normal')[1]],['landscape-pizza-options',{step:'pizzaOptions',orderType:'takeout',orderTiming:'now',promo:'normal',size:'L',dough:'오리지널',crust:'오리지널'}]]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:'1112x834',locale:'ko',scenario:name,metrics});if(capture)await shot(win,`ipad-air3-${name}-1112x834`,1112,834)}
- const report={viewports:['834x1112','1112x834'],locales,partyBaseline,resetBehavior,reviewNavigation,results};await lifecycle.writeReportAtomically(reportPath,report);
+ const report={viewports:['834x1112','834x1000','834x980','834x940','1112x834'],locales,partyBaseline,resetBehavior,reviewNavigation,safariResults,dynamicResults,clickCases,results};await lifecycle.writeReportAtomically(reportPath,report);
 });
