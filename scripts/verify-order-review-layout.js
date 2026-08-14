@@ -251,9 +251,24 @@ const measureScript = `
     const horizontalOverflow = Math.max(0, root.scrollWidth - innerWidth);
     const verticalScrollable = root.scrollHeight > innerHeight + 1;
     const contentBottomGap = cartbarRect ? stagePaddingBottom - cartbarRect.height : stagePaddingBottom;
+    const clippedVisibleRect = element => {
+      const clipped = rect(element.getBoundingClientRect());
+      for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor);
+        if (!/(auto|scroll|hidden|clip)/.test(style.overflow + ' ' + style.overflowX + ' ' + style.overflowY)) continue;
+        const boundary = ancestor.getBoundingClientRect();
+        clipped.top = Math.max(clipped.top, boundary.top);
+        clipped.right = Math.min(clipped.right, boundary.right);
+        clipped.bottom = Math.min(clipped.bottom, boundary.bottom);
+        clipped.left = Math.max(clipped.left, boundary.left);
+        clipped.width = Math.max(0, clipped.right - clipped.left);
+        clipped.height = Math.max(0, clipped.bottom - clipped.top);
+      }
+      return clipped;
+    };
     const visibleCoreRects = coreTextTargets
       .filter(element => getComputedStyle(element).display !== 'none')
-      .map(element => ({ element, rect: element.getBoundingClientRect() }))
+      .map(element => ({ element, rect: clippedVisibleRect(element) }))
       .filter(({ rect }) => rect.width > 0 && rect.height > 0);
     const overlaps = [];
     for (let left = 0; left < visibleCoreRects.length; left += 1) {

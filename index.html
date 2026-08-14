@@ -1297,6 +1297,7 @@ button:active:not(:disabled){transform:scale(.98)}
 .optionReason,.optionPrice{color:var(--v10-yellow,#f7cf2b)!important}
 .optionSetup{max-width:880px;margin:0 auto}.optionSection{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}.optionSection h2{font-size:18px;margin:0 0 10px}.optionButtons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.optionButtons.two{grid-template-columns:repeat(2,1fr)}.optionBtn{position:relative;border:2px solid var(--line);background:#fff;border-radius:12px;padding:13px 8px;font-weight:900;min-height:48px}.optionBtn.active{border-color:var(--r);background:#fff3f3;color:var(--r)}.optionSetup .optionBtn.active{color:var(--v10-yellow,#f7cf2b)!important}.optionSetup .optionBtn:disabled{opacity:1!important;cursor:not-allowed;background:#555b57!important;border-color:#242824!important;color:#fff!important}.optionSection>h2{color:#111!important}.optionReason{display:block;margin-top:4px;font-size:12.1px;line-height:1.25;font-weight:900;color:var(--v10-yellow,#f7cf2b)!important;overflow-wrap:anywhere}.optionPrice{display:block;margin-top:5px;font-size:11px;line-height:1.25;font-weight:900;color:var(--v10-yellow,#f7cf2b)!important;overflow-wrap:anywhere}.optionSelectedBadge{position:absolute;z-index:1;top:5px;right:5px;max-width:calc(100% - 10px);padding:3px 6px;border-radius:999px;background:#ffd21c;color:#111!important;font-size:10px;line-height:1.15;font-weight:1000;white-space:normal;overflow-wrap:anywhere}.optionContinue{width:100%;border:0;border-radius:15px;background:var(--r);color:#fff;padding:17px;font-size:20px;font-weight:900;box-shadow:0 8px 18px #d7192040}.optionContinue:disabled{background:#a8aca8;color:#f4f4f4;box-shadow:none;cursor:not-allowed}.pizzaOptionLine{font-size:12px;font-weight:800;color:#505850;margin:6px 0}.priceBreakMini{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}.priceBreakMini div{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin:3px 0}.priceBreakMini .final{font-size:17px;color:var(--r);font-weight:900;margin-top:7px}.reviewConfirmBtn{display:block;width:100%;margin-top:18px;border:0;border-radius:16px;background:var(--r);color:#fff;padding:19px 14px;font-size:22px;font-weight:900;box-shadow:0 9px 22px #d7192050}.reviewConfirmNote{text-align:center;color:#6f766f;font-size:12px;margin-top:8px}
 .reviewOrderList{display:grid;gap:14px;margin-top:14px}.reviewOrderCard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 5px 14px rgba(18,35,29,.06)}.reviewOrderHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--line)}.reviewOrderHead h3{margin:0 0 5px;font-size:20px}.reviewOrderHead strong{color:var(--r);white-space:nowrap;font-size:19px}.reviewMeta{font-size:13px;color:#687068;font-weight:800}.reviewSection{padding:10px 0 0}.reviewSection b{display:block;font-size:13px;margin-bottom:5px}.reviewSection ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}.reviewSection li{display:flex;justify-content:space-between;gap:14px;font-size:14px}.reviewSection li span:last-child{font-weight:800;white-space:nowrap}.reviewDiscountBox{margin-top:16px;border-radius:16px;background:#f8faf8;padding:15px}.reviewDiscountBox .line{display:flex;justify-content:space-between;padding:7px 0}.reviewDiscountBox .discountLine{color:var(--r);font-weight:900}.reviewDiscountBox .totalDiscount{border-top:1px dashed var(--line);margin-top:5px;padding-top:11px;color:var(--r);font-weight:900}.reviewDiscountBox .final{border-top:2px solid #222;margin-top:5px;padding-top:13px;font-size:21px;font-weight:1000}.submitError{margin-top:10px;color:var(--r);font-weight:800;text-align:center}.reviewConfirmBtn,.paymentSubmitBtn{touch-action:manipulation;pointer-events:auto!important;position:relative;z-index:50;isolation:isolate;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}.paymentSubmitBtn::before,.paymentSubmitBtn::after{pointer-events:none!important}.reviewConfirmBtn:active,.paymentSubmitBtn:active{transform:scale(.985)}
+.reviewOrderFinancials,.reviewSummaryDock{display:none}
 @media(max-width:560px){.optionSetup{margin:-4px}.optionSetup>.title{font-size:24px;margin-bottom:2px}.optionSetup>.sub{font-size:12px;margin:0 0 4px}.optionSection{padding:5px 9px;margin-bottom:4px}.optionSection h2{font-size:15px;margin-bottom:3px}.optionBtn{font-size:13px;min-height:54px;padding:7px 4px}.optionReason{font-size:9.9px}.optionPrice{font-size:9px}.optionSelectedBadge{top:3px;right:3px;padding:2px 4px;font-size:8px}.optionContinue{padding:10px;font-size:17px}.pizzaOptionLine{font-size:11px}.reviewConfirmBtn{padding:17px 12px;font-size:20px}}
 
 /* v43.6 interaction refinements */
@@ -2666,7 +2667,7 @@ function reviewContentOverflows(){
  const availableBottom=cartbar?.getBoundingClientRect().top??innerHeight;
  return root.scrollWidth>innerWidth||root.scrollHeight>innerHeight||stageBottom>availableBottom+1;
 }
-function isIpadAir3PortraitViewport(){return typeof matchMedia==='function'&&matchMedia('(min-width:833px) and (max-width:835px) and (min-height:1111px) and (max-height:1113px) and (orientation:portrait)').matches}
+function isIpadAir3PortraitViewport(){return typeof matchMedia==='function'&&matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches}
 function fitOrderReview(){
  const body=document.body;
  if(!body?.classList)return 0;
@@ -2686,7 +2687,7 @@ function fitOrderReview(){
   const fits=()=>list.scrollHeight<=list.clientHeight+1;
   if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
   if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
-  if(ipadPortrait&&cards.length>1)reviewPages=cards.map((_,index)=>[index]);
+  if(ipadPortrait)reviewPages=[cards.map((_,index)=>index)];
   else if(fits())reviewPages=[cards.map((_,index)=>index)];
   else{
    body.classList.add('reviewPaginated');
@@ -2720,10 +2721,10 @@ function fitOrderReview(){
   cards.forEach((card,index)=>card.hidden=!visible.has(index));
   const paginated=reviewPages.length>1;
   if(pager){pager.hidden=!paginated;pager.querySelector('.reviewPageStatus').textContent=`${reviewPage+1} / ${reviewPages.length}`;pager.querySelector('.reviewPagePrev').disabled=reviewPage===0;pager.querySelector('.reviewPageNext').disabled=reviewPage===reviewPages.length-1}
-  const currentPageFits=list.scrollHeight<=list.clientHeight+1;
+  const currentPageFits=ipadPortrait||list.scrollHeight<=list.clientHeight+1;
   document.querySelectorAll('.reviewConfirmBtn').forEach(button=>{button.disabled=!state.cartItems.length||!currentPageFits});
   body.dataset.reviewPageFits=String(currentPageFits);
-  body.dataset.reviewDensity=paginated?'pagination':Number(body.dataset.reviewCompression)?'compact':'default';
+  body.dataset.reviewDensity=ipadPortrait?'scroll':paginated?'pagination':Number(body.dataset.reviewCompression)?'compact':'default';
   list.scrollTo({top:0,left:0,behavior:'auto'});
   return Number(body.dataset.reviewCompression);
  }
@@ -3408,7 +3409,7 @@ function orderDetailData(order){
  return {qty,promo,setNo,size,sizeLabel,dough,crust,crustLabel,mode,pizzaNames,pizzaTitle,topLines,sideLines,drinkLines,incSideLines,incDrinkLines,amount}
 }
 function detailList(title,lines,included=false){if(!lines.length)return '';return `<div class="reviewSection"><b>${title}</b><ul>${lines.map(x=>`<li><span>${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}</span><span>${included?t('review.included'):x.amount?'+ '+money(x.amount):'-'}</span></li>`).join('')}</ul></div>`}
-function reviewOrderCard(order,index){const model=buildCartDisplayModel(order);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}<div class="cartOrderActions"><button onclick="changeCartQty(${index},-1)">−</button><button onclick="changeCartQty(${index},1)">＋</button><button class="remove" onclick="removeCartItem(${index})">${t('cart.remove')}</button></div></article>`}
+function reviewOrderCard(order,index){const model=buildCartDisplayModel(order),amount=orderNormalAndDiscount(order),quantity=Math.max(1,Number(order.qty)||1);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}<aside class="reviewOrderFinancials"><div><span>${t('ui.common.quantityLabel')}</span><strong>${quantity}</strong></div><div><span>${t('review.setNormalAmount')}</span><strong>${money(amount.normal*quantity)}</strong></div><div class="discount"><span>${t('review.setDiscountAmount')}</span><strong>${amount.discount?'−':''}${money(amount.discount*quantity)}</strong></div><div class="final"><span>${t('review.setFinalAmount')}</span><strong>${money(amount.final*quantity)}</strong></div></aside><div class="cartOrderActions"><button onclick="changeCartQty(${index},-1)">−</button><button onclick="changeCartQty(${index},1)">＋</button><button class="remove" onclick="removeCartItem(${index})">${t('cart.remove')}</button></div></article>`}
 function allReviewOrders(){return (state.cartItems||[]).map(x=>({...x,__current:false}))}
 function reviewOrdersHTML(){return `<div class="reviewOrderList" role="region" aria-label="${escAttr(t('review.orderListLabel'))}">${allReviewOrders().map(reviewOrderCard).join('')}</div><nav class="reviewPager" aria-label="${escAttr(t('review.paginationLabel'))}" hidden><button type="button" class="reviewPagePrev" aria-label="${escAttr(t('review.previousItems'))}" onclick="changeReviewPage(-1)">${t('review.previousItems')}</button><span class="reviewPageStatus" role="status" aria-live="polite" tabindex="-1">1 / 1</span><button type="button" class="reviewPageNext" aria-label="${escAttr(t('review.nextItems'))}" onclick="changeReviewPage(1)">${t('review.nextItems')}</button></nav>`}
 function reviewAddActionsHTML(){return `<section class="reviewAddMore"><h2>${t('cart.addMoreTitle')}</h2><div class="reviewAddMoreGrid"><button type="button" onclick="addAnotherSet()">${t('cart.addSet')}</button><button type="button" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button type="button" onclick="addAnotherSingle()">${t('cart.addSingle')}</button></div><p>${t('cart.continueCheckout')}</p></section>`}
@@ -3438,7 +3439,7 @@ function bar(){if(['home','done'].includes(state.step))return '';const reviewOrd
 
 const standardBar=bar;
 bar=function(){
- if(state.step==='review')return `<nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewHomeBtn" onclick="requestReviewReset()">${t('nav.home')}</button><button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
+ if(state.step==='review')return `<aside class="reviewSummaryDock">${reviewAddActionsHTML()}${reviewTotalsHTML()}</aside><nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewHomeBtn" onclick="requestReviewReset()">${t('nav.home')}</button><button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
  return standardBar();
 };
 function requestReviewReset(){if(state.step!=='review'||state.modal)return;state.modal='reviewResetConfirm';render()}
@@ -7436,4 +7437,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
-<link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-safari-scroll-v3">
+<link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v4">
