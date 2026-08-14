@@ -54,9 +54,12 @@ assert.deepStrictEqual(visibleKeys('cookingOrders'),[],'startup clears stale DOM
 
 emit('publicOrderDisplays',[doc('a','1234','cooking')]);
 assert.deepStrictEqual(visibleKeys('cookingOrders'),['order:a'],'created order is displayed by document id');
+assert.strictEqual(element('cookingOrders').dataset.density,'single','one cooking order keeps single density');
 emit('publicOrderDisplays',[doc('a','1234','ready')]);
 assert.deepStrictEqual(visibleKeys('cookingOrders'),[],'modified cooking order leaves cooking');
 assert.deepStrictEqual(visibleKeys('readyOrders'),['order:a'],'modified ready order remains visible');
+assert.strictEqual(element('cookingOrders').dataset.density,'single','empty cooking list uses single density');
+assert.strictEqual(element('readyOrders').dataset.density,'single','one ready order uses single density independently');
 
 emit('publicOrderDisplays',[doc('a','1234','completed')]);
 assert.deepStrictEqual(visibleKeys('readyOrders'),[],'completed modified event removes the DOM node');
@@ -69,8 +72,10 @@ emit('publicOrderDisplays',[doc('b','7777','ready')]);
 assert.deepStrictEqual(visibleKeys('readyOrders'),['order:b'],'removed document deletes only its keyed DOM node');
 const fiveOrders=Array.from({length:5},(_,index)=>doc(`five-${index}`,String(4000+index),'ready'));
 emit('publicOrderDisplays',fiveOrders);
+assert.strictEqual(element('readyOrders').dataset.density,'dense','five ready orders use dense density');
 emit('publicOrderDisplays',fiveOrders.map((entry,index)=>index===2?doc('five-2','4002','completed'):entry));
 assert.deepStrictEqual(visibleKeys('readyOrders'),['order:five-0','order:five-1','order:five-3','order:five-4'],'one completion removes only that order from five visible orders');
+assert.strictEqual(element('readyOrders').dataset.density,'compact','deleting from five to four immediately restores compact density');
 emit('publicOrderDisplays',[]);
 assert.deepStrictEqual(visibleKeys('readyOrders'),[],'empty snapshot removes every order node');
 
@@ -93,6 +98,19 @@ assert.deepStrictEqual(visibleKeys('readyOrders'),['order:automatic','manual:cou
 emit('publicOrderDisplays',[]);
 assert.deepStrictEqual(visibleKeys('readyOrders'),['manual:counter'],'deleting one collection document does not delete a distinct manual lifecycle');
 emit('manualCustomerCalls',[]);
+
+emit('publicOrderDisplays',[
+ ...Array.from({length:4},(_,index)=>doc(`independent-c-${index}`,String(6100+index),'cooking',now+index)),
+ doc('independent-r','6200','ready',now+10)
+]);
+assert.strictEqual(element('cookingOrders').dataset.density,'compact','four cooking orders calculate compact independently');
+assert.strictEqual(element('readyOrders').dataset.density,'single','one ready order remains single independently');
+emit('publicOrderDisplays',[
+ doc('independent-c','6300','cooking',now),
+ ...Array.from({length:3},(_,index)=>doc(`independent-r-${index}`,String(6400+index),'ready',now+index))
+]);
+assert.strictEqual(element('cookingOrders').dataset.density,'single','one cooking order restores single immediately');
+assert.strictEqual(element('readyOrders').dataset.density,'triple','three ready orders calculate triple independently');
 
 emit('publicOrderDisplays',[doc('boundary','5555','ready',Date.parse('2026-07-22T01:00:00.000Z'))]);
 now=Date.parse('2026-07-22T15:00:00.000Z'); // midnight KST

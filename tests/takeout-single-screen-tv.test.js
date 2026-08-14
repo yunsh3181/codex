@@ -24,8 +24,8 @@ assert.ok(!admin.includes("(status==='ready'&&committedOrder.orderType==='takeou
 assert.ok(tvHTML.includes('id="cookingOrders"')&&tvHTML.includes('id="readyOrders"'),'TV has cooking and ready sections');
 assert.ok(tvJS.includes("collection('publicOrderDisplays').onSnapshot"),'TV subscribes to public data in real time');
 const tvCSS=read('waiting-tv/waiting-tv.css');
-assert.ok(tvCSS.includes('.number-grid{display:flex;')&&tvCSS.includes('flex-direction:column'),'TV order lists stack in one column');
-assert.ok(tvCSS.includes('.order-number{display:block;width:100%'),'each TV order number occupies its own row');
+assert.match(tvCSS,/\.number-grid\{[^}]*display:flex;[^}]*flex-direction:column/,'TV order lists stack in one column');
+assert.match(tvCSS,/\.order-number\{display:flex;width:100%/,'each TV order number occupies its own row');
 assert.ok(tvCSS.includes('overflow-x:hidden')&&tvCSS.includes('overflow-y:auto'),'long TV order lists scroll vertically without horizontal overflow');
 for(const forbidden of ['phone','menu','amount','payment','seat'])assert.ok(!tvJS.toLowerCase().includes(forbidden),`TV data code excludes ${forbidden}`);
 assert.ok(rules.includes('match /publicOrderDisplays/{orderId}'),'public display collection has explicit rules');

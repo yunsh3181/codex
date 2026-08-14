@@ -28,7 +28,16 @@ const isReadyOverdue=item=>{
  const readyAt=millis(item.updatedAt);
  return item.displayStatus==='ready'&&readyAt>0&&Date.now()-readyAt>=READY_HIGHLIGHT_MS;
 };
+function waitingOrderDensity(count){
+ if(count<=1)return 'single';
+ if(count===2)return 'double';
+ if(count===3)return 'triple';
+ if(count===4)return 'compact';
+ return 'dense';
+}
 function renderDisplay(target,items,emptyText){
+ if(!target.dataset)target.dataset={};
+ target.dataset.density=waitingOrderDensity(items.length);
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
   target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':''}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
@@ -51,8 +60,10 @@ let manualRows=[];
 function renderAll(){
  const rows=[...publicRows,...manualRows].filter(row=>shouldDisplayOrder(row)).sort((a,b)=>millis(a.updatedAt)-millis(b.updatedAt));
  tvDebug('visible order count',rows.length);
- renderDisplay(cooking,rows.filter(row=>row.displayStatus==='cooking'),'조리중인 주문이 없습니다.');
- renderDisplay(ready,rows.filter(row=>row.displayStatus==='ready'),'조리완료 주문이 없습니다.');
+ const cookingRows=rows.filter(row=>row.displayStatus==='cooking');
+ const readyRows=rows.filter(row=>row.displayStatus==='ready');
+ renderDisplay(cooking,cookingRows,'조리중인 주문이 없습니다.');
+ renderDisplay(ready,readyRows,'조리완료 주문이 없습니다.');
 }
 const highlightRefreshTimer=window.setInterval?.(renderAll,30*1000);
 let businessDayRefreshTimer=null;

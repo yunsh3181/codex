@@ -1,0 +1,6140 @@
+{
+  "viewports": {
+    "1080x1920": {
+      "cooking-1": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 146,
+            "scrollHeight": 146,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 146,
+              "scrollHeight": 146,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-2": {
+        "cooking": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "68.58px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 131,
+            "scrollHeight": 131,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 131,
+              "scrollHeight": 131,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 99,
+              "scrollHeight": 99,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-3": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "62.1px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 192,
+              "scrollWidth": 192,
+              "clientHeight": 90,
+              "scrollHeight": 90,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 101,
+            "scrollHeight": 101,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 101,
+              "scrollHeight": 101,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-5": {
+        "cooking": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "50.22px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 89,
+            "scrollHeight": 89,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 89,
+              "scrollHeight": 89,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 155,
+              "scrollWidth": 155,
+              "clientHeight": 73,
+              "scrollHeight": 73,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-1": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": "24.84px",
+          "helperFontSize": "19.44px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 220,
+            "scrollHeight": 220,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 220,
+              "scrollHeight": 220,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 272,
+              "scrollWidth": 272,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 229,
+              "scrollWidth": 229,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-2": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "68.58px",
+          "labelFontSize": "23.976px",
+          "helperFontSize": "19.008px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 204,
+            "scrollHeight": 204,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 204,
+              "scrollHeight": 204,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 99,
+              "scrollHeight": 99,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 262,
+              "scrollWidth": 262,
+              "clientHeight": 34,
+              "scrollHeight": 34,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 224,
+              "scrollWidth": 224,
+              "clientHeight": 21,
+              "scrollHeight": 21,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-3": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "62.1px",
+          "labelFontSize": "23.328px",
+          "helperFontSize": "18.576px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 188,
+            "scrollHeight": 188,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 188,
+              "scrollHeight": 188,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 192,
+              "scrollWidth": 192,
+              "clientHeight": 90,
+              "scrollHeight": 90,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 255,
+              "scrollWidth": 255,
+              "clientHeight": 33,
+              "scrollHeight": 33,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 219,
+              "scrollWidth": 219,
+              "clientHeight": 21,
+              "scrollHeight": 21,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-4": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": "22.68px",
+          "helperFontSize": "18.144px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 171,
+            "scrollHeight": 171,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 171,
+              "scrollHeight": 171,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 248,
+              "scrollWidth": 248,
+              "clientHeight": 32,
+              "scrollHeight": 32,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 214,
+              "scrollWidth": 214,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-5": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "50.22px",
+          "labelFontSize": "22.032px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 156,
+            "scrollHeight": 156,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 156,
+              "scrollHeight": 156,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 155,
+              "scrollWidth": 155,
+              "clientHeight": 73,
+              "scrollHeight": 73,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-3": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 146,
+            "scrollHeight": 146,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 146,
+              "scrollHeight": 146,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "62.1px",
+          "labelFontSize": "23.328px",
+          "helperFontSize": "18.576px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 188,
+            "scrollHeight": 188,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 188,
+              "scrollHeight": 188,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 192,
+              "scrollWidth": 192,
+              "clientHeight": 90,
+              "scrollHeight": 90,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 255,
+              "scrollWidth": 255,
+              "clientHeight": 33,
+              "scrollHeight": 33,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 219,
+              "scrollWidth": 219,
+              "clientHeight": 21,
+              "scrollHeight": 21,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-3-1": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "62.1px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 192,
+              "scrollWidth": 192,
+              "clientHeight": 90,
+              "scrollHeight": 90,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": "24.84px",
+          "helperFontSize": "19.44px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 220,
+            "scrollHeight": 220,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 220,
+              "scrollHeight": 220,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 272,
+              "scrollWidth": 272,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 229,
+              "scrollWidth": 229,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-1": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 101,
+            "scrollHeight": 101,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 101,
+              "scrollHeight": 101,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": "24.84px",
+          "helperFontSize": "19.44px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 220,
+            "scrollHeight": 220,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 220,
+              "scrollHeight": 220,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 272,
+              "scrollWidth": 272,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 229,
+              "scrollWidth": 229,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-4": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "75.6px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 146,
+            "scrollHeight": 146,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 146,
+              "scrollHeight": 146,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": "22.68px",
+          "helperFontSize": "18.144px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 171,
+            "scrollHeight": 171,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 171,
+              "scrollHeight": 171,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 248,
+              "scrollWidth": 248,
+              "clientHeight": 32,
+              "scrollHeight": 32,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 214,
+              "scrollWidth": 214,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 101,
+            "scrollHeight": 101,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 101,
+              "scrollHeight": 101,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "56.16px",
+          "labelFontSize": "22.68px",
+          "helperFontSize": "18.144px",
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 171,
+            "scrollHeight": 171,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 171,
+              "scrollHeight": 171,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 174,
+              "scrollWidth": 174,
+              "clientHeight": 81,
+              "scrollHeight": 81,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 248,
+              "scrollWidth": 248,
+              "clientHeight": 32,
+              "scrollHeight": 32,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 214,
+              "scrollWidth": 214,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "maximum-12-12": {
+        "cooking": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "50.22px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 89,
+            "scrollHeight": 89,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 425,
+              "scrollWidth": 425,
+              "clientHeight": 89,
+              "scrollHeight": 89,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 155,
+              "scrollWidth": 155,
+              "clientHeight": 73,
+              "scrollHeight": 73,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1561
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "50.22px",
+          "labelFontSize": "22.032px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 417,
+            "scrollWidth": 417,
+            "clientHeight": 156,
+            "scrollHeight": 156,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 417,
+              "scrollWidth": 417,
+              "clientHeight": 156,
+              "scrollHeight": 156,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 155,
+              "scrollWidth": 155,
+              "clientHeight": 73,
+              "scrollHeight": 73,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 1561,
+            "scrollHeight": 1958
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      }
+    },
+    "1920x1080": {
+      "cooking-1": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-2": {
+        "cooking": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "88px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 160,
+            "scrollHeight": 160,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 160,
+              "scrollHeight": 160,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 272,
+              "scrollWidth": 272,
+              "clientHeight": 128,
+              "scrollHeight": 128,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-3": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "80px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 142,
+            "scrollHeight": 142,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 142,
+              "scrollHeight": 142,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 247,
+              "scrollWidth": 247,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 124,
+            "scrollHeight": 124,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 124,
+              "scrollHeight": 124,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-5": {
+        "cooking": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "65px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 110,
+            "scrollHeight": 110,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 201,
+              "scrollWidth": 201,
+              "clientHeight": 94,
+              "scrollHeight": 94,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-1": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "34px",
+          "helperFontSize": "28px",
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 272,
+            "scrollHeight": 272,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 272,
+              "scrollHeight": 272,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 372,
+              "scrollWidth": 372,
+              "clientHeight": 48,
+              "scrollHeight": 48,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 330,
+              "scrollWidth": 330,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-2": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "88px",
+          "labelFontSize": "31px",
+          "helperFontSize": "25.5px",
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 250,
+            "scrollHeight": 250,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 250,
+              "scrollHeight": 250,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 272,
+              "scrollWidth": 272,
+              "clientHeight": 128,
+              "scrollHeight": 128,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 339,
+              "scrollWidth": 339,
+              "clientHeight": 43,
+              "scrollHeight": 43,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 301,
+              "scrollWidth": 301,
+              "clientHeight": 29,
+              "scrollHeight": 29,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-3": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "80px",
+          "labelFontSize": "28px",
+          "helperFontSize": "23.5px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 226,
+            "scrollHeight": 226,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 226,
+              "scrollHeight": 226,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 247,
+              "scrollWidth": 247,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 306,
+              "scrollWidth": 306,
+              "clientHeight": 39,
+              "scrollHeight": 39,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 277,
+              "scrollWidth": 277,
+              "clientHeight": 26,
+              "scrollHeight": 26,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 703
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-4": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": "26px",
+          "helperFontSize": "21.5px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 203,
+            "scrollHeight": 203,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 203,
+              "scrollHeight": 203,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 284,
+              "scrollWidth": 284,
+              "clientHeight": 36,
+              "scrollHeight": 36,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 254,
+              "scrollWidth": 254,
+              "clientHeight": 24,
+              "scrollHeight": 24,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 842
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-5": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "65px",
+          "labelFontSize": "24px",
+          "helperFontSize": "20px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 182,
+            "scrollHeight": 182,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 182,
+              "scrollHeight": 182,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 201,
+              "scrollWidth": 201,
+              "clientHeight": 94,
+              "scrollHeight": 94,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 262,
+              "scrollWidth": 262,
+              "clientHeight": 34,
+              "scrollHeight": 34,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 236,
+              "scrollWidth": 236,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 943
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-3": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "80px",
+          "labelFontSize": "28px",
+          "helperFontSize": "23.5px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 226,
+            "scrollHeight": 226,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 226,
+              "scrollHeight": 226,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 247,
+              "scrollWidth": 247,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 306,
+              "scrollWidth": 306,
+              "clientHeight": 39,
+              "scrollHeight": 39,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 277,
+              "scrollWidth": 277,
+              "clientHeight": 26,
+              "scrollHeight": 26,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 703
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-3-1": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "80px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 142,
+            "scrollHeight": 142,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 142,
+              "scrollHeight": 142,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 247,
+              "scrollWidth": 247,
+              "clientHeight": 116,
+              "scrollHeight": 116,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "34px",
+          "helperFontSize": "28px",
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 272,
+            "scrollHeight": 272,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 272,
+              "scrollHeight": 272,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 372,
+              "scrollWidth": 372,
+              "clientHeight": 48,
+              "scrollHeight": 48,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 330,
+              "scrollWidth": 330,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-1": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 124,
+            "scrollHeight": 124,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 124,
+              "scrollHeight": 124,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "34px",
+          "helperFontSize": "28px",
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 272,
+            "scrollHeight": 272,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 272,
+              "scrollHeight": 272,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 372,
+              "scrollWidth": 372,
+              "clientHeight": 48,
+              "scrollHeight": 48,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 330,
+              "scrollWidth": 330,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-4": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": "26px",
+          "helperFontSize": "21.5px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 203,
+            "scrollHeight": 203,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 203,
+              "scrollHeight": 203,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 284,
+              "scrollWidth": 284,
+              "clientHeight": 36,
+              "scrollHeight": 36,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 254,
+              "scrollWidth": 254,
+              "clientHeight": 24,
+              "scrollHeight": 24,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 842
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 801,
+            "scrollWidth": 801,
+            "clientHeight": 124,
+            "scrollHeight": 124,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 801,
+              "scrollWidth": 801,
+              "clientHeight": 124,
+              "scrollHeight": 124,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 660
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "72px",
+          "labelFontSize": "26px",
+          "helperFontSize": "21.5px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 203,
+            "scrollHeight": 203,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 203,
+              "scrollHeight": 203,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 222,
+              "scrollWidth": 222,
+              "clientHeight": 104,
+              "scrollHeight": 104,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 284,
+              "scrollWidth": 284,
+              "clientHeight": 36,
+              "scrollHeight": 36,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 254,
+              "scrollWidth": 254,
+              "clientHeight": 24,
+              "scrollHeight": 24,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 842
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "maximum-12-12": {
+        "cooking": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "65px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 110,
+            "scrollHeight": 110,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 110,
+              "scrollHeight": 110,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 201,
+              "scrollWidth": 201,
+              "clientHeight": 94,
+              "scrollHeight": 94,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 1411
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "65px",
+          "labelFontSize": "24px",
+          "helperFontSize": "20px",
+          "card": {
+            "clientWidth": 793,
+            "scrollWidth": 793,
+            "clientHeight": 182,
+            "scrollHeight": 182,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 793,
+              "scrollWidth": 793,
+              "clientHeight": 182,
+              "scrollHeight": 182,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 201,
+              "scrollWidth": 201,
+              "clientHeight": 94,
+              "scrollHeight": 94,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 262,
+              "scrollWidth": 262,
+              "clientHeight": 34,
+              "scrollHeight": 34,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 236,
+              "scrollWidth": 236,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 660,
+            "scrollHeight": 2275
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      }
+    },
+    "1440x900": {
+      "cooking-1": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-2": {
+        "cooking": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "47px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 100,
+            "scrollHeight": 100,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 100,
+              "scrollHeight": 100,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 145,
+              "scrollWidth": 145,
+              "clientHeight": 68,
+              "scrollHeight": 68,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-3": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 92,
+            "scrollHeight": 92,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 92,
+              "scrollHeight": 92,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-5": {
+        "cooking": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 80,
+            "scrollHeight": 80,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 80,
+              "scrollHeight": 80,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-1": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "33.12px",
+          "helperFontSize": "25.92px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 257,
+            "scrollHeight": 257,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 257,
+              "scrollHeight": 257,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 362,
+              "scrollWidth": 362,
+              "clientHeight": 46,
+              "scrollHeight": 46,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 306,
+              "scrollWidth": 306,
+              "clientHeight": 29,
+              "scrollHeight": 29,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-2": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "47px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 145,
+            "scrollHeight": 145,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 145,
+              "scrollHeight": 145,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 145,
+              "scrollWidth": 145,
+              "clientHeight": 68,
+              "scrollHeight": 68,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-3": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 132,
+            "scrollHeight": 132,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 132,
+              "scrollHeight": 132,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-4": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-5": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 112,
+            "scrollHeight": 112,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-3": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 132,
+            "scrollHeight": 132,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 132,
+              "scrollHeight": 132,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-3-1": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 92,
+            "scrollHeight": 92,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 92,
+              "scrollHeight": 92,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "33.12px",
+          "helperFontSize": "25.92px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 257,
+            "scrollHeight": 257,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 257,
+              "scrollHeight": 257,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 362,
+              "scrollWidth": 362,
+              "clientHeight": 46,
+              "scrollHeight": 46,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 306,
+              "scrollWidth": 306,
+              "clientHeight": 29,
+              "scrollHeight": 29,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-1": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": "33.12px",
+          "helperFontSize": "25.92px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 257,
+            "scrollHeight": 257,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 257,
+              "scrollHeight": 257,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 362,
+              "scrollWidth": 362,
+              "clientHeight": 46,
+              "scrollHeight": 46,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 306,
+              "scrollWidth": 306,
+              "clientHeight": 29,
+              "scrollHeight": 29,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-4": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "96px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 175,
+            "scrollHeight": 175,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 175,
+              "scrollHeight": 175,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 297,
+              "scrollWidth": 297,
+              "clientHeight": 139,
+              "scrollHeight": 139,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 602,
+            "scrollWidth": 602,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 602,
+              "scrollWidth": 602,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 590
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "maximum-12-12": {
+        "cooking": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 594,
+            "scrollWidth": 594,
+            "clientHeight": 80,
+            "scrollHeight": 80,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 594,
+              "scrollWidth": 594,
+              "clientHeight": 80,
+              "scrollHeight": 80,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 1015
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 594,
+            "scrollWidth": 594,
+            "clientHeight": 112,
+            "scrollHeight": 112,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 594,
+              "scrollWidth": 594,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 590,
+            "scrollHeight": 1402
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      }
+    },
+    "1100x800": {
+      "cooking-1": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 148,
+              "scrollHeight": 148,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-2": {
+        "cooking": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "47px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 100,
+            "scrollHeight": 100,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 100,
+              "scrollHeight": 100,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 145,
+              "scrollWidth": 145,
+              "clientHeight": 68,
+              "scrollHeight": 68,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-3": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 92,
+            "scrollHeight": 92,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 92,
+              "scrollHeight": 92,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "cooking-5": {
+        "cooking": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 80,
+            "scrollHeight": 80,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 80,
+              "scrollHeight": 80,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-1": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": "25.3px",
+          "helperFontSize": "19.8px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 211,
+            "scrollHeight": 211,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 211,
+              "scrollHeight": 211,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 277,
+              "scrollWidth": 277,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-2": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 2,
+          "density": "double",
+          "numberFontSize": "47px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 145,
+            "scrollHeight": 145,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 145,
+              "scrollHeight": 145,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 145,
+              "scrollWidth": 145,
+              "clientHeight": 68,
+              "scrollHeight": 68,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-3": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 132,
+            "scrollHeight": 132,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 132,
+              "scrollHeight": 132,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-4": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "ready-5": {
+        "cooking": {
+          "count": 0,
+          "density": "single",
+          "numberFontSize": null,
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": null,
+          "elements": {
+            "card": null,
+            "strong": null,
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 5,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 442,
+            "scrollWidth": 442,
+            "clientHeight": 112,
+            "scrollHeight": 112,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 442,
+              "scrollWidth": 442,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 581
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-3": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 148,
+              "scrollHeight": 148,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 132,
+            "scrollHeight": 132,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 132,
+              "scrollHeight": 132,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-3-1": {
+        "cooking": {
+          "count": 3,
+          "density": "triple",
+          "numberFontSize": "42px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 92,
+            "scrollHeight": 92,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 92,
+              "scrollHeight": 92,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 130,
+              "scrollWidth": 130,
+              "clientHeight": 61,
+              "scrollHeight": 61,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": "25.3px",
+          "helperFontSize": "19.8px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 211,
+            "scrollHeight": 211,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 211,
+              "scrollHeight": 211,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 277,
+              "scrollWidth": 277,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-1": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": "25.3px",
+          "helperFontSize": "19.8px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 211,
+            "scrollHeight": 211,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 211,
+              "scrollHeight": 211,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 277,
+              "scrollWidth": 277,
+              "clientHeight": 35,
+              "scrollHeight": 35,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 234,
+              "scrollWidth": 234,
+              "clientHeight": 22,
+              "scrollHeight": 22,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-1-4": {
+        "cooking": {
+          "count": 1,
+          "density": "single",
+          "numberFontSize": "77px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 148,
+            "scrollHeight": 148,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 148,
+              "scrollHeight": 148,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 238,
+              "scrollWidth": 238,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "mixed-4-4": {
+        "cooking": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 84,
+            "scrollHeight": 84,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 84,
+              "scrollHeight": 84,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 4,
+          "density": "compact",
+          "numberFontSize": "38px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 450,
+            "scrollWidth": 450,
+            "clientHeight": 120,
+            "scrollHeight": 120,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 450,
+              "scrollWidth": 450,
+              "clientHeight": 120,
+              "scrollHeight": 120,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 117,
+              "scrollWidth": 117,
+              "clientHeight": 55,
+              "scrollHeight": 55,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 526
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      },
+      "maximum-12-12": {
+        "cooking": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": null,
+          "helperFontSize": null,
+          "card": {
+            "clientWidth": 442,
+            "scrollWidth": 442,
+            "clientHeight": 80,
+            "scrollHeight": 80,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 442,
+              "scrollWidth": 442,
+              "clientHeight": 80,
+              "scrollHeight": 80,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": null,
+            "small": null
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 1015
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "ready": {
+          "count": 12,
+          "density": "dense",
+          "numberFontSize": "34px",
+          "labelFontSize": "22px",
+          "helperFontSize": "18px",
+          "card": {
+            "clientWidth": 442,
+            "scrollWidth": 442,
+            "clientHeight": 112,
+            "scrollHeight": 112,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "elements": {
+            "card": {
+              "clientWidth": 442,
+              "scrollWidth": 442,
+              "clientHeight": 112,
+              "scrollHeight": 112,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "strong": {
+              "clientWidth": 105,
+              "scrollWidth": 105,
+              "clientHeight": 49,
+              "scrollHeight": 49,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "span": {
+              "clientWidth": 241,
+              "scrollWidth": 241,
+              "clientHeight": 31,
+              "scrollHeight": 31,
+              "overflowX": 0,
+              "overflowY": 0
+            },
+            "small": {
+              "clientWidth": 212,
+              "scrollWidth": 212,
+              "clientHeight": 20,
+              "scrollHeight": 20,
+              "overflowX": 0,
+              "overflowY": 0
+            }
+          },
+          "container": {
+            "clientHeight": 526,
+            "scrollHeight": 1402
+          },
+          "clipping": false,
+          "overlap": false,
+          "verticalKorean": false
+        },
+        "horizontalOverflow": 0,
+        "documentVerticalOverflow": 0,
+        "headerOverlap": false,
+        "buttonOverlap": false,
+        "logoOverlap": false
+      }
+    }
+  },
+  "transitions": {
+    "cooking1": {
+      "cooking": {
+        "count": 1,
+        "density": "single",
+        "numberFontSize": "75.6px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 146,
+          "scrollHeight": 146,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 146,
+            "scrollHeight": 146,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 234,
+            "scrollWidth": 234,
+            "clientHeight": 110,
+            "scrollHeight": 110,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "cooking2": {
+      "cooking": {
+        "count": 2,
+        "density": "double",
+        "numberFontSize": "68.58px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 131,
+          "scrollHeight": 131,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 131,
+            "scrollHeight": 131,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 212,
+            "scrollWidth": 212,
+            "clientHeight": 99,
+            "scrollHeight": 99,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "cooking3": {
+      "cooking": {
+        "count": 3,
+        "density": "triple",
+        "numberFontSize": "62.1px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 116,
+          "scrollHeight": 116,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 192,
+            "scrollWidth": 192,
+            "clientHeight": 90,
+            "scrollHeight": 90,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "cooking4": {
+      "cooking": {
+        "count": 4,
+        "density": "compact",
+        "numberFontSize": "56.16px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 101,
+          "scrollHeight": 101,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 101,
+            "scrollHeight": 101,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 174,
+            "scrollWidth": 174,
+            "clientHeight": 81,
+            "scrollHeight": 81,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "cooking5": {
+      "cooking": {
+        "count": 5,
+        "density": "dense",
+        "numberFontSize": "50.22px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 89,
+          "scrollHeight": 89,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 89,
+            "scrollHeight": 89,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 155,
+            "scrollWidth": 155,
+            "clientHeight": 73,
+            "scrollHeight": 73,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "cookingToReady": {
+      "cooking": {
+        "count": 3,
+        "density": "triple",
+        "numberFontSize": "62.1px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 116,
+          "scrollHeight": 116,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 192,
+            "scrollWidth": 192,
+            "clientHeight": 90,
+            "scrollHeight": 90,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 1,
+        "density": "single",
+        "numberFontSize": "75.6px",
+        "labelFontSize": "24.84px",
+        "helperFontSize": "19.44px",
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 220,
+          "scrollHeight": 220,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 220,
+            "scrollHeight": 220,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 234,
+            "scrollWidth": 234,
+            "clientHeight": 110,
+            "scrollHeight": 110,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": {
+            "clientWidth": 272,
+            "scrollWidth": 272,
+            "clientHeight": 35,
+            "scrollHeight": 35,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "small": {
+            "clientWidth": 229,
+            "scrollWidth": 229,
+            "clientHeight": 22,
+            "scrollHeight": 22,
+            "overflowX": 0,
+            "overflowY": 0
+          }
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    },
+    "pickupDeleted": {
+      "cooking": {
+        "count": 3,
+        "density": "triple",
+        "numberFontSize": "62.1px",
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": {
+          "clientWidth": 425,
+          "scrollWidth": 425,
+          "clientHeight": 116,
+          "scrollHeight": 116,
+          "overflowX": 0,
+          "overflowY": 0
+        },
+        "elements": {
+          "card": {
+            "clientWidth": 425,
+            "scrollWidth": 425,
+            "clientHeight": 116,
+            "scrollHeight": 116,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "strong": {
+            "clientWidth": 192,
+            "scrollWidth": 192,
+            "clientHeight": 90,
+            "scrollHeight": 90,
+            "overflowX": 0,
+            "overflowY": 0
+          },
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "ready": {
+        "count": 0,
+        "density": "single",
+        "numberFontSize": null,
+        "labelFontSize": null,
+        "helperFontSize": null,
+        "card": null,
+        "elements": {
+          "card": null,
+          "strong": null,
+          "span": null,
+          "small": null
+        },
+        "container": {
+          "clientHeight": 1561,
+          "scrollHeight": 1561
+        },
+        "clipping": false,
+        "overlap": false,
+        "verticalKorean": false
+      },
+      "horizontalOverflow": 0,
+      "documentVerticalOverflow": 0,
+      "headerOverlap": false,
+      "buttonOverlap": false,
+      "logoOverlap": false
+    }
+  },
+  "consoleProblems": []
+}
