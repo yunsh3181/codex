@@ -1,4 +1,5 @@
 {
+  "promo": "normal",
   "viewports": [
     {
       "name": "360x640",
@@ -9,6 +10,16 @@
       "name": "390x844",
       "width": 390,
       "height": 844
+    },
+    {
+      "name": "834x1112",
+      "width": 834,
+      "height": 1112
+    },
+    {
+      "name": "1112x834",
+      "width": 1112,
+      "height": 834
     },
     {
       "name": "768x1024",
@@ -44,8 +55,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -63,19 +112,25 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 805
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 502.234375,
-            "height": 382.234375
+            "top": 126,
+            "bottom": 727.46875,
+            "height": 601.46875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 173.46875,
+        "layout": "phone",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       },
       "after": {
         "viewport": {
@@ -89,8 +144,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -108,19 +201,25 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 805
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72001647949219,
-            "bottom": 504.9543914794922,
-            "height": 382.234375
+            "top": 126,
+            "bottom": 727.46875,
+            "height": 601.46875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 173.46875,
+        "layout": "phone",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       }
     },
     {
@@ -137,8 +236,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -156,19 +293,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 847
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 519.28125,
-            "height": 399.28125
+            "top": 126,
+            "bottom": 769.21875,
+            "height": 643.21875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 215.21875,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -182,8 +320,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -201,19 +377,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 847
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72543334960938,
-            "bottom": 522.0066528320312,
-            "height": 399.2812194824219
+            "top": 126,
+            "bottom": 769.21875,
+            "height": 643.21875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 215.21875,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -230,8 +407,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          97.5,
+          97.5,
+          97.5,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -249,19 +464,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 851
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 543.78125,
-            "height": 423.78125
+            "top": 126,
+            "bottom": 773.46875,
+            "height": 647.46875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 219.46875,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -275,8 +491,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          97.5,
+          97.5,
+          97.5,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -294,19 +548,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 851
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72278594970703,
-            "bottom": 546.504035949707,
-            "height": 423.78125
+            "top": 126,
+            "bottom": 773.46875,
+            "height": 647.46875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 219.46875,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -323,8 +578,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          82.75,
+          82.75,
+          82.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -342,19 +635,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 802
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 507.234375,
-            "height": 387.234375
+            "top": 126,
+            "bottom": 724.21875,
+            "height": 598.21875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 170.21875,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -368,8 +662,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          82.75,
+          82.75,
+          82.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -387,19 +719,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 802
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72218322753906,
-            "bottom": 509.95655822753906,
-            "height": 387.234375
+            "top": 126,
+            "bottom": 724.21875,
+            "height": 598.21875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 170.21875,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -416,8 +749,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -435,19 +806,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 849
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 540.875,
-            "height": 420.875
+            "top": 126,
+            "bottom": 771.40625,
+            "height": 645.40625
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 217.40625,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -461,8 +833,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -480,19 +890,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 849
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.7215805053711,
-            "bottom": 543.596549987793,
-            "height": 420.8749694824219
+            "top": 126,
+            "bottom": 771.40625,
+            "height": 645.40625
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 217.40625,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -509,8 +920,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          107,
+          107,
+          107,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -528,19 +977,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 878
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 546.453125,
-            "height": 426.453125
+            "top": 126,
+            "bottom": 800.1875,
+            "height": 674.1875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 246.1875,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -554,8 +1004,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          107,
+          107,
+          107,
+          97.75,
+          97.75,
+          97.75,
+          83.75,
+          83.75,
+          83.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -573,19 +1061,20 @@
         "clipped": [],
         "scroll": {
           "width": 360,
-          "height": 640
+          "height": 878
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.71894073486328,
-            "bottom": 549.1720657348633,
-            "height": 426.453125
+            "top": 126,
+            "bottom": 800.1875,
+            "height": 674.1875
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 246.1875,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -602,8 +1091,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -626,14 +1153,20 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 504.046875,
-            "height": 384.046875
+            "top": 126,
+            "bottom": 727.46875,
+            "height": 601.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       },
       "after": {
         "viewport": {
@@ -647,8 +1180,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -671,14 +1242,20 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.71684265136719,
-            "bottom": 506.7637176513672,
-            "height": 384.046875
+            "top": 126,
+            "bottom": 727.46875,
+            "height": 601.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       }
     },
     {
@@ -695,8 +1272,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -719,14 +1334,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 521.09375,
-            "height": 401.09375
+            "top": 126,
+            "bottom": 742.46875,
+            "height": 616.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -740,8 +1356,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -764,14 +1418,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.71623992919922,
-            "bottom": 523.8099899291992,
-            "height": 401.09375
+            "top": 126,
+            "bottom": 742.46875,
+            "height": 616.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -788,8 +1443,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          97.5,
+          97.5,
+          97.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -812,14 +1505,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 533.21875,
-            "height": 413.21875
+            "top": 126,
+            "bottom": 761.71875,
+            "height": 635.71875
           }
         ],
         "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "contentOverlapPx": 3.71875,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -833,8 +1527,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          97.5,
+          97.5,
+          97.5,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -857,14 +1589,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72164154052734,
-            "bottom": 535.9404220581055,
-            "height": 413.2187805175781
+            "top": 126,
+            "bottom": 761.71875,
+            "height": 635.71875
           }
         ],
         "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "contentOverlapPx": 3.71875,
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -881,8 +1614,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -905,14 +1676,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 509.046875,
-            "height": 389.046875
+            "top": 126,
+            "bottom": 712.46875,
+            "height": 586.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -926,8 +1698,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          79.5,
+          79.5,
+          79.5,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -950,14 +1760,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.72103881835938,
-            "bottom": 511.7679138183594,
-            "height": 389.046875
+            "top": 126,
+            "bottom": 712.46875,
+            "height": 586.46875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -974,8 +1785,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -998,14 +1847,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 526.953125,
-            "height": 406.953125
+            "top": 126,
+            "bottom": 747.03125,
+            "height": 621.03125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1019,8 +1869,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          93.25,
+          93.25,
+          93.25,
+          82.75,
+          82.75,
+          82.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1043,14 +1931,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.7204360961914,
-            "bottom": 529.6735916137695,
-            "height": 406.9531555175781
+            "top": 126,
+            "bottom": 747.03125,
+            "height": 621.03125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "phone",
+        "consoleMessages": []
       }
     },
     {
@@ -1067,8 +1956,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          107,
+          107,
+          107,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1086,19 +2013,20 @@
         "clipped": [],
         "scroll": {
           "width": 390,
-          "height": 844
+          "height": 866
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 120,
-            "bottom": 548.265625,
-            "height": 428.265625
+            "top": 126,
+            "bottom": 788.4375,
+            "height": 662.4375
           }
         ],
-        "fits": true,
-        "contentOverlapPx": 0,
-        "layout": "phone"
+        "fits": false,
+        "contentOverlapPx": 30.4375,
+        "layout": "phone",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1112,8 +2040,46 @@
           "rgb(17, 17, 17)"
         ],
         "guidanceFontSizes": [
-          9.9,
-          9.9
+          12,
+          12
+        ],
+        "optionCardHeights": [
+          107,
+          107,
+          107,
+          97.75,
+          97.75,
+          97.75,
+          72,
+          72,
+          72
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1131,19 +2097,2092 @@
         "clipped": [],
         "scroll": {
           "width": 390,
-          "height": 844
+          "height": 866
         },
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 122.71984100341797,
-            "bottom": 550.985466003418,
-            "height": 428.265625
+            "top": 126,
+            "bottom": 788.4375,
+            "height": 662.4375
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 30.4375,
+        "layout": "phone",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 168,
+            "bottom": 822.296875,
+            "height": 654.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "phone"
+        "layout": "tablet",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 168,
+            "bottom": 822.296875,
+            "height": 654.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 815.296875,
+            "height": 648.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 815.296875,
+            "height": 648.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 171,
+            "bottom": 862.296875,
+            "height": 691.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 171,
+            "bottom": 862.296875,
+            "height": 691.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 170,
+            "bottom": 847.296875,
+            "height": 677.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 170,
+            "bottom": 847.296875,
+            "height": 677.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 815.296875,
+            "height": 648.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 815.296875,
+            "height": 648.296875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "834x1112",
+      "before": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          80.5,
+          80.5,
+          80.5,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 829.046875,
+            "height": 662.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          80.5,
+          80.5,
+          80.5,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 834,
+          "height": 1112
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 167,
+            "bottom": 829.046875,
+            "height": 662.046875
+          }
+        ],
+        "fits": true,
+        "contentOverlapPx": 0,
+        "layout": "tablet",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "오리지널추가금 없음"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1089
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 310,
+            "bottom": 975.0625,
+            "height": 665.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 233.0625,
+        "layout": "default",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "ko",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 선택됨",
+          "✓ 선택됨",
+          "✓ 선택됨"
+        ],
+        "activeLabels": [
+          "L 라지피자 선택 후 가격 확정",
+          "클래식추가금 없음",
+          "골드링+ 4,000원"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1089
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 310,
+            "bottom": 975.0625,
+            "height": 665.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 233.0625,
+        "layout": "default",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "OriginalNo extra charge"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "en",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Selected",
+          "✓ Selected",
+          "✓ Selected"
+        ],
+        "activeLabels": [
+          "L LargePrice confirmed after pizza selection",
+          "OriginalNo extra charge",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Original追加料金なし"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1129
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 313,
+            "bottom": 1015.0625,
+            "height": 702.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 273.0625,
+        "layout": "default",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "ja",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 選択済み",
+          "✓ 選択済み",
+          "✓ 選択済み"
+        ],
+        "activeLabels": [
+          "L ラージピザ選択後に価格確定",
+          "Original追加料金なし",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1129
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 313,
+            "bottom": 1015.0625,
+            "height": 702.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 273.0625,
+        "layout": "default",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Original无需加价"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1114
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 312,
+            "bottom": 1000.0625,
+            "height": 688.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 258.0625,
+        "layout": "default",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "zh",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ 已选择",
+          "✓ 已选择",
+          "✓ 已选择"
+        ],
+        "activeLabels": [
+          "L 大号选择披萨后确定价格",
+          "Original无需加价",
+          "Gold Ring+ ₩4,000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1114
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 312,
+            "bottom": 1000.0625,
+            "height": 688.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 258.0625,
+        "layout": "default",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "OriginalKhông phụ thu"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "vi",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Đã chọn",
+          "✓ Đã chọn",
+          "✓ Đã chọn"
+        ],
+        "activeLabels": [
+          "L LớnGiá được xác định sau khi chọn pizza",
+          "OriginalKhông phụ thu",
+          "Gold Ring+ ₩4.000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
+      }
+    },
+    {
+      "viewportName": "1112x834",
+      "before": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "OriginalSin suplemento"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
+      },
+      "after": {
+        "viewport": {
+          "width": 1112,
+          "height": 834
+        },
+        "locale": "es",
+        "headingColors": [
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)",
+          "rgb(17, 17, 17)"
+        ],
+        "guidanceFontSizes": [
+          12.1,
+          12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
+        ],
+        "badgeCount": 3,
+        "activeCount": 3,
+        "disabledBadgeCount": 0,
+        "badgeTexts": [
+          "✓ Seleccionado",
+          "✓ Seleccionado",
+          "✓ Seleccionado"
+        ],
+        "activeLabels": [
+          "L LargePrecio confirmado después de elegir la pizza",
+          "OriginalSin suplemento",
+          "Gold Ring+ ₩4000"
+        ],
+        "clipped": [],
+        "scroll": {
+          "width": 1112,
+          "height": 1082
+        },
+        "geometry": [
+          {
+            "className": "optionSetup",
+            "top": 309,
+            "bottom": 968.0625,
+            "height": 659.0625
+          }
+        ],
+        "fits": false,
+        "contentOverlapPx": 226.0625,
+        "layout": "default",
+        "consoleMessages": []
       }
     },
     {
@@ -1162,6 +4201,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1191,7 +4268,13 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       },
       "after": {
         "viewport": {
@@ -1207,6 +4290,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          67.75,
+          67.75,
+          67.75,
+          86.859375,
+          86.859375,
+          86.859375,
+          67.75,
+          67.75,
+          67.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1229,14 +4350,20 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 188.7213897705078,
-            "bottom": 840.0183258056641,
-            "height": 651.2969360351562
+            "top": 186,
+            "bottom": 837.296875,
+            "height": 651.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       }
     },
     {
@@ -1255,6 +4382,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1284,7 +4449,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1300,6 +4466,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1322,14 +4526,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 187.72682189941406,
-            "bottom": 833.0236968994141,
+            "top": 185,
+            "bottom": 830.296875,
             "height": 645.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       }
     },
     {
@@ -1348,6 +4553,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1377,7 +4620,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1393,6 +4637,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          72.75,
+          72.75,
+          72.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1415,14 +4697,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 191.72021484375,
-            "bottom": 880.01708984375,
+            "top": 189,
+            "bottom": 877.296875,
             "height": 688.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       }
     },
     {
@@ -1441,6 +4724,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1470,7 +4791,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1486,6 +4808,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          70.75,
+          70.75,
+          70.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1508,14 +4868,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 190.7196044921875,
-            "bottom": 865.0164794921875,
+            "top": 188,
+            "bottom": 862.296875,
             "height": 674.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       }
     },
     {
@@ -1534,6 +4895,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1563,7 +4962,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1579,6 +4979,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          66.75,
+          66.75,
+          66.75,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1601,14 +5039,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 187.72500610351562,
-            "bottom": 833.0218811035156,
+            "top": 185,
+            "bottom": 830.296875,
             "height": 645.296875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       }
     },
     {
@@ -1627,6 +5066,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          80.5,
+          80.5,
+          80.5,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1656,7 +5133,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1672,6 +5150,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          80.5,
+          80.5,
+          80.5,
+          85.859375,
+          85.859375,
+          85.859375,
+          66.75,
+          66.75,
+          66.75
+        ],
+        "optionFontSizes": [
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1694,14 +5210,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 187.71839904785156,
-            "bottom": 846.7652740478516,
+            "top": 185,
+            "bottom": 844.046875,
             "height": 659.046875
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "tablet"
+        "layout": "tablet",
+        "consoleMessages": []
       }
     },
     {
@@ -1720,6 +5237,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          106.859375,
+          106.859375,
+          106.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1749,7 +5304,13 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       },
       "after": {
         "viewport": {
@@ -1765,6 +5326,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          106.859375,
+          106.859375,
+          106.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1787,14 +5386,20 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.72482299804688,
-            "bottom": 1052.1779479980469,
+            "top": 216,
+            "bottom": 1049.453125,
             "height": 833.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": [
+          {
+            "level": "warn",
+            "text": "[remote-test-mode][kiosk] session-registration-failed [object Object]"
+          }
+        ]
       }
     },
     {
@@ -1813,6 +5418,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1842,7 +5485,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1858,6 +5502,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1880,14 +5562,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.7182159423828,
-            "bottom": 1049.1712799072266,
-            "height": 830.4530639648438
+            "top": 216,
+            "bottom": 1046.453125,
+            "height": 830.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       }
     },
     {
@@ -1906,6 +5589,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1935,7 +5656,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -1951,6 +5673,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -1973,14 +5733,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.71762084960938,
-            "bottom": 1080.1707458496094,
+            "top": 216,
+            "bottom": 1077.453125,
             "height": 861.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       }
     },
     {
@@ -1999,6 +5760,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2028,7 +5827,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -2044,6 +5844,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2066,14 +5904,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.71701049804688,
-            "bottom": 1070.1701354980469,
+            "top": 216,
+            "bottom": 1067.453125,
             "height": 851.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       }
     },
     {
@@ -2092,6 +5931,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2121,7 +5998,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -2137,6 +6015,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2159,14 +6075,15 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.722412109375,
-            "bottom": 1049.175537109375,
+            "top": 216,
+            "bottom": 1046.453125,
             "height": 830.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       }
     },
     {
@@ -2185,6 +6102,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2214,7 +6169,8 @@
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       },
       "after": {
         "viewport": {
@@ -2230,6 +6186,44 @@
         "guidanceFontSizes": [
           12.1,
           12.1
+        ],
+        "optionCardHeights": [
+          104,
+          104,
+          104,
+          105.859375,
+          105.859375,
+          105.859375,
+          104,
+          104,
+          104
+        ],
+        "optionFontSizes": [
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28,
+          28
+        ],
+        "headingFontSizes": [
+          18,
+          18,
+          18
+        ],
+        "priceFontSizes": [
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11,
+          11
         ],
         "badgeCount": 3,
         "activeCount": 3,
@@ -2252,15 +6246,17 @@
         "geometry": [
           {
             "className": "optionSetup",
-            "top": 218.72183227539062,
-            "bottom": 1049.1749572753906,
+            "top": 216,
+            "bottom": 1046.453125,
             "height": 830.453125
           }
         ],
         "fits": true,
         "contentOverlapPx": 0,
-        "layout": "kiosk21"
+        "layout": "kiosk21",
+        "consoleMessages": []
       }
     }
-  ]
+  ],
+  "visualComparisons": []
 }

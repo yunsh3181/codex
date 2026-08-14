@@ -26,6 +26,7 @@ window.PJ_I18N_LOCALES.zh={
     phone:{title:'请输入手机号码',subtitle:'010为固定号码。请输入后8位。',clear:'全部清除',orderNumber:'订单号（手机号后4位）:',invalid:'请正确输入手机号后8位。',next:'选择支付方式'},
     done:{title:'订单已接收',orderLabel:'订单号 · 手机号后4位',paymentRequired:'请在柜台使用{payment}支付',paymentMethodPhrase:{cash:'现金',card:'信用卡',meal_ticket:'餐券台账',bizle:'Zero Pay'},paymentGuide:'支付完成后将开始制作披萨。',reserveTime:'预约时间 {time}',guide:'请确认订单号后前往柜台。',home:'返回首页'}
   };
+Object.assign(window.PJ_I18N_LOCALES.zh.review,{resetTitle:'返回首页',resetBody:'当前订单内容将全部删除。是否返回初始画面？',resetCancel:'取消',resetConfirm:'返回首页'});
 window.PJ_I18N_LOCALES.zh.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.zh.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.set,{title:'Set Menu'});

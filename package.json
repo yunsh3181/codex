@@ -12,6 +12,7 @@
     "test": "node --test tests/*.test.js",
     "test:order-review-layout": "electron scripts/verify-order-review-layout.js",
     "test:pizza-option-layout": "electron scripts/verify-pizza-option-layout.js",
+    "test:ipad-air3-layout": "electron scripts/verify-ipad-air3-kiosk.js",
     "test:rules": "firebase emulators:exec --only firestore \"node --test --test-concurrency=1 tests/*.rules.test.js\"",
     "desktop:dev": "electron . --dev",
     "desktop:build": "electron-builder",

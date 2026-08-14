@@ -28,3 +28,4 @@ window.PJ_I18N_LOCALES.es={
   };
 window.PJ_I18N_LOCALES.es.party.label='Personas';
 Object.assign(window.PJ_I18N_LOCALES.es.review,{orderListLabel:'Lista de productos',paginationLabel:'Páginas del pedido',previousItems:'Productos anteriores',nextItems:'Productos siguientes'});
+Object.assign(window.PJ_I18N_LOCALES.es.review,{resetTitle:'Volver al inicio',resetBody:'Se eliminará todo el pedido actual. ¿Quieres volver a la pantalla inicial?',resetCancel:'Cancelar',resetConfirm:'Volver al inicio'});
