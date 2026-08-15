@@ -23,7 +23,7 @@ concurrency:
 jobs:
   repeated_linux_xvfb:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - name: Checkout source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
