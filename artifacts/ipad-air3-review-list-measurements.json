@@ -43,6 +43,28 @@
       "count": 2
     }
   ],
+  "dockScenarios": [
+    {
+      "name": "no-discount",
+      "count": 1
+    },
+    {
+      "name": "d8222",
+      "count": 2
+    },
+    {
+      "name": "multi-benefit",
+      "count": 4
+    }
+  ],
+  "locales": [
+    "ko",
+    "en",
+    "ja",
+    "zh",
+    "vi",
+    "es"
+  ],
   "results": [
     {
       "viewport": "834x1112",
@@ -7461,6 +7483,2558 @@
       }
     }
   ],
+  "dockMatrix": [
+    {
+      "locale": "ko",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 693,
+          "scrollHeight": 693,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 156,
+          "right": 834,
+          "bottom": 849,
+          "width": 834,
+          "height": 693
+        },
+        "list": {
+          "left": 18,
+          "top": 232.83,
+          "right": 816,
+          "bottom": 577.59,
+          "width": 798,
+          "height": 344.77
+        },
+        "dock": {
+          "left": 24,
+          "top": 865,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 143
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 232.83,
+              "right": 816,
+              "bottom": 577.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 251.83,
+              "right": 797,
+              "bottom": 409.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 461.42,
+              "right": 797,
+              "bottom": 558.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :오리지널피자구성 :한판피자토핑 :수퍼 파파스×1라지사이즈 피자 기본금액28,500원정상 합계28,500원피자 결제금액28,500원총 결제금액28,500원수량1세트 정상금액28,500원세트 할인금액0원세트 적용금액28,500원−＋삭제"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "143px"
+    },
+    {
+      "locale": "ko",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 693,
+          "scrollHeight": 923,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 156,
+          "right": 834,
+          "bottom": 849,
+          "width": 834,
+          "height": 693
+        },
+        "list": {
+          "left": 18,
+          "top": 232.83,
+          "right": 816,
+          "bottom": 1070.92,
+          "width": 798,
+          "height": 838.09
+        },
+        "dock": {
+          "left": 24,
+          "top": 865,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 143
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 232.83,
+              "right": 816,
+              "bottom": 719.16,
+              "width": 798,
+              "height": 486.33
+            },
+            "financial": {
+              "left": 573,
+              "top": 251.83,
+              "right": 797,
+              "bottom": 409.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 461.42,
+              "right": 797,
+              "bottom": 558.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :치즈롤피자구성 :한판피자토핑 :수퍼 파파스×1세트 정상금액44,900원세트 할인금액−7,900원세트 적용금액37,000원사이드치킨 스트립×1세트 포함음료코카-콜라 제로 1.25L×1세트 포함선택 혜택3인 세트총 결제금액37,000원수량1세트 정상금액44,900원세트 할인금액−7,900원세트 적용금액37,000원−＋삭제"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 726.16,
+              "right": 816,
+              "bottom": 1070.92,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 745.16,
+              "right": 797,
+              "bottom": 902.75,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 954.75,
+              "right": 797,
+              "bottom": 1051.92,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :패밀리사이즈크러스트타입 :치즈롤피자구성 :한판피자토핑 :존스 페이버릿×1패밀리사이즈 피자 기본금액34,900원치즈롤 추가금5,000원정상 합계39,900원UP & UP 할인−10,400원피자 결제금액29,500원선택 혜택UP & UP총 결제금액29,500원수량1세트 정상금액39,900원세트 할인금액−10,400원세트 적용금액29,500원−＋삭제"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "143px"
+    },
+    {
+      "locale": "ko",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 660,
+          "scrollHeight": 1485,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 156,
+          "right": 834,
+          "bottom": 816,
+          "width": 834,
+          "height": 660
+        },
+        "list": {
+          "left": 18,
+          "top": 232.83,
+          "right": 816,
+          "bottom": 1632.89,
+          "width": 798,
+          "height": 1400.06
+        },
+        "dock": {
+          "left": 24,
+          "top": 832,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 176
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 232.83,
+              "right": 816,
+              "bottom": 577.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 251.83,
+              "right": 797,
+              "bottom": 409.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 461.42,
+              "right": 797,
+              "bottom": 558.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :오리지널피자구성 :한판피자토핑 :수퍼 파파스×1라지사이즈 피자 기본금액28,500원정상 합계28,500원3인 세트 할인−7,900원피자 결제금액20,600원선택 혜택세트메뉴총 결제금액37,000원수량1세트 정상금액44,900원세트 할인금액−7,900원세트 적용금액37,000원−＋삭제"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 584.59,
+              "right": 816,
+              "bottom": 929.36,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 603.59,
+              "right": 797,
+              "bottom": 761.19,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 813.19,
+              "right": 797,
+              "bottom": 910.36,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :오리지널피자구성 :한판피자토핑 :수퍼 파파스×1라지사이즈 피자 기본금액28,500원정상 합계28,500원UP & UP 할인−10,400원피자 결제금액18,100원선택 혜택UP & UP총 결제금액29,500원수량1세트 정상금액39,900원세트 할인금액−10,400원세트 적용금액29,500원−＋삭제"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 936.36,
+              "right": 816,
+              "bottom": 1281.13,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 955.36,
+              "right": 797,
+              "bottom": 1112.95,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1164.95,
+              "right": 797,
+              "bottom": 1262.13,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :오리지널피자구성 :한판피자토핑 :수퍼 파파스×1라지사이즈 피자 기본금액28,500원정상 합계28,500원Happy Hour 할인−7,000원피자 결제금액21,500원선택 혜택해피아워총 결제금액24,500원수량1세트 정상금액31,500원세트 할인금액−7,000원세트 적용금액24,500원−＋삭제"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1288.13,
+              "right": 816,
+              "bottom": 1632.89,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 1307.13,
+              "right": 797,
+              "bottom": 1464.72,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1516.72,
+              "right": 797,
+              "bottom": 1613.89,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :오리지널피자구성 :한판피자토핑 :수퍼 파파스×1라지사이즈 피자 기본금액28,500원정상 합계28,500원Takeout Special 할인−4,000원피자 결제금액24,500원선택 혜택포장 20%총 결제금액26,500원수량1세트 정상금액30,500원세트 할인금액−4,000원세트 적용금액26,500원−＋삭제"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "176px"
+    },
+    {
+      "locale": "en",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 697,
+          "scrollHeight": 697,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 852,
+          "width": 834,
+          "height": 697
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 597.69,
+          "width": 798,
+          "height": 366.86
+        },
+        "dock": {
+          "left": 24,
+          "top": 868,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 140
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 597.69,
+              "width": 798,
+              "height": 366.86
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 429.52,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 481.52,
+              "right": 797,
+              "bottom": 578.69,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :OriginalPizza format :Whole pizzaPizza topping :Super Papa's×1Large Size pizza base price₩28,500Regular subtotal₩28,500Pizza payment₩28,500Total due₩28,500Quantity1Regular set amount₩28,500Set discount₩0Applied set amount₩28,500−＋Remove"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "140px"
+    },
+    {
+      "locale": "en",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 685,
+          "scrollHeight": 1021,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 840,
+          "width": 834,
+          "height": 685
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 1167.89,
+          "width": 798,
+          "height": 937.06
+        },
+        "dock": {
+          "left": 24,
+          "top": 856,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 152
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 766.64,
+              "width": 798,
+              "height": 535.81
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 429.52,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 481.52,
+              "right": 797,
+              "bottom": 606.08,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :Cheese RollPizza format :Whole pizzaPizza topping :Super Papa's×1Regular set amount₩44,900Set discount−₩7,900Applied set amount₩37,000SideChicken Strips×1Included in setDrinkCoca-Cola Zero×1Included in setSelected benefitSet for 3Total due₩37,000Quantity1Regular set amount₩44,900Set discount−₩7,900Applied set amount₩37,000−＋Remove"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 773.64,
+              "right": 816,
+              "bottom": 1167.89,
+              "width": 798,
+              "height": 394.25
+            },
+            "financial": {
+              "left": 573,
+              "top": 792.64,
+              "right": 797,
+              "bottom": 972.33,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 1024.33,
+              "right": 797,
+              "bottom": 1148.89,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaDough type :OriginalSize :Family SizeCrust type :Cheese RollPizza format :Whole pizzaPizza topping :John's Favorite×1Family Size pizza base price₩34,900Cheese Roll surcharge₩5,000Regular subtotal₩39,900UP & UP discount−₩10,400Pizza payment₩29,500Selected benefitUP & UPTotal due₩29,500Quantity1Regular set amount₩39,900Set discount−₩10,400Applied set amount₩29,500−＋Remove"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "152px"
+    },
+    {
+      "locale": "en",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 663,
+          "scrollHeight": 1572,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 818,
+          "width": 834,
+          "height": 663
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 1719.27,
+          "width": 798,
+          "height": 1488.44
+        },
+        "dock": {
+          "left": 24,
+          "top": 834,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 174
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 597.69,
+              "width": 798,
+              "height": 366.86
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 429.52,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 481.52,
+              "right": 797,
+              "bottom": 578.69,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :OriginalPizza format :Whole pizzaPizza topping :Super Papa's×1Large Size pizza base price₩28,500Regular subtotal₩28,5003인 세트 discount−₩7,900Pizza payment₩20,600Selected benefitSet MenuTotal due₩37,000Quantity1Regular set amount₩44,900Set discount−₩7,900Applied set amount₩37,000−＋Remove"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 604.69,
+              "right": 816,
+              "bottom": 971.55,
+              "width": 798,
+              "height": 366.86
+            },
+            "financial": {
+              "left": 573,
+              "top": 623.69,
+              "right": 797,
+              "bottom": 803.38,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 855.38,
+              "right": 797,
+              "bottom": 952.55,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :OriginalPizza format :Whole pizzaPizza topping :Super Papa's×1Large Size pizza base price₩28,500Regular subtotal₩28,500UP & UP discount−₩10,400Pizza payment₩18,100Selected benefitUP & UPTotal due₩29,500Quantity1Regular set amount₩39,900Set discount−₩10,400Applied set amount₩29,500−＋Remove"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 978.55,
+              "right": 816,
+              "bottom": 1345.41,
+              "width": 798,
+              "height": 366.86
+            },
+            "financial": {
+              "left": 573,
+              "top": 997.55,
+              "right": 797,
+              "bottom": 1177.23,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 1229.23,
+              "right": 797,
+              "bottom": 1326.41,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :OriginalPizza format :Whole pizzaPizza topping :Super Papa's×1Large Size pizza base price₩28,500Regular subtotal₩28,500Happy Hour discount−₩7,000Pizza payment₩21,500Selected benefitHAPPY HOURTotal due₩24,500Quantity1Regular set amount₩31,500Set discount−₩7,000Applied set amount₩24,500−＋Remove"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1352.41,
+              "right": 816,
+              "bottom": 1719.27,
+              "width": 798,
+              "height": 366.86
+            },
+            "financial": {
+              "left": 573,
+              "top": 1371.41,
+              "right": 797,
+              "bottom": 1551.09,
+              "width": 224,
+              "height": 179.69
+            },
+            "content": {
+              "left": 37,
+              "top": 1603.09,
+              "right": 797,
+              "bottom": 1700.27,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaDough type :OriginalSize :Large SizeCrust type :OriginalPizza format :Whole pizzaPizza topping :Super Papa's×1Large Size pizza base price₩28,500Regular subtotal₩28,500Takeout Special discount−₩4,000Pizza payment₩24,500Selected benefitTakeout 20%Total due₩26,500Quantity1Regular set amount₩30,500Set discount−₩4,000Applied set amount₩26,500−＋Remove"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "174px"
+    },
+    {
+      "locale": "ja",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 683,
+          "scrollHeight": 683,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 159,
+          "right": 834,
+          "bottom": 842,
+          "width": 834,
+          "height": 683
+        },
+        "list": {
+          "left": 18,
+          "top": 240.83,
+          "right": 816,
+          "bottom": 585.59,
+          "width": 798,
+          "height": 344.77
+        },
+        "dock": {
+          "left": 24,
+          "top": 858,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 150
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 240.83,
+              "right": 816,
+              "bottom": 585.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 259.83,
+              "right": 797,
+              "bottom": 417.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 469.42,
+              "right": 797,
+              "bottom": 566.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Originalピザ構成 :1枚ピザトッピング :Super Papa's×1ラージサイズピザ基本料金₩28,500通常合計₩28,500ピザ支払金額₩28,500お支払い予定額₩28,500数量1セット通常金額₩28,500セット割引金額₩0セット適用金額₩28,500−＋削除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "150px"
+    },
+    {
+      "locale": "ja",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 677,
+          "scrollHeight": 955,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 159,
+          "right": 834,
+          "bottom": 836,
+          "width": 834,
+          "height": 677
+        },
+        "list": {
+          "left": 18,
+          "top": 240.83,
+          "right": 816,
+          "bottom": 1106.31,
+          "width": 798,
+          "height": 865.48
+        },
+        "dock": {
+          "left": 24,
+          "top": 852,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 156
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 240.83,
+              "right": 816,
+              "bottom": 727.16,
+              "width": 798,
+              "height": 486.33
+            },
+            "financial": {
+              "left": 573,
+              "top": 259.83,
+              "right": 797,
+              "bottom": 417.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 469.42,
+              "right": 797,
+              "bottom": 566.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Cheese Rollピザ構成 :1枚ピザトッピング :Super Papa's×1セット通常金額₩44,900セット割引金額−₩7,900セット適用金額₩37,000サイドChicken Strips×1セットに含まれますドリンクCoca-Cola Zero×1セットに含まれます選択特典3人セットお支払い予定額₩37,000数量1セット通常金額₩44,900セット割引金額−₩7,900セット適用金額₩37,000−＋削除"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 734.16,
+              "right": 816,
+              "bottom": 1106.31,
+              "width": 798,
+              "height": 372.16
+            },
+            "financial": {
+              "left": 573,
+              "top": 753.16,
+              "right": 797,
+              "bottom": 910.75,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 962.75,
+              "right": 797,
+              "bottom": 1087.31,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ファミリーサイズクラストタイプ :Cheese Rollピザ構成 :1枚ピザトッピング :John's Favorite×1ファミリーサイズピザ基本料金₩34,900Cheese Roll追加料金₩5,000通常合計₩39,900UP & UP割引−₩10,400ピザ支払金額₩29,500選択特典UP & UPお支払い予定額₩29,500数量1セット通常金額₩39,900セット割引金額−₩10,400セット適用金額₩29,500−＋削除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "156px"
+    },
+    {
+      "locale": "ja",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 646,
+          "scrollHeight": 1490,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 159,
+          "right": 834,
+          "bottom": 805,
+          "width": 834,
+          "height": 646
+        },
+        "list": {
+          "left": 18,
+          "top": 240.83,
+          "right": 816,
+          "bottom": 1640.89,
+          "width": 798,
+          "height": 1400.06
+        },
+        "dock": {
+          "left": 24,
+          "top": 821,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 187
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 240.83,
+              "right": 816,
+              "bottom": 585.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 259.83,
+              "right": 797,
+              "bottom": 417.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 469.42,
+              "right": 797,
+              "bottom": 566.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Originalピザ構成 :1枚ピザトッピング :Super Papa's×1ラージサイズピザ基本料金₩28,500通常合計₩28,5003인 세트割引−₩7,900ピザ支払金額₩20,600選択特典Set Menuお支払い予定額₩37,000数量1セット通常金額₩44,900セット割引金額−₩7,900セット適用金額₩37,000−＋削除"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 592.59,
+              "right": 816,
+              "bottom": 937.36,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 611.59,
+              "right": 797,
+              "bottom": 769.19,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 821.19,
+              "right": 797,
+              "bottom": 918.36,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Originalピザ構成 :1枚ピザトッピング :Super Papa's×1ラージサイズピザ基本料金₩28,500通常合計₩28,500UP & UP割引−₩10,400ピザ支払金額₩18,100選択特典UP & UPお支払い予定額₩29,500数量1セット通常金額₩39,900セット割引金額−₩10,400セット適用金額₩29,500−＋削除"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 944.36,
+              "right": 816,
+              "bottom": 1289.13,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 963.36,
+              "right": 797,
+              "bottom": 1120.95,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1172.95,
+              "right": 797,
+              "bottom": 1270.13,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Originalピザ構成 :1枚ピザトッピング :Super Papa's×1ラージサイズピザ基本料金₩28,500通常合計₩28,500Happy Hour割引−₩7,000ピザ支払金額₩21,500選択特典HAPPY HOURお支払い予定額₩24,500数量1セット通常金額₩31,500セット割引金額−₩7,000セット適用金額₩24,500−＋削除"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1296.13,
+              "right": 816,
+              "bottom": 1640.89,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 1315.13,
+              "right": 797,
+              "bottom": 1472.72,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1524.72,
+              "right": 797,
+              "bottom": 1621.89,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "ピザ生地タイプ :Originalサイズ :ラージサイズクラストタイプ :Originalピザ構成 :1枚ピザトッピング :Super Papa's×1ラージサイズピザ基本料金₩28,500通常合計₩28,500Takeout Special割引−₩4,000ピザ支払金額₩24,500選択特典Takeout 20%お支払い予定額₩26,500数量1セット通常金額₩30,500セット割引金額−₩4,000セット適用金額₩26,500−＋削除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "187px"
+    },
+    {
+      "locale": "zh",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 687,
+          "scrollHeight": 687,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 158,
+          "right": 834,
+          "bottom": 845,
+          "width": 834,
+          "height": 687
+        },
+        "list": {
+          "left": 18,
+          "top": 237.83,
+          "right": 816,
+          "bottom": 582.59,
+          "width": 798,
+          "height": 344.77
+        },
+        "dock": {
+          "left": 24,
+          "top": 861,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 147
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 237.83,
+              "right": 816,
+              "bottom": 582.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 256.83,
+              "right": 797,
+              "bottom": 414.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 466.42,
+              "right": 797,
+              "bottom": 563.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Original披萨组合 :整张披萨披萨口味 :Super Papa's×1大尺寸披萨基础价格₩28,500原价合计₩28,500披萨实付金额₩28,500应付总额₩28,500数量1套餐原价₩28,500套餐优惠金额₩0套餐适用金额₩28,500−＋删除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "147px"
+    },
+    {
+      "locale": "zh",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 683,
+          "scrollHeight": 926,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 158,
+          "right": 834,
+          "bottom": 841,
+          "width": 834,
+          "height": 683
+        },
+        "list": {
+          "left": 18,
+          "top": 237.83,
+          "right": 816,
+          "bottom": 1075.92,
+          "width": 798,
+          "height": 838.09
+        },
+        "dock": {
+          "left": 24,
+          "top": 857,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 151
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 237.83,
+              "right": 816,
+              "bottom": 724.16,
+              "width": 798,
+              "height": 486.33
+            },
+            "financial": {
+              "left": 573,
+              "top": 256.83,
+              "right": 797,
+              "bottom": 414.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 466.42,
+              "right": 797,
+              "bottom": 563.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Cheese Roll披萨组合 :整张披萨披萨口味 :Super Papa's×1套餐原价₩44,900套餐优惠金额−₩7,900套餐适用金额₩37,000小食Chicken Strips×1套餐包含饮料Coca-Cola Zero×1套餐包含所选优惠3人套餐应付总额₩37,000数量1套餐原价₩44,900套餐优惠金额−₩7,900套餐适用金额₩37,000−＋删除"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 731.16,
+              "right": 816,
+              "bottom": 1075.92,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 750.16,
+              "right": 797,
+              "bottom": 907.75,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 959.75,
+              "right": 797,
+              "bottom": 1056.92,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :家庭尺寸饼边类型 :Cheese Roll披萨组合 :整张披萨披萨口味 :John's Favorite×1家庭尺寸披萨基础价格₩34,900Cheese Roll加价₩5,000原价合计₩39,900UP & UP优惠−₩10,400披萨实付金额₩29,500所选优惠UP & UP应付总额₩29,500数量1套餐原价₩39,900套餐优惠金额−₩10,400套餐适用金额₩29,500−＋删除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "151px"
+    },
+    {
+      "locale": "zh",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 651,
+          "scrollHeight": 1488,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 158,
+          "right": 834,
+          "bottom": 809,
+          "width": 834,
+          "height": 651
+        },
+        "list": {
+          "left": 18,
+          "top": 237.83,
+          "right": 816,
+          "bottom": 1637.89,
+          "width": 798,
+          "height": 1400.06
+        },
+        "dock": {
+          "left": 24,
+          "top": 825,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 183
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 237.83,
+              "right": 816,
+              "bottom": 582.59,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 256.83,
+              "right": 797,
+              "bottom": 414.42,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 466.42,
+              "right": 797,
+              "bottom": 563.59,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Original披萨组合 :整张披萨披萨口味 :Super Papa's×1大尺寸披萨基础价格₩28,500原价合计₩28,5003인 세트优惠−₩7,900披萨实付金额₩20,600所选优惠Set Menu应付总额₩37,000数量1套餐原价₩44,900套餐优惠金额−₩7,900套餐适用金额₩37,000−＋删除"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 589.59,
+              "right": 816,
+              "bottom": 934.36,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 608.59,
+              "right": 797,
+              "bottom": 766.19,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 818.19,
+              "right": 797,
+              "bottom": 915.36,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Original披萨组合 :整张披萨披萨口味 :Super Papa's×1大尺寸披萨基础价格₩28,500原价合计₩28,500UP & UP优惠−₩10,400披萨实付金额₩18,100所选优惠UP & UP应付总额₩29,500数量1套餐原价₩39,900套餐优惠金额−₩10,400套餐适用金额₩29,500−＋删除"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 941.36,
+              "right": 816,
+              "bottom": 1286.13,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 960.36,
+              "right": 797,
+              "bottom": 1117.95,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1169.95,
+              "right": 797,
+              "bottom": 1267.13,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Original披萨组合 :整张披萨披萨口味 :Super Papa's×1大尺寸披萨基础价格₩28,500原价合计₩28,500Happy Hour优惠−₩7,000披萨实付金额₩21,500所选优惠HAPPY HOUR应付总额₩24,500数量1套餐原价₩31,500套餐优惠金额−₩7,000套餐适用金额₩24,500−＋删除"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1293.13,
+              "right": 816,
+              "bottom": 1637.89,
+              "width": 798,
+              "height": 344.77
+            },
+            "financial": {
+              "left": 573,
+              "top": 1312.13,
+              "right": 797,
+              "bottom": 1469.72,
+              "width": 224,
+              "height": 157.59
+            },
+            "content": {
+              "left": 37,
+              "top": 1521.72,
+              "right": 797,
+              "bottom": 1618.89,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "披萨面团类型 :Original尺寸 :大尺寸饼边类型 :Original披萨组合 :整张披萨披萨口味 :Super Papa's×1大尺寸披萨基础价格₩28,500原价合计₩28,500Takeout Special优惠−₩4,000披萨实付金额₩24,500所选优惠Takeout 20%应付总额₩26,500数量1套餐原价₩30,500套餐优惠金额−₩4,000套餐适用金额₩26,500−＋删除"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "183px"
+    },
+    {
+      "locale": "vi",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 697,
+          "scrollHeight": 697,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 852,
+          "width": 834,
+          "height": 697
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 617.19,
+          "width": 798,
+          "height": 386.36
+        },
+        "dock": {
+          "left": 24,
+          "top": 868,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 140
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 617.19,
+              "width": 798,
+              "height": 386.36
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 449.02,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 501.02,
+              "right": 797,
+              "bottom": 598.19,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :OriginalKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá cơ bản pizza cỡ Cỡ Large₩28.500Tổng giá thường₩28.500Thanh toán pizza₩28.500Tổng thanh toán₩28.500Số lượng1Giá thường của combo₩28.500Giảm giá combo₩0Giá áp dụng combo₩28.500−＋Xóa"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "140px"
+    },
+    {
+      "locale": "vi",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 685,
+          "scrollHeight": 1060,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 840,
+          "width": 834,
+          "height": 685
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 1206.89,
+          "width": 798,
+          "height": 976.06
+        },
+        "dock": {
+          "left": 24,
+          "top": 856,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 152
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 786.14,
+              "width": 798,
+              "height": 555.31
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 449.02,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 501.02,
+              "right": 797,
+              "bottom": 625.58,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :Cheese RollKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá thường của combo₩44.900Giảm giá combo−₩7.900Giá áp dụng combo₩37.000Món phụChicken Strips×1Bao gồm trong comboĐồ uốngCoca-Cola Zero×1Bao gồm trong comboƯu đãi đã chọnCombo 3 ngườiTổng thanh toán₩37.000Số lượng1Giá thường của combo₩44.900Giảm giá combo−₩7.900Giá áp dụng combo₩37.000−＋Xóa"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 793.14,
+              "right": 816,
+              "bottom": 1206.89,
+              "width": 798,
+              "height": 413.75
+            },
+            "financial": {
+              "left": 573,
+              "top": 812.14,
+              "right": 797,
+              "bottom": 1011.33,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 1063.33,
+              "right": 797,
+              "bottom": 1187.89,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ FamilyLoại viền :Cheese RollKiểu pizza :Pizza nguyên bánhPizza đã chọn :John's Favorite×1Giá cơ bản pizza cỡ Cỡ Family₩34.900Phụ thu viền Cheese Roll₩5.000Tổng giá thường₩39.900Giảm giá UP & UP−₩10.400Thanh toán pizza₩29.500Ưu đãi đã chọnUP & UPTổng thanh toán₩29.500Số lượng1Giá thường của combo₩39.900Giảm giá combo−₩10.400Giá áp dụng combo₩29.500−＋Xóa"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "152px"
+    },
+    {
+      "locale": "vi",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 663,
+          "scrollHeight": 1650,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 818,
+          "width": 834,
+          "height": 663
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 1797.27,
+          "width": 798,
+          "height": 1566.44
+        },
+        "dock": {
+          "left": 24,
+          "top": 834,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 174
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 617.19,
+              "width": 798,
+              "height": 386.36
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 449.02,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 501.02,
+              "right": 797,
+              "bottom": 598.19,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :OriginalKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá cơ bản pizza cỡ Cỡ Large₩28.500Tổng giá thường₩28.500Giảm giá 3인 세트−₩7.900Thanh toán pizza₩20.600Ưu đãi đã chọnSet MenuTổng thanh toán₩37.000Số lượng1Giá thường của combo₩44.900Giảm giá combo−₩7.900Giá áp dụng combo₩37.000−＋Xóa"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 624.19,
+              "right": 816,
+              "bottom": 1010.55,
+              "width": 798,
+              "height": 386.36
+            },
+            "financial": {
+              "left": 573,
+              "top": 643.19,
+              "right": 797,
+              "bottom": 842.38,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 894.38,
+              "right": 797,
+              "bottom": 991.55,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :OriginalKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá cơ bản pizza cỡ Cỡ Large₩28.500Tổng giá thường₩28.500Giảm giá UP & UP−₩10.400Thanh toán pizza₩18.100Ưu đãi đã chọnUP & UPTổng thanh toán₩29.500Số lượng1Giá thường của combo₩39.900Giảm giá combo−₩10.400Giá áp dụng combo₩29.500−＋Xóa"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 1017.55,
+              "right": 816,
+              "bottom": 1403.91,
+              "width": 798,
+              "height": 386.36
+            },
+            "financial": {
+              "left": 573,
+              "top": 1036.55,
+              "right": 797,
+              "bottom": 1235.73,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 1287.73,
+              "right": 797,
+              "bottom": 1384.91,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :OriginalKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá cơ bản pizza cỡ Cỡ Large₩28.500Tổng giá thường₩28.500Giảm giá Happy Hour−₩7.000Thanh toán pizza₩21.500Ưu đãi đã chọnHAPPY HOURTổng thanh toán₩24.500Số lượng1Giá thường của combo₩31.500Giảm giá combo−₩7.000Giá áp dụng combo₩24.500−＋Xóa"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1410.91,
+              "right": 816,
+              "bottom": 1797.27,
+              "width": 798,
+              "height": 386.36
+            },
+            "financial": {
+              "left": 573,
+              "top": 1429.91,
+              "right": 797,
+              "bottom": 1629.09,
+              "width": 224,
+              "height": 199.19
+            },
+            "content": {
+              "left": 37,
+              "top": 1681.09,
+              "right": 797,
+              "bottom": 1778.27,
+              "width": 760,
+              "height": 97.17
+            },
+            "text": "PizzaLoại bột :OriginalKích cỡ :Cỡ LargeLoại viền :OriginalKiểu pizza :Pizza nguyên bánhPizza đã chọn :Super Papa's×1Giá cơ bản pizza cỡ Cỡ Large₩28.500Tổng giá thường₩28.500Giảm giá Takeout Special−₩4.000Thanh toán pizza₩24.500Ưu đãi đã chọnTakeout 20%Tổng thanh toán₩26.500Số lượng1Giá thường của combo₩30.500Giảm giá combo−₩4.000Giá áp dụng combo₩26.500−＋Xóa"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "174px"
+    },
+    {
+      "locale": "es",
+      "scenario": "no-discount",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 697,
+          "scrollHeight": 697,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 852,
+          "width": 834,
+          "height": 697
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 666.67,
+          "width": 798,
+          "height": 435.84
+        },
+        "dock": {
+          "left": 24,
+          "top": 868,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 140
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 1,
+        "visibleCount": 1,
+        "indexes": [
+          0
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 666.67,
+              "width": 798,
+              "height": 435.84
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 471.11,
+              "width": 224,
+              "height": 221.28
+            },
+            "content": {
+              "left": 37,
+              "top": 523.11,
+              "right": 797,
+              "bottom": 647.67,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :OriginalFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Precio base de pizza Tamaño Large₩28.500Subtotal normal₩28.500Pago de la pizza₩28.500Total a pagar₩28.500Cantidad1Importe normal del menú₩28.500Descuento del menú₩0Importe aplicado del menú₩28.500−＋Eliminar"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "140px"
+    },
+    {
+      "locale": "es",
+      "scenario": "d8222",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 685,
+          "scrollHeight": 1143,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 840,
+          "width": 834,
+          "height": 685
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 1290.08,
+          "width": 798,
+          "height": 1059.25
+        },
+        "dock": {
+          "left": 24,
+          "top": 856,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 152
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 2,
+        "visibleCount": 2,
+        "indexes": [
+          0,
+          1
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 827.73,
+              "width": 798,
+              "height": 596.91
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 490.61,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 542.61,
+              "right": 797,
+              "bottom": 667.17,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :Cheese RollFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Importe normal del menú₩44.900Descuento del menú−₩7900Importe aplicado del menú₩37.000AcompañamientoChicken Strips×1Incluido en el menúBebidaCoca-Cola Zero×1Incluido en el menúVentaja elegidaSet para 3Total a pagar₩37.000Cantidad1Importe normal del menú₩44.900Descuento del menú−₩7900Importe aplicado del menú₩37.000−＋Eliminar"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 834.73,
+              "right": 816,
+              "bottom": 1290.08,
+              "width": 798,
+              "height": 455.34
+            },
+            "financial": {
+              "left": 573,
+              "top": 853.73,
+              "right": 797,
+              "bottom": 1094.52,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 1146.52,
+              "right": 797,
+              "bottom": 1271.08,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño FamilyTipo de borde :Cheese RollFormato de pizza :Pizza enteraPizza elegida :John's Favorite×1Precio base de pizza Tamaño Family₩34.900Suplemento Cheese Roll₩5000Subtotal normal₩39.900Descuento UP & UP−₩10.400Pago de la pizza₩29.500Ventaja elegidaUP & UPTotal a pagar₩29.500Cantidad1Importe normal del menú₩39.900Descuento del menú−₩10.400Importe aplicado del menú₩29.500−＋Eliminar"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "152px"
+    },
+    {
+      "locale": "es",
+      "scenario": "multi-benefit",
+      "metrics": {
+        "viewport": {
+          "width": 834,
+          "height": 1112
+        },
+        "document": {
+          "clientWidth": 834,
+          "scrollWidth": 834,
+          "clientHeight": 1112,
+          "scrollHeight": 1112
+        },
+        "stage": {
+          "clientHeight": 663,
+          "scrollHeight": 1926,
+          "scrollTop": 0,
+          "left": 0,
+          "top": 155,
+          "right": 834,
+          "bottom": 818,
+          "width": 834,
+          "height": 663
+        },
+        "list": {
+          "left": 18,
+          "top": 230.83,
+          "right": 816,
+          "bottom": 2073.2,
+          "width": 798,
+          "height": 1842.38
+        },
+        "dock": {
+          "left": 24,
+          "top": 834,
+          "right": 810,
+          "bottom": 1008,
+          "width": 786,
+          "height": 174
+        },
+        "actions": {
+          "left": 24,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 786,
+          "height": 72
+        },
+        "confirm": {
+          "left": 458.05,
+          "top": 1024,
+          "right": 810,
+          "bottom": 1096,
+          "width": 351.95,
+          "height": 72
+        },
+        "confirmCenterError": 0,
+        "allCount": 4,
+        "visibleCount": 4,
+        "indexes": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "cards": [
+          {
+            "index": 0,
+            "rect": {
+              "left": 18,
+              "top": 230.83,
+              "right": 816,
+              "bottom": 686.17,
+              "width": 798,
+              "height": 455.34
+            },
+            "financial": {
+              "left": 573,
+              "top": 249.83,
+              "right": 797,
+              "bottom": 490.61,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 542.61,
+              "right": 797,
+              "bottom": 667.17,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :OriginalFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Precio base de pizza Tamaño Large₩28.500Subtotal normal₩28.500Descuento 3인 세트−₩7900Pago de la pizza₩20.600Ventaja elegidaSet MenuTotal a pagar₩37.000Cantidad1Importe normal del menú₩44.900Descuento del menú−₩7900Importe aplicado del menú₩37.000−＋Eliminar"
+          },
+          {
+            "index": 1,
+            "rect": {
+              "left": 18,
+              "top": 693.17,
+              "right": 816,
+              "bottom": 1148.52,
+              "width": 798,
+              "height": 455.34
+            },
+            "financial": {
+              "left": 573,
+              "top": 712.17,
+              "right": 797,
+              "bottom": 952.95,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 1004.95,
+              "right": 797,
+              "bottom": 1129.52,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :OriginalFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Precio base de pizza Tamaño Large₩28.500Subtotal normal₩28.500Descuento UP & UP−₩10.400Pago de la pizza₩18.100Ventaja elegidaUP & UPTotal a pagar₩29.500Cantidad1Importe normal del menú₩39.900Descuento del menú−₩10.400Importe aplicado del menú₩29.500−＋Eliminar"
+          },
+          {
+            "index": 2,
+            "rect": {
+              "left": 18,
+              "top": 1155.52,
+              "right": 816,
+              "bottom": 1610.86,
+              "width": 798,
+              "height": 455.34
+            },
+            "financial": {
+              "left": 573,
+              "top": 1174.52,
+              "right": 797,
+              "bottom": 1415.3,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 1467.3,
+              "right": 797,
+              "bottom": 1591.86,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :OriginalFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Precio base de pizza Tamaño Large₩28.500Subtotal normal₩28.500Descuento Happy Hour−₩7000Pago de la pizza₩21.500Ventaja elegidaHAPPY HOURTotal a pagar₩24.500Cantidad1Importe normal del menú₩31.500Descuento del menú−₩7000Importe aplicado del menú₩24.500−＋Eliminar"
+          },
+          {
+            "index": 3,
+            "rect": {
+              "left": 18,
+              "top": 1617.86,
+              "right": 816,
+              "bottom": 2073.2,
+              "width": 798,
+              "height": 455.34
+            },
+            "financial": {
+              "left": 573,
+              "top": 1636.86,
+              "right": 797,
+              "bottom": 1877.64,
+              "width": 224,
+              "height": 240.78
+            },
+            "content": {
+              "left": 37,
+              "top": 1929.64,
+              "right": 797,
+              "bottom": 2054.2,
+              "width": 760,
+              "height": 124.56
+            },
+            "text": "PizzaTipo de masa :OriginalTamaño :Tamaño LargeTipo de borde :OriginalFormato de pizza :Pizza enteraPizza elegida :Super Papa's×1Precio base de pizza Tamaño Large₩28.500Subtotal normal₩28.500Descuento Takeout Special−₩4000Pago de la pizza₩24.500Ventaja elegidaTakeout 20%Total a pagar₩26.500Cantidad1Importe normal del menú₩30.500Descuento del menú−₩4000Importe aplicado del menú₩26.500−＋Eliminar"
+          }
+        ],
+        "pagerHidden": true,
+        "reviewDensity": "scroll",
+        "cardOverlap": false,
+        "dockActionOverlap": 0,
+        "horizontalOverflow": 0,
+        "clipped": [],
+        "verticalText": []
+      },
+      "reservedHeight": "174px"
+    }
+  ],
   "dynamic": [
     {
       "height": 1112,
@@ -8938,16 +11512,27 @@
     "labels": "피자도우타입 :클래식사이즈 :라지사이즈크러스트타입 :치즈롤피자구성 :한판피자토핑 :수퍼 파파스×1세트 정상금액44,900원세트 할인금액−7,900원세트 적용금액37,000원사이드치킨 스트립×1세트 포함음료코카-콜라 제로 1.25L×1세트 포함선택 혜택3인 세트총 결제금액37,000원수량1세트 정상금액44,900원세트 할인금액−7,900원세트 적용금액37,000원−＋삭제피자도우타입 :클래식사이즈 :패밀리사이즈크러스트타입 :치즈롤피자구성 :한판피자토핑 :존스 페이버릿×1패밀리사이즈 피자 기본금액34,900원치즈롤 추가금5,000원정상 합계39,900원UP & UP 할인−10,400원피자 결제금액29,500원선택 혜택UP & UP총 결제금액29,500원수량1세트 정상금액39,900원세트 할인금액−10,400원세트 적용금액29,500원−＋삭제"
   },
   "mutation": {
-    "before": 85500,
-    "afterQty": 114000,
+    "before": 117500,
+    "afterQty": 154500,
     "qty": 2,
-    "countAfterQty": 3,
-    "countAfterDelete": 2,
-    "stateCount": 2,
+    "countAfterQty": 4,
+    "countAfterDelete": 3,
+    "stateCount": 3,
     "indexes": [
       0,
-      1
+      1,
+      2
     ],
-    "finalAfterDelete": 85500
+    "finalAfterDelete": 125000,
+    "gaps": [
+      16,
+      16,
+      16
+    ],
+    "dockHeights": [
+      176,
+      176,
+      177
+    ]
   }
 }

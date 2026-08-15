@@ -2668,6 +2668,13 @@ function reviewContentOverflows(){
  return root.scrollWidth>innerWidth||root.scrollHeight>innerHeight||stageBottom>availableBottom+1;
 }
 function isIpadAir3PortraitViewport(){return typeof matchMedia==='function'&&matchMedia('(min-width:820px) and (max-width:850px) and (orientation:portrait)').matches}
+function syncIpadReviewDockReservation(){
+ const body=document.body;
+ if(state.step!=='review'||!isIpadAir3PortraitViewport()){body?.style.removeProperty('--ipad-review-summary-dock-height');return}
+ const dock=document.querySelector('.reviewSummaryDock');
+ if(!dock)return;
+ body.style.setProperty('--ipad-review-summary-dock-height',`${Math.ceil(dock.getBoundingClientRect().height)}px`);
+}
 function fitOrderReview(){
  const body=document.body;
  if(!body?.classList)return 0;
@@ -2676,6 +2683,7 @@ function fitOrderReview(){
  if(state.step!=='review')return 0;
  if(document.documentElement.dataset?.layout==='phone')return 0;
  if(document.documentElement.dataset?.layout==='kiosk21'||isIpadAir3PortraitViewport()){
+  syncIpadReviewDockReservation();
   const list=document.querySelector('.reviewOrderList');
   const cards=[...document.querySelectorAll('.reviewOrderCard')];
   const pager=document.querySelector('.reviewPager');
@@ -7437,4 +7445,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-tablet.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
-<link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v5">
+<link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
