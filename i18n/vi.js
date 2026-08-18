@@ -33,3 +33,4 @@ Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.takeout,{title:'Takeout 20%'});
 Object.assign(window.PJ_I18N_LOCALES.vi.review,{orderListLabel:'Danh sách món đã đặt',paginationLabel:'Trang chi tiết đơn',previousItems:'Món trước',nextItems:'Món tiếp theo'});
+Object.assign(window.PJ_I18N_LOCALES.vi.seat,{capacity:{full:'Hết chỗ',fullDescription:'Hiện không thể xếp chỗ cho nhóm này',queue:'Xếp hàng',unavailable:'Không khả dụng',review:'Cần kiểm tra'}});

@@ -22,6 +22,8 @@ function customerHarness(options={}){
  for(const language of ['ko','en','ja','zh','vi','es'])vm.runInContext(fs.readFileSync(path.join(root,'i18n',`${language}.js`),'utf8'),context);
  vm.runInContext(fs.readFileSync(path.join(root,'i18n/ui.js'),'utf8'),context);
  vm.runInContext(fs.readFileSync(path.join(root,'i18n/index.js'),'utf8'),context);
+ vm.runInContext(fs.readFileSync(path.join(root,'seat-capacity-policy.js'),'utf8'),context);
+ vm.runInContext(fs.readFileSync(path.join(root,'kiosk-seat-transaction.js'),'utf8'),context);
  const data=html.match(/window\.KIOSK_DATA\s*=\s*(\{[\s\S]*?\n\});/);vm.runInContext(`window.KIOSK_DATA=${data[1]}`,context);
  const main=[...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(match=>match[1]).find(source=>source.includes('function submitMobileOrder()'));
  vm.runInContext(main,context);

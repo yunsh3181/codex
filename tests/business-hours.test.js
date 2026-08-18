@@ -14,6 +14,7 @@ const {
 } = require('../business-hours.js');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const seatTransaction = fs.readFileSync(path.join(root, 'kiosk-seat-transaction.js'), 'utf8');
 
 function seoulTime(iso) {
   return new Date(`${iso}+09:00`);
@@ -54,10 +55,9 @@ test('Asia/Seoul checks do not depend on the host timezone', () => {
 test('order submission and Firestore persistence do not use business-hour guards', () => {
   const complete = html.match(/async function complete\(event\)\{[\s\S]*?\n}\n\n\/\* v43/)?.[0] || '';
   const submit = html.match(/async function submitMobileOrder\(\)\{[\s\S]*?\n}\n\nasync function complete/)?.[0] || '';
-  const transaction = submit.match(/await db\.runTransaction\(async transaction=>\{[\s\S]*?\n \}\);/)?.[0] || '';
   assert.doesNotMatch(complete, /assertBusinessOpen|BUSINESS_HOURS_CLOSED/);
   assert.doesNotMatch(submit, /requireBusinessOpenPure|assertBusinessOpen|BUSINESS_HOURS_CLOSED/);
-  assert.match(transaction, /transaction\.get[\s\S]*?seatSnapshots\.some[\s\S]*?transaction\.set\(orderRef,payload\)/);
+  assert.match(seatTransaction, /transaction\.get[\s\S]*?selectedSnapshots\.some[\s\S]*?transaction\.set\(orderRef,payload\)/);
 });
 
 test('kiosk startup and rendering never replace the order flow with a closed screen', () => {
@@ -69,10 +69,10 @@ test('kiosk startup and rendering never replace the order flow with a closed scr
 
 test('takeout and dining writes preserve transaction atomicity without time checks', () => {
   const submit = html.match(/async function submitMobileOrder\(\)\{[\s\S]*?\n}\n\nasync function complete/)?.[0] || '';
-  const orderWrite = submit.indexOf('transaction.set(orderRef,payload)');
-  const seatWrite = submit.indexOf('seatRefs.forEach');
+  const orderWrite = seatTransaction.indexOf('transaction.set(orderRef,payload)');
+  const seatWrite = seatTransaction.indexOf('selected.forEach');
   assert.ok(orderWrite > 0 && orderWrite < seatWrite);
-  assert.match(submit, /const seatRefs=state\.orderType==='dinein'\?state\.selectedTables/);
+  assert.match(submit, /state\.orderType==='dinein'\)await window\.PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
 });
 
 test('business-hours settings remain available for admin and test-mode use', () => {

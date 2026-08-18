@@ -33,3 +33,4 @@ Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.takeout,{title:'Takeout 20%'});
 Object.assign(window.PJ_I18N_LOCALES.ja.review,{orderListLabel:'注文商品一覧',paginationLabel:'注文内容ページ',previousItems:'前の注文内容',nextItems:'次の注文内容'});
+Object.assign(window.PJ_I18N_LOCALES.ja.seat,{capacity:{full:'満席',fullDescription:'現在の人数では着席できません',queue:'順番待ち',unavailable:'利用不可',review:'確認が必要'}});
