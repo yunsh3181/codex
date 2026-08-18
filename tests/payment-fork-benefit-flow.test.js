@@ -46,14 +46,14 @@ test('actual customer fork selection survives payload JSON and renders identical
  const payload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',customer));
  assert.equal(payload.disposables,true);assert.equal(typeof payload.disposables,'boolean');
  const firestoreDocument=JSON.parse(JSON.stringify(payload));
- for(const markup of [adminUi.newOrderCard(firestoreDocument),adminUi.renderOrderDetail(firestoreDocument)])assert.match(markup,/<span>일회용 포크<\/span><strong>O<\/strong>/);
+ for(const markup of [adminUi.newOrderCard(firestoreDocument),adminUi.renderOrderDetail(firestoreDocument)])assert.match(markup,/class="detail-fork-status fork-yes"[^>]*>O<\/span>/);
  for(const value of [false]){
   const documentValue={...firestoreDocument};if(value===undefined)delete documentValue.disposables;else documentValue.disposables=value;
-  for(const markup of [adminUi.newOrderCard(documentValue),adminUi.renderOrderDetail(documentValue)])assert.match(markup,/<span>일회용 포크<\/span><strong>X<\/strong>/);
+  for(const markup of [adminUi.newOrderCard(documentValue),adminUi.renderOrderDetail(documentValue)])assert.match(markup,/class="detail-fork-status fork-no"[^>]*>X<\/span>/);
  }
  for(const value of [undefined,null,'true','false',1]){
   const documentValue={...firestoreDocument};if(value===undefined)delete documentValue.disposables;else documentValue.disposables=value;
-  for(const markup of [adminUi.newOrderCard(documentValue),adminUi.renderOrderDetail(documentValue)])assert.match(markup,/<span>일회용 포크<\/span><strong>확인 필요<\/strong>/);
+  for(const markup of [adminUi.newOrderCard(documentValue),adminUi.renderOrderDetail(documentValue)])assert.match(markup,/class="detail-fork-status fork-review"[^>]*>확인 필요<\/span>/);
  }
 });
 

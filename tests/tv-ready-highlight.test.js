@@ -43,8 +43,8 @@ assert.ok(html.includes('조리완료 주문이 없습니다.'),'ready empty sta
 assert.ok(!html.includes('제조완료'),'legacy wording is absent from TV HTML');
 assert.match(css,/\.ready-section \.order-number\.ready-overdue\{[^}]*border:4px solid #d71920;[^}]*background:#ffe1e1;[^}]*color:#b30009;[^}]*animation:ready-overdue-pulse 1s ease-in-out infinite/,'overdue card is red and animated');
 assert.ok(css.includes('@keyframes ready-overdue-pulse'),'overdue pulse keyframes exist');
-assert.strictEqual(intervals.length,1,'automatic highlight refresh timer is registered');
-assert.strictEqual(intervals[0].delay,30000,'highlight refreshes every 30 seconds');
+assert.deepStrictEqual(intervals.map(interval=>interval.delay),[30000,1000],'highlight and countdown refresh timers are each registered once');
+const highlightInterval=intervals.find(interval=>interval.delay===30000);
 
 subscriptions.publicOrderDisplays({docs:[
  doc('recent','1111','ready',now-299999),
@@ -64,7 +64,7 @@ assert.match(readyHTML,/class="order-number ready-overdue"><strong>5555번<\/str
 assert.ok(!readyHTML.includes('3333'),'cooking order is not rendered as ready');
 
 fakeNow+=2;
-intervals[0].callback();
+highlightInterval.callback();
 readyHTML=element('readyOrders').innerHTML;
 assert.match(readyHTML,/class="order-number ready-overdue"><strong>1111번<\/strong>/,'timer rerender can promote an order without reload');
 

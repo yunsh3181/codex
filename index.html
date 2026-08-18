@@ -3857,7 +3857,7 @@ function mobilePhoneFull(){return '010'+state.phone}
 function mobileMaskedPhone(){return '010-****-'+last4()}
 function mobileOrderLanguage(){
  const language=String(window.PJ_I18N?.currentLanguage?.()||'').trim().replace(/_/g,'-').toLowerCase();
- const supported={ko:'ko','ko-kr':'ko',en:'en','en-us':'en',es:'es','es-es':'es',ja:'ja','ja-jp':'ja',zh:'zh','zh-cn':'zh','zh-hans':'zh','zh-hans-cn':'zh'};
+ const supported={ko:'ko','ko-kr':'ko',en:'en','en-us':'en',es:'es','es-es':'es',ja:'ja','ja-jp':'ja',zh:'zh','zh-cn':'zh','zh-hans':'zh','zh-hans-cn':'zh',vi:'vi','vi-vn':'vi'};
  return supported[language]||'ko'
 }
 function mobileItemMap(map,master,category){

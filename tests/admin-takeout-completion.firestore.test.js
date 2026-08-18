@@ -120,8 +120,8 @@ if(!emulatorAvailable){test('admin takeout production transactions and rules mat
   const now=1770000000000;
   for(const [index,status] of ['payment_pending','new'].entries()){
    const id=`prep-start-${status}`;await seedTakeout(takeout(id,status));
-   const mutations=[],result=await startPreparation(adminDb(),id,15,now,mutations),order=await read(adminDb(),'orders',id);
-   assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);assert.equal(order.status,'cooking');assert.equal(order.preparationMinutes,15);assert.ok(order.preparationStartedAt);assert.equal(order.readyDueAt.toMillis(),now+15*60000);assert.equal(order.autoReadyEnabled,true);assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);assert.equal(index>=0,true);
+   const mutations=[],result=await startPreparation(adminDb(),id,15,now,mutations),order=await read(adminDb(),'orders',id),display=await read(adminDb(),'publicOrderDisplays',id);
+   assert.equal(result.orderWrites,1);assert.equal(result.displayWrites,1);assert.equal(result.seatWrites,0);assert.equal(result.paymentCalls,0);assert.equal(order.status,'cooking');assert.equal(order.preparationMinutes,15);assert.ok(order.preparationStartedAt);assert.equal(order.readyDueAt.toMillis(),now+15*60000);assert.equal(order.autoReadyEnabled,true);assert.equal(display.preparationMinutes,15);assert.equal(display.preparationStartedAt.toMillis(),order.preparationStartedAt.toMillis());assert.equal(display.readyDueAt.toMillis(),order.readyDueAt.toMillis());assert.equal(display.autoReadyEnabled,true);assert.equal((await getDocs(collection(adminDb(),'seats'))).size,0);assert.equal(index>=0,true);
   }
  });
  test('prep C-D. dine-in and invalid preparation values commit zero writes',async()=>{

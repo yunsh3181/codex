@@ -91,7 +91,7 @@
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
    const timestamp=serverTimestamp(),readyDueAt=timestampFromMillis(nowMillis+preparationMinutes*60*1000),displayRef=db.collection('publicOrderDisplays').doc(orderId);
    transaction.update(orderRef,{status:'cooking',preparationMinutes,preparationStartedAt:timestamp,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp});
-   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,preparationMinutes,preparationStartedAt:timestamp,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp},{merge:true});
    return {order,status:'cooking',preparationMinutes,readyDueAt,orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
@@ -107,8 +107,9 @@
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
    const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   const preparationDisplay=validPreparationMinutes(order.preparationMinutes)&&timestampMillis(order.preparationStartedAt)!==null&&timestampMillis(order.readyDueAt)!==null?{preparationMinutes:order.preparationMinutes,preparationStartedAt:order.preparationStartedAt,readyDueAt:order.readyDueAt,autoReadyEnabled:false}:{};
    transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
-   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,...preparationDisplay,updatedAt:timestamp},{merge:true});
    return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
@@ -162,8 +163,9 @@
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
    const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   const preparationDisplay=validPreparationMinutes(order.preparationMinutes)&&timestampMillis(order.preparationStartedAt)!==null&&timestampMillis(order.readyDueAt)!==null?{preparationMinutes:order.preparationMinutes,preparationStartedAt:order.preparationStartedAt,readyDueAt:order.readyDueAt,autoReadyEnabled:false}:{};
    transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
-   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,updatedAt:timestamp},{merge:true});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,...preparationDisplay,updatedAt:timestamp},{merge:true});
    return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }

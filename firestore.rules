@@ -53,7 +53,7 @@ service cloud.firestore {
       ])
       && request.resource.data.channel == 'mobile'
       && (!request.resource.data.keys().hasAny(['language'])
-        || request.resource.data.language in ['ko','en','es','ja','zh'])
+        || request.resource.data.language in ['ko','en','es','ja','zh','vi'])
       && request.resource.data.status == 'payment_pending'
       && request.resource.data.orderType in ['dinein','takeout']
       && (!request.resource.data.keys().hasAny(['disposables'])
@@ -139,7 +139,7 @@ service cloud.firestore {
     match /publicOrderDisplays/{orderId} {
       allow read: if true;
       allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','updatedAt'])
+        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])
         && validString(request.resource.data.orderNumber, 32)
         && request.resource.data.displayStatus in ['cooking','ready']
         && validString(request.resource.data.storeId, 80)
@@ -148,6 +148,19 @@ service cloud.firestore {
         && (resource == null || !resource.data.keys().hasAny(['businessDay'])
           || request.resource.data.businessDay == resource.data.businessDay)
         && request.resource.data.updatedAt == request.time
+        && (!request.resource.data.keys().hasAny(['preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled'])
+          || (request.resource.data.preparationMinutes is int
+            && request.resource.data.preparationMinutes >= 5
+            && request.resource.data.preparationMinutes <= 60
+            && request.resource.data.preparationMinutes % 5 == 0
+            && request.resource.data.preparationStartedAt is timestamp
+            && request.resource.data.readyDueAt is timestamp
+            && request.resource.data.autoReadyEnabled is bool
+            && existsAfter(/databases/$(database)/documents/orders/$(orderId))
+            && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.preparationMinutes == request.resource.data.preparationMinutes
+            && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.preparationStartedAt == request.resource.data.preparationStartedAt
+            && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.readyDueAt == request.resource.data.readyDueAt
+            && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.autoReadyEnabled == request.resource.data.autoReadyEnabled))
         && ((!orderId.matches('^counter_.*$')
             && (!existsAfter(/databases/$(database)/documents/orders/$(orderId))
               || !getAfter(/databases/$(database)/documents/orders/$(orderId)).data.keys().hasAny(['source'])

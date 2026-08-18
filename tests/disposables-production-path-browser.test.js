@@ -19,6 +19,6 @@ test('iPad DOM fork choice survives review back submit reload and admin detail',
   assert.equal(flow.returned.cart,flow.review.cart,name);assert.equal(flow.returned.total,flow.review.total,name);
   assert.equal(flow.saved.calls,1,name);assert.equal(flow.saved.orders.length,1,name);assert.equal(flow.saved.orders[0].disposables,expected,name);assert.equal(typeof flow.saved.orders[0].disposables,'boolean',name);
  }
- assert.match(value.admin.needed,/<strong>O<\/strong>/);assert.match(value.admin.notNeeded,/<strong>X<\/strong>/);
- for(const key of ['missing','nullValue','stringTrue','stringFalse'])assert.match(value.admin[key],/<strong>확인 필요<\/strong>/,key);
+ assert.match(value.admin.needed,/fork-yes[^>]*>O<\/span>/);assert.match(value.admin.notNeeded,/fork-no[^>]*>X<\/span>/);
+ for(const key of ['missing','nullValue','stringTrue','stringFalse'])assert.match(value.admin[key],/fork-review[^>]*>확인 필요<\/span>/,key);
 });

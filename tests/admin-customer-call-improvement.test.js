@@ -22,7 +22,7 @@ function runtime(initialVoices=[],stored=null){
  for(const id of ['adminVoiceSelect','adminVoiceCurrent','adminVoiceStatus','adminVoicePreview'])elements.set(id,new Element());
  const synthListeners=new Set();
  const synth={getVoices:()=>voices,addEventListener(type,fn){if(type==='voiceschanged')synthListeners.add(fn)},removeEventListener(type,fn){if(type==='voiceschanged')synthListeners.delete(fn)},dispatch(){for(const fn of [...synthListeners])fn()},cancel(){actions.push('cancel');cancelCount++;active=0},speak(utterance){actions.push('speak');speakCount++;active++;maxActive=Math.max(maxActive,active);spoken.push(utterance);queueMicrotask(()=>{active--;utterance.onend?.()})}};
- const context={String,Number,Object,Map,Promise,console:{info(){},warn(){}},document:{getElementById:id=>elements.get(id),createElement:()=>({})},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},window:{speechSynthesis:synth},soundEnabled:true,settings:{voice:true},PJSpeech:{createSpeechUtterance(text,{lang='ko-KR'}={}){return {text,lang,rate:.92,pitch:1.05,volume:1,voice:null}}},spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d)/i,''),setTimeout(fn,delay){const id=nextTimer++;timers.set(id,{fn,at:now+delay});return id},clearTimeout:id=>timers.delete(id)};
+ const context={String,Number,Object,Map,Set,Promise,console:{info(){},warn(){},error(){}},document:{getElementById:id=>elements.get(id),createElement:()=>({})},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},window:{speechSynthesis:synth},soundEnabled:true,settings:{voice:true},playPreset:async()=>{},wait:async()=>{},PJSpeech:{createSpeechUtterance(text,{lang='ko-KR'}={}){return {text,lang,rate:.92,pitch:1.05,volume:1,voice:null}}},spokenOrderNumber:value=>String(value).replace(/^[PD](?=\d)/i,''),setTimeout(fn,delay){const id=nextTimer++;timers.set(id,{fn,at:now+delay});return id},clearTimeout:id=>timers.delete(id)};
  vm.createContext(context);vm.runInContext(`${digitSource}\n${voiceSource}`,context);
  async function advance(ms){const end=now+ms;while(true){const due=[...timers].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;timers.delete(due[0]);now=due[1].at;due[1].fn();await Promise.resolve()}now=end;await Promise.resolve()}
  return {context,elements,synth,spoken,storage,actions,advance,setVoices(value){voices=value.slice()},stats:()=>({cancelCount,speakCount,maxActive,listeners:synthListeners.size,timers:timers.size})}
@@ -68,12 +68,11 @@ assert.strictEqual(app.context.uniqueAdminVoices([ko('Same',false),ko('Same',tru
  await calls.context.speakCustomerCall('9999','ko');
  await calls.context.speakCustomerCall('3181','ko');
  await calls.context.speakCustomerCall('4324','ko');
- assert.deepStrictEqual(calls.spoken.map(item=>item.text),['구천구백구십구 번 고객님.','삼천백팔십일 번 고객님.','사천삼백이십사 번 고객님.']);
+ assert.deepStrictEqual(calls.spoken.map(item=>item.text),['구천구백구십구 번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터에서 받아가 주세요.','삼천백팔십일 번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터에서 받아가 주세요.','사천삼백이십사 번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터에서 받아가 주세요.']);
  calls.elements.get('adminVoicePreview').dispatch('click');await new Promise(resolve=>setImmediate(resolve));
  const utterances=calls.spoken;assert.ok(utterances.length>=4,'preview executes production customer-call path');
  for(const utterance of utterances){assert.strictEqual(utterance.voice.name,saved.name);assert.deepStrictEqual([utterance.rate,utterance.pitch,utterance.volume],[.94,1.08,1])}
- assert.strictEqual(calls.stats().cancelCount,calls.stats().speakCount,'every speak is preceded by one cancel');
- assert.deepStrictEqual(calls.actions.flatMap((action,index)=>index%2===0?[action,calls.actions[index+1]]:[]),Array(calls.stats().speakCount).fill(['cancel','speak']).flat(),'cancel immediately precedes every single speak');
+ assert.strictEqual(calls.stats().cancelCount,0,'customer calls never cancel an active sentence');
  const rapid=[calls.context.enqueueCustomerCall('3181','ko'),calls.context.enqueueCustomerCall('4324','ko')];await Promise.all(rapid);
  assert.strictEqual(calls.stats().maxActive,1,'rapid calls never overlap');
  assert.match(calls.elements.get('adminVoiceCurrent').textContent,/My Korean Voice · ko-KR · 기기/);

@@ -4,6 +4,15 @@ const ready=document.getElementById('readyOrders');
 const enableVoice=document.getElementById('enableVoice');
 const escapeHTML=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 const millis=value=>value?.toMillis?.()||value?.seconds*1000||0;
+const countdownTimestampMillis=value=>{
+ if(value==null)return null;
+ if(typeof value.toMillis==='function'){const result=value.toMillis();return Number.isFinite(result)?result:null}
+ if(typeof value.toDate==='function'){const result=value.toDate()?.getTime?.();return Number.isFinite(result)?result:null}
+ if(Number.isFinite(value.seconds)){const result=value.seconds*1000+(Number(value.nanoseconds)||0)/1e6;return Number.isFinite(result)?result:null}
+ if(value instanceof Date){const result=value.getTime();return Number.isFinite(result)?result:null}
+ if(typeof value==='number'&&Number.isFinite(value))return value;
+ return null;
+};
 const READY_HIGHLIGHT_MS=5*60*1000;
 const VISIBLE_DISPLAY_STATUSES=new Set(['cooking','ready']);
 const TV_DEV_LOGS=typeof location!=='undefined'&&(location.hostname==='localhost'||location.hostname==='127.0.0.1'||new URLSearchParams(location.search).has('debugTv'));
@@ -35,11 +44,19 @@ function waitingOrderDensity(count){
  if(count===4)return 'compact';
  return 'dense';
 }
+function cookingCountdownLabel(item,now=Date.now()){
+ const due=countdownTimestampMillis(item?.readyDueAt),started=countdownTimestampMillis(item?.preparationStartedAt);
+ if(item?.displayStatus!=='cooking'||item?.autoReadyEnabled!==true||!Number.isInteger(item?.preparationMinutes)||item.preparationMinutes<5||item.preparationMinutes>60||item.preparationMinutes%5!==0||due===null||started===null)return '';
+ const remaining=due-now;if(remaining<=0)return '곧 준비됩니다';
+ const minutes=Math.floor(remaining/60000),seconds=Math.floor(remaining%60000/1000);
+ return `조리완료까지 ${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+}
+function cookingCardStatus(item){const label=cookingCountdownLabel(item);return label?`<span class="cooking-countdown">${escapeHTML(label)}</span>`:'<span>조리중</span>'}
 function renderDisplay(target,items,emptyText){
  if(!target.dataset)target.dataset={};
  target.dataset.density=waitingOrderDensity(items.length);
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
-  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':''}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
  }
  const desired=new Map(items.map(item=>[item.id,item]));
@@ -50,7 +67,7 @@ function renderDisplay(target,items,emptyText){
   let node=existing.get(item.id);
   if(!node){node=document.createElement('div');node.dataset.orderKey=item.id}
   node.className=`order-number${isReadyOverdue(item)?' ready-overdue':''}`;
-  node.innerHTML=`<strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':''}`;
+  node.innerHTML=`<strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}`;
   target.appendChild(node);
  });
  if(!items.length){const empty=document.createElement('p');empty.className='empty';empty.textContent=emptyText;target.appendChild(empty)}
@@ -66,6 +83,10 @@ function renderAll(){
  renderDisplay(ready,readyRows,'조리완료 주문이 없습니다.');
 }
 const highlightRefreshTimer=window.setInterval?.(renderAll,30*1000);
+const countdownRefreshTimer=window.setInterval?.(renderAll,1000);
+const refreshCountdownNow=()=>renderAll();
+document.addEventListener?.('visibilitychange',()=>{if(!document.hidden)refreshCountdownNow()});
+window.addEventListener?.('focus',refreshCountdownNow);
 let businessDayRefreshTimer=null;
 function scheduleBusinessDayRefresh(){
  if(businessDayRefreshTimer!=null)window.clearTimeout?.(businessDayRefreshTimer);
@@ -174,4 +195,4 @@ function handleConnectionError(error){
 }
 window.addEventListener('offline',()=>{connection.textContent='네트워크 끊김';connection.className='error'});
 window.addEventListener('online',()=>{connection.textContent='재연결 중';connection.className=''});
-window.addEventListener('pagehide',()=>{stopTvListeners();completionSoundEnabled=false;completionAudioContext?.close?.().catch?.(()=>{});completionAudioContext=null;if(highlightRefreshTimer!=null)window.clearInterval?.(highlightRefreshTimer);if(businessDayRefreshTimer!=null)window.clearTimeout?.(businessDayRefreshTimer)});
+window.addEventListener('pagehide',()=>{stopTvListeners();completionSoundEnabled=false;completionAudioContext?.close?.().catch?.(()=>{});completionAudioContext=null;if(highlightRefreshTimer!=null)window.clearInterval?.(highlightRefreshTimer);if(countdownRefreshTimer!=null)window.clearInterval?.(countdownRefreshTimer);if(businessDayRefreshTimer!=null)window.clearTimeout?.(businessDayRefreshTimer)});
