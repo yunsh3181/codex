@@ -14,7 +14,7 @@ const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
 
 assert.ok(kiosk.includes('const SEAT_IDLE_MS=30000'),'seat inactivity timeout is exactly 30 seconds');
 assert.ok(kiosk.includes("transaction.set(ref,{status:'held'"),'seat selection writes the ordering state transactionally');
-assert.ok(kiosk.includes("saved.heldBy!==seatClientId")||kiosk.includes("saved.heldBy!==seatClientId"),'another kiosk cannot claim an active seat');
+assert.ok(kiosk.includes("status!=='empty'&&!(status==='held'&&saved.heldBy===seatClientId)"),'another kiosk and unknown states cannot claim an active seat');
 assert.ok(kiosk.includes("throw new Error('SEAT_UNAVAILABLE')"),'duplicate seat claims are rejected');
 assert.ok(kiosk.includes('seatIdleTimer=setTimeout(()=>expireOrderIdle(generation),SEAT_IDLE_MS)'),'central idle timeout uses the canonical 30-second value');
 assert.ok(kiosk.includes("reset('idle',{skipRelease:true});render()"),'idle timeout releases seats, clears state, and returns to promotions');

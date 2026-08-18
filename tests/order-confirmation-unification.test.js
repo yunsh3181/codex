@@ -47,6 +47,8 @@ test('all discovered benefits keep using the same review data and total renderer
 test('confirmation routing does not mutate order type or pricing',()=>{
   const enterReview=html.match(/function addCurrentOrderToReview\(\)\{[^}]+\}/)?.[0]||'';
   assert.doesNotMatch(`${enterReview}${reviewActionsSource}`,/orderType\s*=|promo\s*=|price\s*=|discount\s*=/);
-  assert.match(html,/review:'promo'/);
-  assert.match(html,/phone:'review'/);
+  assert.match(html,/const navigationHistory=\[\]/);
+  assert.match(html,/while\(navigationHistory\.length&&!previous\)/);
+  assert.doesNotMatch(html,/review:'promo'/);
+  assert.match(html,/else if\(state\.step==='review'\)state\.step='phone'/);
 });
