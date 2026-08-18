@@ -1,0 +1,18 @@
+const assert=require('assert');
+const fs=require('fs');
+const path=require('path');
+const vm=require('vm');
+const source=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/waiting-tv.js'),'utf8');
+const timestamp=source.match(/const countdownTimestampMillis=[\s\S]*?\n};/)?.[0];
+const label=source.match(/function cookingCountdownLabel[\s\S]*?\n}/)?.[0];
+assert.ok(timestamp&&label,'countdown production helpers exist');
+const context={Date,Number,String};vm.createContext(context);vm.runInContext(`${timestamp}\n${label}`,context);
+const now=1770000000000,base={displayStatus:'cooking',autoReadyEnabled:true,preparationMinutes:15,preparationStartedAt:{seconds:(now-1000)/1000},readyDueAt:{toMillis:()=>now+14*60000+32000}};
+assert.strictEqual(context.cookingCountdownLabel(base,now),'조리완료까지 14:32');
+assert.strictEqual(context.cookingCountdownLabel({...base,readyDueAt:{seconds:(now+5000)/1000}},now),'조리완료까지 00:05');
+assert.strictEqual(context.cookingCountdownLabel({...base,readyDueAt:{toDate:()=>new Date(now)}},now),'곧 준비됩니다');
+for(const override of [{displayStatus:'ready'},{autoReadyEnabled:false},{autoReadyEnabled:'true'},{preparationMinutes:null},{preparationStartedAt:null},{readyDueAt:null},{readyDueAt:'invalid'}])assert.strictEqual(context.cookingCountdownLabel({...base,...override},now),'');
+assert.ok(source.includes('window.setInterval?.(renderAll,1000)'),'one-second refresh uses absolute deadline rendering');
+assert.ok(source.includes("visibilitychange"));assert.ok(source.includes("window.addEventListener?.('focus'"));assert.ok(source.includes('clearInterval?.(countdownRefreshTimer)'));
+assert.doesNotMatch(source,/collection\([^)]*\)\.(?:add|set|update)|\.doc\([^)]*\)\.(?:set|update|delete)/,'waiting TV contains no Firestore write API');
+console.log('waiting TV absolute countdown, damaged data, lifecycle, and read-only checks passed');

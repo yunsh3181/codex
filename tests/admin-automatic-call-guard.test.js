@@ -1,0 +1,16 @@
+const assert=require('assert');
+const fs=require('fs');
+const path=require('path');
+const vm=require('vm');
+const source=fs.readFileSync(path.resolve(__dirname,'../admin.js'),'utf8');
+const helper=source.match(/function enqueueAutomaticTakeoutCall[\s\S]*?\n}/)?.[0];
+assert.ok(helper,'automatic call guard exists');
+const queued=[],context={String,automaticallyCalledTakeoutOrders:new Set(),enqueueCustomerCall:(number,language)=>queued.push({number,language})};vm.createContext(context);vm.runInContext(helper,context);
+const cooking={id:'takeout-1',orderType:'takeout',status:'cooking',customerNumber:'P1111',language:'ko'};
+assert.strictEqual(context.enqueueAutomaticTakeoutCall(cooking),true);assert.strictEqual(context.enqueueAutomaticTakeoutCall(cooking),false);assert.deepStrictEqual(queued,[{number:'P1111',language:'ko'}]);
+for(const order of [{...cooking,id:'ready',status:'ready'},{...cooking,id:'dinein',orderType:'dinein'},{...cooking,id:''},null])assert.strictEqual(context.enqueueAutomaticTakeoutCall(order),false);
+assert.strictEqual(queued.length,1,'snapshots and ineligible states cannot enqueue calls');
+assert.ok(source.includes("execute:async order=>{const result=await autoCompleteTakeoutTransaction"));
+assert.ok(source.includes("if(status==='ready')enqueueAutomaticTakeoutCall(committedOrder)"));
+assert.ok(!source.includes("if(status==='completed'&&committedOrder.orderType!=='takeout')callCustomer"));
+console.log('successful takeout-only automatic call session guard passed');

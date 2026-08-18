@@ -128,7 +128,7 @@ function startRealtimeSubscriptions(){
  console.error(error);
  connectionBadge.textContent='연결 오류';
  connectionBadge.className='connection error';
- orderList.innerHTML=`<tr><td colspan="10" class="central-order-empty">Firestore 연결 오류: ${esc(error.message)}</td></tr>`;
+ orderList.innerHTML=`<tr><td colspan="11" class="central-order-empty">Firestore 연결 오류: ${esc(error.message)}</td></tr>`;
 });
  scheduleBusinessDayRefresh();
 
@@ -756,6 +756,15 @@ function centralPaymentMethod(order){
  const method=displayText(order?.payment?.methodName||order?.payment?.method);
  return split?`${method}/${split.count}인`:method;
 }
+function disposablesVisual(value){
+ if(value===true)return {text:'O',className:'fork-yes',ariaLabel:'일회용 포크 필요: O'};
+ if(value===false)return {text:'X',className:'fork-no',ariaLabel:'일회용 포크 불필요: X'};
+ return {text:'확인 필요',className:'fork-review',ariaLabel:'일회용 포크 정보 확인 필요'};
+}
+function disposablesStatusHTML(value,className='fork-status'){
+ const visual=disposablesVisual(value);
+ return `<span class="${className} ${visual.className}" aria-label="${visual.ariaLabel}">${visual.text}</span>`;
+}
 function isPendingOrder(order){return ['payment_pending','new'].includes(order?.status)}
 function isCompletedOrder(order){return ['ready','completed'].includes(order?.status)}
 function classifyCurrentSeatOrderMismatch(order,seats=seatDocuments){return classifySeatOrderMismatch(order,seats)}
@@ -783,7 +792,7 @@ function centralOrderRow(order){
  const phone=displayText(order.phone||order.phoneMasked),orderNo=displayText(order.customerNumber||order.orderNo);
  const visual=adminStatusVisual(order),status=statusNames[order.status]?displayText(adminStatusName(order)):'확인 필요';
  const paid=safeAmounts(order).paid,paymentAmount=paid?money(paid):'-';
- return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong>${isPendingOrder(order)?'<span class="central-new-order">신규주문</span>':''}</td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?(isCounterTakeout(order)?'대면 포장':'포장'):'매장식사'}</td><td title="${esc(seat)}"><span class="central-cell-value">${esc(seat)}</span>${centralSeatAction(order)}</td><td>${party}</td><td><span class="central-cell-value">${paymentAmount}</span>${centralPaymentAction(order)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
+ return `<tr class="central-order-row order-detail-trigger ${reservation?'reservation':''} ${visual.className} ${selected?'selected':''}" data-order-id="${esc(order.id)}" tabindex="0" aria-selected="${selected}" aria-label="순번 ${esc(order.adminDisplaySequence)}, ${reservation?'예약':'즉시'}, ${esc(status)} 주문. Enter 키로 상세보기"><td><strong>${esc(order.adminDisplaySequence)}</strong>${isPendingOrder(order)?'<span class="central-new-order">신규주문</span>':''}</td><td><span class="central-kind ${reservation?'reservation':''}">${reservation?'예약':'즉시'}</span><small>${esc(status)}</small></td><td>${esc(centralOrderTime(order))}</td><td title="${esc(phone)}">${esc(phone)}</td><td title="${esc(orderNo)}">${esc(orderNo)}</td><td>${takeout?(isCounterTakeout(order)?'대면 포장':'포장'):'매장식사'}</td><td>${disposablesStatusHTML(order.disposables)}</td><td title="${esc(seat)}"><span class="central-cell-value">${esc(seat)}</span>${centralSeatAction(order)}</td><td>${party}</td><td><span class="central-cell-value">${paymentAmount}</span>${centralPaymentAction(order)}</td><td title="${esc(centralPaymentMethod(order))}">${esc(centralPaymentMethod(order))}</td></tr>`;
 }
 function nextBusinessDayBoundaryLabel(now=new Date()){
  const key=seoulBusinessDayKey(now),[year,month,day]=key.split('-').map(Number);
@@ -796,7 +805,7 @@ function renderCentralOrderList(){
  centralOrderPage=Math.min(Math.max(1,centralOrderPage),pages);
  const visible=latest.slice((centralOrderPage-1)*CENTRAL_ORDER_PAGE_SIZE,centralOrderPage*CENTRAL_ORDER_PAGE_SIZE);
  businessDayOrderCount.textContent=`총 ${latest.length}건`;
- orderList.innerHTML=visible.length?visible.map(centralOrderRow).join(''):'<tr><td colspan="10" class="central-order-empty">현재 영업일 주문이 없습니다.</td></tr>';
+ orderList.innerHTML=visible.length?visible.map(centralOrderRow).join(''):'<tr><td colspan="11" class="central-order-empty">현재 영업일 주문이 없습니다.</td></tr>';
  orderPagination.innerHTML=`<button type="button" data-order-page="${centralOrderPage-1}" ${centralOrderPage===1?'disabled':''}>이전</button><span>${centralOrderPage} / ${pages}</span><button type="button" data-order-page="${centralOrderPage+1}" ${centralOrderPage===pages?'disabled':''}>다음</button>`;
  syncCentralOrderSelection();
  businessDayNotice.textContent=`영업시간: 09:00 ~ 22:00 | 오늘 주문 초기화: ${nextBusinessDayBoundaryLabel()} 09:00`;
@@ -976,7 +985,7 @@ async function setStatus(id,status,button){
   if((status==='accepted'&&committedOrder.orderType!=='takeout')||(status==='cooking'&&committedOrder.orderType==='takeout'))stopNewOrderRepeat();
   showAdminMessage(status==='accepted'&&committedOrder.orderType!=='takeout'?'좌석을 사용중으로 변경했습니다.':status==='completed'&&committedOrder.orderType==='takeout'?(pickupDisplayMissing?'픽업 완료했습니다. 고객 대기화면 문서는 이미 제거되어 있었습니다.':'픽업 완료로 처리했습니다.'):status==='completed'?'주문 완료와 좌석 해제를 처리했습니다.':'주문 상태가 변경되었습니다.');
   if(!['payment_pending','new'].includes(status))setTimeout(()=>{if(hasUnacceptedOrders())startNewOrderRepeat();else stopNewOrderRepeat()},300);
-  if(status==='completed'&&committedOrder.orderType!=='takeout')callCustomer(committedOrder.customerNumber||committedOrder.orderNo||'',committedOrder.language);
+  if(status==='ready')enqueueAutomaticTakeoutCall(committedOrder);
   return true;
  }catch(error){
   console.error('상태 변경 실패',error);
@@ -992,7 +1001,7 @@ async function setStatus(id,status,button){
 if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&order.status==='cooking'&&order.autoReadyEnabled===true))render()},15000);
 const autoReadyCoordinator=createAutoReadyCoordinator({
  getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),
- execute:order=>autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey}),
+ execute:async order=>{const result=await autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});enqueueAutomaticTakeoutCall(result.order);return result},
  onPermanentError:(error,order)=>{console.error('포장 주문 자동 완료 실패',error);showAdminMessage(`${adminOrderNumberLabel(order)}번 자동 조리완료 실패 (${error.code||'unknown'}): 수동 조리완료를 확인해 주세요.`,true)}
 });
 const autoReadyTimers=autoReadyCoordinator.timers,autoReadyLocks=autoReadyCoordinator.locks;
@@ -1245,8 +1254,7 @@ function orderDetailMenuHTML(order){
  return `${pizzaSection}${otherSection}`;
 }
 function orderDetailForkHTML(order){
- const value=order?.disposables,status=value===true?'O':value===false?'X':'확인 필요';
- return `<div class="detail-fork-card"><span>일회용 포크</span><strong>${status}</strong></div>`;
+ return `<div class="detail-fork-card"><span>일회용 포크</span>${disposablesStatusHTML(order?.disposables,'detail-fork-status')}</div>`;
 }
 function renderOrderDetail(order,seatId=null){
  const takeout=order.orderType==='takeout';
@@ -1339,7 +1347,8 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   return;
  }
  if(action==='call-customer'){
-  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);
+  button.disabled=true;button.setAttribute('aria-busy','true');
+  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
   return;
  }
  if(action==='set-status'){
@@ -1423,7 +1432,8 @@ orderDetailModal?.addEventListener('click',async event=>{
   return;
  }
  if(button.dataset.action==='call-customer'){
-  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);
+  button.disabled=true;button.setAttribute('aria-busy','true');
+  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
   return;
  }
  if(button.dataset.action==='clear-seat'){
@@ -1498,6 +1508,7 @@ async function playPreset(forcePreset){
  [[660,0,.22],[880,.22,.30],[1040,.48,.30]].forEach(x=>tone(...x,.36,'sine'));
 }
 let speechQueue=Promise.resolve();
+const automaticallyCalledTakeoutOrders=new Set();
 const ADMIN_KOREAN_VOICE_PRIORITY=[/sunhi|선희/i,/heami|혜미/i,/seoyeon|서연/i,/natural|online|neural/i,/korean|한국/i];
 const ADMIN_VOICE_STORAGE_KEY='pjAdminCustomerCallVoice';
 const ADMIN_CALL_SPEECH_SETTINGS=Object.freeze({rate:.94,pitch:1.08,volume:1});
@@ -1576,6 +1587,7 @@ function customerCallLanguage(language){
  if(['es','es-es'].includes(normalized))return 'es';
  if(['ja','ja-jp'].includes(normalized))return 'ja';
  if(['zh','zh-cn','zh-hans','zh-hans-cn'].includes(normalized))return 'zh';
+ if(['vi','vi-vn'].includes(normalized))return 'vi';
  return 'ko'
 }
 function customerCallSpeech(orderNo,language){
@@ -1584,11 +1596,12 @@ function customerCallSpeech(orderNo,language){
  const koreanNumber=spokenKoreanOrderNumber(orderNo);
  if(!String(number).match(/\d/)||!koreanNumber)return null;
  const speech={
-  ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님.`},
+  ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터에서 받아가 주세요.`},
   en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
   es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
   ja:{lang:'ja-JP',text:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
-  zh:{lang:'zh-CN',text:`号码为${number}的顾客，您的餐品已经准备好了，请到柜台取餐。`}
+  zh:{lang:'zh-CN',text:`号码为${number}的顾客，您的餐品已经准备好了，请到柜台取餐。`},
+  vi:{lang:'vi-VN',text:`Khách hàng số ${number}, món ăn của quý khách đã sẵn sàng. Vui lòng nhận tại quầy.`}
  }[normalized];
  return {...speech,voicePrefix:normalized}
 }
@@ -1603,11 +1616,16 @@ async function speakCustomerCall(orderNo,language){
   Object.assign(utterance,ADMIN_CALL_SPEECH_SETTINGS);
   if(speech.lang==='ko-KR')console.info('[Admin customer call voice]',{voiceName:utterance.voice?.name||'browser default',lang:utterance.voice?.lang||utterance.lang,localService:utterance.voice?.localService??null,rate:utterance.rate,pitch:utterance.pitch,orderNumber:spokenOrderNumber(orderNo),spokenText:speech.text});
   utterance.onend=resolve;utterance.onerror=resolve;
-  window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
  });
 }
-function enqueueCustomerCall(orderNo,language){speechQueue=speechQueue.then(()=>speakCustomerCall(orderNo,language)).catch(()=>{});return speechQueue}
+async function performCustomerCall(orderNo,language){await playPreset('cafe');await wait(720);await speakCustomerCall(orderNo,language)}
+function enqueueCustomerCall(orderNo,language){speechQueue=speechQueue.then(()=>performCustomerCall(orderNo,language)).catch(error=>{console.error('고객 호출 음성 재생 실패',error)});return speechQueue}
+function enqueueAutomaticTakeoutCall(order){
+ const id=String(order?.id||'');
+ if(!id||order?.orderType!=='takeout'||order?.status!=='cooking'||automaticallyCalledTakeoutOrders.has(id))return false;
+ automaticallyCalledTakeoutOrders.add(id);enqueueCustomerCall(order.customerNumber||order.orderNo||'',order.language);return true;
+}
 adminVoicePreview.addEventListener('click',()=>enqueueCustomerCall('3181','ko'));
 
 let announcementQueue=Promise.resolve();
@@ -1664,7 +1682,7 @@ async function notifyNewOrders(added){
  }
 }
 function showToast(order){document.getElementById('toastText').textContent=`${orderNumberLabel(order.customerNumber||order.orderNo)} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
-function callCustomer(orderNo,language){playPreset('cafe');setTimeout(()=>enqueueCustomerCall(orderNo,language),420)}
+function callCustomer(orderNo,language){return enqueueCustomerCall(orderNo,language)}
 window.callCustomer=callCustomer;window.setStatus=setStatus;
 
 soundButton.textContent=soundEnabled?'🔔 알림음 켜짐':'🔕 알림음 꺼짐';

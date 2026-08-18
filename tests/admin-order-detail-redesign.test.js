@@ -63,7 +63,7 @@ assert.ok(!reserved.includes('pizza-code-alpha">페퍼로니'),'product name alp
 assert.ok(reserved.includes('치킨스트립')&&reserved.includes('9,900원'),'a stored side-line price is rendered without fabrication');
 assert.ok(reserved.includes('코카-콜라 1.25L')&&reserved.includes('×2')&&reserved.includes('2,500원'),'stored drink quantity and price remain aligned');
 assert.ok(reserved.includes('<h4>피자</h4>')&&reserved.includes('<h4>사이드 / 음료 / 곁들이</h4>'),'pizza and non-pizza products use separate groups');
-assert.ok(reserved.includes('<span>일회용 포크</span><strong>O</strong>'),'saved true fork choice renders O');
+assert.match(reserved,/<span>일회용 포크<\/span><span class="detail-fork-status fork-yes"[^>]*>O<\/span>/,'saved true fork choice renders O');
 assert.ok(reserved.includes('data-action="copy-phone"')&&reserved.includes('data-action="call-customer"'),'existing copy and customer-call actions stay connected');
 assert.ok(reserved.includes('<span>결제수단</span>')&&reserved.includes('<span>원 금액</span>')&&reserved.includes('<span>할인금액</span>'),'four-column payment data uses agreed labels');
 
@@ -71,7 +71,7 @@ const splitDetail=context.renderOrderDetail({...baseOrder,totalAmount:40000,tota
 assert.ok(splitDetail.includes('meal-ticket-highlight')&&splitDetail.includes('식권대장 40,000원')&&splitDetail.includes('10,000원 × 4인'),'equal meal-ticket split is emphasized below the detail call button');
 const splitMain=context.newOrderCard({...baseOrder,id:'split-main',status:'payment_pending',totalAmount:40000,total:40000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:4,splitAmounts:[10000,10000,10000,10000]}});
 assert.ok(splitMain.includes('meal-ticket-highlight')&&splitMain.includes('식권대장 40,000원')&&splitMain.includes('10,000원 × 4인'),'new-order card emphasizes the split below the call button from its first render');
-assert.ok(splitMain.includes('<span>일회용 포크</span><strong>O</strong>'),'the Firestore fixture keeps the customer true selection as O on the admin main card');
+assert.match(splitMain,/<span>일회용 포크<\/span><span class="detail-fork-status fork-yes"[^>]*>O<\/span>/,'the Firestore fixture keeps the customer true selection as O on the admin main card');
 const unevenDetail=context.renderOrderDetail({...baseOrder,totalAmount:28000,total:28000,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:3,splitAmounts:[10000,10000,8000]}});
 assert.ok(unevenDetail.includes('10,000원 + 10,000원 + 8,000원'),'unequal meal-ticket split preserves the stored payment amounts');
 const singleDetail=context.renderOrderDetail({...baseOrder,payment:{method:'meal_ticket',methodName:'식권대장',splitCount:1,splitAmounts:[55400]}});
@@ -98,7 +98,7 @@ assert.deepStrictEqual(Array.from(context.orderPizzaBenefitLabels({...baseOrder,
 
 const normal=context.renderOrderDetail({...baseOrder,status:'cooking',pickup:{mode:'now',time:null},disposables:false});
 assert.ok(!normal.includes('detail-reservation">예약</span>'),'normal orders remove the reservation label and its space');
-assert.ok(normal.includes('<span>일회용 포크</span><strong>X</strong>'),'saved false fork choice renders X');
+assert.match(normal,/<span>일회용 포크<\/span><span class="detail-fork-status fork-no"[^>]*>X<\/span>/,'saved false fork choice renders X');
 assert.ok(!normal.includes('<strong><i></i>완료</strong>'),'incomplete orders do not claim completion');
 
 const takeout=context.renderOrderDetail({...baseOrder,orderType:'takeout',seat:null});

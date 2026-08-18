@@ -51,7 +51,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
   delete(ref){displayDeletes.push(ref)}
  };
  const context={
-  Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true}},
+  Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;const result=await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true;return result}},
   document:{getElementById:()=>({hidden:true,focus(){},classList:{add(){},remove(){}}}),body:{classList:{add(){},remove(){}}}},
   firebase:{auth:()=>({currentUser:{uid:'admin-test'}}),firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
   completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
@@ -59,6 +59,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
   orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},
   callCustomer(orderNo,language){customerCalls.push({orderNo,language,commitSucceeded})},
+  enqueueAutomaticTakeoutCall(order){customerCalls.push({orderNo:order?.customerNumber||order?.orderNo,language:order?.language,commitSucceeded})},
   console:{error(...args){loggedErrors.push(args)}}
  };
  vm.createContext(context);
@@ -82,7 +83,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(readyTakeout.writes[0].data.status,'ready');
  assert.strictEqual(readyTakeout.seatWrites.length,0,'takeout ready transition does not touch seats');
  assert.strictEqual(readyTakeout.displayWrites[0].data.businessDay,'2026-07-31','ready transition preserves the order business day instead of renewing it from updatedAt');
- assert.deepStrictEqual(readyTakeout.customerCalls,[],'ready transition does not automatically invoke administrator TTS');
+ assert.deepStrictEqual(readyTakeout.customerCalls,[{orderNo:'P1234',language:'en',commitSucceeded:true}],'successful cooking to ready transition queues one administrator call');
 
  const acceptedDineIn=await exerciseStatus({id:'d1',status:'payment_pending',orderType:'dinein',seatIds:['s1']},'accepted');
  assert.strictEqual(acceptedDineIn.seatWrites.length,1,'dine-in acceptance marks its seat occupied');
@@ -90,7 +91,7 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  const completedDineIn=await exerciseStatus({id:'d2',status:'accepted',orderType:'dinein',seatIds:['s2'],customerNumber:'D5678',language:'es'},'completed');
  assert.strictEqual(completedDineIn.seatWrites.length,1,'dine-in completion releases its seat');
  assert.strictEqual(completedDineIn.seatWrites[0].data.status,'empty');
- assert.deepStrictEqual(completedDineIn.customerCalls,[{orderNo:'D5678',language:'es',commitSucceeded:true}],'dine-in completion calls after releasing its seat in the same commit');
+ assert.deepStrictEqual(completedDineIn.customerCalls,[],'dine-in completion never queues a customer call');
 
  const failedCompletion=await exerciseStatus({id:'f1',status:'cooking',orderType:'takeout',seatIds:[],customerNumber:'P9012',language:'ja'},'ready',{rejectCommit:true});
  assert.deepStrictEqual(failedCompletion.results,[false],'failed completion reports failure');
@@ -98,6 +99,6 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  assert.strictEqual(failedCompletion.loggedErrors.length,1,'failed completion preserves the existing error report');
 
  assert.ok(admin.includes("event.preventDefault();\n event.stopPropagation();"),'delegated actions stop the original click before rerender');
- assert.ok(admin.includes("if(action==='call-customer'){\n  callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage);\n  return;"),'customer calls return without invoking setStatus');
+ assert.ok(admin.includes("if(action==='call-customer'){\n  button.disabled=true;button.setAttribute('aria-busy','true');"),'customer calls use a double-click lock and return without invoking setStatus');
  console.log('admin takeout acceptance, cooking completion, call isolation, seat protection, and duplicate locks passed');
 })().catch(error=>{console.error(error);process.exitCode=1});
