@@ -2296,6 +2296,8 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
 function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',paymentMethod:null,splitCount:1,orderNo:null})}
+const resetOrderState=reset;
+reset=function(...args){navigationHistory.length=0;const result=resetOrderState(...args);lastRenderedStep=state.step;return result};
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 const BOTTLE_COPY={

@@ -48,6 +48,7 @@ test('confirmation routing does not mutate order type or pricing',()=>{
   const enterReview=html.match(/function addCurrentOrderToReview\(\)\{[^}]+\}/)?.[0]||'';
   assert.doesNotMatch(`${enterReview}${reviewActionsSource}`,/orderType\s*=|promo\s*=|price\s*=|discount\s*=/);
   assert.match(html,/const navigationHistory=\[\]/);
+  assert.match(html,/reset=function\(\.\.\.args\)\{navigationHistory\.length=0;const result=resetOrderState/);
   assert.match(html,/while\(navigationHistory\.length&&!previous\)/);
   assert.doesNotMatch(html,/review:'promo'/);
   assert.match(html,/else if\(state\.step==='review'\)state\.step='phone'/);
