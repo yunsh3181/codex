@@ -89,9 +89,9 @@
    if(!['payment_pending','new'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
-   const timestamp=serverTimestamp(),readyDueAt=timestampFromMillis(nowMillis+preparationMinutes*60*1000),displayRef=db.collection('publicOrderDisplays').doc(orderId);
-   transaction.update(orderRef,{status:'cooking',preparationMinutes,preparationStartedAt:timestamp,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp});
-   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,preparationMinutes,preparationStartedAt:timestamp,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp},{merge:true});
+   const timestamp=serverTimestamp(),preparationStartedAt=timestampFromMillis(nowMillis),readyDueAt=timestampFromMillis(nowMillis+preparationMinutes*60*1000),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   transaction.update(orderRef,{status:'cooking',preparationMinutes,preparationStartedAt,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,preparationMinutes,preparationStartedAt,readyDueAt,autoReadyEnabled:true,updatedAt:timestamp},{merge:true});
    return {order,status:'cooking',preparationMinutes,readyDueAt,orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
