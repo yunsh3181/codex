@@ -14,7 +14,7 @@ for(const label of ['오더 리스트','(오늘 주문)','순번','예약/즉시
 assert.ok(html.includes('id="businessDayOrderCount"')&&html.includes('id="orderPagination"'),'live total and pagination controls exist');
 const cssVersion=html.match(/admin\.css\?v=([0-9.]+)/)?.[1],jsVersion=html.match(/admin\.js\?v=([0-9.]+)/)?.[1];
 assert.strictEqual(cssVersion,'48.0.3','changed administrator CSS has the compact occupied-seat cache version');
-assert.strictEqual(jsVersion,'48.0.0','administrator JavaScript cache version remains unchanged');
+assert.strictEqual(jsVersion,'48.0.1','administrator JavaScript cache version fetches the strict fork renderer');
 assert.ok(html.includes('주문 관리자 v48.0.0')&&html.includes('실시간 주문관리 · v48.0.0'),'page title and visible version remain unchanged');
 assert.ok(!html.includes('takeoutProcessingTitle')&&!html.includes('id="takeoutProcessing"'),'the duplicate left processing rail is removed');
 for(const label of ['신규주문','결제대기','결제완료','사용중','완료'])assert.ok(admin.includes(label),`inline order actions include ${label}`);

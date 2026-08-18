@@ -42,6 +42,7 @@ test('actual customer fork selection survives payload JSON and renders identical
  vm.runInContext('chooseDisposables(false)',customer);assert.equal(vm.runInContext('state.disposables',customer),false);
  vm.runInContext("Object.assign(state,{orderType:'takeout',orderTiming:'now',phone:'01012341234',paymentMethod:'card',cartItems:[{promo:'normal',set:null,size:'L',mode:'single',pizzaLeft:'P001',pizzaRight:null,pizzaName:'페퍼로니',crust:'오리지널',dough:'오리지널',qty:1,price:29900,normalPrice:29900,discount:0,toppings:{},sides:{},drinks:{},includedSides:{},includedDrinks:{}}]});chooseDisposables(true)",customer);
  assert.equal(vm.runInContext('state.disposables',customer),true);
+ vm.runInContext('clearCurrentProduct()',customer);assert.equal(vm.runInContext('state.disposables',customer),true);
  const payload=JSON.parse(vm.runInContext('JSON.stringify(buildMobileOrderPayload())',customer));
  assert.equal(payload.disposables,true);assert.equal(typeof payload.disposables,'boolean');
  const firestoreDocument=JSON.parse(JSON.stringify(payload));
