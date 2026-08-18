@@ -11,6 +11,7 @@ const seatCss=fs.readFileSync(path.join(root,'seats.css'),'utf8');
 const adminCss=fs.readFileSync(path.join(root,'admin.css'),'utf8');
 const ko=fs.readFileSync(path.join(root,'i18n/ko.js'),'utf8');
 const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
+const seatTransaction=fs.readFileSync(path.join(root,'kiosk-seat-transaction.js'),'utf8');
 
 assert.ok(kiosk.includes('const SEAT_IDLE_MS=30000'),'seat inactivity timeout is exactly 30 seconds');
 assert.ok(kiosk.includes("transaction.set(ref,{status:'held'"),'seat selection writes the ordering state transactionally');
@@ -22,7 +23,7 @@ for(const eventName of ['pointerdown','touchstart','keydown','wheel','click','in
 assert.ok(!kiosk.includes("'wheel','scroll','click'"),'programmatic scroll cannot extend the inactivity timer');
 assert.ok(kiosk.includes("window.addEventListener('pagehide'"),'page close releases an unpaid seat');
 assert.ok(kiosk.includes("window.addEventListener('beforeunload'"),'browser unload attempts seat release');
-assert.ok(kiosk.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'payment keeps dine-in seats in ordering state');
+assert.ok(seatTransaction.includes("status:'held',heldBy:null,heldUntil:null,partySize"),'payment keeps dine-in seats in ordering state');
 assert.ok(!kiosk.includes("status:'occupied',\n    partySize:state.partySize"),'payment no longer marks a seat in use');
 
 assert.ok(seats.includes('const statusNames=Object.fromEntries(Object.entries(ADMIN_SEAT_STATUSES)'),'seat manager derives its status map from the shared canonical policy');

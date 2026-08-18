@@ -7,6 +7,7 @@ const root=path.join(__dirname,'..');
 const kiosk=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const manager=fs.readFileSync(path.join(root,'seats.js'),'utf8');
 const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
+const seatTransaction=fs.readFileSync(path.join(root,'kiosk-seat-transaction.js'),'utf8');
 
 test('reserved is a first-class manager state through the shared transaction policy',()=>{
  assert.match(manager,/ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState/);
@@ -45,16 +46,16 @@ test('live reservation conflicts are guarded and reset through the home workflow
 });
 
 test('final order transaction rejects reservations before order write',()=>{
- const conflict=kiosk.indexOf("snapshot.data().status==='reserved'");
- const orderWrite=kiosk.indexOf('transaction.set(orderRef,payload)');
+ const conflict=seatTransaction.indexOf("snapshot.data().status==='reserved'");
+ const orderWrite=seatTransaction.indexOf('transaction.set(orderRef,payload)');
  assert.ok(conflict>0&&conflict<orderWrite);
- assert.match(kiosk,/error\.code='SEAT_RESERVED'/);
+ assert.match(seatTransaction,/error\.code='SEAT_RESERVED'/);
  assert.match(kiosk,/showSeatReservationConflict\(\);return/);
  assert.match(rules,/request\.resource\.data\.status == 'held'[\s\S]*resource\.data\.status == 'empty'/);
 });
 
 test('takeout orders keep the seat check empty and preserve the payload schema',()=>{
- assert.match(kiosk,/state\.orderType==='dinein'\?state\.selectedTables\.map/);
+ assert.match(kiosk,/state\.orderType==='dinein'\)await window\.PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
  assert.match(kiosk,/seat:state\.orderType==='dinein'\?/);
  assert.doesNotMatch(rules,/reservedAt[\s\S]*match \/orders/);
 });

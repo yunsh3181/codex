@@ -1245,8 +1245,8 @@ function orderDetailMenuHTML(order){
  return `${pizzaSection}${otherSection}`;
 }
 function orderDetailForkHTML(order){
- const required=order?.disposables===true;
- return `<div class="detail-fork-card"><span>일회용 포크</span><strong>${required?'O':'X'}</strong></div>`;
+ const value=order?.disposables,status=value===true?'O':value===false?'X':'확인 필요';
+ return `<div class="detail-fork-card"><span>일회용 포크</span><strong>${status}</strong></div>`;
 }
 function renderOrderDetail(order,seatId=null){
  const takeout=order.orderType==='takeout';
