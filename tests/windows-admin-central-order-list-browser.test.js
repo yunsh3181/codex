@@ -42,7 +42,7 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  for(const [name,metric] of Object.entries(result.metrics)){
   const expected=name==='operating'?{header:14,body:15,sequence:21,row:56,action:44,font:13}:name==='after1440'?{header:13,body:14,sequence:20,row:52,action:42,font:12}:{header:11,body:12,sequence:17,row:45,action:40,font:11};
   assert.equal(metric.horizontalOverflow,0);assert.deepEqual(metric.clipped,[]);assert.equal(metric.headerFont,expected.header);assert.equal(metric.bodyFont,expected.body);assert.equal(metric.sequenceFont,expected.sequence);assert.equal(metric.rowHeight,expected.row);assert.equal(metric.actionHeight,expected.action);assert.equal(metric.actionFont,expected.font);assert.equal(metric.rows,15);
-  assert.deepEqual(metric.columnRatios,[6.5,6,5,11.5,5,7,9,13,4.5,22,10.5]);assert.ok(metric.criticalMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
+  assert.deepEqual(metric.columnRatios,[6.5,6,5,11.5,5,7.5,9,12.5,4.5,22,10.5]);assert.ok(metric.criticalMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
   assert.ok(metric.criticalMeasurements.find(entry=>entry.label==='순번 + 신규주문').safetyPx>=4);
   assert.ok(metric.requiredMeasurements.length>0);assert.ok(metric.requiredMeasurements.every(entry=>entry.fits&&entry.scrollWidth<=entry.clientWidth));
   for(const value of ['010-8888-1032','1032','O','X','확인 필요','97,100원'])assert.ok(metric.requiredMeasurements.some(entry=>entry.text===value),`${value} is measured without clipping at ${metric.viewport.join('x')}`);
