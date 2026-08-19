@@ -130,10 +130,70 @@ service cloud.firestore {
         && getAfter(orderPath).data.businessDay == request.resource.data.businessDay
         && request.resource.data.displayStatus == (getAfter(orderPath).data.status == 'ready' ? 'ready' : 'cooking');
     }
+    function isTakeoutPreparationOrderMutation() {
+      return request.resource.data.status == 'cooking'
+        && request.resource.data.keys().hasAny(['autoReadyEnabled'])
+        && request.resource.data.autoReadyEnabled == true
+        && (request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled'
+        ]) || resource.data.status != 'cooking');
+    }
+    function validTakeoutPreparationOrderUpdate(orderId) {
+      let displayPath = /databases/$(database)/documents/publicOrderDisplays/$(orderId);
+      return resource.data.orderType == 'takeout'
+        && request.resource.data.orderType == resource.data.orderType
+        && resource.data.status in ['payment_pending','new']
+        && request.resource.data.status == 'cooking'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'
+        ])
+        && request.resource.data.preparationMinutes is int
+        && request.resource.data.preparationMinutes >= 5
+        && request.resource.data.preparationMinutes <= 60
+        && request.resource.data.preparationMinutes % 5 == 0
+        && request.resource.data.preparationStartedAt is timestamp
+        && request.resource.data.readyDueAt is timestamp
+        && request.resource.data.readyDueAt == request.resource.data.preparationStartedAt
+          + duration.value(request.resource.data.preparationMinutes, 'm')
+        && request.resource.data.autoReadyEnabled == true
+        && request.resource.data.updatedAt == request.time
+        && existsAfter(displayPath)
+        && getAfter(displayPath).data.orderNumber == request.resource.data.orderNo
+        && getAfter(displayPath).data.displayStatus == request.resource.data.status
+        && getAfter(displayPath).data.preparationMinutes == request.resource.data.preparationMinutes
+        && getAfter(displayPath).data.preparationStartedAt == request.resource.data.preparationStartedAt
+        && getAfter(displayPath).data.readyDueAt == request.resource.data.readyDueAt
+        && getAfter(displayPath).data.autoReadyEnabled == request.resource.data.autoReadyEnabled
+        && getAfter(displayPath).data.updatedAt == request.time;
+    }
+    function validTakeoutPreparationDisplayWrite(orderId) {
+      let orderPath = /databases/$(database)/documents/orders/$(orderId);
+      return existsAfter(orderPath)
+        && getAfter(orderPath).data.orderType == 'takeout'
+        && getAfter(orderPath).data.status == 'cooking'
+        && getAfter(orderPath).data.orderNo == request.resource.data.orderNumber
+        && getAfter(orderPath).data.preparationMinutes == request.resource.data.preparationMinutes
+        && getAfter(orderPath).data.preparationStartedAt == request.resource.data.preparationStartedAt
+        && getAfter(orderPath).data.readyDueAt == request.resource.data.readyDueAt
+        && getAfter(orderPath).data.autoReadyEnabled == true
+        && getAfter(orderPath).data.updatedAt == request.time
+        && request.resource.data.displayStatus == 'cooking'
+        && request.resource.data.preparationMinutes is int
+        && request.resource.data.preparationMinutes >= 5
+        && request.resource.data.preparationMinutes <= 60
+        && request.resource.data.preparationMinutes % 5 == 0
+        && request.resource.data.preparationStartedAt is timestamp
+        && request.resource.data.readyDueAt == request.resource.data.preparationStartedAt
+          + duration.value(request.resource.data.preparationMinutes, 'm')
+        && request.resource.data.autoReadyEnabled == true
+        && request.resource.data.updatedAt == request.time;
+    }
 
     match /orders/{orderId} {
       allow create: if validOrderCreate() || validAdminCounterOrderCreate(orderId);
-      allow read, update, delete: if isAdmin();
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin()
+        && (!isTakeoutPreparationOrderMutation() || validTakeoutPreparationOrderUpdate(orderId));
     }
 
     match /publicOrderDisplays/{orderId} {
@@ -156,11 +216,16 @@ service cloud.firestore {
             && request.resource.data.preparationStartedAt is timestamp
             && request.resource.data.readyDueAt is timestamp
             && request.resource.data.autoReadyEnabled is bool
+            && request.resource.data.readyDueAt == request.resource.data.preparationStartedAt
+              + duration.value(request.resource.data.preparationMinutes, 'm')
             && existsAfter(/databases/$(database)/documents/orders/$(orderId))
             && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.preparationMinutes == request.resource.data.preparationMinutes
             && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.preparationStartedAt == request.resource.data.preparationStartedAt
             && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.readyDueAt == request.resource.data.readyDueAt
             && getAfter(/databases/$(database)/documents/orders/$(orderId)).data.autoReadyEnabled == request.resource.data.autoReadyEnabled))
+        && (!(request.resource.data.displayStatus == 'cooking'
+            && request.resource.data.keys().hasAny(['preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled']))
+          || validTakeoutPreparationDisplayWrite(orderId))
         && ((!orderId.matches('^counter_.*$')
             && (!existsAfter(/databases/$(database)/documents/orders/$(orderId))
               || !getAfter(/databases/$(database)/documents/orders/$(orderId)).data.keys().hasAny(['source'])
