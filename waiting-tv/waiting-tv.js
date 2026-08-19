@@ -51,13 +51,14 @@ function cookingCountdownLabel(item,now=Date.now()){
  const minutes=Math.floor(remaining/60000),seconds=Math.floor(remaining%60000/1000);
  return `조리완료까지 ${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
 }
-function cookingCardStatus(item){const label=cookingCountdownLabel(item);return label?`<span class="cooking-countdown">${escapeHTML(label)}</span>`:'<span>조리중</span>'}
+function reservationPickupLabel(item){const pickup=countdownTimestampMillis(item?.pickupAt);if(item?.reservationOrder!==true||pickup===null)return '';const parts=Object.fromEntries(new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(pickup)).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));return `예약 ${parts.hour}:${parts.minute}`}
+function cookingCardStatus(item){if(item?.reservationOrder===true)return `<span>조리중 (예약)</span><small>${escapeHTML(reservationPickupLabel(item))}</small>`;const label=cookingCountdownLabel(item);return label?`<span class="cooking-countdown">${escapeHTML(label)}</span>`:'<span>조리중</span>'}
 function waitingCustomerLabel(item){const name=item?.customerIdentityType==='name'?String(item.customerDisplayName||'').trim():'';return name||`${spokenOrderNumber(item.orderNumber)}번`}
 function renderDisplay(target,items,emptyText){
  if(!target.dataset)target.dataset={};
  target.dataset.density=waitingOrderDensity(items.length);
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
-  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?(item.reservationOrder===true?`<span>조리완료 (예약)</span><small>${escapeHTML(reservationPickupLabel(item))} · 카운터에서 받아주세요</small>`:'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>'):cookingCardStatus(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
  }
  const desired=new Map(items.map(item=>[item.id,item]));
@@ -68,7 +69,7 @@ function renderDisplay(target,items,emptyText){
   let node=existing.get(item.id);
   if(!node){node=document.createElement('div');node.dataset.orderKey=item.id}
   node.className=`order-number${isReadyOverdue(item)?' ready-overdue':''}`;
-  node.innerHTML=`<strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}`;
+  node.innerHTML=`<strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?(item.reservationOrder===true?`<span>조리완료 (예약)</span><small>${escapeHTML(reservationPickupLabel(item))} · 카운터에서 받아주세요</small>`:'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>'):cookingCardStatus(item)}`;
   target.appendChild(node);
  });
  if(!items.length){const empty=document.createElement('p');empty.className='empty';empty.textContent=emptyText;target.appendChild(empty)}
