@@ -1311,7 +1311,8 @@ button:active:not(:disabled){transform:scale(.98)}
 
 
 /* ===== v43.8 모바일 첫 화면·만석 줄서기·사이즈 안내 ===== */
-.areaCardShell{position:relative;min-width:0}.areaCardShell>.areaCard{width:100%;height:100%}.areaCardShell.full>.areaCard{filter:brightness(.72);cursor:not-allowed}.areaCardShell.full>.areaCard>*{filter:blur(4px)}.areaCapacityOverlay{position:absolute;inset:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;text-align:center;pointer-events:none;color:#fff;text-shadow:0 1px 3px #000}.areaCapacityOverlay strong{font-size:clamp(28px,4vw,46px);line-height:1.1}.areaCapacityOverlay span{font-weight:900;word-break:keep-all}.areaWaitlistBtn{position:absolute;z-index:3;left:16px;right:16px;bottom:14px;min-height:46px;border:2px solid #fff;border-radius:12px;background:#17231d;color:#fff;font-weight:1000;cursor:pointer}.areaWaitlistBtn:focus-visible{outline:4px solid #ffcf33;outline-offset:3px}
+.areaCardShell{position:relative;min-width:0}.areaCardShell>.areaCard{width:100%;height:100%}.areaCardShell.full>.areaCard,.areaCardShell.closed>.areaCard{filter:brightness(.7);cursor:not-allowed}.areaCardShell.full>.areaCard>*,.areaCardShell.closed>.areaCard>*{filter:blur(4px)}.areaCapacityOverlay{position:absolute;inset:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;text-align:center;pointer-events:none;color:#fff;text-shadow:0 1px 3px #000}.areaCapacityOverlay strong{font-size:clamp(28px,4vw,46px);line-height:1.1}.areaCapacityOverlay span{font-weight:900;word-break:keep-all}.areaCardShell.closed .areaCapacityOverlay strong,.areaCardShell.review .areaCapacityOverlay strong{font-size:clamp(25px,3.6vw,43px)}.areaCardShell.review .areaCapacityOverlay{color:#7a3d00;text-shadow:none}.areaWaitlistBtn{position:absolute;z-index:3;left:16px;right:16px;bottom:14px;min-height:46px;border:2px solid #fff;border-radius:12px;background:#17231d;color:#fff;font-weight:1000;cursor:pointer}.areaWaitlistBtn:focus-visible{outline:4px solid #ffcf33;outline-offset:3px}
+.waitlistKeypadModal{width:min(92vw,520px);text-align:center}.waitlistPhoneDisplay{display:block;width:100%;box-sizing:border-box;margin:14px 0;padding:16px;border:2px solid var(--line);border-radius:14px;background:#f7f8f7;text-align:center;font-size:28px;font-weight:1000;letter-spacing:1px}.waitlistPhoneDisplay.invalid{border-color:var(--r)}.waitlistKeypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.waitlistKeypad button{min-height:58px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:22px;font-weight:1000}.waitlistKeypad .waitlistClear{font-size:14px}.waitlistKeypadActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.waitlistKeypadActions button{min-height:52px;border:0;border-radius:13px;font-weight:1000}.waitlistCancel{background:#e6e8e6;color:#252a26}.waitlistSubmit{background:var(--r);color:#fff}.waitlistSubmit:disabled{background:#a8aca8}.waitlistPhoneError{min-height:22px;margin:8px 0 0;color:var(--r);font-weight:900}
 .areaCard.full{border-color:#d29b31;background:linear-gradient(145deg,#fffaf0,#fff0ce)}
 .areaCard.full strong{color:#9a6300!important}
 .sizeGuideGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -2233,18 +2234,19 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=ipad-review-reset-v1"></script>
-<script src="i18n/en.js?v=ipad-review-reset-v1"></script>
-<script src="i18n/ja.js?v=ipad-review-reset-v1"></script>
-<script src="i18n/zh.js?v=ipad-review-reset-v1"></script>
-<script src="i18n/vi.js?v=ipad-review-reset-v1"></script>
-<script src="i18n/es.js?v=ipad-review-reset-v1"></script>
+<script src="i18n/ko.js?v=zone-waitlist-v1"></script>
+<script src="i18n/en.js?v=zone-waitlist-v1"></script>
+<script src="i18n/ja.js?v=zone-waitlist-v1"></script>
+<script src="i18n/zh.js?v=zone-waitlist-v1"></script>
+<script src="i18n/vi.js?v=zone-waitlist-v1"></script>
+<script src="i18n/es.js?v=zone-waitlist-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
 <script src="seat-capacity-policy.js?v=2"></script>
 <script src="kiosk-seat-transaction.js?v=1"></script>
+<script src="waitlist-phone-keypad.js?v=1"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
 <script>window.PJ_KIOSK_DIAGNOSTICS?.record('remote-module-check',{source:'index.html:remote-module-check'})</script>
 <script src="test-mode-remote-channel.js?v=1"></script>
@@ -2895,9 +2897,16 @@ function view(){
  </div>`)};
 
 
- if(state.step==='area'){const areas=getDiningAreas(),copy=seatCapacityCopy();return shell(`<h1 class="title">${t('seat.areaTitle')}</h1><p class="sub">${t('seat.areaGuide')}</p><div class="areaGrid">${areas.map(a=>`<div class="areaCardShell ${a.full?'full':''} ${a.needsReview?'review':''}"><button type="button" aria-disabled="${a.enabled&&!a.full?'false':'true'}" ${a.enabled&&!a.full?'':'disabled'} class="areaCard ${a.enabled?'':'disabled policyDisabled'} ${state.diningArea===a.id?'selected':''}" onclick="handleAreaClick('${a.id}')"><div class="areaIcon">${uiIcon(a.icon)}</div><div><h2>${seatAreaName(a.id)}</h2><p>${a.desc}</p><span class="areaHours">${a.hours}</span>${a.enabled?'':`<span class="areaPolicyReason">${a.disabledReason}</span>`}</div><strong>${a.enabled?t('seat.availableSeats',{count:a.availableSeats}):(a.id==='annex'||a.id==='room'?bottleCopy().unavailable:t('seat.currentUnavailable'))}</strong></button>${a.full?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${copy.full}</strong><span>${copy.fullDescription}</span></div><button type="button" class="areaWaitlistBtn" aria-label="${escAttr(`${seatAreaName(a.id)} ${copy.full}. ${copy.fullDescription}. ${copy.queue}`)}" onclick="joinZoneWaitlist('${a.id}',event)">${copy.queue}</button>`:a.needsReview?`<div class="areaCapacityOverlay"><strong>${copy.review}</strong></div>`:''}</div>`).join('')}</div><div class="seatRuleNotice">${areaRuleText()}</div><div class="areaPolicyGuide"><b>${t('seat.policyTitle')}</b><br>${t('seat.policyGuide')}</div><div class="occupancyNote">${t('seat.occupancyNote')}</div>`)};
+ if(state.step==='area'){
+  const areas=getDiningAreas(),copy=seatCapacityCopy();
+  return shell(`<h1 class="title">${t('seat.areaTitle')}</h1><p class="sub">${t('seat.areaGuide')}</p><div class="areaGrid">${areas.map(a=>{
+   const selectable=a.status==='available',fullLabel=zoneFullLabel(a.id),statusClass=['full','closed','review'].includes(a.status)?a.status:'',statusLabel=a.status==='full'?`${fullLabel}. ${copy.fullDescription}`:a.status==='closed'?copy.closed:a.status==='review'?copy.review:selectable?t('seat.availableSeats',{count:a.availableSeats}):copy.unavailable;
+   const overlay=a.status==='full'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${fullLabel}</strong><span>${copy.fullDescription}</span></div><button type="button" class="areaWaitlistBtn" aria-label="${escAttr(`${seatAreaName(a.id)} ${fullLabel}. ${copy.fullDescription}. ${copy.queue}`)}" onclick="openZoneWaitlist('${a.id}',event)">${copy.queue}</button>`:a.status==='closed'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${copy.closed}</strong></div>`:a.status==='review'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${copy.review}</strong></div>`:'';
+   return `<div class="areaCardShell ${statusClass}"><button type="button" aria-label="${escAttr(`${seatAreaName(a.id)}. ${statusLabel}`)}" aria-disabled="${selectable?'false':'true'}" ${selectable?'':'disabled'} class="areaCard ${selectable?'':'disabled policyDisabled'} ${state.diningArea===a.id?'selected':''}" onclick="handleAreaClick('${a.id}')"><div class="areaIcon">${uiIcon(a.icon)}</div><div><h2>${seatAreaName(a.id)}</h2><p>${a.desc}</p><span class="areaHours">${a.hours}</span>${selectable?'':`<span class="areaPolicyReason">${a.disabledReason}</span>`}</div><strong>${selectable?t('seat.availableSeats',{count:a.availableSeats}):copy.unavailable}</strong></button>${overlay}</div>`
+  }).join('')}</div><div class="seatRuleNotice">${areaRuleText()}</div><div class="areaPolicyGuide"><b>${t('seat.policyTitle')}</b><br>${t('seat.policyGuide')}</div><div class="occupancyNote">${t('seat.occupancyNote')}</div>`)
+ };
 
- if(state.step==='table'){const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${tables.map(table=>table.occupied?`<div class="tableCard occupiedCard ${table.seatStatus}"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(table.seatStatus)}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(table.seatStatus)} ${seatStatusLabel(table.seatStatus)}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="joinWaitlist('${table.id}')">${t('seat.queueButton')}</button></div></div>`:`<button class="tableCard ${state.selectedTables.includes(table.id)?'selected ordering':'available'}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${state.selectedTables.includes(table.id)?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" onclick="toggleTable('${table.id}')"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')} ${state.selectedTables.includes(table.id)?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`).join('')}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)};
+ if(state.step==='table'){const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${tables.map(table=>table.occupied?`<div class="tableCard occupiedCard ${table.seatStatus}"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(table.seatStatus)}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(table.seatStatus)} ${seatStatusLabel(table.seatStatus)}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="openTableWaitlist('${table.id}',event)">${t('seat.queueButton')}</button></div></div>`:`<button class="tableCard ${state.selectedTables.includes(table.id)?'selected ordering':'available'}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${state.selectedTables.includes(table.id)?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" onclick="toggleTable('${table.id}')"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')} ${state.selectedTables.includes(table.id)?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`).join('')}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)};
  if(state.step==='promo'){const dine=state.orderType==='dinein';const items=dine?[
  {id:'set',icon:'set',best:true},
  {id:'upup',icon:'up'},
@@ -2972,7 +2981,9 @@ const seatCapacityPolicy=window.PJ_SEAT_CAPACITY_POLICY||{
  evaluateZone:({tables})=>({status:'available',reason:'test-fallback',canSeat:true,tableIds:(tables||[]).filter(table=>table.doc?.status==='empty').map(table=>table.id)}),
  evaluateSelection:({selectedTableIds})=>({status:'available',reason:'test-fallback',canSeat:true,tableIds:selectedTableIds||[]})
 };
-function seatCapacityCopy(){return {full:t('seat.capacity.full'),fullDescription:t('seat.capacity.fullDescription'),queue:t('seat.capacity.queue'),unavailable:t('seat.capacity.unavailable'),review:t('seat.capacity.review')}}
+const waitlistPhoneKeypad=window.PJ_WAITLIST_PHONE_KEYPAD;
+let zoneWaitlistDraft=null;let zoneWaitlistReturnFocus=null;
+function seatCapacityCopy(){return {full:t('seat.capacity.full'),twoFull:t('seat.capacity.twoFull'),fourFull:t('seat.capacity.fourFull'),fullDescription:t('seat.capacity.fullDescription'),queue:t('seat.capacity.queue'),closed:t('seat.capacity.closed'),unavailable:t('seat.capacity.unavailable'),review:t('seat.capacity.review')}}
 const SEAT_IDLE_MS=30000;
 const seatClientId=sessionStorage.getItem('pjSeatClientId')||('seat-'+Date.now()+'-'+Math.random().toString(36).slice(2));
 sessionStorage.setItem('pjSeatClientId',seatClientId);
@@ -3001,6 +3012,7 @@ function zoneCapacityEvaluation(area,docs=mobileSeatDocs){
  const tables=(DINING_TABLES[area]||[]).map(table=>({...table,zone:area,doc:docs[table.id]||{status:'empty'}}));
  return seatCapacityPolicy.evaluateZone({zone:area,partySize:Number(state.partySize),tables})
 }
+function zoneFullLabel(area){const copy=seatCapacityCopy(),party=Number(state.partySize)||0;if(party<=2&&['papa','annex'].includes(area))return copy.twoFull;if(party>=3&&party<=5)return copy.fourFull;return copy.full}
 function requiredTableCount(){
  const n=state.partySize||0;
  if(['annex','outdoor'].includes(state.diningArea)){const capacity=zoneCapacityEvaluation(state.diningArea);if(capacity.canSeat)return capacity.tableIds.length}
@@ -3081,8 +3093,10 @@ function getDiningAreas(){
  return base.map(a=>{
    const policy=areaSchedulePolicy(a.id);
    const partyReason=a.partyEnabled?'':t('seat.reason.partyUnavailable',{count:state.partySize||0});
-   const capacity=['annex','outdoor'].includes(a.id)?zoneCapacityEvaluation(a.id):null;
-   return {...a,capacity,full:capacity?capacity.status==='full':a.full,needsReview:capacity?.status==='review',policy,hours:areaHoursText(a.id),enabled:a.partyEnabled&&policy.allowed&&capacity?.status!=='review',disabledReason:partyReason||policy.reason};
+   const capacity=zoneCapacityEvaluation(a.id);
+   const needsReview=capacity?.status==='review',full=capacity?capacity.status==='full':a.full;
+   const status=needsReview?'review':a.partyEnabled&&!policy.allowed?'closed':a.partyEnabled&&policy.allowed&&full?'full':a.partyEnabled&&policy.allowed?'available':'unavailable';
+   return {...a,capacity,full,needsReview,status,policy,hours:areaHoursText(a.id),enabled:status==='available',disabledReason:needsReview?t('seat.capacity.review'):status==='closed'?t('seat.capacity.closed'):partyReason||policy.reason};
  });
 }
 function areaName(id){return seatAreaName(id)}
@@ -3133,7 +3147,7 @@ function areaPolicyMessage(area){
 function handleAreaClick(id){
  const area=getDiningAreas().find(a=>a.id===id);
  if(!area)return;
- if(area.full||area.needsReview)return;
+ if(area.status==='full'||area.status==='review'||area.status==='closed')return;
  if(!area.enabled){alert(areaPolicyMessage(area));return;}
  selectArea(id);
 }
@@ -3798,6 +3812,7 @@ function chooseFinalUpsell(type){
 }
 
 function modalView(){
+if(state.modal==='zoneWaitlist'&&zoneWaitlistDraft){const copy=seatCapacityCopy(),phone=zoneWaitlistDraft.phone,valid=waitlistPhoneKeypad.valid(phone);return `<div class="backdrop"><div class="modal waitlistKeypadModal" role="dialog" aria-modal="true" aria-labelledby="waitlistKeypadTitle"><h2 id="waitlistKeypadTitle">${copy.queue}</h2><p>${t('seat.capacity.phoneGuide')}</p><input id="waitlistPhoneDisplay" class="waitlistPhoneDisplay ${zoneWaitlistDraft.error?'invalid':''}" type="text" inputmode="none" readonly autocomplete="off" aria-label="${escAttr(t('seat.capacity.phoneLabel'))}" value="${escAttr(waitlistPhoneKeypad.format(phone))}" placeholder="010-0000-0000"><div class="waitlistKeypad" aria-label="${escAttr(t('seat.capacity.keypadLabel'))}">${[1,2,3,4,5,6,7,8,9].map(value=>`<button type="button" onclick="pressWaitlistPhone('${value}')">${value}</button>`).join('')}<button type="button" class="waitlistClear" onclick="clearWaitlistPhone()">${t('seat.capacity.clear')}</button><button type="button" onclick="pressWaitlistPhone('0')">0</button><button type="button" aria-label="${escAttr(t('seat.capacity.backspace'))}" onclick="backWaitlistPhone()">⌫</button></div><p class="waitlistPhoneError" role="alert">${zoneWaitlistDraft.error||''}</p><div class="waitlistKeypadActions"><button type="button" class="waitlistCancel" onclick="closeZoneWaitlist()">${t('seat.capacity.cancel')}</button><button type="button" class="waitlistSubmit" ${valid&&!zoneWaitlistSubmitting?'':'disabled'} onclick="submitZoneWaitlist(event)">${zoneWaitlistSubmitting?t('seat.capacity.submitting'):t('seat.capacity.register')}</button></div></div></div>`}
 if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('review.resetTitle')}</h2><p>${t('review.resetBody')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('review.resetCancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('review.resetConfirm')}</button></div></div></div>`;
 if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
 if(state.modal==='bottleHoursConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true"><h2>${bottleReason()}</h2><p>${bottleCopy().conflict}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmBottleHoursConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
@@ -3837,9 +3852,33 @@ function myQueueEntries(){let ids=[];try{ids=JSON.parse(localStorage.getItem('pj
 function myQueueHTML(){const rows=myQueueEntries();return rows.length?`<div class="notice"><b>${t('ui.seatExtra.myQueue')}</b>${rows.map(w=>`<div>${seatTableName({name:w.seatName||w.seatId})} · ${t('ui.seatExtra.queuePosition',{count:queuePosition(w)})} <button class="cancelQueueBtn" onclick="cancelWaitlist('${w.id}')">${t('ui.common.cancel')}</button></div>`).join('')}</div>`:''}
 function queuePosition(w){return mobileWaitlist.filter(x=>x.seatId===w.seatId&&x.status==='waiting'&&queueMillis(x)<=queueMillis(w)).length}
 function queueMillis(w){const v=w.createdAt||w.createdAtClient;if(v?.toMillis)return v.toMillis();if(v?.seconds)return v.seconds*1000;return new Date(v||0).getTime()||0}
-async function joinWaitlist(seatId){const table=Object.values(DINING_TABLES).flat().find(x=>x.id===seatId);if(!table)return;const raw=prompt(t('ui.seatExtra.phonePrompt'),'010');if(raw===null)return;const phone=raw.replace(/\D/g,'');if(!/^010\d{8}$/.test(phone))return alert(t('ui.seatExtra.phoneInvalid'));const party=Number(prompt(t('ui.seatExtra.partyPrompt'),String(state.partySize||2)));if(!party||party<1)return;const ref=await db.collection('waitlist').add({seatId,seatName:table.name,partySize:Math.min(16,Math.max(1,party)),phoneLast4:phone.slice(-4),phoneMasked:phone.slice(0,3)+'-****-'+phone.slice(-4),status:'waiting',createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtClient:new Date().toISOString()});let ids=[];try{ids=JSON.parse(localStorage.getItem('pj_waitlist_ids')||'[]')}catch(e){}ids.push(ref.id);localStorage.setItem('pj_waitlist_ids',JSON.stringify([...new Set(ids)]));alert(t('ui.seatExtra.registered',{name:seatTableName(table)}))}
 let zoneWaitlistSubmitting=false;
-async function joinZoneWaitlist(area,event){event?.preventDefault();event?.stopPropagation();if(zoneWaitlistSubmitting)return;const current=getDiningAreas().find(item=>item.id===area);if(!current?.full)return;const tables=DINING_TABLES[area]||[],table=tables.find(item=>seatIsUnavailable(mobileSeatDocs[item.id]))||tables[0];if(!table)return;zoneWaitlistSubmitting=true;try{await joinWaitlist(table.id)}finally{zoneWaitlistSubmitting=false}}
+function waitlistTableRecord(seatId){for(const [area,tables] of Object.entries(DINING_TABLES)){const table=tables.find(item=>item.id===seatId);if(table)return {...table,area}}return null}
+function openZoneWaitlist(area,event){
+ event?.preventDefault();event?.stopPropagation();if(zoneWaitlistSubmitting||state.modal==='zoneWaitlist')return;
+ const current=getDiningAreas().find(item=>item.id===area);if(current?.status!=='full')return;
+ const tables=DINING_TABLES[area]||[],table=tables.find(item=>seatIsUnavailable(mobileSeatDocs[item.id]))||tables[0];if(!table)return;
+ zoneWaitlistReturnFocus=event?.currentTarget||null;zoneWaitlistDraft={source:'zone',area,seatId:table.id,phone:'',error:'',returnSelector:`.areaWaitlistBtn[onclick*="'${area}'"]`};state.modal='zoneWaitlist';render();requestAnimationFrame(()=>document.getElementById('waitlistPhoneDisplay')?.focus())
+}
+function openTableWaitlist(seatId,event){event?.preventDefault();event?.stopPropagation();if(zoneWaitlistSubmitting||state.modal==='zoneWaitlist')return;const table=waitlistTableRecord(seatId),policy=table&&areaSchedulePolicy(table.area);if(!table||!policy.allowed||!seatIsUnavailable(mobileSeatDocs[seatId]))return;zoneWaitlistReturnFocus=event?.currentTarget||null;zoneWaitlistDraft={source:'table',area:table.area,seatId,phone:'',error:'',returnSelector:`.seatQueueBtn[onclick*="'${seatId}'"]`};state.modal='zoneWaitlist';render();requestAnimationFrame(()=>document.getElementById('waitlistPhoneDisplay')?.focus())}
+function pressWaitlistPhone(value){if(!zoneWaitlistDraft||zoneWaitlistSubmitting)return;zoneWaitlistDraft.phone=waitlistPhoneKeypad.append(zoneWaitlistDraft.phone,value);zoneWaitlistDraft.error='';render()}
+function backWaitlistPhone(){if(!zoneWaitlistDraft||zoneWaitlistSubmitting)return;zoneWaitlistDraft.phone=waitlistPhoneKeypad.backspace(zoneWaitlistDraft.phone);zoneWaitlistDraft.error='';render()}
+function clearWaitlistPhone(){if(!zoneWaitlistDraft||zoneWaitlistSubmitting)return;zoneWaitlistDraft.phone='';zoneWaitlistDraft.error='';render()}
+function closeZoneWaitlist(){
+ if(zoneWaitlistSubmitting)return;const selector=zoneWaitlistDraft?.returnSelector;zoneWaitlistDraft=null;state.modal=null;render();requestAnimationFrame(()=>{const target=zoneWaitlistReturnFocus?.isConnected?zoneWaitlistReturnFocus:document.querySelector(selector);target?.focus();zoneWaitlistReturnFocus=null})
+}
+async function submitZoneWaitlist(event){
+ event?.preventDefault();event?.stopPropagation();if(zoneWaitlistSubmitting||!zoneWaitlistDraft)return;
+ const current=getDiningAreas().find(item=>item.id===zoneWaitlistDraft.area),table=waitlistTableRecord(zoneWaitlistDraft.seatId),canSubmit=zoneWaitlistDraft.source==='zone'?current?.status==='full':current?.policy?.allowed&&seatIsUnavailable(mobileSeatDocs[zoneWaitlistDraft.seatId]);
+ if(!canSubmit||!table)return;
+ const payload=waitlistPhoneKeypad.payload({seatId:table.id,seatName:table.name,partySize:state.partySize,phone:zoneWaitlistDraft.phone,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtClient:new Date().toISOString()});
+ if(!payload){zoneWaitlistDraft.error=t('seat.capacity.phoneInvalid');render();return}
+ zoneWaitlistSubmitting=true;render();
+ try{
+  const ref=await db.collection('waitlist').add(payload);let ids=[];try{ids=JSON.parse(localStorage.getItem('pj_waitlist_ids')||'[]')}catch(e){}ids.push(ref.id);localStorage.setItem('pj_waitlist_ids',JSON.stringify([...new Set(ids)]));
+  zoneWaitlistDraft=null;state.modal=null;render();alert(t('ui.seatExtra.registered',{name:seatTableName(table)}))
+ }catch(error){if(zoneWaitlistDraft)zoneWaitlistDraft.error=t('seat.capacity.registerFailed');console.error('Waitlist registration failed',error)}finally{zoneWaitlistSubmitting=false;if(state.modal==='zoneWaitlist')render()}
+}
 async function cancelWaitlist(id){if(!confirm(t('ui.seatExtra.cancelConfirm')))return;await db.collection('waitlist').doc(id).set({status:'cancelled',cancelledAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}
 function reserveLimit(){let d=new Date();d.setHours(state.happyReserveOnly?20:21,state.happyReserveOnly?0:20,0,0);return d}function reserveStart(){let d=new Date(Date.now()+30*60000);d.setMinutes(Math.ceil(d.getMinutes()/10)*10,0,0);if(state.happyReserveOnly){let h=new Date();h.setHours(16,0,0,0);if(d<h)d=h}return d}function hasReserveSlots(){return reserveStart()<=reserveLimit()}function reserveWheelData(){let start=reserveStart(),limit=reserveLimit(),hours=[];if(start<=limit){for(let h=start.getHours();h<=limit.getHours();h++){let hh=String(h).padStart(2,'0');if(validMinutesForHour(hh,start).length)hours.push(hh)}}if(!state.reserveHour||!hours.includes(state.reserveHour))state.reserveHour=hours[0]||null;if(state.reserveHour){let valid=validMinutesForHour(state.reserveHour,start);if(!valid.includes(state.reserveMinute))state.reserveMinute=valid[0]||null}return{hours,minutes:state.reserveHour?validMinutesForHour(state.reserveHour,start):[]}}function validMinutesForHour(h,start){let limit=reserveLimit();return ['00','10','20','30','40','50'].filter(m=>{let d=new Date();d.setHours(Number(h),Number(m),0,0);return d>=start&&d<=limit})}function setReserveHour(h){state.reserveHour=h;let mins=validMinutesForHour(h,reserveStart());if(!mins.includes(state.reserveMinute))state.reserveMinute=mins[0]||null;render()}function setReserveMinute(m){state.reserveMinute=m;render()}function validReserveSelection(){if(!state.reserveHour||!state.reserveMinute)return false;let d=new Date();d.setHours(Number(state.reserveHour),Number(state.reserveMinute),0,0);return d>=new Date(Date.now()+30*60000)&&d<=reserveLimit()&&d.getDate()===new Date().getDate()}function confirmReserve(){if(!validReserveSelection())return;state.reserveTime=state.reserveHour+':'+state.reserveMinute;state.step=state.happyReserveOnly?'pizza':'promo';render()}function phoneNoticeHTML(){return validPhone()?`${t('phone.orderNumber')} <b>${last4()}</b>`:t('phone.invalid')}function updatePhoneUI(){
  const display=document.getElementById('phoneDisplay');
@@ -3976,6 +4015,7 @@ document.addEventListener('click',function(event){
  handlePaymentSubmit(event);
 },true);
 document.addEventListener('keydown',function(event){
+ if(event.key==='Escape'&&state.modal==='zoneWaitlist'){event.preventDefault();closeZoneWaitlist();return}
  if(event.key==='Escape'&&state.modal==='reviewResetConfirm'){event.preventDefault();cancelReviewReset();return}
  if((event.key==='Enter'||event.key===' ')&&document.activeElement&&document.activeElement.matches('#paymentSubmitBtn,[data-action="submit-order"]')){
   handlePaymentSubmit(event);

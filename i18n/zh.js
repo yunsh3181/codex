@@ -33,4 +33,4 @@ Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.takeout,{title:'Takeout 20%'});
 Object.assign(window.PJ_I18N_LOCALES.zh.review,{orderListLabel:'订单商品列表',paginationLabel:'订单内容分页',previousItems:'上一页订单',nextItems:'下一页订单'});
-Object.assign(window.PJ_I18N_LOCALES.zh.seat,{capacity:{full:'满座',fullDescription:'当前人数无法入座',queue:'排队',unavailable:'不可使用',review:'需要确认'}});
+Object.assign(window.PJ_I18N_LOCALES.zh.seat,{capacity:{full:'满座',twoFull:'2人桌已满',fourFull:'4人桌已满',fullDescription:'当前人数无法入座',queue:'排队',closed:'营业时间已结束',unavailable:'不可使用',review:'需要确认',phoneGuide:'请输入可联系到您的手机号码。',phoneLabel:'排队手机号码',keypadLabel:'电话号码数字键盘',clear:'全部清除',backspace:'删除一位',cancel:'取消',register:'登记',submitting:'登记中',phoneInvalid:'请输入以010开头的11位号码。',registerFailed:'排队登记失败，请重试。'}});
