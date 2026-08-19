@@ -52,11 +52,12 @@ function cookingCountdownLabel(item,now=Date.now()){
  return `조리완료까지 ${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
 }
 function cookingCardStatus(item){const label=cookingCountdownLabel(item);return label?`<span class="cooking-countdown">${escapeHTML(label)}</span>`:'<span>조리중</span>'}
+function waitingCustomerLabel(item){const name=item?.customerIdentityType==='name'?String(item.customerDisplayName||'').trim():'';return name||`${spokenOrderNumber(item.orderNumber)}번`}
 function renderDisplay(target,items,emptyText){
  if(!target.dataset)target.dataset={};
  target.dataset.density=waitingOrderDensity(items.length);
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
-  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}"><strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
  }
  const desired=new Map(items.map(item=>[item.id,item]));
@@ -67,7 +68,7 @@ function renderDisplay(target,items,emptyText){
   let node=existing.get(item.id);
   if(!node){node=document.createElement('div');node.dataset.orderKey=item.id}
   node.className=`order-number${isReadyOverdue(item)?' ready-overdue':''}`;
-  node.innerHTML=`<strong>${escapeHTML(spokenOrderNumber(item.orderNumber))}번</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}`;
+  node.innerHTML=`<strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${target===ready?'<span>포장 주문이 완료되었습니다</span><small>카운터에서 주문을 받아주세요</small>':cookingCardStatus(item)}`;
   target.appendChild(node);
  });
  if(!items.length){const empty=document.createElement('p');empty.className='empty';empty.textContent=emptyText;target.appendChild(empty)}
@@ -163,7 +164,7 @@ function applyManualSnapshot(snapshot){
  manualRows=snapshot.docs.map(doc=>({...doc.data(),id:`manual:${doc.id}`})).filter(row=>shouldDisplayOrder(row));
  const currentVersions=new Map(manualRows.map(row=>[row.id,Number(row.announceVersion)||0]));
  if(hasInitialManualSnapshot){
-  manualRows.filter(row=>(Number(row.announceVersion)||0)>(previousAnnounceVersions.get(row.id)||0)).forEach(row=>enqueueReadyOrder(row.orderNumber));
+  manualRows.filter(row=>(Number(row.announceVersion)||0)>(previousAnnounceVersions.get(row.id)||0)).forEach(()=>enqueueCompletionSound());
  }
  previousAnnounceVersions=currentVersions;
  hasInitialManualSnapshot=true;

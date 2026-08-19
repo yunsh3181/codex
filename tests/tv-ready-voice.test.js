@@ -102,13 +102,13 @@ const flush=()=>new Promise(resolve=>setImmediate(resolve));
   manualDoc('direct','7777','ready',1)
  ]});
  await flush();
- assert.strictEqual(spoken.at(-1),'7777번 고객님, 주문이 준비되었습니다.','new direct-ready manual call speaks once');
+ assert.strictEqual(spoken.length,0,'customer monitor never performs TTS for a new direct-ready manual call');
  subscriptions.manualCustomerCalls({docs:[
   manualDoc('existing','6666','ready',1),
   manualDoc('direct','7777','ready',1)
  ]});
  await flush();
- assert.strictEqual(spoken.length,1,'duplicate manual snapshots stay silent');
+ assert.strictEqual(spoken.length,0,'duplicate manual snapshots stay silent');
 
  console.log('TV ready voice transition and duplicate-prevention checks passed');
 })().catch(error=>{

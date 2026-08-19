@@ -82,5 +82,5 @@ assert.ok(clearSource.includes("return transitionOverviewSeat(id,expected,'empty
 assert.ok(setStatusSource.includes('transaction.set(ref,seatReleasePayload(),{merge:true})'),'automatic dine-in release reuses the same payload');
 assert.ok(!clearSource.includes("collection('orders')"),'seat clearing never changes an order');
 assert.ok(rules.includes('match /seats/{seatId}')&&rules.includes('allow create: if isAdmin();'),'existing admin-only seat mutation policy remains');
-assert.ok(rules.includes("keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])"),'TV public data remains limited to display and countdown fields');
+assert.ok(rules.includes("keys().hasOnly(['orderNumber','customerIdentityType','customerDisplayName','language','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])"),'TV public data remains limited to display, safe identity, and countdown fields');
 console.log('admin operations layout, exact seat map, status visuals, and safe seat clearing passed');
