@@ -5,6 +5,8 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  const FORCE_COMPLETE_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking','ready']);
  const OCCUPIED_EXPIRY_MS=3*60*60*1000;
+ const ORPHAN_HOLD_GRACE_MS=60*1000;
+ const KIOSK_PRESENCE_STALE_MS=45*1000;
  const ADMIN_SEAT_STATUSES=Object.freeze({empty:{label:'빈자리',actions:['occupy','reserve']},occupied:{label:'사용중',actions:['empty']},reserved:{label:'예약',actions:['occupy','empty']},held:{label:'주문중',actions:[]},unknown:{label:'확인 필요',actions:[]}});
  const ADMIN_SEAT_ACTIONS=Object.freeze({
   occupy:{label:'사용',target:'occupied',className:'occupy'},reserve:{label:'예약',target:'reserved',className:'reserve'},empty:{label:'빈자리',target:'empty',className:'empty'}
@@ -44,6 +46,32 @@
   if(Number.isFinite(value.seconds)){const millis=value.seconds*1000+(Number(value.nanoseconds)||0)/1e6;return Number.isFinite(millis)?millis:null}
   const millis=value instanceof Date?value.getTime():typeof value==='number'?value:NaN;
   return Number.isFinite(millis)?millis:null;
+ }
+ function orphanHeldSeatState(seat,now=Date.now(),activeSessions=[]){
+  if(!seat||seat.status!=='held')return {recoverable:false,reason:'not-held'};
+  if(seat.orderId)return {recoverable:false,reason:'order-linked'};
+  const heldAt=timestampMillis(seat.heldAt),heldUntil=timestampMillis(seat.heldUntil);
+  if(heldAt===null||heldUntil===null)return {recoverable:false,reason:'damaged-hold'};
+  if(heldUntil>now-ORPHAN_HOLD_GRACE_MS)return {recoverable:false,reason:'recent-hold'};
+  const owner=String(seat.heldBy||''),active=(activeSessions||[]).some(session=>{
+   const heartbeat=timestampMillis(session?.heartbeatAt),identities=[session?.seatClientId,session?.sessionId,session?.kioskId].filter(Boolean).map(String);
+   return owner&&heartbeat!==null&&heartbeat>=now-KIOSK_PRESENCE_STALE_MS&&identities.includes(owner)
+  });
+  return active?{recoverable:false,reason:'active-session'}:{recoverable:true,reason:'orphan-expired-hold'};
+ }
+ async function recoverOrphanHeldSeatTransaction({db,seatId,expectedHeldBy,expectedHeldUntil,nowMillis=Date.now(),serverTimestamp,adminId='admin',activeSessionRefs=[]}){
+  if(!seatId||!Number.isFinite(nowMillis))throw operationError('seat/invalid-recovery','좌석 복구 요청이 올바르지 않습니다.');
+  return db.runTransaction(async transaction=>{
+   const seatRef=db.collection('seats').doc(seatId),seatSnapshot=await transaction.get(seatRef);
+   if(!seatSnapshot.exists)throw operationError('seat/not-found','좌석 문서가 없습니다.');
+   const current=seatSnapshot.data();
+   if(String(current.heldBy||'')!==String(expectedHeldBy||'')||!sameTimestamp(current.heldUntil,expectedHeldUntil))throw operationError('seat/stale-recovery','좌석 hold가 변경되어 강제 해제를 중단했습니다.');
+   const sessionSnapshots=await Promise.all((activeSessionRefs||[]).map(ref=>transaction.get(ref))),sessions=sessionSnapshots.filter(snapshot=>snapshot.exists).map(snapshot=>snapshot.data()),state=orphanHeldSeatState(current,nowMillis,sessions);
+   if(!state.recoverable)throw operationError(`seat/recovery-${state.reason}`,state.reason==='order-linked'?'주문과 연결된 좌석은 강제 해제할 수 없습니다.':state.reason==='recent-hold'?'최근 좌석 hold는 강제 해제할 수 없습니다.':state.reason==='active-session'?'활성 키오스크 세션의 좌석 hold는 강제 해제할 수 없습니다.':'좌석 hold 데이터를 확인할 수 없어 강제 해제하지 않았습니다.');
+   const timestamp=serverTimestamp();
+   transaction.set(seatRef,{status:'empty',orderId:null,orderNo:null,partySize:null,groupId:null,occupiedAt:null,heldBy:null,heldAt:null,heldUntil:null,cleaningAt:null,updatedAt:timestamp,recoveredAt:timestamp,recoveredBy:String(adminId||'admin'),recoveryReason:'orphan_expired_hold'},{merge:true});
+   return {seatId,from:'held',to:'empty',seatWrites:1,orderWrites:0,paymentCalls:0,recoveryReason:'orphan_expired_hold'};
+  })
  }
  function validPreparationMinutes(value){return Number.isInteger(value)&&value>=5&&value<=60&&value%5===0}
  function sameTimestamp(left,right){const a=timestampMillis(left),b=timestampMillis(right);return a!==null&&b!==null&&a===b}
@@ -214,5 +242,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,AUTO_READY_RETRY_MS,TRANSIENT_FIRESTORE_CODES,TERMINAL_AUTO_READY_CODES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,validPreparationMinutes,sameTimestamp,firestoreErrorCode,autoReadyIdentity,autoReadyEligible,createAutoReadyCoordinator,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ORPHAN_HOLD_GRACE_MS,KIOSK_PRESENCE_STALE_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,AUTO_READY_RETRY_MS,TRANSIENT_FIRESTORE_CODES,TERMINAL_AUTO_READY_CODES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,validPreparationMinutes,sameTimestamp,firestoreErrorCode,autoReadyIdentity,autoReadyEligible,createAutoReadyCoordinator,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });
