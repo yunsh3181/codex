@@ -3,6 +3,7 @@ const test=require('node:test');const assert=require('node:assert/strict');const
 const {initializeTestEnvironment}=require('@firebase/rules-unit-testing');
 const {collection,doc,getDoc,getDocs,runTransaction,serverTimestamp,setDoc,Timestamp}=require('firebase/firestore');
 const {commitSeatOrder}=require('../kiosk-seat-transaction');
+const waitlistPhoneKeypad=require('../waitlist-phone-keypad');
 const root=path.resolve(__dirname,'..'),PROJECT_ID='demo-kiosk-zone-capacity';
 if(!process.env.FIRESTORE_EMULATOR_HOST)test('kiosk seat capacity transaction matrix',{skip:true},()=>{});else{
  let env,clientDb,adminDb,sequence=0;
@@ -40,7 +41,8 @@ if(!process.env.FIRESTORE_EMULATOR_HOST)test('kiosk seat capacity transaction ma
   const linked=held(2,'client-a',{orderId:'existing-order'});await seed('annex',{'annex-1':linked});const before=JSON.stringify((await getDoc(doc(db(),'seats','annex-1'))).data());const result=await commit('annex',2,['annex-1']);assert.equal(result.ok,false);assert.equal(result.mutations.length,0);assert.equal(JSON.stringify((await getDoc(doc(result.raw,'seats','annex-1'))).data()),before)
  });
  test('K waitlist keeps the existing schema and performs one guarded waitlist write only',async()=>{
-  const raw=db();let locked=false,calls=0;async function register(){if(locked)return;locked=true;try{calls++;await setDoc(doc(collection(raw,'waitlist')),{seatId:'annex-1',seatName:'1번 테이블',partySize:2,phoneLast4:'5678',phoneMasked:'010-****-5678',status:'waiting',createdAt:serverTimestamp(),createdAtClient:new Date().toISOString()})}finally{locked=false}}
-  await Promise.all([register(),register()]);assert.equal(calls,1);assert.equal(await count(raw,'waitlist'),1);assert.equal(await count(raw,'orders'),0);assert.equal(await count(raw,'seats'),0)
+  const raw=db();let locked=false,calls=0;async function register(phone){if(locked)return;const value=waitlistPhoneKeypad.payload({seatId:'annex-1',seatName:'1번 테이블',partySize:2,phone,createdAt:serverTimestamp(),createdAtClient:new Date().toISOString()});if(!value)return;locked=true;try{calls++;await setDoc(doc(collection(raw,'waitlist')),value)}finally{locked=false}}
+  await register('0101234');assert.equal(calls,0);assert.equal(await count(raw,'waitlist'),0);
+  await Promise.all([register('01012345678'),register('01012345678')]);assert.equal(calls,1);assert.equal(await count(raw,'waitlist'),1);assert.equal(await count(raw,'orders'),0);assert.equal(await count(raw,'seats'),0)
  });
 }

@@ -33,4 +33,4 @@ Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.set,{title:'Set Menu'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.normal,{title:'Regular Order'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.takeout,{title:'Takeout 20%'});
 Object.assign(window.PJ_I18N_LOCALES.ja.review,{orderListLabel:'注文商品一覧',paginationLabel:'注文内容ページ',previousItems:'前の注文内容',nextItems:'次の注文内容'});
-Object.assign(window.PJ_I18N_LOCALES.ja.seat,{capacity:{full:'満席',fullDescription:'現在の人数では着席できません',queue:'順番待ち',unavailable:'利用不可',review:'確認が必要'}});
+Object.assign(window.PJ_I18N_LOCALES.ja.seat,{capacity:{full:'満席',twoFull:'2人席満席',fourFull:'4人席満席',fullDescription:'現在の人数では着席できません',queue:'順番待ち',closed:'営業時間終了',unavailable:'利用不可',review:'確認が必要',phoneGuide:'連絡先の携帯電話番号を入力してください。',phoneLabel:'順番待ちの携帯電話番号',keypadLabel:'電話番号テンキー',clear:'全削除',backspace:'1文字削除',cancel:'キャンセル',register:'登録',submitting:'登録中',phoneInvalid:'010から始まる11桁の番号を入力してください。',registerFailed:'順番待ちを登録できませんでした。もう一度お試しください。'}});

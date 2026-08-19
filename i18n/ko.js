@@ -39,4 +39,4 @@ window.PJ_I18N_LOCALES.ko={
     done:{title:'주문이 접수되었습니다',orderLabel:'주문번호 · 전화번호 뒤 4자리',paymentRequired:'{payment} 카운터에서 결제해 주세요',paymentMethodPhrase:{cash:'현금으로',card:'신용카드로',meal_ticket:'식권대장으로',bizle:'제로페이로'},paymentGuide:'결제 완료 후 피자 제조가 시작됩니다.',reserveTime:'예약시간 {time}',guide:'주문번호를 확인하시고 카운터로 와 주세요.',home:'처음으로'}
   };
 Object.assign(window.PJ_I18N_LOCALES.ko.review,{resetTitle:'처음으로 이동',resetBody:'현재 주문 내용이 모두 삭제됩니다. 처음 화면으로 이동하시겠습니까?',resetCancel:'취소',resetConfirm:'처음으로 이동'});
-Object.assign(window.PJ_I18N_LOCALES.ko.seat,{capacity:{full:'만석',fullDescription:'현재 인원은 착석할 수 없습니다',queue:'줄서기',unavailable:'이용 불가',review:'확인 필요'}});
+Object.assign(window.PJ_I18N_LOCALES.ko.seat,{capacity:{full:'만석',twoFull:'2인석 만석',fourFull:'4인석 만석',fullDescription:'현재 인원은 착석할 수 없습니다',queue:'줄서기',closed:'운영시간 종료',unavailable:'이용 불가',review:'확인 필요',phoneGuide:'연락받을 휴대전화번호를 입력해 주세요.',phoneLabel:'줄서기 휴대전화번호',keypadLabel:'전화번호 숫자 키패드',clear:'전체 삭제',backspace:'한 자리 지우기',cancel:'취소',register:'등록',submitting:'등록 중',phoneInvalid:'010으로 시작하는 11자리 번호를 입력해 주세요.',registerFailed:'줄서기 등록에 실패했습니다. 다시 시도해 주세요.'}});

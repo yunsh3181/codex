@@ -28,4 +28,4 @@ window.PJ_I18N_LOCALES.en={
   };
 window.PJ_I18N_LOCALES.en.party.label='Guests';
 Object.assign(window.PJ_I18N_LOCALES.en.review,{resetTitle:'Return to start',resetBody:'Your current order will be deleted. Would you like to return to the start screen?',resetCancel:'Cancel',resetConfirm:'Return to start'});
-Object.assign(window.PJ_I18N_LOCALES.en.seat,{capacity:{full:'Full',fullDescription:'Your party cannot be seated now',queue:'Join waitlist',unavailable:'Unavailable',review:'Check required'}});
+Object.assign(window.PJ_I18N_LOCALES.en.seat,{capacity:{full:'Full',twoFull:'2-seat tables full',fourFull:'4-seat tables full',fullDescription:'Your party cannot be seated now',queue:'Join waitlist',closed:'Service hours ended',unavailable:'Unavailable',review:'Check required',phoneGuide:'Enter a mobile number where we can reach you.',phoneLabel:'Waitlist mobile number',keypadLabel:'Phone number keypad',clear:'Clear all',backspace:'Delete one digit',cancel:'Cancel',register:'Register',submitting:'Registering',phoneInvalid:'Enter an 11-digit number starting with 010.',registerFailed:'Could not register the waitlist. Please try again.'}});
