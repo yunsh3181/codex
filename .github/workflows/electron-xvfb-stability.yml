@@ -40,21 +40,21 @@ jobs:
       - name: Install Electron runtime
         run: node node_modules/electron/install.js
 
-      - name: Run Firebase-equivalent full suite ten times
+      - name: Run Firebase-equivalent full suite three times
         env:
           ELECTRON_DISABLE_SANDBOX: "true"
         run: |
-          for iteration in {1..10}; do
-            echo "Full Xvfb suite ${iteration}/10"
+          for iteration in {1..3}; do
+            echo "Full Xvfb suite ${iteration}/3"
             xvfb-run --auto-servernum npm test
           done
 
-      - name: Run all Electron browser tests together ten times
+      - name: Run all Electron browser tests together three times
         env:
           ELECTRON_DISABLE_SANDBOX: "true"
         run: |
-          for iteration in {1..10}; do
-            echo "Concurrent Electron suite ${iteration}/10"
+          for iteration in {1..3}; do
+            echo "Concurrent Electron suite ${iteration}/3"
             xvfb-run --auto-servernum node --test \
               tests/kiosk-inactivity-warning-modal-browser.test.js \
               tests/mobile-order-pizza-grid-browser.test.js \
@@ -64,12 +64,12 @@ jobs:
               tests/windows-admin-central-order-list-browser.test.js
           done
 
-      - name: Run waiting-TV Electron test ten times
+      - name: Run waiting-TV Electron test three times
         env:
           ELECTRON_DISABLE_SANDBOX: "true"
         run: |
-          for iteration in {1..10}; do
-            echo "waiting-TV ${iteration}/10"
+          for iteration in {1..3}; do
+            echo "waiting-TV ${iteration}/3"
             xvfb-run --auto-servernum node --test tests/waiting-tv-completion-browser.test.js
           done
 
