@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -648,6 +648,8 @@ function combinedEntries(entries){
 function compactEntriesText(entries){
  return combinedEntries(entries).map(entry=>`${entry.name}×${entry.quantity}`).join(' ')||'-';
 }
+function adminCustomerIdentityLabel(order){return order?.customerIdentityType==='name'&&safeCustomerCallName(order.customerDisplayName)?safeCustomerCallName(order.customerDisplayName):displayText(order?.phone||order?.phoneMasked)}
+function customerCallDataAttributes(order){return `data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}" data-customer-name="${esc(order.customerDisplayName||'')}" data-customer-identity-type="${esc(order.customerIdentityType||'')}"`}
 function compactNewOrderData(order){
  const items=Array.isArray(order?.items)?order.items:[];
  const pizzas=items.map(item=>{
@@ -666,7 +668,7 @@ function compactNewOrderData(order){
  },{drinks:[],sauces:[]});
  const amounts=safeAmounts(order);
  return {
-  phone:displayText(order.phone||order.phoneMasked),
+  phone:adminCustomerIdentityLabel(order),
   pizzas:pizzas.join(' / ')||'-',
   sides:compactEntriesText(sides),
   drinks:[compactEntriesText(extras.drinks),extras.sauces.length?`소스 ${compactEntriesText(extras.sauces)}`:''].filter(value=>value&&value!=='-').join(' · ')||'-',
@@ -682,7 +684,7 @@ function newOrderCard(order){
 }
 function orderOperationsHTML(order){
  const {original,discount,paid}=safeAmounts(order),split=splitPaymentSummary(order,paid);
- const phone=displayText(order.phone||order.phoneMasked,'-');
+ const phone=adminCustomerIdentityLabel(order);
  const takeout=order.orderType==='takeout';
  const seat=takeout?'포장':displayText(orderSeatLabel(order));
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
@@ -701,7 +703,7 @@ function adminOrderActions(order){
  const pending=['payment_pending','new'].includes(order.status),inProgress=['accepted','paid','cooking'].includes(order.status),done=['ready','completed'].includes(order.status),takeout=order.orderType==='takeout';
  const reservation=typeof reservationTimeLabel==='function'?reservationTimeLabel(order):'';
  const primary=pending?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="accepted">결제대기 · 주문 접수</button>${reservation?`<strong class="reservation-time">${esc(reservation)}</strong>`:''}</div>`:inProgress?`<button type="button" class="${takeout?'ready':'occupied-action'}" data-action="set-status" data-order-id="${esc(order.id)}" data-status="${takeout?'ready':'completed'}">${takeout?'주문 완료':'조리완료'}</button>`:'';
- return `${primary}${includeCall&&(inProgress||done)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
+ return `${primary}${includeCall&&(inProgress||done)?`<button type="button" class="call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}" data-customer-name="${esc(order.customerDisplayName||'')}" data-customer-identity-type="${esc(order.customerIdentityType||'')}">📢 고객 호출</button>`:''}${!['cancelled','completed'].includes(order.status)?`<button type="button" class="cancel" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cancelled">취소</button>`:''}`;
 }
 function mainOrderCard(order,{takeoutAcceptance=false}={}){
  const takeout=order.orderType==='takeout',reservation=isReservationOrder(order),visual=adminStatusVisual(order);
@@ -725,7 +727,7 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
   <div class="main-order-menu">${orderDetailMenuHTML(order)}${orderDetailForkHTML(order)}</div>
   <div class="main-order-operations">
    <div class="main-payment-grid"><div class="payment-method"><span>결제수단</span><strong>${esc(paymentMethod)}</strong></div><div><span>원 금액</span><strong>${money(original)}</strong></div><div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>
-   <button type="button" class="main-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+   <button type="button" class="main-customer-call" data-action="call-customer" ${customerCallDataAttributes(order)}>📣 고객 호출</button>
    ${mealTicketHighlight}
    ${actions?`<div class="actions main-order-actions">${actions}</div>`:''}
   </div>
@@ -967,6 +969,7 @@ async function setStatus(id,status,button){
      const businessDay=orderBusinessDayKey(order);
      if(businessDay)transaction.set(displayRef,{
      orderNumber:String(order.customerNumber||order.orderNo||adminOrderNumberLabel(order)),
+     ...displayIdentity(order),
      displayStatus:status==='ready'?'ready':'cooking',
      storeId:String(order.storeId||'pangyo2-techno-valley'),
      businessDay,
@@ -1285,7 +1288,7 @@ function renderOrderDetail(order,seatId=null){
     <div class="discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div>
     <div class="paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
    </div>
-   <button type="button" class="detail-customer-call" data-action="call-customer" data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}">📣 고객 호출</button>
+   <button type="button" class="detail-customer-call" data-action="call-customer" ${customerCallDataAttributes(order)}>📣 고객 호출</button>
    ${mealTicketHighlight}
   </div>
  </div>
@@ -1348,7 +1351,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
  }
  if(action==='call-customer'){
   button.disabled=true;button.setAttribute('aria-busy','true');
-  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
+  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage,button.dataset.customerName,button.dataset.customerIdentityType)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
   return;
  }
  if(action==='set-status'){
@@ -1437,7 +1440,7 @@ orderDetailModal?.addEventListener('click',async event=>{
  }
  if(button.dataset.action==='call-customer'){
   button.disabled=true;button.setAttribute('aria-busy','true');
-  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
+  try{await callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage,button.dataset.customerName,button.dataset.customerIdentityType)}finally{if(button.isConnected){button.disabled=false;button.removeAttribute('aria-busy')}}
   return;
  }
  if(button.dataset.action==='clear-seat'){
@@ -1604,26 +1607,28 @@ function customerCallLanguage(language){
  if(['vi','vi-vn'].includes(normalized))return 'vi';
  return 'ko'
 }
-function customerCallSpeech(orderNo,language){
+function safeCustomerCallName(value){return String(value??'').replace(/[\u0000-\u001f\u007f-\u009f]/gu,'').replace(/<[^>]*>/gu,'').replace(/\s+/gu,' ').trim().slice(0,80)}
+function customerCallSpeech(orderNo,language,customerDisplayName,identityType){
  const normalized=customerCallLanguage(language);
+ const name=identityType==='name'?safeCustomerCallName(customerDisplayName):'';
  const number=spokenOrderNumber(orderNo);
  const koreanNumber=spokenKoreanOrderNumber(orderNo);
- if(!String(number).match(/\d/)||!koreanNumber)return null;
+ if(!name&&(!String(number).match(/\d/)||!koreanNumber))return null;
  const speech={
   ko:{lang:'ko-KR',text:`${koreanNumber} 번 고객님, 주문하신 메뉴가 준비되었습니다. 카운터에서 받아가 주세요.`},
-  en:{lang:'en-US',text:`Customer number ${number}, your order is ready. Please come to the counter.`},
-  es:{lang:'es-ES',text:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
-  ja:{lang:'ja-JP',text:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
-  zh:{lang:'zh-CN',text:`号码为${number}的顾客，您的餐品已经准备好了，请到柜台取餐。`},
-  vi:{lang:'vi-VN',text:`Khách hàng số ${number}, món ăn của quý khách đã sẵn sàng. Vui lòng nhận tại quầy.`}
+  en:{lang:'en-US',text:name?`${name}, your order is ready. Please come to the counter.`:`Customer number ${number}, your order is ready. Please come to the counter.`},
+  es:{lang:'es-ES',text:name?`${name}, su pedido está listo. Por favor, acérquese al mostrador.`:`Cliente número ${number}, su pedido está listo. Por favor, acérquese al mostrador.`},
+  ja:{lang:'ja-JP',text:name?`${name}様、ご注文の商品ができあがりました。カウンターまでお越しください。`:`お客様番号${number}番、ご注文の商品ができあがりました。カウンターまでお越しください。`},
+  zh:{lang:'zh-CN',text:name?`${name}，您的餐品已经准备好了，请到柜台取餐。`:`号码为${number}的顾客，您的餐品已经准备好了，请到柜台取餐。`},
+  vi:{lang:'vi-VN',text:name?`${name}, món ăn của quý khách đã sẵn sàng. Vui lòng nhận tại quầy.`:`Khách hàng số ${number}, món ăn của quý khách đã sẵn sàng. Vui lòng nhận tại quầy.`}
  }[normalized];
  return {...speech,voicePrefix:normalized}
 }
-async function speakCustomerCall(orderNo,language){
+async function speakCustomerCall(orderNo,language,customerDisplayName,identityType){
  if(!soundEnabled||!settings.voice||!('speechSynthesis'in window))return;
  const preparedVoice=await prepareAdminCustomerCallVoice().catch(()=>null);
  return new Promise(resolve=>{
-  const speech=customerCallSpeech(orderNo,language);
+  const speech=customerCallSpeech(orderNo,language,customerDisplayName,identityType);
   if(!speech){resolve();return}
   const utterance=PJSpeech.createSpeechUtterance(speech.text,{lang:speech.lang});
   if(speech.lang==='ko-KR'&&preparedVoice)utterance.voice=preparedVoice;
@@ -1633,12 +1638,12 @@ async function speakCustomerCall(orderNo,language){
   window.speechSynthesis.speak(utterance);
  });
 }
-async function performCustomerCall(orderNo,language){await playPreset('cafe');await wait(720);await speakCustomerCall(orderNo,language)}
-function enqueueCustomerCall(orderNo,language){speechQueue=speechQueue.then(()=>performCustomerCall(orderNo,language)).catch(error=>{console.error('고객 호출 음성 재생 실패',error)});return speechQueue}
+async function performCustomerCall(orderNo,language,customerDisplayName,identityType){await playPreset('cafe');await wait(720);await speakCustomerCall(orderNo,language,customerDisplayName,identityType)}
+function enqueueCustomerCall(orderNo,language,customerDisplayName,identityType){speechQueue=speechQueue.then(()=>performCustomerCall(orderNo,language,customerDisplayName,identityType)).catch(()=>{console.error('고객 호출 음성 재생 실패')});return speechQueue}
 function enqueueAutomaticTakeoutCall(order){
  const id=String(order?.id||'');
  if(!id||order?.orderType!=='takeout'||order?.status!=='cooking'||automaticallyCalledTakeoutOrders.has(id))return false;
- automaticallyCalledTakeoutOrders.add(id);enqueueCustomerCall(order.customerNumber||order.orderNo||'',order.language);return true;
+ automaticallyCalledTakeoutOrders.add(id);enqueueCustomerCall(order.customerNumber||order.orderNo||'',order.language,order.customerDisplayName,order.customerIdentityType);return true;
 }
 adminVoicePreview.addEventListener('click',()=>enqueueCustomerCall('3181','ko'));
 
@@ -1696,7 +1701,7 @@ async function notifyNewOrders(added){
  }
 }
 function showToast(order){document.getElementById('toastText').textContent=`${orderNumberLabel(order.customerNumber||order.orderNo)} · ${money(order.total)}`;const toast=document.getElementById('toast');toast.hidden=false;toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');toast.hidden=true},5000)}
-function callCustomer(orderNo,language){return enqueueCustomerCall(orderNo,language)}
+function callCustomer(orderNo,language,customerDisplayName,identityType){return enqueueCustomerCall(orderNo,language,customerDisplayName,identityType)}
 window.callCustomer=callCustomer;window.setStatus=setStatus;
 
 soundButton.textContent=soundEnabled?'🔔 알림음 켜짐':'🔕 알림음 꺼짐';

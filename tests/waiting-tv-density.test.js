@@ -26,6 +26,6 @@ test('waiting TV density calculation has no Firestore mutation path',()=>{
 test('waiting TV updates only the changed CSS and JS cache keys',()=>{
  const html=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/index.html'),'utf8');
  assert.match(html,/waiting-tv\.css\?v=8/);assert.doesNotMatch(html,/waiting-tv\.css\?v=[34567]/);
- assert.match(html,/waiting-tv\.js\?v=7/);assert.doesNotMatch(html,/waiting-tv\.js\?v=6/);
+ assert.match(html,/waiting-tv\.js\?v=8/);assert.doesNotMatch(html,/waiting-tv\.js\?v=[67]/);
  assert.match(html,/speech\.js\?v=1/,'unchanged speech cache key stays intact');
 });

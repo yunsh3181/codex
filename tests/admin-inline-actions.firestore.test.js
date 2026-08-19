@@ -64,7 +64,7 @@ if(!emulatorAvailable){
  function createRunner(db,localOrder){
   const mutations=[],messages=[],errors=[];
   const context={
-   Set,Promise,orders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,
+   Set,Promise,orders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,displayIdentity:adminOperations.displayIdentity,
    firebase:{auth:()=>({currentUser:{uid:'admin-inline'}}),firestore:{FieldValue:{serverTimestamp}}},
    createAutoReadyCoordinator:adminOperations.createAutoReadyCoordinator,
    completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,

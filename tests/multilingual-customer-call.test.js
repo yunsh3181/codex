@@ -7,6 +7,7 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8');
 const rules=fs.readFileSync(path.join(root,'firestore.rules'),'utf8');
+const customerIdentity=require('../customer-identity');
 
 const languageHelper=html.match(/function mobileOrderLanguage\(\)[\s\S]*?\n}/)?.[0];
 assert.ok(languageHelper,'mobile order language normalizer exists');
@@ -17,26 +18,28 @@ for(const [input,expected] of orderLanguageCases){
  vm.runInContext(languageHelper,context);
  assert.strictEqual(context.mobileOrderLanguage(),expected,`${String(input)} normalizes to ${expected}`);
 }
-assert.ok(/orderNo:displayOrderNo\(\),customerNumber:displayOrderNo\(\),phone:mobilePhoneFull\(\),\n  language:mobileOrderLanguage\(\),/.test(html),'normalized language is included without changing the existing order-number fields');
+assert.ok(html.includes('orderNo:orderNumber,customerNumber:orderNumber')&&html.includes('language,...identity'),'normalized language and customer identity are included without using the document ID');
 
 const payloadHelper=html.match(/function buildMobileOrderPayload\(\)[\s\S]*?\n}/)?.[0];
 assert.ok(payloadHelper,'mobile order payload builder exists');
 function buildPayloadForLanguage(language){
  const context={
-  window:{PJ_I18N:{currentLanguage:()=>language}},String,Date,
-  state:{left:null,right:null,cartItems:[],orderType:'takeout',partySize:null,selectedTables:[],diningArea:null,reserveTime:null,orderTiming:'now',promo:null,paymentMethod:'card',splitCount:1,phone:'12345678'},
+  window:{PJ_I18N:{currentLanguage:()=>language},PJCustomerIdentity:customerIdentity},String,Date,
+  state:{left:null,right:null,cartItems:[],orderType:'takeout',partySize:null,selectedTables:[],diningArea:null,reserveTime:null,orderTiming:'now',promo:null,paymentMethod:'card',splitCount:1,phone:'12345678',customerDisplayName:'Alex',orderNo:null},
   po:()=>null,currentOrderTotal:()=>0,cartTotal:()=>0,currentHasItems:()=>false,
   displayOrderNo:()=>`P${context.state.phone.slice(-4)}`,mobilePhoneFull:()=>`010${context.state.phone}`,mobileMaskedPhone:()=>`010-****-${context.state.phone.slice(-4)}`,last4:()=>context.state.phone.slice(-4),
   localStorage:{getItem:()=>null},reviewTotals:()=>({normal:0,discount:0}),paymentName:()=>'',isSplitPayment:()=>false,splitParts:()=>[],
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({serverTimestamp:true})}}}
  };
  vm.createContext(context);
+ context.mobileCustomerIdentity=()=>customerIdentity.identityFor({language,phoneLast4:'5678',name:'Alex'});
+ context.generatedForeignOrderNo=()=> 'P0001';
  vm.runInContext(`${languageHelper}\n${payloadHelper}`,context);
  return context.buildMobileOrderPayload();
 }
 for(const [input,expected] of [['ko','ko'],['en','en'],['es','es'],['ja','ja'],['ja-JP','ja'],['zh','zh'],['zh-CN','zh'],['vi','vi'],['vi-VN','vi']])assert.strictEqual(buildPayloadForLanguage(input).language,expected,`${input} payload stores ${expected}`);
 
-assert.ok(rules.includes("'phoneLast4','language','orderType'"),'language is an allowed order field');
+assert.ok(rules.includes("'phoneLast4','language','customerIdentityType','customerDisplayName','orderType'"),'language and customer identity are allowed order fields');
 assert.ok(rules.includes("!request.resource.data.keys().hasAny(['language'])"),'orders without language remain compatible');
 const allowedRuleLanguages=rules.match(/request\.resource\.data\.language in \[([^\]]+)]/)?.[1].match(/[a-z]+/g)||[];
 assert.deepStrictEqual(allowedRuleLanguages,['ko','en','es','ja','zh','vi'],'only supported short language codes are accepted when present');
@@ -76,8 +79,8 @@ const cases=[
  }
  assert.ok(admin.includes("order.customerNumber||order.orderNo||''"),'customerNumber remains ahead of orderNo');
  assert.ok(admin.includes('data-order-language="${esc(order.language||\'\')}"'),'call button preserves the Firestore order language');
- assert.ok(admin.includes("callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage)"),'call button passes the stored order language');
- assert.ok(admin.includes('function callCustomer(orderNo,language){return enqueueCustomerCall(orderNo,language)}'),'manual calls use the shared FIFO queue');
+ assert.ok(admin.includes("callCustomer(button.dataset.orderNo||'',button.dataset.orderLanguage,button.dataset.customerName,button.dataset.customerIdentityType)"),'call button passes the stored language and identity');
+ assert.ok(admin.includes('function callCustomer(orderNo,language,customerDisplayName,identityType){return enqueueCustomerCall(orderNo,language,customerDisplayName,identityType)}'),'manual calls use the shared FIFO queue');
 assert.ok(admin.includes('if(status===\'ready\')enqueueAutomaticTakeoutCall(committedOrder)'),'successful ready transaction uses the automatic-call guard');
  assert.ok(!admin.includes('고객님 주문 조리가 완료되었습니다.'),'the Korean-only completion announcement is removed');
  assert.ok(!helperSource.includes('female'),'customer call does not force a gendered voice');

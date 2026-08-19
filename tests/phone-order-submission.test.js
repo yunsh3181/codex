@@ -46,7 +46,7 @@ vm.runInContext(handlerSource,context);
  assert.strictEqual(calls,4,'a rejected request releases the lock and can be retried');
 
  assert.ok(html.includes("const orderRef=db.collection('orders').doc();"),'Firestore uses an automatic unique document ID');
- assert.ok(html.includes("orderNo:displayOrderNo(),customerNumber:displayOrderNo()"),'display order number remains payload data, not the document ID');
+ assert.ok(html.includes("orderNo:orderNumber,customerNumber:orderNumber"),'display order number remains payload data, not the document ID');
  assert.ok(html.includes("if(errorBox)errorBox.textContent=error.message||t('ui.payment.saveFailed')"),'failure message remains visible');
  assert.ok(html.includes("if(button){button.disabled=false;button.textContent=t('ui.payment.submit')}"),'failure restores the submit button');
  assert.ok(html.includes("state.phone=''"),'reset is the only place that clears the phone number');

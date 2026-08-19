@@ -66,7 +66,7 @@ service cloud.firestore {
     function validOrderCreate() {
       return request.resource.data.keys().hasOnly([
         'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
-        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','orderType','partySize','seat','pickup','disposables',
+        'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','customerIdentityType','customerDisplayName','orderType','partySize','seat','pickup','disposables',
         'items','itemCount','normalAmount','discountAmount','totalAmount','total','benefit','payment','status',
         'recommendationEvents','createdAt','createdAtClient','source'
       ])
@@ -77,10 +77,23 @@ service cloud.firestore {
       && request.resource.data.orderType in ['dinein','takeout']
       && (!request.resource.data.keys().hasAny(['disposables'])
         || request.resource.data.disposables is bool)
-      && validString(request.resource.data.phone, 11)
-      && request.resource.data.phone.matches('^010[0-9]{8}$')
-      && validString(request.resource.data.phoneMasked, 20)
-      && validString(request.resource.data.phoneLast4, 4)
+      && ((!request.resource.data.keys().hasAny(['customerIdentityType'])
+          && validString(request.resource.data.phone, 11)
+          && request.resource.data.phone.matches('^010[0-9]{8}$')
+          && validString(request.resource.data.phoneMasked, 20)
+          && validString(request.resource.data.phoneLast4, 4))
+        || (request.resource.data.customerIdentityType == 'phone_last4'
+          && request.resource.data.language == 'ko'
+          && validString(request.resource.data.phone, 11)
+          && request.resource.data.phone.matches('^010[0-9]{8}$')
+          && validString(request.resource.data.phoneMasked, 20)
+          && request.resource.data.phoneLast4.matches('^[0-9]{4}$')
+          && !request.resource.data.keys().hasAny(['customerDisplayName']))
+        || (request.resource.data.customerIdentityType == 'name'
+          && request.resource.data.language in ['en','es','ja','zh','vi']
+          && validString(request.resource.data.customerDisplayName, 80)
+          && request.resource.data.customerDisplayName.size() >= 1
+          && !request.resource.data.keys().hasAny(['phone','phoneMasked','phoneLast4'])))
       && request.resource.data.items is list
       && request.resource.data.items.size() >= 1
       && request.resource.data.items.size() <= 30
@@ -207,6 +220,20 @@ service cloud.firestore {
         && request.resource.data.autoReadyEnabled == true
         && request.resource.data.updatedAt == request.time;
     }
+    function validPublicDisplayIdentity(orderId) {
+      let orderPath = /databases/$(database)/documents/orders/$(orderId);
+      return !existsAfter(orderPath)
+        || (!getAfter(orderPath).data.keys().hasAny(['customerIdentityType'])
+          && !request.resource.data.keys().hasAny(['customerIdentityType','customerDisplayName','language']))
+        || (getAfter(orderPath).data.customerIdentityType == 'phone_last4'
+          && request.resource.data.customerIdentityType == 'phone_last4'
+          && request.resource.data.language == 'ko'
+          && !request.resource.data.keys().hasAny(['customerDisplayName']))
+        || (getAfter(orderPath).data.customerIdentityType == 'name'
+          && request.resource.data.customerIdentityType == 'name'
+          && request.resource.data.customerDisplayName == getAfter(orderPath).data.customerDisplayName
+          && request.resource.data.language == getAfter(orderPath).data.language);
+    }
 
     match /orders/{orderId} {
       allow create: if validOrderCreate() || validAdminCounterOrderCreate(orderId);
@@ -218,15 +245,24 @@ service cloud.firestore {
     match /publicOrderDisplays/{orderId} {
       allow read: if true;
       allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['orderNumber','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])
+        && request.resource.data.keys().hasOnly(['orderNumber','customerIdentityType','customerDisplayName','language','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])
         && validString(request.resource.data.orderNumber, 32)
         && request.resource.data.displayStatus in ['cooking','ready']
+        && (!request.resource.data.keys().hasAny(['customerIdentityType'])
+          || (request.resource.data.customerIdentityType == 'phone_last4'
+            && request.resource.data.language == 'ko'
+            && !request.resource.data.keys().hasAny(['customerDisplayName']))
+          || (request.resource.data.customerIdentityType == 'name'
+            && request.resource.data.language in ['en','es','ja','zh','vi']
+            && validString(request.resource.data.customerDisplayName, 80)
+            && request.resource.data.customerDisplayName.size() >= 1))
         && validString(request.resource.data.storeId, 80)
         && request.resource.data.businessDay is string
         && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && (resource == null || !resource.data.keys().hasAny(['businessDay'])
           || request.resource.data.businessDay == resource.data.businessDay)
         && request.resource.data.updatedAt == request.time
+        && validPublicDisplayIdentity(orderId)
         && (!request.resource.data.keys().hasAny(['preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled'])
           || (request.resource.data.preparationMinutes is int
             && request.resource.data.preparationMinutes >= 5
