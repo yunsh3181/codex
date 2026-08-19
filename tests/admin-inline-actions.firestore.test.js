@@ -7,6 +7,8 @@ const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/
 const {doc,getDoc,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=require('firebase/firestore');
 const adminOperations=require('../admin-operations.js');
 
+assert.equal(typeof adminOperations.createAutoReadyCoordinator,'function');
+
 const PROJECT_ID='demo-admin-inline-actions';
 const root=path.resolve(__dirname,'..');
 const emulatorAvailable=Boolean(process.env.FIRESTORE_EMULATOR_HOST);
@@ -15,8 +17,16 @@ if(!emulatorAvailable){
  test('admin inline action Firestore transactions (run with temporary emulator)',{skip:true},()=>{});
 }else{
  let environment;
+ const activeAutoReadyCoordinators=[];
  test.before(async()=>{environment=await initializeTestEnvironment({projectId:PROJECT_ID,firestore:{rules:fs.readFileSync(path.join(root,'firestore.rules'),'utf8')}})});
  test.beforeEach(async()=>{await environment.clearFirestore()});
+ test.afterEach(()=>{
+  for(const coordinator of activeAutoReadyCoordinators){
+   assert.equal(coordinator.timers.size,0,'fixture leaves no auto-ready timer');
+   assert.equal(coordinator.locks.size,0,'fixture leaves no auto-ready lock');
+  }
+  activeAutoReadyCoordinators.length=0;
+ });
  test.after(async()=>{await environment.cleanup()});
 
  const adminDb=()=>environment.authenticatedContext('admin-inline',{admin:true}).firestore();
@@ -38,6 +48,7 @@ if(!emulatorAvailable){
  const releaseSource=adminSource.match(/function seatReleasePayload\(\)\{[\s\S]*?\n\}/)?.[0];
  const setStatusSource=adminSource.match(/async function setStatus\(id,status,button\)\{[\s\S]*?\n\}\n\nlet forceCompleteOrderId/)?.[0].replace(/\n\nlet forceCompleteOrderId[\s\S]*/,'');
  assert.ok(releaseSource&&setStatusSource,'production transaction source found');
+ assert.equal((setStatusSource.match(/createAutoReadyCoordinator\(/g)||[]).length,1,'production source creates exactly one auto-ready coordinator');
 
  function compatDb(db,mutationLog=[],options={}){
   return {
@@ -55,13 +66,19 @@ if(!emulatorAvailable){
   const context={
    Set,Promise,orders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,
    firebase:{auth:()=>({currentUser:{uid:'admin-inline'}}),firestore:{FieldValue:{serverTimestamp}}},
+   createAutoReadyCoordinator:adminOperations.createAutoReadyCoordinator,
    completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
    orderSeatIds:value=>Array.isArray(value?.seat?.tables)?value.seat.tables:value?.seat?.id?[value.seat.id]:[],
    orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-05',adminOrderNumberLabel:value=>value.customerNumber||value.id,
    stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},openForceCompleteModal(){messages.push({message:'force-complete-modal',isError:false})},setTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},
    console:{error(...args){errors.push(args.map(value=>value?.message||String(value)).join(' '))}}
   };
+  assert.strictEqual(context.createAutoReadyCoordinator,adminOperations.createAutoReadyCoordinator,'fixture uses the production auto-ready export');
   vm.createContext(context);vm.runInContext(`${releaseSource}\nconst statusUpdateLocks=new Set();\n${setStatusSource}`,context);
+  const coordinator=vm.runInContext('autoReadyCoordinator',context);
+  assert.equal(coordinator.timers.size,0,'fixture initialization creates no auto-ready timer');
+  assert.equal(coordinator.locks.size,0,'fixture initialization creates no auto-ready lock');
+  activeAutoReadyCoordinators.push(coordinator);
   return {run:(status)=>context.setStatus(localOrder.id,status,null),mutations,messages,errors};
  }
 
