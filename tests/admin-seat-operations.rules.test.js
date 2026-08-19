@@ -3,8 +3,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {initializeTestEnvironment,assertFails}=require('@firebase/rules-unit-testing');
-const {doc,getDoc,runTransaction,serverTimestamp,setDoc,updateDoc}=require('firebase/firestore');
-const {transitionAdminSeatState}=require('../admin-operations');
+const {doc,getDoc,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=require('firebase/firestore');
+const {transitionAdminSeatState,recoverOrphanHeldSeatTransaction}=require('../admin-operations');
 const PROJECT_ID='demo-admin-unified-seat-state';
 if(!process.env.FIRESTORE_EMULATOR_HOST)test('admin unified seat production helper rules matrix',{skip:'run with Firestore emulator'},()=>{});
 else{
@@ -20,4 +20,6 @@ else{
  test('two admins racing from the same source produce exactly one success',async()=>{await seed('papa-2',{status:'empty',orderId:null});const results=await Promise.allSettled([transition(admin('a'),'papa-2','empty','reserved'),transition(admin('b'),'papa-2','empty','occupied')]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal(results.filter(r=>r.status==='rejected').length,1);assert.ok(['reserved','occupied'].includes((await read('papa-2')).status))});
  test('customer hold and admin transition race produces one winner without correction writes',async()=>{await seed('papa-2',{status:'empty',orderId:null});const customer=user('customer'),ref=doc(customer,'seats','papa-2');const hold=runTransaction(customer,async tx=>{const snap=await tx.get(ref);if(snap.data().status!=='empty')throw new Error('STALE');tx.update(ref,{status:'held',heldBy:'customer',heldAt:serverTimestamp(),heldUntil:new Date(Date.now()+60000),updatedAt:serverTimestamp()})});const results=await Promise.allSettled([hold,transition(admin('admin-race'),'papa-2','empty','reserved')]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.ok(['held','reserved'].includes((await read('papa-2')).status))});
  test('non-admin direct admin-state mutation is denied',async()=>{await seed('papa-2',{status:'empty',orderId:null});await assertFails(updateDoc(doc(user('not-admin'),'seats','papa-2'),{status:'reserved',reservedBy:'admin'}));assert.equal((await read('papa-2')).status,'empty')});
+ test('expired orderless hold recovery passes the dedicated Rules validator',async()=>{const heldUntil=Timestamp.fromMillis(Date.now()-120000);await seed('papa-2',{status:'held',heldBy:'owner',heldAt:Timestamp.fromMillis(Date.now()-180000),heldUntil,orderId:null});const result=await recoverOrphanHeldSeatTransaction({db:compat(admin('recovery')),seatId:'papa-2',expectedHeldBy:'owner',expectedHeldUntil:heldUntil,serverTimestamp,adminId:'recovery-admin',nowMillis:Date.now()});const after=await read('papa-2');assert.equal(result.seatWrites,1);assert.equal(after.status,'empty');assert.equal(after.recoveryReason,'orphan_expired_hold');assert.equal(after.recoveredBy,'recovery-admin')});
+ test('admin cannot attach recovery audit fields to a recent hold',async()=>{await seed('papa-2',{status:'held',heldBy:'owner',heldAt:Timestamp.now(),heldUntil:Timestamp.fromMillis(Date.now()+60000),orderId:null});await assertFails(updateDoc(doc(admin('spoof'),'seats','papa-2'),{status:'empty',heldBy:null,heldAt:null,heldUntil:null,recoveredAt:serverTimestamp(),recoveredBy:'spoof',recoveryReason:'orphan_expired_hold',updatedAt:serverTimestamp()}));assert.equal((await read('papa-2')).status,'held')});
 }

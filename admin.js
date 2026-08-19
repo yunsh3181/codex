@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -844,7 +844,7 @@ function renderSeatOverview(){
   const elapsed=occupiedElapsedLabel(data);
   const pending=statusUpdateLocks.has(`seat:${seat.id}`),actions=getAdminSeatActions(status);
   const content=`<strong>${esc(seat.name)}</strong><span class="seat-overview-status"><i aria-hidden="true"></i>${ADMIN_SEAT_STATUSES[status].label}</span>${status!=='empty'&&orderNumber?`<small>${esc(orderNumber)}</small>`:''}${elapsed?`<small class="seat-occupied-elapsed">${esc(elapsed)}</small>`:''}`;
-  const buttons=status==='held'&&data.orderId?`<div class="admin-seat-actions"><button type="button" class="admin-seat-action empty" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} 주문 상세">주문 상세</button></div>`:actions.length?`<div class="admin-seat-actions" aria-busy="${pending}">${actions.map(action=>`<button type="button" class="admin-seat-action ${action.className}" data-action="transition-seat" data-seat-id="${esc(seat.id)}" data-seat-from="${status}" data-seat-to="${action.target}" ${pending?'disabled':''} aria-label="${esc(seat.name)} ${ADMIN_SEAT_STATUSES[status].label}. ${action.label}">${action.label}</button>`).join('')}</div>`:'';
+  const recovery=orphanHeldSeatState(data),buttons=status==='held'&&data.orderId?`<div class="admin-seat-actions"><button type="button" class="admin-seat-action empty" data-action="open-seat-order" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} 주문 상세">주문 상세</button></div>`:status==='held'&&recovery.recoverable?`<div class="admin-seat-actions"><button type="button" class="admin-seat-action empty" data-action="recover-orphan-hold" data-seat-id="${esc(seat.id)}" ${pending?'disabled':''} aria-label="${esc(seat.name)} 만료된 주문 없는 좌석 강제 빈자리">강제 빈자리</button></div>`:actions.length?`<div class="admin-seat-actions" aria-busy="${pending}">${actions.map(action=>`<button type="button" class="admin-seat-action ${action.className}" data-action="transition-seat" data-seat-id="${esc(seat.id)}" data-seat-from="${status}" data-seat-to="${action.target}" ${pending?'disabled':''} aria-label="${esc(seat.name)} ${ADMIN_SEAT_STATUSES[status].label}. ${action.label}">${action.label}</button>`).join('')}</div>`:'';
   return `<article class="seat-overview-card seat-zone-${seat.zone} ${status}" style="grid-row-start:${seat.row};grid-column-start:${seat.column}" data-seat-id="${esc(seat.id)}" aria-label="${esc(seat.name)} ${ADMIN_SEAT_STATUSES[status].label}">${content}${buttons}</article>`;
  }).join('');
 }
@@ -1368,6 +1368,10 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   openSeatOrderDetail(button.dataset.seatId,button);
   return;
  }
+ if(action==='recover-orphan-hold'){
+  await recoverOverviewOrphanHold(button.dataset.seatId,button);
+  return;
+ }
  if(action==='transition-seat'){
   await transitionOverviewSeat(button.dataset.seatId,button.dataset.seatFrom,button.dataset.seatTo,button);
   return;
@@ -1474,6 +1478,16 @@ async function transitionOverviewSeat(id,expected,target,button){
  }catch(error){
   pendingAdminSeatTargets.delete(id);statusUpdateLocks.delete(lockId);renderSeatOverview();console.error('좌석 상태 변경 실패',error);showAdminMessage(error.message||'좌석 상태를 변경하지 못했습니다.',true);return false;
  }
+}
+async function recoverOverviewOrphanHold(id,button){
+ const lockId=`seat:${id}`,seat=ADMIN_SEATS.find(item=>item.id===id),current=seatDocuments[id];
+ if(!seat||!current||statusUpdateLocks.has(lockId)||!orphanHeldSeatState(current).recoverable)return false;
+ if(!confirm(`${seat.name}은 주문과 연결되지 않은 만료 좌석입니다. transaction으로 다시 확인한 뒤 강제 빈자리로 변경할까요?`))return false;
+ statusUpdateLocks.add(lockId);pendingAdminSeatTargets.set(id,'empty');renderSeatOverview();
+ try{
+  await recoverOrphanHeldSeatTransaction({db,seatId:id,expectedHeldBy:current.heldBy,expectedHeldUntil:current.heldUntil,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',activeSessionRefs:[db.collection('runtimeControls').doc(MANUAL_CALL_STORE_ID).collection('kiosks').doc('mobile-01')]});
+  showAdminMessage(`${seat.name}의 주문 없는 만료 hold를 빈자리로 복구했습니다.`);return true
+ }catch(error){pendingAdminSeatTargets.delete(id);statusUpdateLocks.delete(lockId);renderSeatOverview();showAdminMessage(error.message||'좌석을 복구하지 못했습니다.',true);return false}
 }
 
 function ensureAudio(){

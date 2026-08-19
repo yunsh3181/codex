@@ -140,19 +140,23 @@ async function main(lifecycle) {
     await managerClick("빈자리");
     await dashboardClick("예약");
     await dashboardClick("빈자리");
+    const expired={status:'held',orderId:null,heldBy:'customer',heldAt:Date.now()-120000,heldUntil:Date.now()-90000};
     const held = await Promise.all([
       dashboard.webContents.executeJavaScript(
-        `PJAdminVisualFixture.setSeat('${id}',{status:'held',orderId:null,heldBy:'customer'});new Promise(resolve=>setTimeout(()=>resolve([...document.querySelectorAll('[data-seat-id="${id}"] .admin-seat-action')].map(button=>button.textContent.trim())),0))`,
+        `PJAdminVisualFixture.setSeat('${id}',${JSON.stringify(expired)});new Promise(resolve=>setTimeout(()=>resolve([...document.querySelectorAll('[data-seat-id="${id}"] .admin-seat-action')].map(button=>button.textContent.trim())),0))`,
       ),
       manager.webContents.executeJavaScript(
-        `__seatLayoutFixture.setSeat('${id}',{status:'held',orderId:null,heldBy:'customer'});new Promise(resolve=>setTimeout(()=>resolve([...document.querySelectorAll('[data-layout-seat-id="${id}"] .admin-seat-action')].map(button=>button.textContent.trim())),0))`,
+        `__seatLayoutFixture.setSeat('${id}',${JSON.stringify(expired)});new Promise(resolve=>setTimeout(()=>resolve([...document.querySelectorAll('[data-layout-seat-id="${id}"] .admin-seat-action')].map(button=>button.textContent.trim())),0))`,
       ),
     ]);
+    await managerClick('강제 빈자리');
+    await Promise.all([dashboard.webContents.executeJavaScript(`PJAdminVisualFixture.setSeat('${id}',${JSON.stringify(expired)})`),manager.webContents.executeJavaScript(`__seatLayoutFixture.setSeat('${id}',${JSON.stringify(expired)})`)]);await delay(50);
+    await dashboardClick('강제 빈자리');
     fs.writeFileSync(
       report,
       JSON.stringify({
         steps,
-        held,
+        held,recoverySteps:steps.slice(-2),
         refreshes: 0,
         seatOrder: await manager.webContents.executeJavaScript(
           `[...document.querySelectorAll('[data-layout-seat-id]')].map(node=>node.dataset.layoutSeatId)`,

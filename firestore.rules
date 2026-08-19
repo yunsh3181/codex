@@ -44,6 +44,25 @@ service cloud.firestore {
         && request.auth.token.kioskId == kioskId;
     }
     function validString(v, max) { return v is string && v.size() <= max; }
+    function validAdminOrphanHeldRecovery() {
+      return resource.data.status == 'held'
+        && resource.data.orderId == null
+        && resource.data.heldUntil is timestamp
+        && resource.data.heldUntil <= request.time - duration.value(60, 's')
+        && request.resource.data.status == 'empty'
+        && request.resource.data.orderId == null
+        && request.resource.data.orderNo == null
+        && request.resource.data.heldBy == null
+        && request.resource.data.heldAt == null
+        && request.resource.data.heldUntil == null
+        && request.resource.data.recoveryReason == 'orphan_expired_hold'
+        && request.resource.data.recoveredAt == request.time
+        && validString(request.resource.data.recoveredBy, 128)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status','orderId','orderNo','partySize','groupId','occupiedAt','heldBy','heldAt',
+          'heldUntil','cleaningAt','recoveredAt','recoveredBy','recoveryReason','updatedAt'
+        ]);
+    }
     function validOrderCreate() {
       return request.resource.data.keys().hasOnly([
         'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
@@ -264,7 +283,10 @@ service cloud.firestore {
     match /seats/{seatId} {
       allow read: if true;
       allow create: if isAdmin();
-      allow update: if isAdmin() || (
+      allow update: if (isAdmin()
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'recoveredAt','recoveredBy','recoveryReason'
+        ]) || validAdminOrphanHeldRecovery())) || (
         request.resource.data.status == 'held'
         && validString(request.resource.data.heldBy, 128)
         && request.resource.data.heldUntil is timestamp
