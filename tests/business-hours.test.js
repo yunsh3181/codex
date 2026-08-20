@@ -57,7 +57,7 @@ test('order submission and Firestore persistence do not use business-hour guards
   const submit = html.match(/async function submitMobileOrder\(\)\{[\s\S]*?\n}\n\nasync function complete/)?.[0] || '';
   assert.doesNotMatch(complete, /assertBusinessOpen|BUSINESS_HOURS_CLOSED/);
   assert.doesNotMatch(submit, /requireBusinessOpenPure|assertBusinessOpen|BUSINESS_HOURS_CLOSED/);
-  assert.match(seatTransaction, /transaction\.get[\s\S]*?selectedSnapshots\.some[\s\S]*?transaction\.set\(orderRef,payload\)/);
+  assert.match(seatTransaction, /transaction\.get[\s\S]*?selectedSnapshots\.some[\s\S]*?prepareOrderPayload[\s\S]*?transaction\.set\(orderRef,committedPayload\)/);
 });
 
 test('kiosk startup and rendering never replace the order flow with a closed screen', () => {
@@ -69,10 +69,10 @@ test('kiosk startup and rendering never replace the order flow with a closed scr
 
 test('takeout and dining writes preserve transaction atomicity without time checks', () => {
   const submit = html.match(/async function submitMobileOrder\(\)\{[\s\S]*?\n}\n\nasync function complete/)?.[0] || '';
-  const orderWrite = seatTransaction.indexOf('transaction.set(orderRef,payload)');
+  const orderWrite = seatTransaction.indexOf('transaction.set(orderRef,committedPayload)');
   const seatWrite = seatTransaction.indexOf('selected.forEach');
   assert.ok(orderWrite > 0 && orderWrite < seatWrite);
-  assert.match(submit, /state\.orderType==='dinein'\)await window\.PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
+  assert.match(submit, /state\.orderType==='dinein'[\s\S]*?PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
 });
 
 test('business-hours settings remain available for admin and test-mode use', () => {

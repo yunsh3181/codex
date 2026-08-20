@@ -4,7 +4,7 @@
  root.PJ_KIOSK_SEAT_TRANSACTION=api
 })(typeof globalThis!=='undefined'?globalThis:this,function(capacityPolicy){
  'use strict';
- async function commitSeatOrder({db,zone,selectedTableIds,partySize,seatClientId,tableDefinitions,orderRef,payload,serverTimestamp,validateBeforeWrite}){
+ async function commitSeatOrder({db,zone,selectedTableIds,partySize,seatClientId,tableDefinitions,orderRef,payload,serverTimestamp,validateBeforeWrite,prepareOrderPayload}){
   const selected=[...new Set(selectedTableIds||[])],definitions=tableDefinitions||[];
   if(!selected.length)throw Object.assign(new Error('SEAT_SELECTION_EMPTY'),{code:'SEAT_SELECTION_EMPTY'});
   const zoneIds=['annex','outdoor'].includes(zone)?definitions.map(table=>table.id):selected;
@@ -22,9 +22,10 @@
     const capacity=capacityPolicy.evaluateSelection({zone,partySize:Number(partySize),tables,selectedTableIds:selected});
     if(!capacity.canSeat){const error=new Error('ZONE_CAPACITY_STALE');error.code='ZONE_CAPACITY_STALE';throw error}
    }
-   transaction.set(orderRef,payload);
-   selected.forEach(id=>transaction.set(db.collection('seats').doc(id),{status:'held',heldBy:null,heldUntil:null,partySize:Number(partySize),orderNo:payload.orderNo,orderId:orderRef.id,updatedAt:serverTimestamp()},{merge:true}));
-   return {orderId:orderRef.id,orderWrites:1,seatWrites:selected.length}
+   const committedPayload=prepareOrderPayload?await prepareOrderPayload(transaction,payload):payload;
+   transaction.set(orderRef,committedPayload);
+   selected.forEach(id=>transaction.set(db.collection('seats').doc(id),{status:'held',heldBy:null,heldUntil:null,partySize:Number(partySize),orderNo:committedPayload.orderNo,orderId:orderRef.id,updatedAt:serverTimestamp()},{merge:true}));
+   return {orderId:orderRef.id,orderNo:committedPayload.orderNo,orderWrites:1,seatWrites:selected.length}
   })
  }
  return Object.freeze({commitSeatOrder})
