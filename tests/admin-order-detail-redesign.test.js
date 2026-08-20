@@ -131,7 +131,7 @@ assert.ok(reservedDetail.includes('주문시간 07. 30. 오후 12:22'),'reservat
 assert.ok(!normal.includes('예약시간'),'immediate order detail omits the reservation region');
 for(const invalid of [null,undefined,'not-a-time','25:99']){
  const invalidDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:invalid}});
- assert.ok(!invalidDetail.includes('예약시간'),'missing and invalid reservation values stay hidden');
+ assert.ok(invalidDetail.includes('<small>예약시간</small>확인 필요'),'missing and invalid reservation values use a safe fallback');
  assert.doesNotMatch(invalidDetail,/Invalid Date|undefined|null|NaN/);
 }
 const timestampDetail=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:{toDate:()=>new Date('2026-08-05T09:30:00.000Z')}}});
@@ -149,7 +149,7 @@ const unsafeReservationTimes=[
 for(const {label,value} of unsafeReservationTimes){
  let markup;
  assert.doesNotThrow(()=>{markup=context.renderOrderDetail({...baseOrder,pickup:{mode:'reserve',time:value}})},`${label} does not throw`);
- assert.ok(!markup.includes('예약시간'),`${label} hides the reservation time region`);
+ assert.ok(markup.includes('<small>예약시간</small>확인 필요'),`${label} uses the safe reservation-time fallback`);
  assert.doesNotMatch(markup,/Invalid Date|undefined|null|NaN/,`${label} emits no invalid placeholder`);
 }
 
