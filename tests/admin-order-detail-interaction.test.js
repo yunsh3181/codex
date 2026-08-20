@@ -30,7 +30,7 @@ assert.ok(admin.includes("if(!['Enter',' '].includes(event.key)"),'Enter and Spa
 assert.ok(admin.includes("event.key==='Escape'"),'Escape closes the shared order detail');
 assert.ok(admin.includes("if(event.target===orderDetailModal){closeOrderDetail();return}"),'backdrop closes detail consistently');
 
-const filterSource=admin.match(/function filterOrders[\s\S]*?\n}\nfunction adminStatusName/)?.[0].replace(/\nfunction adminStatusName[\s\S]*/,'');
+const filterSource=admin.match(/function filterOrders[\s\S]*?\n}\nfunction reservationStatusLabel/)?.[0].replace(/\nfunction reservationStatusLabel[\s\S]*/,'');
 assert.ok(filterSource,'main-list filter helpers found');
 const filterContext={activeFilter:'completed',activeChannel:'all',PJCommon:{legacyChannel:()=> 'mobile'}};
 vm.createContext(filterContext);

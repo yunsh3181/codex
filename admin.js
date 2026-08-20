@@ -649,8 +649,9 @@ function combinedEntries(entries){
 function compactEntriesText(entries){
  return combinedEntries(entries).map(entry=>`${entry.name}×${entry.quantity}`).join(' ')||'-';
 }
-function adminCustomerIdentityLabel(order){return order?.customerIdentityType==='name'&&safeCustomerCallName(order.customerDisplayName)?safeCustomerCallName(order.customerDisplayName):displayText(order?.phone||order?.phoneMasked)}
-function customerCallDataAttributes(order){return `data-order-no="${esc(order.customerNumber||order.orderNo||'')}" data-order-language="${esc(order.language||'')}" data-customer-name="${esc(order.customerDisplayName||'')}" data-customer-identity-type="${esc(order.customerIdentityType||'')}"`}
+function adminCustomerName(order){return order?.customerIdentityType==='name'&&typeof order?.customerDisplayName==='string'?safeCustomerCallName(order.customerDisplayName):''}
+function adminCustomerIdentityLabel(order){return adminCustomerName(order)||displayText(order?.phone||order?.phoneMasked)}
+function customerCallDataAttributes(order){const name=adminCustomerName(order);return `data-order-no="${esc(displayText(order?.customerNumber||order?.orderNo,''))}" data-order-language="${esc(displayText(order?.language,''))}" data-customer-name="${esc(name)}" data-customer-identity-type="${esc(name?'name':displayText(order?.customerIdentityType,''))}"`}
 function compactNewOrderData(order){
  const items=Array.isArray(order?.items)?order.items:[];
  const pizzas=items.map(item=>{
@@ -698,7 +699,8 @@ function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(acti
 function ordersForMainList(list){
  return (list||[]).filter(order=>order.orderType!=='takeout'||activeFilter==='completed').filter(filterOrders);
 }
-function adminStatusName(order){const payment=reservationPaymentLabel(order);if(order.status==='reservation_pending')return `예약중 (${reservationCountdownLabel(order)})${payment?` · ${payment}`:''}`;if(order.reservationLifecycleId&&order.status==='cooking')return `조리중 (예약)${payment?` · ${payment}`:''}`;if(order.reservationLifecycleId&&order.status==='ready')return `조리완료 (예약)${payment?` · ${payment}`:''}`;if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
+function reservationStatusLabel(order){if(!isReservationOrder(order))return '';if(order.status==='reservation_pending')return `예약중 (${reservationCountdownLabel(order)})`;if(order.status==='cooking')return '조리중 (예약)';if(order.status==='ready')return '조리완료 (예약)';if(order.status==='completed')return '픽업완료 (예약)';return displayText(statusNames[order.status],'예약 상태 확인 필요')}
+function adminStatusName(order){const reservationStatus=reservationStatusLabel(order);if(reservationStatus){const payment=reservationPaymentLabel(order);return `${reservationStatus}${payment?` · ${payment}`:''}`}if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
 function isCounterTakeout(order){return order?.orderType==='takeout'&&order?.source==='admin_counter'}
 function adminStatusVisual(order){if(['payment_pending','new'].includes(order.status))return {className:'seat-ordering',icon:'🟡'};if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return {className:'seat-occupied',icon:'🔴'};if(order.orderType==='takeout'&&['accepted','paid','cooking','ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};if(['ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};return {className:'',icon:''}}
 function adminOrderActions(order){
@@ -1158,11 +1160,11 @@ function paymentStatusLabel(order){
 }
 function isReservationOrder(order){
  const mode=String(order?.pickup?.mode||'').trim().toLowerCase();
- return mode==='reserve'||(mode!=='now'&&Boolean(displayText(order?.pickup?.time,'')));
+ return mode==='reserve'||(mode!=='now'&&Boolean(displayText(order?.pickup?.time,'')))||Boolean(order?.pickup?.pickupAt&&mode!=='now');
 }
 function reservationTimeLabel(order){
  if(!isReservationOrder(order))return '';
- const raw=order?.pickup?.time;
+ const raw=order?.pickup?.pickupAt??order?.pickup?.time;
  if(typeof raw==='string'){
   const match=raw.trim().match(/^(?:[01]\d|2[0-3]):[0-5]\d(?:[:][0-5]\d)?$/);
   if(match)return `${match[0].slice(0,5)} 예약`;
@@ -1173,7 +1175,7 @@ function reservationTimeLabel(order){
 }
 function reservationDetailValue(order){
  if(!isReservationOrder(order))return '';
- const raw=order?.pickup?.time;
+ const raw=order?.pickup?.pickupAt??order?.pickup?.time;
  if(typeof raw==='string'){
   const time=raw.trim().match(/^([01]\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?$/);
   if(time){
@@ -1284,19 +1286,20 @@ function renderOrderDetail(order,seatId=null){
  const seatLabel=takeout?'-':displayText(orderSeatLabel(order));
  const reservation=isReservationOrder(order);
  const {original,discount,paid}=safeAmounts(order);
- const phone=displayText(order.phone||order.phoneMasked);
+ const customerName=adminCustomerName(order),customer=customerName||displayText(order.phone||order.phoneMasked),customerLabel=customerName?'고객명':'연락처';
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const completed=['ready','completed'].includes(order.status);
  const reservationValue=reservationDetailValue(order);
+ const reservationStatus=reservationStatusLabel(order),reservationPayment=reservationPaymentLabel(order);
  const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),mealTicketHighlight=mealTicketHighlightHTML(order,paid);
  return `<div class="admin-detail-screen">
  <div class="admin-detail-topbar">
   <div class="detail-order-identity">${reservation?'<span class="detail-reservation">예약</span>':''}<strong>${esc(adminOrderNumberLabel(order))}</strong><span class="detail-order-type ${takeout?'takeout':'dinein'}">${takeout?'포장':'매장식사'}</span></div>
   <div class="detail-top-card"><span>인원</span><strong>${party}</strong></div>
   <div class="detail-top-card seat"><span>좌석</span><strong>${esc(seatLabel)}</strong></div>
-  <div class="detail-top-card phone"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div>
+  <div class="detail-top-card phone"><span>${customerLabel}</span><strong>${esc(customer)}</strong>${!customerName&&customer!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(customer)}">복사</button>`:''}</div>
   <div class="detail-top-card paid"><span>결제금액</span><strong>${money(paid)}</strong></div>
-  ${reservationValue?`<div class="detail-reservation-time"><span>예약주문</span><strong><small>예약시간</small>${esc(reservationValue)}</strong></div>`:''}
+  ${reservation?`<div class="detail-reservation-time"><span>예약주문</span><strong><small>예약시간</small>${esc(reservationValue||'확인 필요')}<small>예약상태</small>${esc(reservationStatus||'확인 필요')}<small>결제유형</small>${esc(reservationPayment||'확인 필요')}</strong></div>`:''}
   <div class="detail-completion">${completed?'<strong><i></i>완료</strong>':''}<span>주문시간 ${formatTime(order.createdAt||order.createdAtClient)}</span></div>
  </div>
  <div class="admin-detail-body">
