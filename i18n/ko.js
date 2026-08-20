@@ -36,7 +36,7 @@ window.PJ_I18N_LOCALES.ko={
     pizza:{'P001':{name:'수퍼 파파스'},'P002':{name:'존스 페이버릿'},'P003':{name:'올미트'},'P004':{name:'스파이시 치킨랜치'},'P005':{name:'아이리쉬 포테이토'},'P006':{name:'치킨 바베큐'},'P007':{name:'햄 머쉬룸 식스 치즈'},'P008':{name:'프리미엄 직화불고기'},'P009':{name:'식스 치즈'},'P010':{name:'스파이시 이탈리안'},'P011':{name:'THIN 슈림프 알프레도'},'P012':{name:'마가리타'},'P013':{name:'페퍼로니'},'P014':{name:'하와이안'},'P015':{name:'가든 스페셜'},noPizzaTitle:'선택안함',noPizzaStrong:'피자 없이 주문',noPizzaDesc:'사이드 메뉴와 음료만 주문도 가능합니다.'},
     nav:{home:'처음으로',previous:'이전',next:'다음'},
     phone:{title:'전화번호를 입력해 주세요',subtitle:'010은 고정입니다. 뒤 8자리를 모두 입력해 주세요.',clear:'전체삭제',orderNumber:'주문번호(전화번호 뒤 4자리):',invalid:'전화번호 뒤 8자리를 정확히 입력해 주세요.',next:'결제수단 선택'},
-    customerName:{title:'호출할 이름을 입력해 주세요',subtitle:'주문 준비가 끝나면 이 이름으로 불러드립니다.',label:'고객 이름 또는 호출용 별명',keyboard:'화면 이름 키보드',space:'띄어쓰기',clear:'전체 삭제',confirm:'확인',invalid:'이름을 1~20자로 입력해 주세요.',ready:'입력 완료 ({count}/20)'},
+    customerName:{title:'호출할 이름을 입력해 주세요',subtitle:'주문 준비가 끝나면 이 이름으로 불러드립니다.',label:'고객 이름 또는 호출용 별명',keyboard:'화면 이름 키보드',shift:'대소문자',space:'띄어쓰기',clear:'전체 삭제',confirm:'확인',invalid:'이름을 1~20자로 입력해 주세요.',ready:'입력 완료 ({count}/20)'},
     done:{title:'주문이 접수되었습니다',orderLabel:'주문번호 · 전화번호 뒤 4자리',paymentRequired:'{payment} 카운터에서 결제해 주세요',paymentMethodPhrase:{cash:'현금으로',card:'신용카드로',meal_ticket:'식권대장으로',bizle:'제로페이로'},paymentGuide:'결제 완료 후 피자 제조가 시작됩니다.',reserveTime:'예약시간 {time}',guide:'주문번호를 확인하시고 카운터로 와 주세요.',home:'처음으로'}
   };
 Object.assign(window.PJ_I18N_LOCALES.ko.review,{resetTitle:'처음으로 이동',resetBody:'현재 주문 내용이 모두 삭제됩니다. 처음 화면으로 이동하시겠습니까?',resetCancel:'취소',resetConfirm:'처음으로 이동'});

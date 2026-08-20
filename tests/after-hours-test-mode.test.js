@@ -133,7 +133,7 @@ test('test completion precedes order number, Firestore, seat, payment, and print
   assert.ok(complete.indexOf('if(isTestModeEnabled())') < complete.indexOf('state.orderNo=displayOrderNo()'));
   assert.ok(complete.indexOf("state.step='testDone'") < complete.indexOf('await submitMobileOrder()'));
   assert.match(submit, /^async function submitMobileOrder\(\)\{\n if\(isTestModeEnabled\(\)\)/);
-  assert.ok(submit.lastIndexOf('if(isTestModeEnabled())') < submit.indexOf('transaction.set(orderRef,payload)'));
+  assert.ok(submit.lastIndexOf('if(isTestModeEnabled())') < submit.indexOf('transaction.set(orderRef,committed)'));
   assert.match(html, /async function claimSeat\(id\)\{\n if\(isTestModeEnabled\(\)\)return/);
   assert.match(html, /async function releaseSeats[\s\S]*?\{\n if\(isTestModeEnabled\(\)\)return/);
   assert.doesNotMatch(complete.slice(0, complete.indexOf("state.step='testDone'")), /paymentAdapter|print|printer|transaction\.set|collection\('orders'\)\.doc/);

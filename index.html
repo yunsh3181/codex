@@ -2235,18 +2235,19 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=zone-waitlist-v1"></script>
-<script src="i18n/en.js?v=zone-waitlist-v1"></script>
-<script src="i18n/ja.js?v=zone-waitlist-v1"></script>
-<script src="i18n/zh.js?v=zone-waitlist-v1"></script>
-<script src="i18n/vi.js?v=zone-waitlist-v1"></script>
-<script src="i18n/es.js?v=zone-waitlist-v1"></script>
+<script src="i18n/ko.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/en.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/ja.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/zh.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/vi.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/es.js?v=foreign-order-followup-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
 <script src="seat-capacity-policy.js?v=2"></script>
 <script src="kiosk-seat-transaction.js?v=1"></script>
+<script src="kiosk-order-number.js?v=1"></script>
 <script src="waitlist-phone-keypad.js?v=1"></script>
 <script src="customer-identity.js?v=1"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
@@ -2276,7 +2277,7 @@ const KIOSK_SPECIAL_STEPS=['language','idle','home','party','area','table','rese
 function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
 function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
 const navigationHistory=[];let navigationBackInProgress=false;
-const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',paymentMethod:null,splitCount:1,orderNo:null};
+const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null};
 let seatReservationConflictActive=false;let bottleHoursConflictActive=false;let seatOrderCommitStarted=false;let bottlePolicyTimer=null;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
@@ -2300,7 +2301,7 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
 const resetOrderState=reset;
 reset=function(...args){navigationHistory.length=0;const result=resetOrderState(...args);lastRenderedStep=state.step;return result};
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
@@ -3905,14 +3906,14 @@ function foreignCustomerIdentity(){return mobileOrderLanguage()!=='ko'}
 function customerNameValidation(){return window.PJCustomerIdentity?.validateDisplayName(state.customerDisplayName)||{valid:false,value:'',length:0}}
 function validCustomerIdentity(){return foreignCustomerIdentity()?customerNameValidation().valid:validPhone()}
 function customerNameView(){
- const language=mobileOrderLanguage(),valid=customerNameValidation().valid,rows=window.PJCustomerIdentity?.keyboardRows(language)||['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
- return shell(`<div class="phoneStep customerNameStep"><h1 class="title">${t('customerName.title')}</h1><p class="sub">${t('customerName.subtitle')}</p><div class="summary"><input id="customerNameDisplay" class="customerNameDisplay ${valid?'isComplete':'isIncomplete'}" value="${escAttr(state.customerDisplayName)}" readonly inputmode="none" autocomplete="off" aria-label="${escAttr(t('customerName.label'))}"><div class="customerNameKeyboard" aria-label="${escAttr(t('customerName.keyboard'))}">${rows.map(row=>`<div class="customerNameKeyRow">${Array.from(row).map(key=>`<button type="button" onclick="pressCustomerName('${escAttr(key)}')">${key}</button>`).join('')}</div>`).join('')}<div class="customerNameKeyRow customerNameActions"><button type="button" onclick="pressCustomerName(' ')">${t('customerName.space')}</button><button type="button" onclick="backCustomerName()">⌫</button><button type="button" onclick="clearCustomerName()">${t('customerName.clear')}</button></div></div><div class="notice ${valid?'isComplete':'isIncomplete'}">${valid?t('customerName.ready',{count:customerNameValidation().length}):t('customerName.invalid')}</div><button id="phoneNext" class="next" ${valid?'':'disabled'} onclick="goPayment()">${t('customerName.confirm')}</button></div></div>`)
+ const language=mobileOrderLanguage(),valid=customerNameValidation().valid,baseRows=window.PJCustomerIdentity?.keyboardRows(language)||['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'],rows=language==='en'?baseRows.map(row=>state.customerNameUppercase?row.toUpperCase():row.toLowerCase()):baseRows;
+ return shell(`<div class="phoneStep customerNameStep"><h1 class="title">${t('customerName.title')}</h1><p class="sub">${t('customerName.subtitle')}</p><div class="summary"><input id="customerNameDisplay" class="customerNameDisplay ${valid?'isComplete':'isIncomplete'}" value="${escAttr(state.customerDisplayName)}" readonly inputmode="none" autocomplete="off" aria-label="${escAttr(t('customerName.label'))}"><div class="customerNameKeyboard" aria-label="${escAttr(t('customerName.keyboard'))}">${rows.map(row=>`<div class="customerNameKeyRow">${Array.from(row).map(key=>`<button type="button" onclick="pressCustomerName('${escAttr(key)}')">${key}</button>`).join('')}</div>`).join('')}<div class="customerNameKeyRow customerNameActions">${language==='en'?`<button type="button" class="customerNameShift ${state.customerNameUppercase?'active':''}" aria-pressed="${state.customerNameUppercase}" onclick="toggleCustomerNameCase()">${t('customerName.shift')}</button>`:''}<button type="button" onclick="pressCustomerName(' ')">${t('customerName.space')}</button><button type="button" onclick="backCustomerName()">⌫</button><button type="button" onclick="clearCustomerName()">${t('customerName.clear')}</button></div></div><div class="notice ${valid?'isComplete':'isIncomplete'}">${valid?t('customerName.ready',{count:customerNameValidation().length}):t('customerName.invalid')}</div><button id="phoneNext" class="next" ${valid?'':'disabled'} onclick="goPayment()">${t('customerName.confirm')}</button></div></div>`)
 }
+function toggleCustomerNameCase(){state.customerNameUppercase=!state.customerNameUppercase;render()}
 function pressCustomerName(value){const next=window.PJCustomerIdentity.validateDisplayName(state.customerDisplayName+String(value));if(next.length<=20)state.customerDisplayName=state.customerDisplayName+String(value);render()}
 function backCustomerName(){state.customerDisplayName=window.PJCustomerIdentity.graphemes(state.customerDisplayName).slice(0,-1).join('');render()}
 function clearCustomerName(){state.customerDisplayName='';render()}
 function mobileCustomerIdentity(){const language=mobileOrderLanguage();return language==='ko'?{customerIdentityType:'phone_last4',phoneLast4:last4()}:window.PJCustomerIdentity?.identityFor({language,name:state.customerDisplayName,phoneLast4:last4()})||null}
-function generatedForeignOrderNo(){if(state.orderNo)return state.orderNo;const value=String(Date.now()).slice(-4);state.orderNo=orderPrefix()+value;return state.orderNo}
 function mobileItemMap(map,master,category){
  return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>{
   const item=master.find(x=>x.id===id)||{};
@@ -3943,7 +3944,7 @@ function buildMobileOrderPayload(){
  const language=mobileOrderLanguage(),identity=mobileCustomerIdentity(),reservationPickupAt=state.orderTiming==='reserve'?reservationPickupTimestamp(state.reserveTime):null;
  if(!identity)throw new Error(t('customerName.invalid'));
  if(state.orderType==='takeout'&&state.orderTiming==='reserve'&&!reservationPickupAt)throw new Error(t('cart.reservationTimeMissing'));
- const foreign=identity.customerIdentityType==='name',orderNumber=foreign?generatedForeignOrderNo():displayOrderNo();
+ const foreign=identity.customerIdentityType==='name',orderNumber=foreign?orderPrefix()+'0000':displayOrderNo();
  return {
   channel:'mobile',deviceId:localStorage.getItem('pjDeviceId')||'mobile-01',
   appVersion:'mobile-v43.9.6',schemaVersion:2,aggregationVersion:1,
@@ -3976,8 +3977,13 @@ async function submitMobileOrder(){
  if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}
  const orderRef=db.collection('orders').doc();
  seatOrderCommitStarted=true;
- if(state.orderType==='dinein')await window.PJ_KIOSK_SEAT_TRANSACTION.commitSeatOrder({db,zone:state.diningArea,selectedTableIds:state.selectedTables,partySize:state.partySize,seatClientId,tableDefinitions:DINING_TABLES[state.diningArea]||[],orderRef,payload,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,validateBeforeWrite:()=>{if(state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}}});
- else await db.runTransaction(async transaction=>transaction.set(orderRef,payload));
+ const foreign=payload.customerIdentityType==='name',allocate=foreign?(transaction,value)=>window.PJ_KIOSK_ORDER_NUMBER.allocateInTransaction({db,transaction,orderRef,payload:value,timestampFromMillis:firebase.firestore.Timestamp.fromMillis}):null;
+ let commitResult;
+ const commit=async()=>state.orderType==='dinein'
+  ?window.PJ_KIOSK_SEAT_TRANSACTION.commitSeatOrder({db,zone:state.diningArea,selectedTableIds:state.selectedTables,partySize:state.partySize,seatClientId,tableDefinitions:DINING_TABLES[state.diningArea]||[],orderRef,payload,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,prepareOrderPayload:allocate,validateBeforeWrite:()=>{if(state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))&&!bottleAvailability().available){const error=new Error('BOTTLE_HOURS_CLOSED');error.code='BOTTLE_HOURS_CLOSED';throw error}if(isTestModeEnabled()){const error=new Error(t('ui.testMode.writeBlocked'));error.code='TEST_MODE_WRITE_BLOCKED';throw error}}})
+  :db.runTransaction(async transaction=>{const committed=foreign?await allocate(transaction,payload):payload;transaction.set(orderRef,committed);return {orderNo:committed.orderNo}});
+ commitResult=foreign?await window.PJ_KIOSK_ORDER_NUMBER.withAllocationConflictRetry(commit):await commit();
+ state.orderNo=commitResult.orderNo||payload.orderNo;
  state.firebaseOrderId=orderRef.id;
  seatOrderCommitStarted=false;
  clearTimeout(seatIdleTimer);
@@ -4000,7 +4006,7 @@ async function complete(event){
    render();
    return
   }
-  state.orderNo=displayOrderNo();
+  if(!foreignCustomerIdentity())state.orderNo=displayOrderNo();
   await submitMobileOrder();
   state.step='done';render();
   setTimeout(()=>{reset();render()},5000)

@@ -44,6 +44,9 @@ service cloud.firestore {
         && request.auth.token.kioskId == kioskId;
     }
     function validString(v, max) { return v is string && v.size() <= max; }
+    function allocatedOrderNo(prefix, sequence) {
+      return prefix + (sequence < 10 ? '000' : (sequence < 100 ? '00' : (sequence < 1000 ? '0' : ''))) + string(sequence);
+    }
     function validAdminOrphanHeldRecovery() {
       return resource.data.status == 'held'
         && resource.data.orderId == null
@@ -63,12 +66,12 @@ service cloud.firestore {
           'heldUntil','cleaningAt','recoveredAt','recoveredBy','recoveryReason','updatedAt'
         ]);
     }
-    function validOrderCreate() {
+    function validOrderCreate(orderId) {
       return request.resource.data.keys().hasOnly([
         'channel','deviceId','appVersion','schemaVersion','aggregationVersion','storeId','storeName',
         'orderNo','customerNumber','phone','phoneMasked','phoneLast4','language','customerIdentityType','customerDisplayName','orderType','partySize','seat','pickup','disposables',
         'items','itemCount','normalAmount','discountAmount','totalAmount','total','benefit','payment','status',
-        'recommendationEvents','createdAt','createdAtClient','source'
+        'recommendationEvents','createdAt','createdAtClient','source','businessDay','dailySequence'
       ])
       && request.resource.data.channel == 'mobile'
       && (!request.resource.data.keys().hasAny(['language'])
@@ -102,7 +105,16 @@ service cloud.firestore {
           && request.resource.data.language in ['en','es','ja','zh','vi']
           && validString(request.resource.data.customerDisplayName, 80)
           && request.resource.data.customerDisplayName.size() >= 1
-          && !request.resource.data.keys().hasAny(['phone','phoneMasked','phoneLast4'])))
+          && !request.resource.data.keys().hasAny(['phone','phoneMasked','phoneLast4'])
+          && request.resource.data.orderNo.matches('^[PD][0-9]{4}$')
+          && request.resource.data.customerNumber == request.resource.data.orderNo
+          && request.resource.data.businessDay.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.dailySequence is int
+          && request.resource.data.dailySequence >= 1
+          && request.resource.data.dailySequence <= 9999
+          && request.resource.data.orderNo == allocatedOrderNo(request.resource.data.orderType == 'takeout' ? 'P' : 'D', request.resource.data.dailySequence)
+          && getAfter(/databases/$(database)/documents/orderNumberAllocations/$(request.resource.data.storeId + '_' + request.resource.data.businessDay + '_' + (request.resource.data.orderType == 'takeout' ? 'P' : 'D') + '_' + string(request.resource.data.dailySequence))).data.orderNo == request.resource.data.orderNo
+          && getAfter(/databases/$(database)/documents/orderNumberAllocations/$(request.resource.data.storeId + '_' + request.resource.data.businessDay + '_' + (request.resource.data.orderType == 'takeout' ? 'P' : 'D') + '_' + string(request.resource.data.dailySequence))).data.orderDocumentId == orderId))
       && request.resource.data.items is list
       && request.resource.data.items.size() >= 1
       && request.resource.data.items.size() <= 30
@@ -298,11 +310,58 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow create: if validOrderCreate() || validAdminCounterOrderCreate(orderId);
+      allow create: if validOrderCreate(orderId) || validAdminCounterOrderCreate(orderId);
       allow read, delete: if isAdmin();
       allow update: if isAdmin()
         && (!isTakeoutPreparationOrderMutation() || validTakeoutPreparationOrderUpdate(orderId))
         && (!isReservationLifecycleOrderMutation() || validReservationLifecycleOrderUpdate(orderId));
+    }
+
+    match /orderNumberCounters/{counterId} {
+      allow get: if counterId.matches('^pangyo2-techno-valley_[0-9]{4}-[0-9]{2}-[0-9]{2}_[PD]$')
+        && (resource == null || (resource.data.keys().hasOnly(['storeId','businessDate','orderPrefix','currentSequence','updatedAt'])
+          && resource.data.storeId == 'pangyo2-techno-valley'
+          && resource.data.businessDate == request.time.date()
+          && resource.data.orderPrefix in ['P','D']));
+      allow list: if false;
+      allow create, update: if request.resource.data.keys().hasOnly(['storeId','businessDate','orderPrefix','currentSequence','updatedAt'])
+        && request.resource.data.storeId == 'pangyo2-techno-valley'
+        && request.resource.data.businessDate == request.time.date()
+        && request.resource.data.orderPrefix in ['P','D']
+        && counterId.matches('^pangyo2-techno-valley_[0-9]{4}-[0-9]{2}-[0-9]{2}_[PD]$')
+        && request.resource.data.currentSequence is int
+        && request.resource.data.currentSequence >= 1
+        && request.resource.data.currentSequence <= 9999
+        && request.resource.data.updatedAt == request.time
+        && (resource == null ? request.resource.data.currentSequence == 1 : (request.resource.data.currentSequence == resource.data.currentSequence + 1
+          && request.resource.data.storeId == resource.data.storeId
+          && request.resource.data.businessDate == resource.data.businessDate
+          && request.resource.data.orderPrefix == resource.data.orderPrefix))
+        && existsAfter(/databases/$(database)/documents/orderNumberAllocations/$(counterId + '_' + string(request.resource.data.currentSequence)))
+        && getAfter(/databases/$(database)/documents/orderNumberAllocations/$(counterId + '_' + string(request.resource.data.currentSequence))).data.sequence == request.resource.data.currentSequence;
+      allow delete: if false;
+    }
+
+    match /orderNumberAllocations/{orderId} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['storeId','businessDate','orderPrefix','sequence','orderNo','orderDocumentId','createdAt'])
+        && request.resource.data.storeId == 'pangyo2-techno-valley'
+        && request.resource.data.businessDate == request.time.date()
+        && request.resource.data.orderPrefix in ['P','D']
+        && request.resource.data.orderNo.matches('^[PD][0-9]{4}$')
+        && request.resource.data.sequence is int
+        && request.resource.data.sequence >= 1
+        && request.resource.data.sequence <= 9999
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.orderNo == allocatedOrderNo(request.resource.data.orderPrefix, request.resource.data.sequence)
+        && orderId.matches('^pangyo2-techno-valley_[0-9]{4}-[0-9]{2}-[0-9]{2}_[PD]_[0-9]+$')
+        && orderId == request.resource.data.storeId + '_' + getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderDocumentId)).data.businessDay + '_' + request.resource.data.orderPrefix + '_' + string(request.resource.data.sequence)
+        && request.resource.data.orderNo[0] == request.resource.data.orderPrefix
+        && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderDocumentId)).data.orderNo == request.resource.data.orderNo
+        && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderDocumentId)).data.dailySequence == request.resource.data.sequence
+        && getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderDocumentId)).data.storeId == request.resource.data.storeId
+        && getAfter(/databases/$(database)/documents/orderNumberCounters/$(request.resource.data.storeId + '_' + getAfter(/databases/$(database)/documents/orders/$(request.resource.data.orderDocumentId)).data.businessDay + '_' + request.resource.data.orderPrefix)).data.currentSequence == request.resource.data.sequence;
+      allow update, delete: if false;
     }
 
     match /publicOrderDisplays/{orderId} {

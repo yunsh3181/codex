@@ -164,7 +164,7 @@ assert.strictEqual(capped[100].id,'order-101','the newest order remains availabl
 assert.ok(adminSource.includes("notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)))"),'new-order notification is limited to current-business-day pending orders');
 assert.ok(!adminSource.includes("collection('orders').limit(200)"),'subscription does not truncate current-day orders behind historical documents');
 
-const orderCreateRules=rules.match(/function validOrderCreate\(\) \{([\s\S]*?)\n    \}/)[1];
+const orderCreateRules=rules.match(/function validOrderCreate\(orderId\) \{([\s\S]*?)\n    \}/)[1];
 const allowedKeys=orderCreateRules.match(/request\.resource\.data\.keys\(\)\.hasOnly\(\[([\s\S]*?)\]\)/)[1].match(/'([^']+)'/g).map(x=>x.slice(1,-1));
 const returnBlock=html.match(/return \{\n  channel:'mobile'[\s\S]*?\n \}\n}\nasync function submitMobileOrder/)[0];
 assert.ok(!returnBlock.includes('discountBreakdown'),'mobile payload excludes fields rejected by Firestore rules');

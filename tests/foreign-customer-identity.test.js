@@ -2,6 +2,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const identity=require('../customer-identity');
+const orderNumber=require('../kiosk-order-number');
 
 const html=fs.readFileSync('index.html','utf8');
 const admin=fs.readFileSync('admin.js','utf8');
@@ -19,6 +20,24 @@ test('six languages select the required identity and on-screen keyboard',()=>{
  assert.match(identity.keyboardRows('es').join(''),/[ÑÁ]/);
  assert.match(identity.keyboardRows('vi').join(''),/[ĐĂ]/);
  assert.match(identity.keyboardRows('zh').join(''),/[A-Z]/);
+});
+
+test('foreign order numbers use a bounded daily sequence and never a bare prefix',()=>{
+ assert.equal(orderNumber.businessDayKey(new Date('2026-08-19T23:59:59Z')),'2026-08-19');
+ assert.equal(orderNumber.businessDayKey(new Date('2026-08-20T00:00:00Z')),'2026-08-20');
+ assert.equal(orderNumber.format('P',1),'P0001');
+ assert.equal(orderNumber.format('D',9999),'D9999');
+ assert.throws(()=>orderNumber.format('P',10000),/ORDER_NUMBER_SEQUENCE_INVALID/);
+ assert.ok(!html.includes('generatedForeignOrderNo'));
+ assert.ok(html.includes("if(!foreignCustomerIdentity())state.orderNo=displayOrderNo()"));
+ assert.ok(html.includes('PJ_KIOSK_ORDER_NUMBER.allocateInTransaction'));
+});
+
+test('English keyboard supports exact mixed case without opening the OS keyboard',()=>{
+ assert.ok(html.includes("baseRows.map(row=>state.customerNameUppercase?row.toUpperCase():row.toLowerCase())"));
+ assert.ok(html.includes('function toggleCustomerNameCase()'));
+ assert.ok(html.includes('aria-pressed="${state.customerNameUppercase}"'));
+ assert.ok(html.includes('readonly inputmode="none" autocomplete="off"'));
 });
 
 test('name sanitization is grapheme-aware and rejects unsafe or invalid input',()=>{

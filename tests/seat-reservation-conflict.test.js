@@ -47,7 +47,7 @@ test('live reservation conflicts are guarded and reset through the home workflow
 
 test('final order transaction rejects reservations before order write',()=>{
  const conflict=seatTransaction.indexOf("snapshot.data().status==='reserved'");
- const orderWrite=seatTransaction.indexOf('transaction.set(orderRef,payload)');
+ const orderWrite=seatTransaction.indexOf('transaction.set(orderRef,committedPayload)');
  assert.ok(conflict>0&&conflict<orderWrite);
  assert.match(seatTransaction,/error\.code='SEAT_RESERVED'/);
  assert.match(kiosk,/showSeatReservationConflict\(\);return/);
@@ -55,7 +55,7 @@ test('final order transaction rejects reservations before order write',()=>{
 });
 
 test('takeout orders keep the seat check empty and preserve the payload schema',()=>{
- assert.match(kiosk,/state\.orderType==='dinein'\)await window\.PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
+ assert.match(kiosk,/state\.orderType==='dinein'[\s\S]*?PJ_KIOSK_SEAT_TRANSACTION\.commitSeatOrder/);
  assert.match(kiosk,/seat:state\.orderType==='dinein'\?/);
  assert.doesNotMatch(rules,/reservedAt[\s\S]*match \/orders/);
 });

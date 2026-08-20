@@ -45,7 +45,7 @@ test('Firebase config and protected order payload markers remain unchanged', () 
   for (const marker of [
     'papajohns-kiosk.firebaseapp.com',
     "db.collection('orders').doc()",
-    'transaction.set(orderRef,payload)',
+    'transaction.set(orderRef,committed)',
     "source:'mobile-kiosk-v43.9.6'"
   ]) assert.ok(html.includes(marker), marker);
 });
