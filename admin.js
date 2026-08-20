@@ -3,7 +3,7 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleEligible,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -118,6 +118,7 @@ function startRealtimeSubscriptions(){
  const now=new Date();
  refreshVisibleOrders(now);
  reconcileAutoReadyOrders(receivedOrders);
+ reconcileReservationLifecycleOrders(receivedOrders);
  if(!initialLoad)notifyNewOrders(added.filter(o=>['payment_pending','new'].includes(o.status)&&isCurrentBusinessDayOrder(o,now)));
  if(soundEnabled&&hasUnacceptedOrders())startNewOrderRepeat();
  else if(!hasUnacceptedOrders())stopNewOrderRepeat();
@@ -365,7 +366,7 @@ soundVolume.value=Math.round((settings.volume??1)*100);volumeValue.textContent=s
 const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]));
 const jsArg=value=>JSON.stringify(String(value??'')).replace(/</g,'\\u003c');
 const money=n=>Number(n||0).toLocaleString('ko-KR')+'원';
-const statusNames={payment_pending:'결제대기',new:'결제대기',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
+const statusNames={payment_pending:'결제대기',new:'결제대기',reservation_pending:'예약중',paid:'접수',accepted:'접수',cooking:'조리중',ready:'완료',completed:'완료',cancelled:'취소'};
 const ADMIN_SEATS=[
  {id:'papa-2',name:'커플석',zone:'papa',row:1,column:1},
  {id:'papa-bar4',name:'바테이블',zone:'papa',row:1,column:2},
@@ -434,7 +435,7 @@ function seoulBusinessDayKey(value=new Date()){
  if(Number(parts.hour)<9)businessDate.setUTCDate(businessDate.getUTCDate()-1);
  return businessDate.toISOString().slice(0,10);
 }
-const ACTIVE_ORDER_STATUSES=new Set(['payment_pending','new','accepted','paid','cooking']);
+const ACTIVE_ORDER_STATUSES=new Set(['payment_pending','new','reservation_pending','accepted','paid','cooking']);
 function orderBusinessDayKey(order){
  if(typeof order?.businessDay==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(order.businessDay))return order.businessDay;
  const createdAtKey=order?.createdAt!=null?seoulBusinessDayKey(order.createdAt):null;
@@ -689,13 +690,14 @@ function orderOperationsHTML(order){
  const seat=takeout?'포장':displayText(orderSeatLabel(order));
  const party=Number(order.partySize)>0?`${Number(order.partySize)}인`:'-';
  const splitHTML=split?`<div class="payment-metric split-metric"><span>1인당 결제금액</span><strong>${money(split.groups[0].amount)}</strong><small>${split.groups.map(group=>`${money(group.amount)} × ${group.count}명`).join(' · ')}${split.matchesPaid?'':' · 저장 합계 '+money(split.total)}</small></div>`:'';
- return `<div class="key-info"><div><span>인원</span><strong>${party}</strong></div><div><span>${takeout?'이용방법':'좌석'}</span><strong>${esc(seat)}</strong></div><div class="phone-info"><span>연락처</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div></div><div class="order-context"><span>${PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'}</span><span>${takeout?'포장':'매장식사'}</span><span>${esc(order.pickup?.time?`예약 ${order.pickup.time}`:'바로 주문')}</span><span>${esc(orderBenefitLabel(order))}</span></div><div class="payment-grid"><div class="payment-metric"><span>결제수단</span><strong>${esc(displayText(order.payment?.methodName))}</strong>${split?`<small>${split.count}명 분할결제</small>`:''}</div>${splitHTML}<div class="payment-metric"><span>원 금액</span><strong>${money(original)}</strong></div><div class="payment-metric discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment-metric paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>`;
+ const reservationPayment=order.reservationPaymentType==='prepaid'?'결제완료 예약':order.reservationPaymentType==='pay_on_pickup'?'후결제 예약':'';
+ return `<div class="key-info"><div><span>인원</span><strong>${party}</strong></div><div><span>${takeout?'이용방법':'좌석'}</span><strong>${esc(seat)}</strong></div><div class="phone-info"><span>고객</span><strong>${esc(phone)}</strong>${phone!=='-'?`<button type="button" data-action="copy-phone" data-phone="${esc(phone)}">복사</button>`:''}</div></div><div class="order-context"><span>${PJCommon.legacyChannel(order)==='mobile'?'모바일':'PC'}</span><span>${takeout?'포장':'매장식사'}</span><span>${esc(order.pickup?.time?`예약 ${order.pickup.time}`:'바로 주문')}</span>${reservationPayment?`<span>${esc(reservationPayment)}</span>`:''}<span>언어 ${esc(String(order.language||'ko').toUpperCase())}</span><span>${esc(orderBenefitLabel(order))}</span></div><div class="payment-grid"><div class="payment-metric"><span>결제수단</span><strong>${esc(displayText(order.payment?.methodName))}</strong>${split?`<small>${split.count}명 분할결제</small>`:''}</div>${splitHTML}<div class="payment-metric"><span>원 금액</span><strong>${money(original)}</strong></div><div class="payment-metric discount"><span>할인금액</span><strong>${discount?`−${money(discount)}`:money(0)}</strong></div><div class="payment-metric paid"><span>결제금액</span><strong>${money(paid)}</strong></div></div>`;
 }
-function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(activeChannel!=='all'&&channel!==activeChannel)return false;if(activeFilter==='all')return true;if(activeFilter==='payment_pending')return ['payment_pending','new'].includes(order.status);if(activeFilter==='accepted')return ['accepted','paid'].includes(order.status);if(activeFilter==='completed')return ['completed','ready'].includes(order.status);return order.status===activeFilter}
+function filterOrders(order){const channel=PJCommon.legacyChannel(order);if(activeChannel!=='all'&&channel!==activeChannel)return false;if(activeFilter==='all')return true;if(activeFilter==='payment_pending')return ['payment_pending','new','reservation_pending'].includes(order.status);if(activeFilter==='accepted')return ['accepted','paid','cooking'].includes(order.status);if(activeFilter==='completed')return ['completed','ready'].includes(order.status);return order.status===activeFilter}
 function ordersForMainList(list){
  return (list||[]).filter(order=>order.orderType!=='takeout'||activeFilter==='completed').filter(filterOrders);
 }
-function adminStatusName(order){if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
+function adminStatusName(order){if(order.status==='reservation_pending')return `예약중 (${reservationCountdownLabel(order)})`;if(order.reservationLifecycleId&&order.status==='cooking')return '조리중 (예약)';if(order.reservationLifecycleId&&order.status==='ready')return '조리완료 (예약)';if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return '사용중';return statusNames[order.status]||order.status}
 function isCounterTakeout(order){return order?.orderType==='takeout'&&order?.source==='admin_counter'}
 function adminStatusVisual(order){if(['payment_pending','new'].includes(order.status))return {className:'seat-ordering',icon:'🟡'};if(order.orderType!=='takeout'&&['accepted','paid','cooking'].includes(order.status))return {className:'seat-occupied',icon:'🔴'};if(order.orderType==='takeout'&&['accepted','paid','cooking','ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};if(['ready','completed'].includes(order.status))return {className:'seat-available',icon:'🟢'};return {className:'',icon:''}}
 function adminOrderActions(order){
@@ -713,7 +715,7 @@ function mainOrderCard(order,{takeoutAcceptance=false}={}){
  const paymentMethod=displayText(order?.payment?.methodName||order?.payment?.method),mealTicketHighlight=mealTicketHighlightHTML(order,paid);
  const reservationTime=reservationTimeLabel(order);
  const actions=takeoutAcceptance
-  ?`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="set-status" data-order-id="${esc(order.id)}" data-status="cooking">결제대기 · 주문 접수</button>${reservationTime?`<strong class="reservation-time">${esc(reservationTime)}</strong>`:''}</div>`
+  ?order.status==='reservation_pending'?`<div class="main-primary-action"><strong class="reservation-time">예약중 (${esc(reservationCountdownLabel(order))}) · ${order.reservationPaymentType==='pay_on_pickup'?'후결제 예약':'결제완료 예약'}</strong></div>`:`<div class="main-primary-action"><button type="button" class="accept payment-pending-action" data-action="${reservation?'select-reservation-payment':'select-preparation-time'}" data-order-id="${esc(order.id)}">결제대기 · 주문 접수</button>${reservationTime?`<strong class="reservation-time">${esc(reservationTime)}</strong>`:''}</div>`
   :adminOrderActions(order,false);
  return `<article class="order-card main-order-card order-detail-trigger ${order.status}" data-order-id="${esc(order.id)}" role="button" tabindex="0" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 상세보기">
  <header class="main-order-summary">
@@ -773,7 +775,8 @@ function classifyCurrentSeatOrderMismatch(order,seats=seatDocuments){return clas
 function centralPaymentAction(order){
  const mismatch=classifyCurrentSeatOrderMismatch(order);
  if(mismatch.forceEligible){const enabled=Boolean(forceConfirmationValue(order));return `<button type="button" class="central-status-action force-complete" data-action="force-complete" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 주문 강제완료" ${enabled?'':'disabled aria-disabled="true" title="주문번호를 확인할 수 없어 상세 확인이 필요합니다."'}>강제완료</button>`}
- if(isPendingOrder(order))return `<button type="button" class="central-status-action payment-pending" data-action="${order.orderType==='takeout'?'select-preparation-time':'set-status'}" data-order-id="${esc(order.id)}" data-status="accepted" ${order.orderType==='takeout'?'':'data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?"'} aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`;
+ if(isPendingOrder(order)){const reservation=reservationPickupMillis(order)!==null;return `<button type="button" class="central-status-action payment-pending" data-action="${order.orderType==='takeout'?(reservation?'select-reservation-payment':'select-preparation-time'):'set-status'}" data-order-id="${esc(order.id)}" data-status="accepted" ${order.orderType==='takeout'?'':'data-confirm="결제를 확인하고 주문을 조리중으로 접수하시겠습니까?"'} aria-label="${esc(adminOrderNumberLabel(order))}번 주문 결제 확인">결제대기</button>`}
+ if(order?.status==='reservation_pending')return `<span class="central-status-badge reservation-pending">예약중 (${esc(reservationCountdownLabel(order))}) · ${order.reservationPaymentType==='pay_on_pickup'?'후결제 예약':'결제완료 예약'}</span>`;
  if(order?.orderType==='takeout'&&['accepted','paid','cooking'].includes(order?.status)){let label='주문 완료';if(order.status==='cooking'&&order.autoReadyEnabled===true){const due=order.readyDueAt&&typeof order.readyDueAt.toMillis==='function'?order.readyDueAt.toMillis():null;if(Number.isFinite(due)){const remaining=due-Date.now();label=remaining<=0?'조리완료 처리 중':remaining<60000?'조리중 · 1분 미만':`조리중 · ${Math.ceil(remaining/60000)}분 남음`}}return `<button type="button" class="central-status-action takeout-complete" data-action="confirm-takeout-complete" data-order-id="${esc(order.id)}" title="수동 조리완료" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 조리완료">${esc(label)}</button>`}
  if(order?.orderType==='takeout'&&order?.status==='ready')return `<button type="button" class="central-status-action takeout-pickup" data-action="confirm-takeout-pickup" data-order-id="${esc(order.id)}" aria-label="${esc(adminOrderNumberLabel(order))}번 포장 픽업 완료">픽업 완료</button>`;
  if(['accepted','paid','cooking','ready','completed'].includes(order?.status))return '<span class="central-status-badge payment-complete" aria-label="결제완료">결제완료</span>';
@@ -962,7 +965,8 @@ async function setStatus(id,status,button){
     if(completingDineIn&&seat.status!=='occupied')throw Object.assign(new Error(`${seatId} 좌석이 사용중 상태가 아닙니다.`),{code:'seat/not-occupied'});
     if(seat.status==='reserved')throw Object.assign(new Error(`${seatId} 예약 좌석은 변경할 수 없습니다.`),{code:'seat/reserved'});
    });
-   transaction.update(orderRef,{status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   const reservationCancel=status==='cancelled'&&order.status==='reservation_pending'?{reservationLifecycleEnabled:false,reservationUpdatedAt:firebase.firestore.FieldValue.serverTimestamp(),reservationUpdatedBy:firebase.auth().currentUser?.uid||'admin'}:{};
+   transaction.update(orderRef,{status,...reservationCancel,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
    const displayRef=order.orderType==='takeout'?db.collection('publicOrderDisplays').doc(id):null;
    if(order.orderType==='takeout'){
     if(['accepted','paid','cooking','ready'].includes(status)){
@@ -1001,7 +1005,7 @@ async function setStatus(id,status,button){
  }
 }
 
-if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&order.status==='cooking'&&order.autoReadyEnabled===true))render()},15000);
+if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&((order.status==='cooking'&&order.autoReadyEnabled===true)||order.status==='reservation_pending')))render()},15000);
 const autoReadyCoordinator=createAutoReadyCoordinator({
  getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),
  execute:async order=>{const result=await autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});enqueueAutomaticTakeoutCall(result.order);return result},
@@ -1010,6 +1014,21 @@ const autoReadyCoordinator=createAutoReadyCoordinator({
 const autoReadyTimers=autoReadyCoordinator.timers,autoReadyLocks=autoReadyCoordinator.locks;
 function runAutoReady(order){return autoReadyCoordinator.run(order)}
 function reconcileAutoReadyOrders(list){autoReadyCoordinator.reconcile(list)}
+
+function reservationCountdownLabel(order,now=Date.now()){
+ const deadline=reservationPrepStartMillis(order);if(deadline===null)return '';
+ const remaining=Math.max(0,deadline-now);if(remaining<60000)return remaining<=0?'곧 조리 시작':`${Math.ceil(remaining/1000)}초 남음`;
+ const minutes=Math.ceil(remaining/60000);return minutes>=60?`${Math.floor(minutes/60)}시간 ${minutes%60}분 남음`:`${minutes}분 남음`;
+}
+async function executeReservationLifecycle(order){const result=await advanceReservationLifecycleTransaction({db,orderId:order.id,expectedLifecycleId:order.reservationLifecycleId,expectedPickupAt:order.pickup.pickupAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});if(result.announcement==='prep')enqueueSpeech('예약 주문 조리 시간입니다.');if(result.announcement==='ready')enqueueAutomaticTakeoutCall(result.order);return result}
+const reservationLifecycleCoordinator=createReservationLifecycleCoordinator({getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),execute:executeReservationLifecycle,onPermanentError:(error,order)=>showAdminMessage(`${adminOrderNumberLabel(order)}번 예약 자동 처리 실패 (${error.code||'unknown'}): 상태를 확인해 주세요.`,true)});
+function reconcileReservationLifecycleOrders(list){reservationLifecycleCoordinator.reconcile(list)}
+
+let reservationPaymentOrderId=null,reservationPaymentReturnFocus=null,reservationPaymentBusy=false;
+const reservationPaymentModal=typeof document==='undefined'?null:document.getElementById('reservationPaymentModal');
+function openReservationPaymentModal(order,trigger=document.activeElement){if(!order||!isReservationOrder(order)||reservationPickupMillis(order)===null||!['payment_pending','new'].includes(order.status))return false;reservationPaymentOrderId=order.id;reservationPaymentReturnFocus=trigger;reservationPaymentBusy=false;reservationPaymentModal.hidden=false;document.body.classList.add('reservation-payment-open');reservationPaymentModal.querySelector('[data-reservation-payment="prepaid"]')?.focus();return true}
+function closeReservationPaymentModal(){if(reservationPaymentBusy||reservationPaymentModal?.hidden)return false;reservationPaymentModal.hidden=true;document.body.classList.remove('reservation-payment-open');reservationPaymentOrderId=null;const target=reservationPaymentReturnFocus;reservationPaymentReturnFocus=null;if(target?.isConnected)target.focus();return true}
+async function confirmReservationPayment(type,button){if(reservationPaymentBusy||!reservationPaymentOrderId)return false;reservationPaymentBusy=true;button.disabled=true;try{const order=orderById(reservationPaymentOrderId);await startReservationLifecycleTransaction({db,orderId:order.id,paymentType:type,expectedPickupAt:order.pickup.pickupAt,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,timestampFromMillis:firebase.firestore.Timestamp.fromMillis,adminId:firebase.auth().currentUser?.uid||'admin'});reservationPaymentBusy=false;reservationPaymentModal.hidden=true;document.body.classList.remove('reservation-payment-open');reservationPaymentOrderId=null;reservationPaymentReturnFocus=null;stopNewOrderRepeat();showAdminMessage(type==='prepaid'?'결제완료 예약으로 등록했습니다.':'후결제 예약으로 등록했습니다.');return true}catch(error){reservationPaymentBusy=false;showAdminMessage(`예약 등록 실패 (${error.code||'unknown'}): ${error.message}`,true);return false}finally{button.disabled=false}}
 
 let preparationOrderId=null,preparationMinutes=15,preparationReturnFocus=null,preparationBusy=false;
 const preparationTimeModal=typeof document==='undefined'?null:document.getElementById('preparationTimeModal');
@@ -1360,6 +1379,7 @@ document.getElementById('ordersPanel')?.addEventListener('click',async event=>{
   return;
  }
  if(action==='select-preparation-time'){openPreparationTimeModal(orderById(button.dataset.orderId),button);return}
+ if(action==='select-reservation-payment'){openReservationPaymentModal(orderById(button.dataset.orderId),button);return}
  if(action==='confirm-takeout-complete'){openTakeoutCompleteModal(orderById(button.dataset.orderId),button);return}
  if(action==='confirm-takeout-pickup'){openTakeoutPickupModal(orderById(button.dataset.orderId),button);return}
  if(action==='force-complete'){openForceCompleteModal(orderById(button.dataset.orderId),button);return}
@@ -1405,6 +1425,9 @@ preparationTimeModal?.addEventListener('keydown',event=>{
  const focusable=Array.from(preparationTimeModal.querySelectorAll('button:not(:disabled)')),first=focusable[0],last=focusable[focusable.length-1];
  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
 });
+reservationPaymentModal?.addEventListener('click',event=>{const choice=event.target.closest('[data-reservation-payment]');if(choice){event.preventDefault();confirmReservationPayment(choice.dataset.reservationPayment,choice);return}if(event.target===reservationPaymentModal)closeReservationPaymentModal()});
+reservationPaymentModal?.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeReservationPaymentModal();return}if(event.key!=='Tab')return;const focusable=Array.from(reservationPaymentModal.querySelectorAll('button:not(:disabled)')),first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}});
+document.getElementById('cancelReservationPayment')?.addEventListener('click',closeReservationPaymentModal);
 confirmTakeoutComplete?.addEventListener('click',completeTakeoutFromModal);
 document.getElementById('cancelTakeoutComplete')?.addEventListener('click',closeTakeoutCompleteModal);
 takeoutCompleteModal?.addEventListener('click',event=>{if(event.target===takeoutCompleteModal)closeTakeoutCompleteModal()});

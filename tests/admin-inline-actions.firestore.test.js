@@ -8,6 +8,7 @@ const {doc,getDoc,runTransaction,serverTimestamp,setDoc,updateDoc,Timestamp}=req
 const adminOperations=require('../admin-operations.js');
 
 assert.equal(typeof adminOperations.createAutoReadyCoordinator,'function');
+assert.equal(typeof adminOperations.createReservationLifecycleCoordinator,'function');
 
 const PROJECT_ID='demo-admin-inline-actions';
 const root=path.resolve(__dirname,'..');
@@ -64,16 +65,18 @@ if(!emulatorAvailable){
  function createRunner(db,localOrder){
   const mutations=[],messages=[],errors=[];
   const context={
-   Set,Promise,orders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,displayIdentity:adminOperations.displayIdentity,
+   Set,Promise,orders:[localOrder],receivedOrders:[localOrder],db:compatDb(db,mutations),seatSnapshotRecord:adminOperations.seatSnapshotRecord,classifyCurrentSeatOrderMismatch:adminOperations.classifySeatOrderMismatch,displayIdentity:adminOperations.displayIdentity,
    firebase:{auth:()=>({currentUser:{uid:'admin-inline'}}),firestore:{FieldValue:{serverTimestamp}}},
    createAutoReadyCoordinator:adminOperations.createAutoReadyCoordinator,
+   createReservationLifecycleCoordinator:adminOperations.createReservationLifecycleCoordinator,reservationPickupMillis:adminOperations.reservationPickupMillis,reservationPrepStartMillis:adminOperations.reservationPrepStartMillis,reservationLifecycleEligible:adminOperations.reservationLifecycleEligible,startReservationLifecycleTransaction:adminOperations.startReservationLifecycleTransaction,advanceReservationLifecycleTransaction:adminOperations.advanceReservationLifecycleTransaction,
    completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
    orderSeatIds:value=>Array.isArray(value?.seat?.tables)?value.seat.tables:value?.seat?.id?[value.seat.id]:[],
    orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-05',adminOrderNumberLabel:value=>value.customerNumber||value.id,
-   stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},openForceCompleteModal(){messages.push({message:'force-complete-modal',isError:false})},setTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},
+   stopNewOrderRepeat(){},showAdminMessage(message,isError){messages.push({message,isError})},openForceCompleteModal(){messages.push({message:'force-complete-modal',isError:false})},setTimeout(){return 1},clearTimeout(){},hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},callCustomer(){},enqueueSpeech(){},enqueueAutomaticTakeoutCall(){},Date,
    console:{error(...args){errors.push(args.map(value=>value?.message||String(value)).join(' '))}}
   };
   assert.strictEqual(context.createAutoReadyCoordinator,adminOperations.createAutoReadyCoordinator,'fixture uses the production auto-ready export');
+  assert.strictEqual(context.createReservationLifecycleCoordinator,adminOperations.createReservationLifecycleCoordinator,'fixture uses the production reservation lifecycle export');
   vm.createContext(context);vm.runInContext(`${releaseSource}\nconst statusUpdateLocks=new Set();\n${setStatusSource}`,context);
   const coordinator=vm.runInContext('autoReadyCoordinator',context);
   assert.equal(coordinator.timers.size,0,'fixture initialization creates no auto-ready timer');

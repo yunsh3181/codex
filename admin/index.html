@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
   <title>판교2테크노밸리점 주문 관리자 v48.0.0</title>
-  <link rel="stylesheet" href="../admin.css?v=48.0.4" />
+  <link rel="stylesheet" href="../admin.css?v=49.0.0" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
   <style>.central-status-action.takeout-complete{background:#08703c;color:#fff}.central-status-action.takeout-pickup{background:#1976d2;color:#fff}.takeout-complete-modal-card{max-width:520px}.takeout-complete-modal-card p{font-size:18px;line-height:1.6}</style>
 </head>
@@ -97,6 +97,7 @@
       </div>
     </section>
   </div>
+  <div id="reservationPaymentModal" class="settings-modal reservation-payment-modal" hidden><section class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="reservationPaymentTitle" aria-describedby="reservationPaymentDescription"><div class="settings-body"><h2 id="reservationPaymentTitle">예약 주문 결제 유형</h2><p id="reservationPaymentDescription">관리자가 확인한 결제 상태를 선택하세요. 실제 결제는 호출되지 않습니다.</p><div class="reservation-payment-options"><button type="button" class="primary-button" data-reservation-payment="prepaid">결제완료 예약</button><button type="button" class="secondary-button" data-reservation-payment="pay_on_pickup">후결제 예약</button></div><div class="settings-actions"><button type="button" id="cancelReservationPayment" class="secondary-button">취소</button></div></div></section></div>
   <div id="takeoutCompleteModal" class="settings-modal" hidden>
     <section class="settings-panel takeout-complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="takeoutCompleteTitle"><div class="settings-body"><h2 id="takeoutCompleteTitle">포장 주문을 완료할까요?</h2><p id="takeoutCompleteDescription"></p><div class="settings-actions"><button type="button" id="cancelTakeoutComplete" class="secondary-button">취소</button><button type="button" id="confirmTakeoutComplete" class="primary-button">주문 완료</button></div></div></section>
   </div>
@@ -178,8 +179,8 @@
   <script src="../speech.js?v=1"></script>
   <script src="../after-hours-test-mode.js?v=1"></script>
   <script src="../test-mode-remote-channel.js?v=1"></script>
-  <script src="../admin-operations.js?v=48.0.4"></script>
-  <script src="../admin.js?v=48.0.4"></script>
+  <script src="../admin-operations.js?v=49.0.0"></script>
+  <script src="../admin.js?v=49.0.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>

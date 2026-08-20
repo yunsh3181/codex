@@ -3919,6 +3919,12 @@ function mobileItemMap(map,master,category){
   return {id,name:item.name||id,category,quantity:Number(q)}
  })
 }
+function reservationPickupTimestamp(time,now=new Date()){
+ const match=String(time||'').match(/^([01]\d|2[0-3]):([0-5]\d)$/);if(!match)return null;
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+ const millis=Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(match[1])-9,Number(match[2]));
+ return firebase.firestore.Timestamp.fromMillis(millis);
+}
 function buildMobileOrderPayload(){
  const p=po(state.left),right=po(state.right),finalTotal=currentOrderTotal()+cartTotal();
  const currentItems=currentHasItems()?[{
@@ -3934,8 +3940,9 @@ function buildMobileOrderPayload(){
  }]:[];
  const cartPayload=(state.cartItems||[]).map((x,i)=>({id:'cart-'+Date.now()+'-'+i,promo:x.promo||'normal',set:x.set||null,size:x.size,mode:x.mode,pizza:x.pizzaLeft,pizzaLeft:x.pizzaLeft,pizzaRight:x.pizzaRight,pizzaName:x.pizzaName,crust:x.crust,dough:x.dough,doughType:x.dough,pizzaMode:x.mode,qty:x.qty||1,normalTotal:(x.normalPrice||x.price||0)*(x.qty||1),discountAmount:(x.discount||0)*(x.qty||1),discountLabel:x.discountLabel||'',total:(x.price||0)*(x.qty||1),toppings:{...(x.toppings||{})},sides:{...(x.sides||{})},drinks:{...(x.drinks||{})},includedSides:{...(x.includedSides||{})},includedDrinks:{...(x.includedDrinks||{})}}));
  const items=[...cartPayload,...currentItems];
- const language=mobileOrderLanguage(),identity=mobileCustomerIdentity();
+ const language=mobileOrderLanguage(),identity=mobileCustomerIdentity(),reservationPickupAt=state.orderTiming==='reserve'?reservationPickupTimestamp(state.reserveTime):null;
  if(!identity)throw new Error(t('customerName.invalid'));
+ if(state.orderType==='takeout'&&state.orderTiming==='reserve'&&!reservationPickupAt)throw new Error(t('cart.reservationTimeMissing'));
  const foreign=identity.customerIdentityType==='name',orderNumber=foreign?generatedForeignOrderNo():displayOrderNo();
  return {
   channel:'mobile',deviceId:localStorage.getItem('pjDeviceId')||'mobile-01',
@@ -3946,7 +3953,7 @@ function buildMobileOrderPayload(){
   language,...identity,
   orderType:state.orderType||'unknown',partySize:state.partySize||null,
   seat:state.orderType==='dinein'?{zone:state.diningArea,tables:[...(state.selectedTables||[])]}:null,
-  pickup:state.orderType==='takeout'?{time:state.reserveTime||null,mode:state.orderTiming||'now'}:null,
+  pickup:state.orderType==='takeout'?{time:state.reserveTime||null,mode:state.orderTiming||'now',...(reservationPickupAt?{pickupAt:reservationPickupAt}:{})}:null,
   disposables:state.disposables===true,
   items,itemCount:items.reduce((n,x)=>n+(Number(x.qty)||1),0),normalAmount:reviewTotals().normal,discountAmount:reviewTotals().discount,totalAmount:finalTotal,total:finalTotal,
   benefit:state.promo||'normal',payment:{method:state.paymentMethod,methodName:paymentName(state.paymentMethod),splitCount:isSplitPayment()?state.splitCount:1,splitAmounts:isSplitPayment()?splitParts(finalTotal,state.splitCount):[finalTotal]},status:'payment_pending',

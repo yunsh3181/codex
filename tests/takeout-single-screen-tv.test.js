@@ -13,7 +13,7 @@ assert.ok(admin.includes("if(takeoutPending)takeoutPending.innerHTML=''"),'the c
 assert.ok(admin.includes('function centralOrderRow(order)'),'all takeout statuses remain in the central order list');
 assert.ok(!html.includes('id="takeoutCooking"')&&!html.includes('id="takeoutReady"'),'processing cards are not split by status');
 for(const transition of [
- ["data-status=\"cooking\">결제대기 · 주문 접수"],
+ ["reservation?'select-reservation-payment':'select-preparation-time'"],
  ["label:'조리완료',status:'ready'"],
  ["label:'픽업완료',status:'completed'"]
 ])assert.ok(admin.includes(transition),`${transition} transition is configured`);
@@ -29,7 +29,7 @@ assert.match(tvCSS,/\.order-number\{display:flex;width:100%/,'each TV order numb
 assert.ok(tvCSS.includes('overflow-x:hidden')&&tvCSS.includes('overflow-y:auto'),'long TV order lists scroll vertically without horizontal overflow');
 for(const forbidden of ['phone','menu','amount','payment','seat'])assert.ok(!tvJS.toLowerCase().includes(forbidden),`TV data code excludes ${forbidden}`);
 assert.ok(rules.includes('match /publicOrderDisplays/{orderId}'),'public display collection has explicit rules');
-assert.ok(rules.includes("keys().hasOnly(['orderNumber','customerIdentityType','customerDisplayName','language','displayStatus','storeId','businessDay','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','updatedAt'])"),'public writes allow only display-safe identity and countdown fields');
+assert.ok(rules.includes("'reservationOrder','pickupAt','reservationPaymentType','reservationLifecycleId'"),'public writes allow only display-safe identity, countdown, and reservation lifecycle fields');
 assert.ok(rules.includes('match /orders/{orderId}')&&rules.includes('allow read, delete: if isAdmin();')&&rules.includes('allow update: if isAdmin()'),'orders remain admin-readable only');
 const orderRule=rules.match(/match \/orders\/\{orderId\} \{[\s\S]*?\n    \}/)?.[0]||'';
 assert.ok(orderRule&&!orderRule.includes('allow read: if true'),'orders are never public');

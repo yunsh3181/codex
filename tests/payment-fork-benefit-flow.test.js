@@ -8,7 +8,9 @@ const vm=require('node:vm');
 
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8').replace(/const autoReadyCoordinator=createAutoReadyCoordinator\([\s\S]*?function reconcileAutoReadyOrders\(list\)\{autoReadyCoordinator\.reconcile\(list\)\}\n/,'');
+const admin=fs.readFileSync(path.join(root,'admin.js'),'utf8')
+ .replace(/const autoReadyCoordinator=createAutoReadyCoordinator\([\s\S]*?function reconcileAutoReadyOrders\(list\)\{autoReadyCoordinator\.reconcile\(list\)\}\n/,'')
+ .replace(/function reservationCountdownLabel\([\s\S]*?\nlet preparationOrderId=/,'let preparationOrderId=');
 
 function customerHarness(){
  const classList={add(){},remove(){},toggle(){}};
@@ -55,6 +57,13 @@ test('actual customer fork selection survives payload JSON and renders identical
   const documentValue={...firestoreDocument};if(value===undefined)delete documentValue.disposables;else documentValue.disposables=value;
   for(const markup of [adminUi.newOrderCard(documentValue),adminUi.renderOrderDetail(documentValue)])assert.match(markup,/class="detail-fork-status fork-review"[^>]*>확인 필요<\/span>/);
  }
+});
+
+test('reservation order payload stores one canonical pickup timestamp inside the existing pickup object',()=>{
+ const customer=customerHarness();
+ vm.runInContext("Object.assign(state,{orderType:'takeout',orderTiming:'reserve',reserveTime:'18:30',phone:'01012341234',disposables:false,paymentMethod:'card',cartItems:[{promo:'normal',set:null,size:'L',mode:'single',pizzaLeft:'P001',pizzaRight:null,pizzaName:'페퍼로니',crust:'오리지널',dough:'오리지널',qty:1,price:29900,normalPrice:29900,discount:0,toppings:{},sides:{},drinks:{},includedSides:{},includedDrinks:{}}]})",customer);
+ const pickup=vm.runInContext('buildMobileOrderPayload().pickup',customer);
+ assert.equal(pickup.mode,'reserve');assert.equal(pickup.time,'18:30');assert.equal(Object.prototype.toString.call(pickup.pickupAt.toDate()),'[object Date]');assert.equal(pickup.pickupAt.toDate().getUTCHours(),9);assert.equal(pickup.pickupAt.toDate().getUTCMinutes(),30);
 });
 
 test('done screen renders exact Korean particles and every locale safely resolves guidance',()=>{

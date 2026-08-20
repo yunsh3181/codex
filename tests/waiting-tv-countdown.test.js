@@ -13,6 +13,8 @@ assert.strictEqual(context.cookingCountdownLabel({...base,readyDueAt:{seconds:(n
 assert.strictEqual(context.cookingCountdownLabel({...base,readyDueAt:{toDate:()=>new Date(now)}},now),'곧 준비됩니다');
 for(const override of [{displayStatus:'ready'},{autoReadyEnabled:false},{autoReadyEnabled:'true'},{preparationMinutes:null},{preparationStartedAt:null},{readyDueAt:null},{readyDueAt:'invalid'}])assert.strictEqual(context.cookingCountdownLabel({...base,...override},now),'');
 assert.ok(source.includes('window.setInterval?.(renderAll,1000)'),'one-second refresh uses absolute deadline rendering');
+assert.ok(source.includes('조리중 (예약)')&&source.includes('조리완료 (예약)'),'reservation cooking and ready cards are explicitly distinguished');
+assert.ok(source.includes('reservationPickupLabel(item)'),'reservation cards reuse their canonical pickup timestamp');
 assert.ok(source.includes("visibilitychange"));assert.ok(source.includes("window.addEventListener?.('focus'"));assert.ok(source.includes('clearInterval?.(countdownRefreshTimer)'));
 assert.doesNotMatch(source,/collection\([^)]*\)\.(?:add|set|update)|\.doc\([^)]*\)\.(?:set|update|delete)/,'waiting TV contains no Firestore write API');
 console.log('waiting TV absolute countdown, damaged data, lifecycle, and read-only checks passed');
