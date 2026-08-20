@@ -24,7 +24,7 @@ window.PJ_I18N_LOCALES.zh={
     pizza:{'P001':{name:'Super Papa\'s'},'P002':{name:'John\'s Favorite'},'P003':{name:'All Meat'},'P004':{name:'Spicy Chicken Ranch'},'P005':{name:'Irish Potato'},'P006':{name:'Chicken BBQ'},'P007':{name:'Ham Mushroom Six Cheese'},'P008':{name:'Premium Grilled Bulgogi'},'P009':{name:'Six Cheese'},'P010':{name:'Spicy Italian'},'P011':{name:'THIN Shrimp Alfredo'},'P012':{name:'Margherita'},'P013':{name:'Pepperoni'},'P014':{name:'Hawaiian'},'P015':{name:'Garden Special'},noPizzaTitle:'不选披萨',noPizzaStrong:'无披萨订单',noPizzaDesc:'也可以只点小食和饮料。'},
     nav:{home:'返回首页',previous:'上一步',next:'下一步'},
     phone:{title:'请输入手机号码',subtitle:'010为固定号码。请输入后8位。',clear:'全部清除',orderNumber:'订单号（手机号后4位）:',invalid:'请正确输入手机号后8位。',next:'选择支付方式'},
-    customerName:{title:'请输入呼叫姓名',subtitle:'订单准备好后，我们会用此姓名呼叫您。',label:'姓名或呼叫昵称',keyboard:'屏幕姓名键盘',space:'空格',clear:'全部清除',confirm:'确认',invalid:'请输入1至20个字符。',ready:'输入完成 ({count}/20)'},
+    customerName:{title:'请输入呼叫姓名',subtitle:'订单准备好后，我们会用此姓名呼叫您。',label:'姓名或呼叫昵称',keyboard:'屏幕姓名键盘',shift:'大小写',space:'空格',clear:'全部清除',confirm:'确认',invalid:'请输入1至20个字符。',ready:'输入完成 ({count}/20)'},
     done:{title:'订单已接收',orderLabel:'订单号 · 手机号后4位',paymentRequired:'请在柜台使用{payment}支付',paymentMethodPhrase:{cash:'现金',card:'信用卡',meal_ticket:'餐券台账',bizle:'Zero Pay'},paymentGuide:'支付完成后将开始制作披萨。',reserveTime:'预约时间 {time}',guide:'请确认订单号后前往柜台。',home:'返回首页'}
   };
 Object.assign(window.PJ_I18N_LOCALES.zh.review,{resetTitle:'返回首页',resetBody:'当前订单内容将全部删除。是否返回初始画面？',resetCancel:'取消',resetConfirm:'返回首页'});

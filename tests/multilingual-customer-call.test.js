@@ -27,13 +27,12 @@ function buildPayloadForLanguage(language){
   window:{PJ_I18N:{currentLanguage:()=>language},PJCustomerIdentity:customerIdentity},String,Date,
   state:{left:null,right:null,cartItems:[],orderType:'takeout',partySize:null,selectedTables:[],diningArea:null,reserveTime:null,orderTiming:'now',promo:null,paymentMethod:'card',splitCount:1,phone:'12345678',customerDisplayName:'Alex',orderNo:null},
   po:()=>null,currentOrderTotal:()=>0,cartTotal:()=>0,currentHasItems:()=>false,
-  displayOrderNo:()=>`P${context.state.phone.slice(-4)}`,mobilePhoneFull:()=>`010${context.state.phone}`,mobileMaskedPhone:()=>`010-****-${context.state.phone.slice(-4)}`,last4:()=>context.state.phone.slice(-4),
+  orderPrefix:()=> 'P',displayOrderNo:()=>`P${context.state.phone.slice(-4)}`,mobilePhoneFull:()=>`010${context.state.phone}`,mobileMaskedPhone:()=>`010-****-${context.state.phone.slice(-4)}`,last4:()=>context.state.phone.slice(-4),
   localStorage:{getItem:()=>null},reviewTotals:()=>({normal:0,discount:0}),paymentName:()=>'',isSplitPayment:()=>false,splitParts:()=>[],
   firebase:{firestore:{FieldValue:{serverTimestamp:()=>({serverTimestamp:true})}}}
  };
  vm.createContext(context);
  context.mobileCustomerIdentity=()=>customerIdentity.identityFor({language,phoneLast4:'5678',name:'Alex'});
- context.generatedForeignOrderNo=()=> 'P0001';
  vm.runInContext(`${languageHelper}\n${payloadHelper}`,context);
  return context.buildMobileOrderPayload();
 }
