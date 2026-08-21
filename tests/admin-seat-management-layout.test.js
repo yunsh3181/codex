@@ -114,7 +114,8 @@ test('seat names and shared actions reserve compact non-overlapping rows',()=>{
 });
 
 test('seat manager loads only the refreshed shared CSS cache keys',()=>{
- assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.3/g)||[]).length,1);
+ assert.equal((seatHtml.match(/admin\.css\?v=49\.0\.2/g)||[]).length,1,'seat manager loads the shared lifecycle-audit CSS cache key exactly once');
+ assert.equal((seatHtml.match(/admin\.css\?v=49\.0\.1/g)||[]).length,0,'seat manager has no pre-audit CSS cache key');
  assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.2/g)||[]).length,0);
  assert.equal((seatHtml.match(/seat-layout\.css\?v=2/g)||[]).length,1);
  assert.equal((seatHtml.match(/admin\.css\?v=48\.0\.1/g)||[]).length,0);

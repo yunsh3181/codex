@@ -13,7 +13,7 @@ for(const label of ['오더 리스트','(오늘 주문)','순번','예약/즉시
 }
 assert.ok(html.includes('id="businessDayOrderCount"')&&html.includes('id="orderPagination"'),'live total and pagination controls exist');
 const cssVersion=html.match(/admin\.css\?v=([0-9.]+)/)?.[1],jsVersion=html.match(/admin\.js\?v=([0-9.]+)/)?.[1];
-assert.strictEqual(cssVersion,'49.0.1','changed administrator CSS wraps persistent reservation labels');
+assert.strictEqual(cssVersion,'49.0.2','changed administrator CSS bypasses the pre-audit browser cache');
 assert.strictEqual(jsVersion,'49.1.0','administrator JavaScript cache version fetches the lifecycle audit changes');
 assert.ok(html.includes('주문 관리자 v48.0.0')&&html.includes('실시간 주문관리 · v48.0.0'),'page title and visible version remain unchanged');
 assert.ok(!html.includes('takeoutProcessingTitle')&&!html.includes('id="takeoutProcessing"'),'the duplicate left processing rail is removed');
@@ -56,8 +56,8 @@ for(const status of ['cancelled',undefined,null,'','unknown_status']){
  assert.ok(!markup.includes('<button'),`${String(status)} has no seat action`);
 }
 assert.ok(html.includes('admin-mobile.css?v=44.0.0'),'unchanged mobile CSS keeps its existing cache version');
-assert.equal((html.match(/admin\.css\?v=49\.0\.1/g)||[]).length,1,'admin dashboard loads the reservation-label CSS cache key exactly once');
-assert.equal((html.match(/admin\.css\?v=49\.0\.0/g)||[]).length,0,'admin dashboard removes the prior reservation lifecycle CSS cache key');
+assert.equal((html.match(/admin\.css\?v=49\.0\.2/g)||[]).length,1,'admin dashboard loads the lifecycle-audit CSS cache key exactly once');
+assert.equal((html.match(/admin\.css\?v=49\.0\.1/g)||[]).length,0,'admin dashboard removes the pre-audit CSS cache key');
 assert.equal((html.match(/admin\.css\?v=48\.0\.3/g)||[]).length,0,'admin dashboard removes the previous CSS cache key');
 assert.equal((html.match(/admin\.css\?v=48\.0\.1/g)||[]).length,0,'admin dashboard removes the stale seat button CSS cache key');
 assert.ok(!html.includes('id="channelFilters"')&&!html.includes('id="filters"'),'inactive channel and status filters are absent from the all-orders screen');
