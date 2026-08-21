@@ -260,6 +260,10 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
     font-size: 15px !important;
   }
 
+  html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .takeoutSizeNote {
+    line-height: 1.35 !important;
+  }
+
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
     min-height: 54px;
     font-size: 18px !important;
