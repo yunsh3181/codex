@@ -2250,6 +2250,7 @@ try{
 <script src="waitlist-phone-keypad.js?v=1"></script>
 <script src="customer-identity.js?v=1"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
+<script src="meal-ticket-split.js?v=1"></script>
 <script src="speech.js?v=1"></script>
 <script src="kiosk-page-voice.js?v=1"></script>
 <script>window.PJ_KIOSK_DIAGNOSTICS?.record('remote-module-check',{source:'index.html:remote-module-check'})</script>
@@ -3883,9 +3884,9 @@ function goPayment(){if(!validCustomerIdentity())return;if(foreignCustomerIdenti
 function selectPayment(method){const wasSplit=isSplitPayment();state.paymentMethod=method;if(isSplitPayment()&&!wasSplit)state.splitCount=Math.max(1,Math.min(20,Number(state.partySize)||1));if(!isSplitPayment())state.splitCount=1;render()}
 function isSplitPayment(){return ['meal_ticket','bizle'].includes(state.paymentMethod)}
 function setSplitCount(v){state.splitCount=Math.max(1,Math.min(20,Number(v)||1));render()}
-function validPayment(){return Boolean(state.paymentMethod)&&(!isSplitPayment()||state.splitCount>=1)}
-function splitParts(total,count){const base=Math.floor(total/count),rem=total-base*count;return Array.from({length:count},(_,i)=>base+(i===count-1?rem:0))}
-function splitPaymentHTML(total){const parts=splitParts(total,state.splitCount),base=Math.floor(total/state.splitCount);return `<div class="splitBox"><div><b>${t('ui.payment.splitPeople')}</b></div><div class="splitCounter"><button type="button" aria-label="${t('ui.payment.decrease')}" ${state.splitCount<=1?'disabled':''} onclick="setSplitCount(state.splitCount-1)">−</button><div class="splitCountView">${t('ui.payment.people',{count:state.splitCount})}</div><button type="button" aria-label="${t('ui.payment.increase')}" ${state.splitCount>=20?'disabled':''} onclick="setSplitCount(state.splitCount+1)">＋</button></div><div class="splitSummary"><div><span>${t('ui.payment.total')}</span><strong>${money(total)}</strong></div><div><span>${t('ui.payment.perPerson')}</span><strong>${money(base)}</strong></div></div>${total%state.splitCount?`<div class="notice">${t('ui.payment.remainder',{amount:money(total%state.splitCount)})}</div>`:''}<div class="splitAmounts">${parts.map((v,i)=>`<div><span>${t('ui.payment.ordinal',{count:i+1})}</span><strong>${money(v)}</strong></div>`).join('')}</div></div>`}
+function mealTicketSplit(total,count){return window.PJ_MEAL_TICKET_SPLIT?.calculate(total,count)||null}
+function validPayment(){if(!state.paymentMethod)return false;return !isSplitPayment()||Boolean(mealTicketSplit(currentOrderTotal()+cartTotal(),state.splitCount))}
+function splitPaymentHTML(total){const plan=mealTicketSplit(total,state.splitCount),controls=`<div class="splitCounter"><button type="button" aria-label="${t('ui.payment.decrease')}" ${state.splitCount<=1?'disabled':''} onclick="setSplitCount(state.splitCount-1)">−</button><div class="splitCountView">${t('ui.payment.people',{count:state.splitCount})}</div><button type="button" aria-label="${t('ui.payment.increase')}" ${state.splitCount>=20?'disabled':''} onclick="setSplitCount(state.splitCount+1)">＋</button></div>`;if(!plan)return `<div class="splitBox"><div><b>${t('ui.payment.splitPeople')}</b></div>${controls}<div class="notice" role="alert">${t('ui.payment.splitInvalid')}</div></div>`;return `<div class="splitBox"><div><b>${t('ui.payment.splitPeople')}</b></div>${controls}<div class="splitSummary"><div><span>${t('ui.payment.total')}</span><strong>${money(total)}</strong></div><div><span>${t('ui.payment.perPerson')}</span><strong>${money(plan.baseAmount)}</strong></div></div>${plan.remainderUnits?`<div class="notice">${t('ui.payment.remainder')}</div>`:''}<div class="splitAmounts">${plan.amounts.map((v,i)=>`<div><span>${t('ui.payment.ordinal',{count:i+1})}</span><strong>${money(v)}</strong></div>`).join('')}</div></div>`}
 function paymentName(v){return label('payment',v,'-')}
 function paymentGuidanceName(v){const key=`done.paymentMethodPhrase.${v}`,translated=t(key);return translated===key?paymentName(v):translated}
 function myQueueEntries(){let ids=[];try{ids=JSON.parse(localStorage.getItem('pj_waitlist_ids')||'[]')}catch(e){}return mobileWaitlist.filter(w=>ids.includes(w.id)&&w.status==='waiting')}
@@ -3965,6 +3966,8 @@ function reservationPickupTimestamp(time,now=new Date()){
 }
 function buildMobileOrderPayload(){
  const p=po(state.left),right=po(state.right),finalTotal=currentOrderTotal()+cartTotal();
+ const splitPlan=isSplitPayment()?mealTicketSplit(finalTotal,state.splitCount):null;
+ if(isSplitPayment()&&!splitPlan){const error=new Error(t('ui.payment.splitInvalid'));error.code='MEAL_TICKET_SPLIT_INVALID';throw error}
  const currentItems=currentHasItems()?[{
   id:'mobile-'+Date.now(),
   promo:state.promo||'normal',set:state.set||null,size:state.left?effectiveSize():null,mode:state.mode,
@@ -3994,7 +3997,7 @@ function buildMobileOrderPayload(){
   pickup:state.orderType==='takeout'?{time:state.reserveTime||null,mode:state.orderTiming||'now',...(reservationPickupAt?{pickupAt:reservationPickupAt}:{})}:null,
   disposables:state.disposables===true,
   items,itemCount:items.reduce((n,x)=>n+(Number(x.qty)||1),0),normalAmount:reviewTotals().normal,discountAmount:reviewTotals().discount,totalAmount:finalTotal,total:finalTotal,
-  benefit:state.promo||'normal',payment:{method:state.paymentMethod,methodName:paymentName(state.paymentMethod),splitCount:isSplitPayment()?state.splitCount:1,splitAmounts:isSplitPayment()?splitParts(finalTotal,state.splitCount):[finalTotal]},status:'payment_pending',
+  benefit:state.promo||'normal',payment:{method:state.paymentMethod,methodName:paymentName(state.paymentMethod),splitCount:isSplitPayment()?state.splitCount:1,splitAmounts:isSplitPayment()?splitPlan.amounts:[finalTotal]},status:'payment_pending',
   recommendationEvents:[],
   createdAt:firebase.firestore.FieldValue.serverTimestamp(),
   createdAtClient:new Date().toISOString(),
@@ -4031,7 +4034,7 @@ async function complete(event){
  if(event){event.preventDefault();event.stopPropagation()}
  const errorBox=document.getElementById('submitError');if(errorBox)errorBox.textContent='';
  if(!validCustomerIdentity()){if(errorBox)errorBox.textContent=foreignCustomerIdentity()?t('customerName.invalid'):t('ui.payment.invalidPhone');return}
- if(!validPayment()){if(errorBox)errorBox.textContent=t('ui.payment.invalidMethod');return}
+ if(!validPayment()){if(errorBox)errorBox.textContent=isSplitPayment()?t('ui.payment.splitInvalid'):t('ui.payment.invalidMethod');return}
  const button=document.getElementById('paymentSubmitBtn')||document.querySelector('.paymentSubmitBtn');
  if(button){button.disabled=true;button.textContent=t('ui.payment.submitting')}
  try{
