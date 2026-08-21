@@ -247,6 +247,29 @@ service cloud.firestore {
         'reservationPrepStartAt','reservationUpdatedAt','reservationUpdatedBy'
       ]) || resource.data.status == 'reservation_pending' || request.resource.data.status == 'reservation_pending';
     }
+    function validTransitionSource(value) {
+      return value in [
+        'reservation_timer','reservation_catch_up','admin_manual_ready',
+        'admin_manual_pickup','admin_manual_cancel','takeout_auto_ready','takeout_auto_retry'
+      ];
+    }
+    function transitionLifecycleId(orderId) {
+      return resource.data.keys().hasAny(['reservationLifecycleId'])
+        ? resource.data.reservationLifecycleId
+        : 'takeout_' + orderId;
+    }
+    function transitionAuditPath(orderId) {
+      return /databases/$(database)/documents/orders/$(orderId)/lifecycleAudit/$(transitionLifecycleId(orderId) + '__' + resource.data.status + '__' + request.resource.data.status);
+    }
+    function validOrderTransitionAudit(orderId) {
+      return existsAfter(transitionAuditPath(orderId))
+        && request.resource.data.lastTransitionType == getAfter(transitionAuditPath(orderId)).data.transitionType
+        && request.resource.data.lastTransitionSource == getAfter(transitionAuditPath(orderId)).data.transitionSource
+        && request.resource.data.lastTransitionAt == request.time
+        && request.resource.data.lastTransitionAt == getAfter(transitionAuditPath(orderId)).data.transitionedAt
+        && request.resource.data.lastTransitionBy == request.auth.uid
+        && request.resource.data.lastTransitionBy == getAfter(transitionAuditPath(orderId)).data.actorUid;
+    }
     function validReservationBase() {
       return resource.data.orderType == 'takeout'
         && resource.data.pickup.mode == 'reserve'
@@ -275,7 +298,8 @@ service cloud.firestore {
             && request.resource.data.preparationStartedAt == request.resource.data.reservationPrepStartAt
             && request.resource.data.readyDueAt == request.resource.data.pickup.pickupAt
             && request.resource.data.autoReadyEnabled == false
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','preparationMinutes','preparationStartedAt','readyDueAt','autoReadyEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt','lastTransitionType','lastTransitionSource','lastTransitionAt','lastTransitionBy'])
+            && validOrderTransitionAudit(orderId)
             && existsAfter(displayPath)
             && getAfter(displayPath).data.displayStatus == 'cooking'
             && getAfter(displayPath).data.reservationLifecycleId == request.resource.data.reservationLifecycleId)
@@ -283,16 +307,18 @@ service cloud.firestore {
             && request.resource.data.status == 'ready'
             && resource.data.reservationLifecycleEnabled == true
             && request.resource.data.reservationLifecycleEnabled == false
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reservationLifecycleEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt','completedAt','completedBy'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reservationLifecycleEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt','completedAt','completedBy','lastTransitionType','lastTransitionSource','lastTransitionAt','lastTransitionBy'])
+            && validOrderTransitionAudit(orderId)
             && request.resource.data.completedAt == request.time
             && request.resource.data.completedBy == request.auth.uid
             && existsAfter(displayPath)
             && getAfter(displayPath).data.displayStatus == 'ready'
             && getAfter(displayPath).data.reservationLifecycleId == request.resource.data.reservationLifecycleId)
-          || (resource.data.status == 'reservation_pending'
+          || (resource.data.status in ['reservation_pending','cooking','ready']
             && request.resource.data.status == 'cancelled'
             && request.resource.data.reservationLifecycleEnabled == false
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reservationLifecycleEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt'])));
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reservationLifecycleEnabled','reservationUpdatedAt','reservationUpdatedBy','updatedAt','lastTransitionType','lastTransitionSource','lastTransitionAt','lastTransitionBy'])
+            && validOrderTransitionAudit(orderId)));
     }
     function validPublicDisplayIdentity(orderId) {
       let orderPath = /databases/$(database)/documents/orders/$(orderId);
@@ -309,12 +335,77 @@ service cloud.firestore {
           && request.resource.data.language == getAfter(orderPath).data.language);
     }
 
+    function validLifecycleAuditCreate(orderId, auditId) {
+      let orderPath = /databases/$(database)/documents/orders/$(orderId);
+      let before = get(orderPath).data;
+      let after = getAfter(orderPath).data;
+      let lifecycleId = before.keys().hasAny(['reservationLifecycleId'])
+        ? before.reservationLifecycleId
+        : 'takeout_' + orderId;
+      let expectedAt = before.status == 'reservation_pending'
+        ? before.pickup.pickupAt - duration.value(15, 'm')
+        : (before.pickup.mode == 'reserve' ? before.pickup.pickupAt : before.readyDueAt);
+      return isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'schemaVersion','storeId','orderId','orderNo','fromStatus','toStatus',
+          'transitionType','transitionSource','actorUid','actorRole','lifecycleId',
+          'pickupAt','expectedTransitionAt','transactionStartedAt','transitionedAt',
+          'clientInstanceId','appVersion'
+        ])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.storeId == before.storeId
+        && request.resource.data.orderId == orderId
+        && request.resource.data.orderNo == before.orderNo
+        && request.resource.data.fromStatus == before.status
+        && request.resource.data.toStatus == after.status
+        && request.resource.data.lifecycleId == lifecycleId
+        && auditId == lifecycleId + '__' + before.status + '__' + after.status
+        && request.resource.data.pickupAt == (before.pickup.mode == 'reserve' ? before.pickup.pickupAt : before.readyDueAt)
+        && request.resource.data.expectedTransitionAt == expectedAt
+        && request.resource.data.transactionStartedAt is timestamp
+        && request.resource.data.transactionStartedAt <= request.time
+        && request.resource.data.transitionedAt == request.time
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.actorRole == 'admin'
+        && validTransitionSource(request.resource.data.transitionSource)
+        && validString(request.resource.data.clientInstanceId, 128)
+        && request.resource.data.clientInstanceId.size() >= 1
+        && validString(request.resource.data.appVersion, 64)
+        && request.resource.data.appVersion.size() >= 1
+        && ((before.status == 'reservation_pending'
+            && after.status == 'cooking'
+            && request.resource.data.transitionType == 'reservation_start_cooking'
+            && request.resource.data.transitionSource in ['reservation_timer','reservation_catch_up'])
+          || (before.status == 'cooking'
+            && after.status == 'ready'
+            && request.resource.data.transitionType == 'mark_ready'
+            && request.resource.data.transitionSource in ['reservation_timer','reservation_catch_up','admin_manual_ready','takeout_auto_ready','takeout_auto_retry'])
+          || (before.status == 'ready'
+            && after.status == 'completed'
+            && request.resource.data.transitionType == 'mark_picked_up'
+            && request.resource.data.transitionSource == 'admin_manual_pickup')
+          || (before.status in ['reservation_pending','cooking','ready']
+            && after.status == 'cancelled'
+            && request.resource.data.transitionType == 'cancel'
+            && request.resource.data.transitionSource == 'admin_manual_cancel'))
+        && after.lastTransitionType == request.resource.data.transitionType
+        && after.lastTransitionSource == request.resource.data.transitionSource
+        && after.lastTransitionAt == request.time
+        && after.lastTransitionBy == request.auth.uid;
+    }
+
     match /orders/{orderId} {
       allow create: if validOrderCreate(orderId) || validAdminCounterOrderCreate(orderId);
       allow read, delete: if isAdmin();
       allow update: if isAdmin()
         && (!isTakeoutPreparationOrderMutation() || validTakeoutPreparationOrderUpdate(orderId))
         && (!isReservationLifecycleOrderMutation() || validReservationLifecycleOrderUpdate(orderId));
+    }
+
+    match /orders/{orderId}/lifecycleAudit/{auditId} {
+      allow get, list: if isAdmin();
+      allow create: if validLifecycleAuditCreate(orderId, auditId);
+      allow update, delete: if false;
     }
 
     match /orderNumberCounters/{counterId} {

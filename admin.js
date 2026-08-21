@@ -3,7 +3,12 @@ const adminLoginForm=document.getElementById('adminLoginForm');
 const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
-const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleEligible,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleEligible,transitionLifecycleId,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,cancelAuditedTakeoutTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
+const ADMIN_APP_VERSION='admin-v49.1.0';
+const ADMIN_CLIENT_INSTANCE_KEY='pj-admin-client-instance-v1';
+function adminClientInstanceId(){let value='';try{value=sessionStorage.getItem(ADMIN_CLIENT_INSTANCE_KEY)||'';if(!value){value=globalThis.crypto?.randomUUID?.()||`admin_${Date.now()}_${Math.random().toString(36).slice(2)}`;sessionStorage.setItem(ADMIN_CLIENT_INSTANCE_KEY,value)}}catch(error){value=globalThis.crypto?.randomUUID?.()||`admin_${Date.now()}_${Math.random().toString(36).slice(2)}`}return value}
+const ADMIN_CLIENT_INSTANCE_ID=adminClientInstanceId();
+function transitionAuditContext(transitionSource,startedAt=Date.now()){return {transitionSource,transactionStartedAt:firebase.firestore.Timestamp.fromMillis(startedAt),clientInstanceId:ADMIN_CLIENT_INSTANCE_ID,appVersion:ADMIN_APP_VERSION,actorRole:'admin'}}
 async function verifyAdminUser(user){if(!user)return false;const token=await user.getIdTokenResult(true);return token.claims.admin===true}
 
 let unsubscribeOrders=null;
@@ -933,12 +938,15 @@ async function setStatus(id,status,button){
   if(!localOrder)throw new Error('주문 정보를 찾을 수 없습니다. 화면을 새로고침해 주세요.');
   let committedOrder=null,pickupDisplayMissing=false;
   if(status==='ready'&&localOrder.orderType==='takeout'){
-   const result=await completeTakeoutTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});
+   const result=await completeTakeoutTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey,...transitionAuditContext('admin_manual_ready')});
    committedOrder=result.order;
   }else if(status==='completed'&&localOrder.orderType==='takeout'){
-   const result=await completeTakeoutPickupTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin'});
+   const result=await completeTakeoutPickupTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',...transitionAuditContext('admin_manual_pickup')});
    committedOrder=result.order;
    pickupDisplayMissing=result.displayMissing;
+  }else if(status==='cancelled'&&localOrder.orderType==='takeout'&&transitionLifecycleId(localOrder)){
+   const result=await cancelAuditedTakeoutTransaction({db,orderId:id,expectedStatus:localOrder.status,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',...transitionAuditContext('admin_manual_cancel')});
+   committedOrder=result.order;
   }else await db.runTransaction(async transaction=>{
    const orderRef=db.collection('orders').doc(id);
    const orderSnapshot=await transaction.get(orderRef);
@@ -1011,7 +1019,7 @@ async function setStatus(id,status,button){
 if(typeof setInterval==='function')setInterval(()=>{if(receivedOrders.some(order=>order.orderType==='takeout'&&((order.status==='cooking'&&order.autoReadyEnabled===true)||order.status==='reservation_pending')))render()},15000);
 const autoReadyCoordinator=createAutoReadyCoordinator({
  getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),
- execute:async order=>{const result=await autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});enqueueAutomaticTakeoutCall(result.order);return result},
+ execute:async (order,{retry=false}={})=>{const result=await autoCompleteTakeoutTransaction({db,orderId:order.id,expectedReadyDueAt:order.readyDueAt,expectedPreparationStartedAt:order.preparationStartedAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey,...transitionAuditContext(retry?'takeout_auto_retry':'takeout_auto_ready')});enqueueAutomaticTakeoutCall(result.order);return result},
  onPermanentError:(error,order)=>{console.error('포장 주문 자동 완료 실패',error);showAdminMessage(`${adminOrderNumberLabel(order)}번 자동 조리완료 실패 (${error.code||'unknown'}): 수동 조리완료를 확인해 주세요.`,true)}
 });
 const autoReadyTimers=autoReadyCoordinator.timers,autoReadyLocks=autoReadyCoordinator.locks;
@@ -1023,7 +1031,7 @@ function reservationCountdownLabel(order,now=Date.now()){
  const remaining=Math.max(0,deadline-now);if(remaining<60000)return remaining<=0?'곧 조리 시작':`${Math.ceil(remaining/1000)}초 남음`;
  const minutes=Math.ceil(remaining/60000);return minutes>=60?`${Math.floor(minutes/60)}시간 ${minutes%60}분 남음`:`${minutes}분 남음`;
 }
-async function executeReservationLifecycle(order){const result=await advanceReservationLifecycleTransaction({db,orderId:order.id,expectedLifecycleId:order.reservationLifecycleId,expectedPickupAt:order.pickup.pickupAt,nowMillis:Date.now(),serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey});if(result.announcement==='prep')enqueueSpeech('예약 주문 조리 시간입니다.');if(result.announcement==='ready')enqueueAutomaticTakeoutCall(result.order);return result}
+async function executeReservationLifecycle(order,{catchUp=false}={}){const startedAt=Date.now(),result=await advanceReservationLifecycleTransaction({db,orderId:order.id,expectedLifecycleId:order.reservationLifecycleId,expectedPickupAt:order.pickup.pickupAt,nowMillis:startedAt,serverTimestamp:firebase.firestore.FieldValue.serverTimestamp,adminId:firebase.auth().currentUser?.uid||'admin',resolveBusinessDay:orderBusinessDayKey,...transitionAuditContext(catchUp?'reservation_catch_up':'reservation_timer',startedAt)});if(result.announcement==='prep')enqueueSpeech('예약 주문 조리 시간입니다.');if(result.announcement==='ready')enqueueAutomaticTakeoutCall(result.order);return result}
 const reservationLifecycleCoordinator=createReservationLifecycleCoordinator({getCurrentOrder:id=>receivedOrders.find(order=>String(order.id)===String(id)),execute:executeReservationLifecycle,onPermanentError:(error,order)=>showAdminMessage(`${adminOrderNumberLabel(order)}번 예약 자동 처리 실패 (${error.code||'unknown'}): 상태를 확인해 주세요.`,true)});
 function reconcileReservationLifecycleOrders(list){reservationLifecycleCoordinator.reconcile(list)}
 
@@ -1281,6 +1289,10 @@ function orderDetailMenuHTML(order){
 function orderDetailForkHTML(order){
  return `<div class="detail-fork-card"><span>일회용 포크</span>${disposablesStatusHTML(order?.disposables,'detail-fork-status')}</div>`;
 }
+const transitionSourceLabels={reservation_timer:'자동',reservation_catch_up:'재접속 자동',admin_manual_ready:'관리자 수동',admin_manual_pickup:'관리자 수동',admin_manual_cancel:'관리자 수동',takeout_auto_ready:'자동',takeout_auto_retry:'자동 재시도'};
+function transitionDelayLabel(entry){const actual=orderTimeMillis(entry?.transitionedAt),expected=orderTimeMillis(entry?.expectedTransitionAt);if(actual===null||expected===null)return '예정 대비 확인 불가';const seconds=Math.round((actual-expected)/1000);if(seconds===0)return '예정 시각과 동일';const amount=Math.abs(seconds),value=amount>=60?`${Math.floor(amount/60)}분 ${amount%60}초`:`${amount}초`;return seconds>0?`${value} 지연`:`${value} 조기`}
+function lifecycleAuditHTML(entries){const heading='<h3>상태 변경 기록</h3>';if(!entries.length)return `${heading}<p class="lifecycle-audit-empty">이 주문은 상태 변경 감사기록 도입 이전 주문입니다.</p>`;return `${heading}<ol class="lifecycle-audit-list">${entries.map(entry=>`<li><time>${formatTime(entry.transitionedAt)}</time><strong>${esc(displayText(statusNames[entry.fromStatus],entry.fromStatus))} → ${esc(displayText(statusNames[entry.toStatus],entry.toStatus))}</strong><span>${esc(transitionSourceLabels[entry.transitionSource]||entry.transitionSource)}</span><small>처리 관리자 ${esc(displayText(entry.actorUid))}</small><small>예정 ${formatTime(entry.expectedTransitionAt)} · ${esc(transitionDelayLabel(entry))}</small></li>`).join('')}</ol>`}
+async function loadLifecycleAudit(orderId){const panel=orderDetailContent?.querySelector(`[data-lifecycle-audit-order="${CSS.escape(String(orderId))}"]`);if(!panel)return;try{const snapshot=await db.collection('orders').doc(String(orderId)).collection('lifecycleAudit').orderBy('transitionedAt','asc').get(),entries=snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));if(panel.isConnected&&orderDetailOpenOrderId===String(orderId))panel.innerHTML=lifecycleAuditHTML(entries)}catch(error){console.error('상태 변경 감사기록 조회 실패',error);if(panel.isConnected)panel.innerHTML='<p class="lifecycle-audit-error">상태 변경 기록을 불러오지 못했습니다.</p>'}}
 function renderOrderDetail(order,seatId=null){
  const takeout=order.orderType==='takeout';
  const seatLabel=takeout?'-':displayText(orderSeatLabel(order));
@@ -1313,6 +1325,7 @@ function renderOrderDetail(order,seatId=null){
    </div>
    <button type="button" class="detail-customer-call" data-action="call-customer" ${customerCallDataAttributes(order)}>📣 고객 호출</button>
    ${mealTicketHighlight}
+   ${reservation?`<section class="lifecycle-audit" data-lifecycle-audit-order="${esc(order.id)}"><h3>상태 변경 기록</h3><p>기록을 불러오는 중…</p></section>`:''}
   </div>
  </div>
  ${seatId?`<div class="order-detail-seat-actions"><button type="button" data-action="clear-seat" data-seat-id="${esc(seatId)}">이 테이블 빈자리로 변경</button></div>`:''}
@@ -1328,6 +1341,7 @@ function showOrderDetail(order,seatId=null,trigger=null){
  orderDetailModal.hidden=false;
  document.body.classList.add('order-detail-open');
  closeOrderDetailButton?.focus();
+ if(isReservationOrder(order))loadLifecycleAudit(order.id);
  return true;
 }
 function closeOrderDetail(){

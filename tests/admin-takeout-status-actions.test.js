@@ -53,8 +53,10 @@ async function exerciseStatus(order,status,{holdCommit=false,rejectCommit=false}
  const context={
   Set,Promise,orders:[order],db:{collection:name=>({doc:id=>({name,id})}),async runTransaction(callback){commits++;const result=await callback(transaction);await commitGate;if(rejectCommit)throw Object.assign(new Error('commit failed'),{code:'unavailable'});commitSucceeded=true;return result}},
   document:{getElementById:()=>({hidden:true,focus(){},classList:{add(){},remove(){}}}),body:{classList:{add(){},remove(){}}}},
-  firebase:{auth:()=>({currentUser:{uid:'admin-test'}}),firestore:{FieldValue:{serverTimestamp:()=>({server:true})}}},
+  firebase:{auth:()=>({currentUser:{uid:'admin-test'}}),firestore:{FieldValue:{serverTimestamp:()=>({server:true})},Timestamp:{fromMillis:value=>({toMillis:()=>value})}}},
   completeTakeoutTransaction:adminOperations.completeTakeoutTransaction,
+  completeTakeoutPickupTransaction:adminOperations.completeTakeoutPickupTransaction,cancelAuditedTakeoutTransaction:adminOperations.cancelAuditedTakeoutTransaction,transitionLifecycleId:adminOperations.transitionLifecycleId,
+  transitionAuditContext:source=>({transitionSource:source,transactionStartedAt:{toMillis:()=>1},clientInstanceId:'test-client',appVersion:'admin-test',actorRole:'admin'}),
   orderSeatIds:value=>value.seatIds||[],adminOrderNumberLabel:value=>value.customerNumber||value.orderNo||'#1',stopNewOrderRepeat(){},showAdminMessage(){},setTimeout(){},
   orderBusinessDayKey:value=>value.businessDay||null,seoulBusinessDayKey:()=> '2026-08-01',
   hasUnacceptedOrders:()=>false,startNewOrderRepeat(){},

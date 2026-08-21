@@ -10,7 +10,8 @@ const cooking={id:'takeout-1',orderType:'takeout',status:'cooking',customerNumbe
 assert.strictEqual(context.enqueueAutomaticTakeoutCall(cooking),true);assert.strictEqual(context.enqueueAutomaticTakeoutCall(cooking),false);assert.deepStrictEqual(queued,[{number:'P1111',language:'ko'}]);
 for(const order of [{...cooking,id:'ready',status:'ready'},{...cooking,id:'dinein',orderType:'dinein'},{...cooking,id:''},null])assert.strictEqual(context.enqueueAutomaticTakeoutCall(order),false);
 assert.strictEqual(queued.length,1,'snapshots and ineligible states cannot enqueue calls');
-assert.ok(source.includes("execute:async order=>{const result=await autoCompleteTakeoutTransaction"));
+assert.ok(source.includes("execute:async (order,{retry=false}={})=>{const result=await autoCompleteTakeoutTransaction"));
+assert.ok(source.includes("transitionAuditContext(retry?'takeout_auto_retry':'takeout_auto_ready')"));
 assert.ok(source.includes("if(status==='ready')enqueueAutomaticTakeoutCall(committedOrder)"));
 assert.ok(!source.includes("if(status==='completed'&&committedOrder.orderType!=='takeout')callCustomer"));
 console.log('successful takeout-only automatic call session guard passed');

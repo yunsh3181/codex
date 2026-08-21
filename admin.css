@@ -483,6 +483,7 @@ body.order-detail-open{overflow:hidden}
 .detail-payment-grid strong,.detail-payment-grid .paid strong{margin-top:5px;font-size:17px}
 .detail-customer-call{min-height:52px;border-radius:13px;font-size:20px}
 .admin-detail-operations .meal-ticket-highlight{margin-top:8px}.admin-detail-operations .meal-ticket-highlight strong{font-size:22px}.admin-detail-operations .meal-ticket-highlight span{font-size:19px}
+.lifecycle-audit{margin-top:14px;padding:14px;border:1px solid #d9dde5;border-radius:12px;background:#f8f9fb}.lifecycle-audit h3{margin:0 0 10px;font-size:16px}.lifecycle-audit p{margin:0;color:#5d6470}.lifecycle-audit-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.lifecycle-audit-list li{display:grid;grid-template-columns:auto minmax(120px,1fr) auto;gap:4px 10px;padding:9px 10px;border-radius:9px;background:#fff}.lifecycle-audit-list time{font-variant-numeric:tabular-nums}.lifecycle-audit-list strong{color:#20242b}.lifecycle-audit-list span{font-weight:800;color:#a51c30}.lifecycle-audit-list small{grid-column:2/-1;color:#68707c}.lifecycle-audit-error{color:#b3261e!important}
 @media(max-width:700px){
  .order-detail-modal{padding:8px}.order-detail-panel{width:calc(100vw - 16px);max-height:92vh}.admin-detail-screen{max-height:92vh}
  .admin-detail-topbar{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-order-identity{grid-column:1/-1}.detail-top-card.phone{grid-column:auto}
