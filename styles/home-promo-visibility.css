@@ -102,9 +102,30 @@ html[data-layout="kiosk21"] body[data-step="home"] .happyTakeoutOnly {
   font-size: clamp(26px, 2.4vw, 32px) !important;
 }
 
+html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+  line-height: 1.22 !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .happyBenefit {
+  padding-block: 2px !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] :is(.happySize, .takeoutSizeNote, .happyHours) {
+  line-height: 1.3 !important;
+}
+
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .happyPromo .happyPrice,
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo .takeoutDiscount {
   font-size: clamp(42px, 4.2vw, 52px) !important;
+  line-height: 1.25 !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] .happyDineInExclusion {
+  line-height: 1.35 !important;
+}
+
+html[data-layout="kiosk21"] body[data-step="home"] :is(.happyOrderNow, .takeoutOrderNow) {
+  line-height: 1.3 !important;
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo {
