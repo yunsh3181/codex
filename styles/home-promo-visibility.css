@@ -215,7 +215,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
     width: 100%;
     box-sizing: border-box;
     font-size: clamp(15px, 4.1vw, 17px) !important;
-    line-height: 1.16 !important;
+    line-height: 1.3 !important;
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip :is(.happyOrderNow, .takeoutOrderNow) {
@@ -237,8 +237,12 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
 
 @media (max-width: 380px) and (max-height: 700px) {
   body[data-step="home"] .heroPromoStrip .heroPromo {
-    padding-block: 7px !important;
-    gap: 2px !important;
+    padding-block: 4px !important;
+    gap: 0 !important;
+  }
+
+  body[data-step="home"] .happyBenefit {
+    padding-block: 0 !important;
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
@@ -254,6 +258,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
+    min-height: 44px;
     font-size: 18px !important;
   }
 
