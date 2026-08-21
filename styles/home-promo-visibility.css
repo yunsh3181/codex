@@ -204,7 +204,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
-    min-height: 50px;
+    min-height: 54px;
     padding: 5px 10px;
     border-width: 2px;
     font-size: clamp(18px, 5.1vw, 20px) !important;
@@ -246,6 +246,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+    padding-block: 3px !important;
     font-size: 22px !important;
   }
 
@@ -258,7 +259,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
-    min-height: 50px;
+    min-height: 54px;
     font-size: 18px !important;
   }
 
