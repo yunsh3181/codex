@@ -47,7 +47,7 @@ body[data-step="home"] .takeoutSizeNote,
 body[data-step="home"] .happyHours {
   color: #ffffff !important;
   font-size: clamp(18px, 2.15vw, 28px) !important;
-  line-height: 1.2 !important;
+  line-height: 1.3 !important;
   font-weight: 900 !important;
 }
 
@@ -199,6 +199,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip :is(.happySize, .takeoutSizeNote, .happyHours) {
     font-size: clamp(15px, 4.5vw, 19px) !important;
+    line-height: 1.2 !important;
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
