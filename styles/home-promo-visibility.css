@@ -181,6 +181,8 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyDineInExclusion {
+    width: 100%;
+    box-sizing: border-box;
     font-size: clamp(15px, 4.1vw, 17px) !important;
     line-height: 1.16 !important;
   }
