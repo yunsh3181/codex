@@ -117,6 +117,7 @@ html[data-layout="kiosk21"] body[data-step="home"] :is(.happySize, .takeoutSizeN
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .happyPromo .happyPrice,
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo .takeoutDiscount {
+  padding-block: 4px !important;
   font-size: clamp(42px, 4.2vw, 52px) !important;
   line-height: 1.25 !important;
 }
