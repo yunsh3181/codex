@@ -29,7 +29,7 @@ body[data-step="home"] .heroPromoStrip .heroPromo h3 {
   padding-block: 4px !important;
   color: #ffffff !important;
   font-size: clamp(28px, 3.35vw, 44px) !important;
-  line-height: 1.08 !important;
+  line-height: 1.2 !important;
   font-weight: 1000 !important;
 }
 
@@ -142,8 +142,8 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
 
 @media (min-width: 701px) and (max-width: 1024px) {
   body[data-step="home"] .heroPromoStrip .heroPromo {
-    padding: 4px 10px !important;
-    gap: 4px !important;
+    padding: 2px 10px !important;
+    gap: 3px !important;
   }
 
   body[data-step="home"] .heroPromoStrip .heroPromo h3 {
@@ -182,6 +182,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
     font-size: clamp(22px, 6.5vw, 28px) !important;
+    line-height: 1.08 !important;
   }
 
   body[data-step="home"] .happyBenefit {
