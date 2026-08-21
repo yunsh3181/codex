@@ -103,6 +103,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .happyTakeoutOnly {
 }
 
 html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+  padding-block: 4px !important;
   line-height: 1.22 !important;
 }
 
