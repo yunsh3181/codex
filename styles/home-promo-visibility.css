@@ -223,7 +223,9 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[lang="es"][data-layout="phone"] body[data-step="home"] .heroPromoStrip .takeoutPromo .takeoutDiscount {
+    width: 100%;
     font-size: 28px !important;
+    line-height: 1.3 !important;
     overflow-wrap: normal;
     word-break: normal;
   }
