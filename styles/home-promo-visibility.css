@@ -142,7 +142,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
 
 @media (min-width: 701px) and (max-width: 1024px) {
   body[data-step="home"] .heroPromoStrip .heroPromo {
-    padding: 12px 10px !important;
+    padding: 4px 10px !important;
     gap: 4px !important;
   }
 
