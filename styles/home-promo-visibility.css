@@ -226,6 +226,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
     width: 100%;
     font-size: 28px !important;
     line-height: 1.3 !important;
+    letter-spacing: -.02em;
     overflow-wrap: normal;
     word-break: normal;
   }
