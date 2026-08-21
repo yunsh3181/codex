@@ -17,7 +17,7 @@
   body[data-step="party"] .partyStepperWrap{max-width:680px;padding:10px 24px!important;margin-inline:auto}
   body[data-step="party"] .partyStepper{max-width:540px;grid-template-columns:112px minmax(0,1fr) 112px;gap:12px;margin:10px auto 12px}
   body[data-step="party"] .partyStepBtn{width:112px!important;height:112px!important;min-height:112px!important;font-size:38px}
-  body[data-step="party"] .partyCountDisplay{height:128px!important;min-height:128px!important;font-size:38px}
+  body[data-step="party"] .partyCountDisplay{height:108px!important;min-height:108px!important;font-size:38px}
   body[data-step="party"] :where(.partyLimit,.partyRule,.partySubRule,.seatRuleNotice){margin-block:6px!important;padding-block:8px!important}
   body[data-step="party"] .areaAvailabilityMini{margin-block:7px!important}
   body[data-step="party"] .partyNext{width:var(--ipad-air3-action-width);min-height:56px!important;margin:4px auto 0}
