@@ -10,10 +10,10 @@ if(!process.env.FIRESTORE_EMULATOR_HOST)test('kiosk seat capacity transaction ma
  test.before(async()=>{env=await initializeTestEnvironment({projectId:PROJECT_ID,firestore:{rules:fs.readFileSync(path.join(root,'firestore.rules'),'utf8')}});clientDb=env.unauthenticatedContext().firestore();adminDb=env.authenticatedContext('matrix-admin',{admin:true}).firestore()});
  test.beforeEach(async()=>{await env.clearFirestore();sequence=0});test.after(async()=>env.cleanup());
  const db=()=>clientDb;
- const tableDefs={annex:[['annex-1',2],['annex-2',4],['annex-3',4],['annex-4',2]],outdoor:[['outdoor-1',4],['outdoor-2',4],['outdoor-3',4],['outdoor-4',4]]};
+ const tableDefs={annex:[['annex-1',2],['annex-2',5],['annex-3',5],['annex-4',2]],outdoor:[['outdoor-1',5],['outdoor-2',5],['outdoor-3',5],['outdoor-4',5]]};
  const definitions=zone=>tableDefs[zone].map(([id,seats])=>({id,seats}));
  const held=(partySize=1,heldBy='client-a',extra={})=>({status:'held',heldBy,heldAt:Timestamp.now(),heldUntil:Timestamp.fromMillis(Date.now()+600000),partySize,orderId:null,...extra});
- const occupied=partySize=>({status:'occupied',heldBy:null,heldUntil:null,partySize,orderId:`old-${partySize}`});
+ const occupied=(partySize,orderId=`old-${partySize}`)=>({status:'occupied',heldBy:null,heldUntil:null,partySize,orderId});
  async function seed(zone,values){await Promise.all(definitions(zone).map(table=>setDoc(doc(adminDb,'seats',table.id),values[table.id]||{status:'empty',partySize:null,heldBy:null,heldUntil:null,orderId:null})))}
  const payload=()=>({channel:'mobile',deviceId:'mobile-01',appVersion:'DEV',schemaVersion:2,aggregationVersion:1,storeId:'pangyo2-techno-valley',storeName:'판교2테크노밸리점',orderNo:`D${String(++sequence).padStart(4,'0')}`,customerNumber:'D0001',phone:'01012345678',phoneMasked:'010-****-5678',phoneLast4:'5678',language:'ko',orderType:'dinein',partySize:1,seat:{zone:'annex',tables:['annex-1']},pickup:null,disposables:false,items:[{id:'P001',qty:1,total:10000}],itemCount:1,normalAmount:10000,discountAmount:0,totalAmount:10000,total:10000,benefit:'normal',payment:{method:'card'},status:'payment_pending',recommendationEvents:[],createdAt:serverTimestamp(),createdAtClient:new Date().toISOString(),source:'test'});
  function compat(raw,mutations){return {collection(name){return {doc(id){return doc(raw,name,id)}}},runTransaction(callback){return runTransaction(raw,transaction=>callback({get:ref=>transaction.get(ref).then(snapshot=>({exists:snapshot.exists(),data:()=>snapshot.data()})),set(ref,data,options){mutations.push(ref.path);transaction.set(ref,data,options)}}))}}}
@@ -23,12 +23,12 @@ if(!process.env.FIRESTORE_EMULATOR_HOST)test('kiosk seat capacity transaction ma
  }
  const count=async(_raw,name)=>(await getDocs(collection(adminDb,name))).size;
  test('A-C bottle hard cap matrix is atomic',async()=>{
-  await seed('annex',{'annex-1':held(2),'annex-2':occupied(5),'annex-3':occupied(5)});let result=await commit('annex',2,['annex-1']);assert.equal(result.ok,true);assert.equal(await count(result.raw,'orders'),1);assert.deepEqual(result.mutations.sort(),[result.orderRef.path,'seats/annex-1'].sort());
-  for(const party of [3,4]){await env.clearFirestore();await seed('annex',{'annex-1':held(party),'annex-2':occupied(5),'annex-3':occupied(5)});result=await commit('annex',party,['annex-1']);assert.equal(result.ok,false);assert.equal(result.error.code,'ZONE_CAPACITY_STALE');assert.equal(result.mutations.length,0);assert.equal(await count(result.raw,'orders'),0)}
+  await seed('annex',{'annex-1':held(2),'annex-2':occupied(5,'old-annex-2'),'annex-3':occupied(5,'old-annex-3')});let result=await commit('annex',2,['annex-1']);assert.equal(result.ok,true);assert.equal(await count(result.raw,'orders'),1);assert.deepEqual(result.mutations.sort(),[result.orderRef.path,'seats/annex-1'].sort());
+  for(const party of [3,4]){await env.clearFirestore();await seed('annex',{'annex-1':held(party),'annex-2':occupied(5,'old-annex-2'),'annex-3':occupied(5,'old-annex-3')});result=await commit('annex',party,['annex-1']);assert.equal(result.ok,false);assert.equal(result.error.code,'ZONE_CAPACITY_STALE');assert.equal(result.mutations.length,0);assert.equal(await count(result.raw,'orders'),0)}
  });
  test('D-F outdoor boundary and impossible combinations reject partial writes',async()=>{
-  await seed('outdoor',{'outdoor-1':occupied(5),'outdoor-2':occupied(5),'outdoor-3':occupied(5),'outdoor-4':held(1)});let result=await commit('outdoor',1,['outdoor-4']);assert.equal(result.ok,true);assert.equal((await getDoc(doc(result.raw,'seats','outdoor-4'))).data().partySize,1);assert.equal(16,15+1);
-  await env.clearFirestore();await seed('outdoor',{'outdoor-1':occupied(5),'outdoor-2':occupied(5),'outdoor-3':occupied(5),'outdoor-4':held(2)});result=await commit('outdoor',2,['outdoor-4']);assert.equal(result.ok,false);assert.equal(result.mutations.length,0);
+  await seed('outdoor',{'outdoor-1':occupied(5,'old-outdoor-1'),'outdoor-2':occupied(5,'old-outdoor-2'),'outdoor-3':occupied(5,'old-outdoor-3'),'outdoor-4':held(1)});let result=await commit('outdoor',1,['outdoor-4']);assert.equal(result.ok,true);assert.equal((await getDoc(doc(result.raw,'seats','outdoor-4'))).data().partySize,1);assert.equal(16,15+1);
+  await env.clearFirestore();await seed('outdoor',{'outdoor-1':occupied(5,'old-outdoor-1'),'outdoor-2':occupied(5,'old-outdoor-2'),'outdoor-3':occupied(5,'old-outdoor-3'),'outdoor-4':held(2)});result=await commit('outdoor',2,['outdoor-4']);assert.equal(result.ok,false);assert.equal(result.mutations.length,0);
   await env.clearFirestore();await seed('annex',{'annex-1':held(4)});result=await commit('annex',4,['annex-1']);assert.equal(result.ok,false);assert.equal(result.error.code,'ZONE_CAPACITY_STALE');assert.equal(result.mutations.length,0)
  });
  test('G-H stale held occupied reserved and unknown snapshots write nothing',async()=>{

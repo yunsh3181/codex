@@ -9,8 +9,8 @@ const localeFiles=['ko','en','ja','zh','vi','es'].map(language=>fs.readFileSync(
 
 test('Korean annex and room guidance matches the approved copy',()=>{
  for(const copy of [
-  '파파보틀 별관 좌석입니다.',
-  '파파보틀 내부 룸 좌석입니다.',
+  '파파존스 옆 파파보틀 좌석 공간입니다.',
+  '별관 내부 단체 좌석입니다.',
   '평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',
   '현재 운영시간이 아닙니다. 평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',
   '주말과 공휴일에는 이용할 수 없습니다. 평일 오전 11시부터 오후 2시까지만 운영합니다.',
@@ -22,7 +22,7 @@ test('Korean annex and room guidance matches the approved copy',()=>{
 test('all six languages include complete bottle-seat guidance',()=>{
  const bottleCopySource=source.slice(source.indexOf('const BOTTLE_COPY='),source.indexOf('\n};',source.indexOf('const BOTTLE_COPY='))+3);
  for(const locale of localeFiles){
-  assert.match(locale,/PapaBottle|보틀존|ボトル|帕帕|Papa Zone/);
+  assert.match(locale,/PapaBottle|파파보틀|別館|附楼|nhà phụ|Anexo|Annex/);
   assert.match(locale,/11:00/);
   assert.match(locale,/14:00|오후 2시|午後2時|下午2点/);
  }

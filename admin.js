@@ -4,7 +4,7 @@ const adminEmail=document.getElementById('adminEmail');
 const adminPassword=document.getElementById('adminPassword');
 const adminLoginError=document.getElementById('adminLoginError');
 const {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ADMIN_SEAT_STATUSES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,createCounterTakeoutTransaction,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleEligible,transitionLifecycleId,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,completeTakeoutTransaction,completeTakeoutPickupTransaction,cancelAuditedTakeoutTransaction,forceCompleteTransaction,displayIdentity,expiredSeatGroups:findExpiredSeatGroups,releaseExpiredSeatGroupTransaction}=PJAdminOperations;
-const ADMIN_APP_VERSION='admin-v49.1.0';
+const ADMIN_APP_VERSION='admin-v49.1.1';
 const ADMIN_CLIENT_INSTANCE_KEY='pj-admin-client-instance-v1';
 function adminClientInstanceId(){let value='';try{value=sessionStorage.getItem(ADMIN_CLIENT_INSTANCE_KEY)||'';if(!value){value=globalThis.crypto?.randomUUID?.()||`admin_${Date.now()}_${Math.random().toString(36).slice(2)}`;sessionStorage.setItem(ADMIN_CLIENT_INSTANCE_KEY,value)}}catch(error){value=globalThis.crypto?.randomUUID?.()||`admin_${Date.now()}_${Math.random().toString(36).slice(2)}`}return value}
 const ADMIN_CLIENT_INSTANCE_ID=adminClientInstanceId();
@@ -383,9 +383,9 @@ const ADMIN_SEATS=[
  {id:'annex-2',name:'별관2',zone:'annex',row:4,column:2},
  {id:'annex-3',name:'별관3',zone:'annex',row:4,column:3},
  {id:'annex-4',name:'별관4',zone:'annex',row:5,column:1},
- {id:'room-1',name:'룸1',zone:'room',row:6,column:1},
- {id:'room-2',name:'룸2',zone:'room',row:6,column:2},
- {id:'room-3',name:'룸3',zone:'room',row:6,column:3}
+ {id:'room-1',name:'단체석1',zone:'room',row:6,column:1},
+ {id:'room-2',name:'단체석2',zone:'room',row:6,column:2},
+ {id:'room-3',name:'단체석3',zone:'room',row:6,column:3}
 ];
 const seatStatusNames={empty:'빈자리',held:'주문중',occupied:'사용중',reserved:'예약',unknown:'확인 필요'};
 let seatDocuments={};
@@ -473,19 +473,27 @@ function productName(id,category,legacyMaster=[]){return displayText(ORDER_CATAL
 const ADMIN_SEAT_NAMES={
  'papa-2':'파파존 2인석','papa-bar4':'파파존 4인 바테이블',
  'outdoor-1':'야외석 1번','outdoor-2':'야외석 2번','outdoor-3':'야외석 3번','outdoor-4':'야외석 4번',
- 'annex-1':'별관 1번','annex-2':'별관 2번','annex-3':'별관 3번','annex-4':'별관 4번',
- 'room-1':'룸테이블 1','room-2':'룸테이블 2','room-3':'룸테이블 3'
+ 'annex-1':'별관1','annex-2':'별관2','annex-3':'별관3','annex-4':'별관4',
+ 'room-1':'단체석1','room-2':'단체석2','room-3':'단체석3'
 };
-const ADMIN_ZONE_NAMES={papa:'파파존',outdoor:'야외석',annex:'별관',room:'별관룸'};
+const ADMIN_ZONE_NAMES={papa:'파파존',outdoor:'야외석',annex:'별관',room:'별관 단체석'};
+function normalizeLegacySeatLabel(value){
+ const raw=String(value||'').trim(),compact=raw.toLowerCase().replace(/[\s·_-]+/g,'');
+ const room=compact.match(/(?:room|룸|단체석)([123])/);if(room)return `단체석${room[1]}`;
+ const annex=compact.match(/(?:annex|papabottle|파파보틀|보틀존|보틀석|별관석|별관)([1234])/);if(annex)return `별관${annex[1]}`;
+ if(['보틀존','보틀석','파파보틀','별관석','papabottle','annex'].includes(compact))return '별관';
+ if(['보틀룸','보틀룸존','별관룸','room'].includes(compact))return '별관 단체석';
+ return raw
+}
 function orderSeatIds(order){
  const tables=Array.isArray(order?.seat?.tables)?order.seat.tables.filter(Boolean):[];
  if(tables.length)return [...new Set(tables)];
  return order?.seat?.id?[order.seat.id]:[];
 }
 function orderSeatLabel(order){
- if(order?.seat?.name)return order.seat.name;
  const ids=orderSeatIds(order);
- return ids.map(id=>ADMIN_SEAT_NAMES[id]||id).join(' + ');
+ if(ids.length)return ids.map(id=>ADMIN_SEAT_NAMES[id]||normalizeLegacySeatLabel(id)).join(' + ');
+ return order?.seat?.name?normalizeLegacySeatLabel(order.seat.name):'-';
 }
 function orderZoneLabel(order){return ADMIN_ZONE_NAMES[order?.seat?.zone]||order?.seat?.zone||'-'}
 
@@ -1783,7 +1791,7 @@ function renderWaiting(){
  const active=waitingEntries.filter(w=>w.status==='waiting').sort((a,b)=>(a.createdAt?.seconds||0)-(b.createdAt?.seconds||0));
  if(!active.length){waitingList.innerHTML='<div class="empty">현재 대기 중인 고객이 없습니다.</div>';return}
  waitingList.innerHTML=active.map(w=>`<article class="waiting-admin-card">
-   <div><strong>${w.seatName||'좌석'}</strong><span>대기 ${w.queueNo||'-'}번 · ${w.partySize||1}명 · ${w.phoneMasked||''}</span></div>
+   <div><strong>${esc(ADMIN_SEAT_NAMES[w.seatId]||normalizeLegacySeatLabel(w.seatName)||'좌석')}</strong><span>대기 ${w.queueNo||'-'}번 · ${w.partySize||1}명 · ${w.phoneMasked||''}</span></div>
    <div class="waiting-admin-actions">
      <button onclick="callWaiting('${w.id}')">호출</button>
      <button onclick="completeWaiting('${w.id}')">입장</button>

@@ -1312,6 +1312,7 @@ button:active:not(:disabled){transform:scale(.98)}
 
 /* ===== v43.8 모바일 첫 화면·만석 줄서기·사이즈 안내 ===== */
 .areaCardShell{position:relative;min-width:0}.areaCardShell>.areaCard{width:100%;height:100%}.areaCardShell.full>.areaCard,.areaCardShell.closed>.areaCard{filter:brightness(.7);cursor:not-allowed}.areaCardShell.full>.areaCard>*,.areaCardShell.closed>.areaCard>*{filter:blur(4px)}.areaCapacityOverlay{position:absolute;inset:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;text-align:center;pointer-events:none;color:#fff;text-shadow:0 1px 3px #000}.areaCapacityOverlay strong{font-size:clamp(28px,4vw,46px);line-height:1.1}.areaCapacityOverlay span{font-weight:900;word-break:keep-all}.areaCardShell.closed .areaCapacityOverlay strong,.areaCardShell.review .areaCapacityOverlay strong{font-size:clamp(25px,3.6vw,43px)}.areaCardShell.review .areaCapacityOverlay{color:#7a3d00;text-shadow:none}.areaWaitlistBtn{position:absolute;z-index:3;left:16px;right:16px;bottom:14px;min-height:46px;border:2px solid #fff;border-radius:12px;background:#17231d;color:#fff;font-weight:1000;cursor:pointer}.areaWaitlistBtn:focus-visible{outline:4px solid #ffcf33;outline-offset:3px}
+.seatLocationGuide{display:block;margin-top:5px;font-size:clamp(11px,1.35vw,14px);line-height:1.35;font-weight:800;word-break:keep-all;overflow-wrap:break-word;color:#485249}.tableCard:disabled{cursor:not-allowed;opacity:.58}.tableCard:disabled .status{color:#6f766f}
 .waitlistKeypadModal{width:min(92vw,520px);text-align:center}.waitlistPhoneDisplay{display:block;width:100%;box-sizing:border-box;margin:14px 0;padding:16px;border:2px solid var(--line);border-radius:14px;background:#f7f8f7;text-align:center;font-size:28px;font-weight:1000;letter-spacing:1px}.waitlistPhoneDisplay.invalid{border-color:var(--r)}.waitlistKeypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.waitlistKeypad button{min-height:58px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:22px;font-weight:1000}.waitlistKeypad .waitlistClear{font-size:14px}.waitlistKeypadActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.waitlistKeypadActions button{min-height:52px;border:0;border-radius:13px;font-weight:1000}.waitlistCancel{background:#e6e8e6;color:#252a26}.waitlistSubmit{background:var(--r);color:#fff}.waitlistSubmit:disabled{background:#a8aca8}.waitlistPhoneError{min-height:22px;margin:8px 0 0;color:var(--r);font-weight:900}
 .areaCard.full{border-color:#d29b31;background:linear-gradient(145deg,#fffaf0,#fff0ce)}
 .areaCard.full strong{color:#9a6300!important}
@@ -2235,17 +2236,17 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=foreign-order-followup-v1"></script>
-<script src="i18n/en.js?v=foreign-order-followup-v1"></script>
-<script src="i18n/ja.js?v=foreign-order-followup-v1"></script>
-<script src="i18n/zh.js?v=foreign-order-followup-v1"></script>
-<script src="i18n/vi.js?v=foreign-order-followup-v1"></script>
-<script src="i18n/es.js?v=foreign-order-followup-v1"></script>
+<script src="i18n/ko.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/en.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/ja.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/zh.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/vi.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/es.js?v=seat-capacity-guidance-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
-<script src="seat-capacity-policy.js?v=2"></script>
+<script src="seat-capacity-policy.js?v=3"></script>
 <script src="kiosk-seat-transaction.js?v=1"></script>
 <script src="kiosk-order-number.js?v=1"></script>
 <script src="waitlist-phone-keypad.js?v=1"></script>
@@ -2307,12 +2308,12 @@ reset=function(...args){navigationHistory.length=0;const result=resetOrderState(
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
 function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
 const BOTTLE_COPY={
- ko:{annexBase:'파파보틀 별관 좌석입니다.',roomBase:'파파보틀 내부 룸 좌석입니다.',operating:'평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',outside:'현재 운영시간이 아닙니다. 평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',weekendHoliday:'주말과 공휴일에는 이용할 수 없습니다. 평일 오전 11시부터 오후 2시까지만 운영합니다.',short:'평일 11:00~14:00 운영',unavailable:'이용 불가',conflict:'별관·룸 좌석 운영시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},
- en:{annexBase:'This seat is in the PapaBottle annex.',roomBase:'This seat is in the private room inside PapaBottle.',operating:'Available only on weekdays from 11:00 AM to 2:00 PM.',outside:'It is currently outside operating hours. Available only on weekdays from 11:00 AM to 2:00 PM.',weekendHoliday:'Unavailable on weekends and public holidays. Open only on weekdays from 11:00 AM to 2:00 PM.',short:'Weekdays 11:00–14:00',unavailable:'Unavailable',conflict:'Annex and room seating hours have ended. Please choose another seat.'},
- ja:{annexBase:'PapaBottle別館の座席です。',roomBase:'PapaBottle店内の個室席です。',operating:'平日の午前11時から午後2時までのみ利用できます。',outside:'現在は営業時間外です。平日の午前11時から午後2時までのみ利用できます。',weekendHoliday:'土日・祝日は利用できません。平日の午前11時から午後2時までのみ営業します。',short:'平日 11:00〜14:00 営業',unavailable:'利用不可',conflict:'別館・個室席の営業時間が終了しました。他の席を選択してください。'},
- zh:{annexBase:'这是PapaBottle别馆座位。',roomBase:'这是PapaBottle店内包间座位。',operating:'仅限工作日上午11点至下午2点使用。',outside:'当前不在营业时间内。仅限工作日上午11点至下午2点使用。',weekendHoliday:'周末及公共节假日不可使用。仅在工作日上午11点至下午2点营业。',short:'工作日 11:00–14:00 营业',unavailable:'不可使用',conflict:'别馆及包间座位营业时间已结束。请选择其他座位。'},
- vi:{annexBase:'Đây là chỗ ngồi tại khu nhà phụ PapaBottle.',roomBase:'Đây là chỗ ngồi trong phòng riêng bên trong PapaBottle.',operating:'Chỉ phục vụ các ngày trong tuần từ 11:00 đến 14:00.',outside:'Hiện đang ngoài giờ phục vụ. Chỉ phục vụ các ngày trong tuần từ 11:00 đến 14:00.',weekendHoliday:'Không phục vụ vào cuối tuần và ngày lễ. Chỉ mở cửa các ngày trong tuần từ 11:00 đến 14:00.',short:'Ngày thường 11:00–14:00',unavailable:'Không thể sử dụng',conflict:'Giờ phục vụ khu nhà phụ và phòng riêng đã kết thúc. Vui lòng chọn chỗ khác.'},
- es:{annexBase:'Este asiento está en el anexo de PapaBottle.',roomBase:'Este asiento está en la sala privada dentro de PapaBottle.',operating:'Disponible únicamente de lunes a viernes, de 11:00 a 14:00.',outside:'Actualmente está fuera del horario de servicio. Disponible únicamente de lunes a viernes, de 11:00 a 14:00.',weekendHoliday:'No disponible los fines de semana ni los días festivos. Solo abre de lunes a viernes, de 11:00 a 14:00.',short:'Laborables 11:00–14:00',unavailable:'No disponible',conflict:'El horario de los asientos del anexo y la sala ha finalizado. Elige otro asiento.'}
+ ko:{annexBase:'파파존스 옆 파파보틀 좌석 공간입니다.',roomBase:'별관 내부 단체 좌석입니다.',operating:'평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',outside:'현재 운영시간이 아닙니다. 평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',weekendHoliday:'주말과 공휴일에는 이용할 수 없습니다. 평일 오전 11시부터 오후 2시까지만 운영합니다.',short:'평일 11:00~14:00 운영',unavailable:'이용 불가',conflict:'별관·별관 단체석 운영시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},
+ en:{annexBase:'This is the PapaBottle seating area next to Papa Johns.',roomBase:'This is group seating inside the Annex.',operating:'Available only on weekdays from 11:00 AM to 2:00 PM.',outside:'It is currently outside operating hours. Available only on weekdays from 11:00 AM to 2:00 PM.',weekendHoliday:'Unavailable on weekends and public holidays. Open only on weekdays from 11:00 AM to 2:00 PM.',short:'Weekdays 11:00–14:00',unavailable:'Unavailable',conflict:'Annex and Annex Group Seating hours have ended. Please choose another seat.'},
+ ja:{annexBase:'パパジョンズ隣のPapaBottle座席スペースです。',roomBase:'別館内の団体席です。',operating:'平日の午前11時から午後2時までのみ利用できます。',outside:'現在は営業時間外です。平日の午前11時から午後2時までのみ利用できます。',weekendHoliday:'土日・祝日は利用できません。平日の午前11時から午後2時までのみ営業します。',short:'平日 11:00〜14:00 営業',unavailable:'利用不可',conflict:'別館・別館団体席の営業時間が終了しました。他の席を選択してください。'},
+ zh:{annexBase:'这是Papa Johns旁边的PapaBottle座位区。',roomBase:'这是附楼内的团体座位区。',operating:'仅限工作日上午11点至下午2点使用。',outside:'当前不在营业时间内。仅限工作日上午11点至下午2点使用。',weekendHoliday:'周末及公共节假日不可使用。仅在工作日上午11点至下午2点营业。',short:'工作日 11:00–14:00 营业',unavailable:'不可使用',conflict:'附楼及附楼团体座营业时间已结束。请选择其他座位。'},
+ vi:{annexBase:'Đây là khu ghế PapaBottle cạnh Papa Johns.',roomBase:'Đây là khu bàn nhóm bên trong nhà phụ.',operating:'Chỉ phục vụ các ngày trong tuần từ 11:00 đến 14:00.',outside:'Hiện đang ngoài giờ phục vụ. Chỉ phục vụ các ngày trong tuần từ 11:00 đến 14:00.',weekendHoliday:'Không phục vụ vào cuối tuần và ngày lễ. Chỉ mở cửa các ngày trong tuần từ 11:00 đến 14:00.',short:'Ngày thường 11:00–14:00',unavailable:'Không thể sử dụng',conflict:'Giờ phục vụ khu nhà phụ và khu bàn nhóm đã kết thúc. Vui lòng chọn chỗ khác.'},
+ es:{annexBase:'Esta es la zona PapaBottle junto a Papa Johns.',roomBase:'Estas son las mesas para grupos dentro del anexo.',operating:'Disponible únicamente de lunes a viernes, de 11:00 a 14:00.',outside:'Actualmente está fuera del horario de servicio. Disponible únicamente de lunes a viernes, de 11:00 a 14:00.',weekendHoliday:'No disponible los fines de semana ni los días festivos. Solo abre de lunes a viernes, de 11:00 a 14:00.',short:'Laborables 11:00–14:00',unavailable:'No disponible',conflict:'El horario del anexo y de sus mesas para grupos ha finalizado. Elige otro asiento.'}
 };
 const bottlePolicy=window.PJ_BOTTLE_SEAT_POLICY||{isBottleSeat:()=>false,getBottleSeatAvailability:()=>({available:true,reason:'open',supported:true}),millisecondsUntilNextBoundary:()=>86400000};
 function bottleCopy(){return BOTTLE_COPY[window.PJ_I18N?.currentLanguage?.()]||BOTTLE_COPY.ko}
@@ -2905,11 +2906,19 @@ function view(){
   return shell(`<h1 class="title">${t('seat.areaTitle')}</h1><p class="sub">${t('seat.areaGuide')}</p><div class="areaGrid">${areas.map(a=>{
    const selectable=a.status==='available',fullLabel=zoneFullLabel(a.id),statusClass=['full','closed','review'].includes(a.status)?a.status:'',statusLabel=a.status==='full'?`${fullLabel}. ${copy.fullDescription}`:a.status==='closed'?copy.closed:a.status==='review'?copy.review:selectable?t('seat.availableSeats',{count:a.availableSeats}):copy.unavailable;
    const overlay=a.status==='full'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${fullLabel}</strong><span>${copy.fullDescription}</span></div><button type="button" class="areaWaitlistBtn" aria-label="${escAttr(`${seatAreaName(a.id)} ${fullLabel}. ${copy.fullDescription}. ${copy.queue}`)}" onclick="openZoneWaitlist('${a.id}',event)">${copy.queue}</button>`:a.status==='closed'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${copy.closed}</strong></div>`:a.status==='review'?`<div class="areaCapacityOverlay" aria-hidden="true"><strong>${copy.review}</strong></div>`:'';
-   return `<div class="areaCardShell ${statusClass}"><button type="button" aria-label="${escAttr(`${seatAreaName(a.id)}. ${statusLabel}`)}" aria-disabled="${selectable?'false':'true'}" ${selectable?'':'disabled'} class="areaCard ${selectable?'':'disabled policyDisabled'} ${state.diningArea===a.id?'selected':''}" onclick="handleAreaClick('${a.id}')"><div class="areaIcon">${uiIcon(a.icon)}</div><div><h2>${seatAreaName(a.id)}</h2><p>${a.desc}</p><span class="areaHours">${a.hours}</span>${selectable?'':`<span class="areaPolicyReason">${a.disabledReason}</span>`}</div><strong>${selectable?t('seat.availableSeats',{count:a.availableSeats}):copy.unavailable}</strong></button>${overlay}</div>`
+   return `<div class="areaCardShell ${statusClass}"><button type="button" aria-label="${escAttr(`${seatAreaName(a.id)}. ${statusLabel}`)}" aria-disabled="${selectable?'false':'true'}" ${selectable?'':'disabled'} class="areaCard ${selectable?'':'disabled policyDisabled'} ${state.diningArea===a.id?'selected':''}" onclick="handleAreaClick('${a.id}')"><div class="areaIcon">${uiIcon(a.icon)}</div><div><h2>${seatAreaName(a.id)}</h2><p>${a.desc}</p><span class="seatLocationGuide">${t(`seat.areaLocation.${a.id}`)}</span><span class="areaHours">${a.hours}</span>${selectable?'':`<span class="areaPolicyReason">${a.disabledReason}</span>`}</div><strong>${selectable?t('seat.availableSeats',{count:a.availableSeats}):copy.unavailable}</strong></button>${overlay}</div>`
   }).join('')}</div><div class="seatRuleNotice">${areaRuleText()}</div><div class="areaPolicyGuide"><b>${t('seat.policyTitle')}</b><br>${t('seat.policyGuide')}</div><div class="occupancyNote">${t('seat.occupancyNote')}</div>`)
  };
 
- if(state.step==='table'){const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${tables.map(table=>table.occupied?`<div class="tableCard occupiedCard ${table.seatStatus}"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(table.seatStatus)}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(table.seatStatus)} ${seatStatusLabel(table.seatStatus)}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="openTableWaitlist('${table.id}',event)">${t('seat.queueButton')}</button></div></div>`:`<button class="tableCard ${state.selectedTables.includes(table.id)?'selected ordering':'available'}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${state.selectedTables.includes(table.id)?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" onclick="toggleTable('${table.id}')"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')}</span> ${seatTableName(table)}</h2><p>${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(state.selectedTables.includes(table.id)?'ordering':'available')} ${state.selectedTables.includes(table.id)?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`).join('')}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)};
+ if(state.step==='table'){
+  const tables=getAreaTables(state.diningArea),selectedSeats=selectedSeatCount(),needed=requiredTableCount(),valid=tableSelectionValid();
+  const cards=tables.map(table=>{
+   const selected=state.selectedTables.includes(table.id),selectable=selected||tableCanCompleteSelection(table.id);
+   if(table.occupied)return `<div class="tableCard occupiedCard ${table.seatStatus}"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(table.seatStatus)}</span> ${seatTableName(table)}</h2><p class="seatLocationGuide">${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(table.seatStatus)} ${seatStatusLabel(table.seatStatus)}</div>${table.elapsed?`<span class="seatTime">${table.elapsed}</span>`:''}${table.queueCount?`<span class="queueCount">${t('seat.queueCount',{count:table.queueCount})}</span>`:''}<button class="seatQueueBtn" onclick="openTableWaitlist('${table.id}',event)">${t('seat.queueButton')}</button></div></div>`;
+   return `<button class="tableCard ${selected?'selected ordering':'available'}" data-selected-label="${escAttr(t('ui.common.selected'))}" aria-label="${selected?t('seat.selectedName',{name:seatTableName(table)}):seatTableName(table)}" ${selectable?'':'disabled aria-disabled="true"'} onclick="toggleTable('${table.id}')"><div><h2><span class="seat-status-icon" aria-hidden="true">${seatStatusIcon(selected?'ordering':'available')}</span> ${seatTableName(table)}</h2><p class="seatLocationGuide">${seatTableLabel(table)}</p></div><div><div class="capacity">${t('seat.personSeat',{count:table.seats})}</div><div class="status">${seatStatusIcon(selected?'ordering':'available')} ${selected?seatStatusLabel('selected'):seatStatusLabel('available')}</div></div></button>`
+  }).join('');
+  return shell(`<h1 class="title">${t('seat.selectSeat',{area:seatAreaName(state.diningArea)})}</h1><p class="sub">${t('seat.seatGuide',{count:needed})}</p><div class="tableGrid">${cards}</div>${myQueueHTML()}<button class="seatSummary ${valid?'ready':''}" ${valid?'':'disabled'} onclick="confirmTables()"><span class="seatSummaryTitle">${valid?t('seat.summaryReady'):t('seat.summaryPrompt')}</span><span class="seatSummaryDetail">${t('seat.summaryDetail',{selected:state.selectedTables.length,needed,seats:selectedSeats})}</span></button>`)
+ }
  if(state.step==='promo'){const dine=state.orderType==='dinein';const items=dine?[
  {id:'set',icon:'set',best:true},
  {id:'upup',icon:'up'},
@@ -2960,21 +2969,21 @@ const DINING_TABLES={
   {id:'papa-bar4',name:'4인 바테이블',label:'파파존 바 테이블',seats:4,occupied:false}
  ],
  annex:[
-  {id:'annex-1',name:'1번 테이블',label:'보틀존',seats:2,occupied:false},
-  {id:'annex-2',name:'2번 테이블',label:'보틀존',seats:4,occupied:false},
-  {id:'annex-3',name:'3번 테이블',label:'보틀존',seats:4,occupied:false},
-  {id:'annex-4',name:'4번 테이블',label:'보틀존',seats:2,occupied:false}
+  {id:'annex-1',name:'1번 테이블',label:'별관',seats:2,occupied:false},
+  {id:'annex-2',name:'2번 테이블',label:'별관',seats:5,occupied:false},
+  {id:'annex-3',name:'3번 테이블',label:'별관',seats:5,occupied:false},
+  {id:'annex-4',name:'4번 테이블',label:'별관',seats:2,occupied:false}
  ],
  room:[
-  {id:'room-1',name:'1번 테이블',label:'보틀룸존',seats:4,occupied:false},
-  {id:'room-2',name:'2번 테이블',label:'보틀룸존',seats:4,occupied:false},
-  {id:'room-3',name:'3번 테이블',label:'보틀룸존',seats:4,occupied:false}
+  {id:'room-1',name:'1번 테이블',label:'별관 단체석',seats:4,occupied:false},
+  {id:'room-2',name:'2번 테이블',label:'별관 단체석',seats:4,occupied:false},
+  {id:'room-3',name:'3번 테이블',label:'별관 단체석',seats:4,occupied:false}
  ],
  outdoor:[
-  {id:'outdoor-1',name:'1번 테이블',label:'야외존',seats:4,occupied:false},
-  {id:'outdoor-2',name:'2번 테이블',label:'야외존',seats:4,occupied:false},
-  {id:'outdoor-3',name:'3번 테이블',label:'야외존',seats:4,occupied:false},
-  {id:'outdoor-4',name:'4번 테이블',label:'야외존',seats:4,occupied:false}
+  {id:'outdoor-1',name:'1번 테이블',label:'야외존',seats:5,occupied:false},
+  {id:'outdoor-2',name:'2번 테이블',label:'야외존',seats:5,occupied:false},
+  {id:'outdoor-3',name:'3번 테이블',label:'야외존',seats:5,occupied:false},
+  {id:'outdoor-4',name:'4번 테이블',label:'야외존',seats:5,occupied:false}
  ]
 };
 let mobileSeatDocs={};let mobileWaitlist=[];let mobileSeatTimer=null;
@@ -3000,20 +3009,18 @@ function getAreaTables(area){
  const n=state.partySize||0;
  let tables=(DINING_TABLES[area]||[]).map(t=>{const d=mobileSeatDocs[t.id]||{status:'empty'},status=seatCapacityPolicy.normalizeStatus(d),occupied=status==='unknown'||seatIsUnavailable(d);return {...t,zone:area,seats:seatCapacityPolicy.tableCapacity({...t,zone:area}),doc:d,occupied,seatStatus:d.status==='reserved'?'reserved':d.status==='occupied'?'occupied':d.status==='held'?'ordering':d.status==='empty'?'available':'unknown',elapsed:occupied&&d.status!=='reserved'?seatElapsed(d.occupiedAt||d.heldAt):'',queueCount:mobileWaitlist.filter(w=>w.seatId===t.id&&w.status==='waiting').length}});
  if(n<=2&&area==='papa')tables=tables.filter(t=>['papa-2','papa-bar4'].includes(t.id));
- if(n<=2&&area==='annex')tables=tables.filter(t=>['annex-1','annex-4'].includes(t.id));
  if(n>=3&&n<=4&&area==='papa')tables=tables.filter(t=>t.id==='papa-bar4');
- if(n>=3&&n<=4&&area==='annex')tables=tables.filter(t=>['annex-2','annex-3'].includes(t.id));
  if(n===5&&area==='papa')tables=[];
- if(n===5&&area==='annex')tables=tables.filter(t=>['annex-2','annex-3'].includes(t.id));
- if(n>=6&&(area==='papa'||area==='annex'))tables=[];
+ if(n>=6&&area==='papa')tables=[];
  if((n<6||n>12)&&area==='room')tables=[];
  return tables
 }
 function availableSeats(area){return getAreaTables(area).filter(t=>!t.occupied).reduce((s,t)=>s+t.seats,0)}
 function freeTableCount(area){return getAreaTables(area).filter(t=>!t.occupied).length}
-function zoneCapacityEvaluation(area,docs=mobileSeatDocs){
- const tables=(DINING_TABLES[area]||[]).map(table=>({...table,zone:area,doc:docs[table.id]||{status:'empty'}}));
- return seatCapacityPolicy.evaluateZone({zone:area,partySize:Number(state.partySize),tables})
+function zoneCapacityEvaluation(area,docs=mobileSeatDocs,requiredTableIds=[]){
+ const selected=new Set(state.diningArea===area?state.selectedTables:[]);
+ const tables=(DINING_TABLES[area]||[]).map(table=>{const doc=docs[table.id]||{status:'empty'};return {...table,zone:area,doc:selected.has(table.id)?{...doc,status:'empty',partySize:null}:doc}});
+ return seatCapacityPolicy.evaluateZone({zone:area,partySize:Number(state.partySize),tables,requiredTableIds})
 }
 function zoneFullLabel(area){const copy=seatCapacityCopy(),party=Number(state.partySize)||0;if(party<=2&&['papa','annex'].includes(area))return copy.twoFull;if(party>=3&&party<=5)return copy.fourFull;return copy.full}
 function requiredTableCount(){
@@ -3029,7 +3036,7 @@ function partyAreaRule(area){
  if(n<=0)return false;
  if(n<=4)return ['papa','annex','outdoor'].includes(area);
  if(n===5)return ['annex','outdoor'].includes(area);
- if(n<=12)return ['room','outdoor'].includes(area);
+ if(n<=12)return ['annex','room','outdoor'].includes(area);
  return n<=16&&area==='outdoor';
 }
 function seoulClock(){
@@ -3067,12 +3074,19 @@ const SEAT_AREA_LABEL_KEYS={papa:'seat.area.papaZone',annex:'seat.area.annex',ro
 const SEAT_STATUS_LABEL_KEYS={available:'seat.status.available',selected:'seat.status.selected',ordering:'seat.status.selected',occupied:'seat.status.occupied',reserved:'seat.status.reserved',unavailable:'seat.status.unavailable'};
 const SEAT_STATUS_ICONS={available:'🟢',selected:'🟡',ordering:'🟡',occupied:'🔴',reserved:'🟣'};
 const SEAT_TYPE_LABEL_KEYS={twoPerson:'seat.type.twoPerson',barTable:'seat.type.barTable',room:'seat.type.room',outdoorTable:'seat.type.outdoorTable'};
+const SEAT_NAME_LABEL_KEYS={'papa-2':'seat.name.papaCouple','papa-bar4':'seat.name.papaBar','annex-1':'seat.name.annex1','annex-2':'seat.name.annex2','annex-3':'seat.name.annex3','annex-4':'seat.name.annex4','room-1':'seat.name.room1','room-2':'seat.name.room2','room-3':'seat.name.room3','outdoor-1':'seat.name.outdoor1','outdoor-2':'seat.name.outdoor2','outdoor-3':'seat.name.outdoor3','outdoor-4':'seat.name.outdoor4'};
+const SEAT_LOCATION_LABEL_KEYS={'papa-2':'seat.location.papaCouple','papa-bar4':'seat.location.papaBar','annex-1':'seat.location.annex1','annex-2':'seat.location.annex2','annex-3':'seat.location.annex3','annex-4':'seat.location.annex4','room-1':'seat.location.room1','room-2':'seat.location.room2','room-3':'seat.location.room3','outdoor-1':'seat.location.outdoor','outdoor-2':'seat.location.outdoor','outdoor-3':'seat.location.outdoor','outdoor-4':'seat.location.outdoor'};
 function seatAreaName(id){return t(SEAT_AREA_LABEL_KEYS[id]||SEAT_AREA_LABEL_KEYS.papa)}
 function seatStatusLabel(status){return status==='reserved'?t('ui.seatReservation.status'):t(SEAT_STATUS_LABEL_KEYS[status]||SEAT_STATUS_LABEL_KEYS.unavailable)}
 function seatStatusIcon(status){return SEAT_STATUS_ICONS[status]||'🟢'}
-function seatTableName(table){if(table.name==='커플석')return t(SEAT_TYPE_LABEL_KEYS.twoPerson);if(table.name==='4인 바테이블')return t(SEAT_TYPE_LABEL_KEYS.barTable);const match=String(table.name||'').match(/^(\d+)번 테이블$/);return match?t('ui.seatExtra.tableNumber',{number:match[1]}):table.name}
-function seatTableLabel(table){if(table.label==='파파존 2인 테이블')return t('ui.table.papaTwo');if(table.label==='파파존 바 테이블')return t('ui.table.papaBar');if(table.label==='야외존')return t(SEAT_TYPE_LABEL_KEYS.outdoorTable);if(table.label==='보틀룸존')return bottleCopy().roomBase;if(table.label==='보틀존')return bottleCopy().annexBase;return table.label}
-function tableSelectionValid(){return state.selectedTables.length===requiredTableCount()}
+function seatTableName(table){const key=SEAT_NAME_LABEL_KEYS[table.id];if(key)return t(key);if(table.name==='커플석')return t(SEAT_TYPE_LABEL_KEYS.twoPerson);if(table.name==='4인 바테이블')return t(SEAT_TYPE_LABEL_KEYS.barTable);const match=String(table.name||'').match(/^(\d+)번 테이블$/);return match?t('ui.seatExtra.tableNumber',{number:match[1]}):table.name}
+function seatTableLabel(table){const key=SEAT_LOCATION_LABEL_KEYS[table.id];if(key)return t(key);return table.label}
+function tableSelectionEvaluation(ids=state.selectedTables){
+ const selected=new Set(ids),tables=(DINING_TABLES[state.diningArea]||[]).map(table=>{const doc=mobileSeatDocs[table.id]||{status:'empty'};return {...table,zone:state.diningArea,doc:selected.has(table.id)?{...doc,status:'empty',partySize:null}:doc}});
+ return seatCapacityPolicy.evaluateSelection({zone:state.diningArea,partySize:Number(state.partySize),tables,selectedTableIds:[...selected]})
+}
+function tableSelectionValid(){return tableSelectionEvaluation().canSeat}
+function tableCanCompleteSelection(id){const ids=[...new Set([...state.selectedTables,id])],evaluation=zoneCapacityEvaluation(state.diningArea,mobileSeatDocs,ids);return evaluation.canSeat&&evaluation.tableIds.length===requiredTableCount()}
 function roomSelectionValid(){return tableSelectionValid()}
 function getDiningAreas(){
  const n=state.partySize||0;
@@ -3083,7 +3097,7 @@ function getDiningAreas(){
  const outdoorSeats=availableSeats('outdoor');
  const info={
   papa:n<=2?t('seat.desc.coupleBar'):n<=4?t('seat.desc.barTable'):t('seat.desc.unavailable'),
-  annex:n<=2?t('seat.desc.annexSmall'):n<=5?t('seat.desc.annexMedium'):t('seat.desc.unavailable'),
+  annex:t('seat.desc.annexMedium'),
   room:n>=6&&n<=12?t('seat.desc.roomTables',{count:needed}):t('seat.desc.unavailable'),
   outdoor:t('seat.desc.outdoorTables',{count:needed})
  };
@@ -3261,6 +3275,7 @@ async function toggleTable(id){
    await releaseSeats([id]);
    state.selectedTables=state.selectedTables.filter(x=>x!==id)
  }else{
+   if(!tableCanCompleteSelection(id))return alert(t('seat.currentUnavailable'));
    if(state.selectedTables.length>=needed){
      if(needed===1){const previous=[...state.selectedTables];await claimSeat(id);state.selectedTables=[id];await releaseSeats(previous)}
      else return alert(t('ui.seatExtra.maxTables',{count:needed}))
@@ -3852,7 +3867,7 @@ function splitPaymentHTML(total){const parts=splitParts(total,state.splitCount),
 function paymentName(v){return label('payment',v,'-')}
 function paymentGuidanceName(v){const key=`done.paymentMethodPhrase.${v}`,translated=t(key);return translated===key?paymentName(v):translated}
 function myQueueEntries(){let ids=[];try{ids=JSON.parse(localStorage.getItem('pj_waitlist_ids')||'[]')}catch(e){}return mobileWaitlist.filter(w=>ids.includes(w.id)&&w.status==='waiting')}
-function myQueueHTML(){const rows=myQueueEntries();return rows.length?`<div class="notice"><b>${t('ui.seatExtra.myQueue')}</b>${rows.map(w=>`<div>${seatTableName({name:w.seatName||w.seatId})} · ${t('ui.seatExtra.queuePosition',{count:queuePosition(w)})} <button class="cancelQueueBtn" onclick="cancelWaitlist('${w.id}')">${t('ui.common.cancel')}</button></div>`).join('')}</div>`:''}
+function myQueueHTML(){const rows=myQueueEntries();return rows.length?`<div class="notice"><b>${t('ui.seatExtra.myQueue')}</b>${rows.map(w=>`<div>${seatTableName({id:w.seatId,name:w.seatName||w.seatId})} · ${t('ui.seatExtra.queuePosition',{count:queuePosition(w)})} <button class="cancelQueueBtn" onclick="cancelWaitlist('${w.id}')">${t('ui.common.cancel')}</button></div>`).join('')}</div>`:''}
 function queuePosition(w){return mobileWaitlist.filter(x=>x.seatId===w.seatId&&x.status==='waiting'&&queueMillis(x)<=queueMillis(w)).length}
 function queueMillis(w){const v=w.createdAt||w.createdAtClient;if(v?.toMillis)return v.toMillis();if(v?.seconds)return v.seconds*1000;return new Date(v||0).getTime()||0}
 let zoneWaitlistSubmitting=false;
@@ -3874,7 +3889,7 @@ async function submitZoneWaitlist(event){
  event?.preventDefault();event?.stopPropagation();if(zoneWaitlistSubmitting||!zoneWaitlistDraft)return;
  const current=getDiningAreas().find(item=>item.id===zoneWaitlistDraft.area),table=waitlistTableRecord(zoneWaitlistDraft.seatId),canSubmit=zoneWaitlistDraft.source==='zone'?current?.status==='full':current?.policy?.allowed&&seatIsUnavailable(mobileSeatDocs[zoneWaitlistDraft.seatId]);
  if(!canSubmit||!table)return;
- const payload=waitlistPhoneKeypad.payload({seatId:table.id,seatName:table.name,partySize:state.partySize,phone:zoneWaitlistDraft.phone,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtClient:new Date().toISOString()});
+ const payload=waitlistPhoneKeypad.payload({seatId:table.id,seatName:seatTableName(table),partySize:state.partySize,phone:zoneWaitlistDraft.phone,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdAtClient:new Date().toISOString()});
  if(!payload){zoneWaitlistDraft.error=t('seat.capacity.phoneInvalid');render();return}
  zoneWaitlistSubmitting=true;render();
  try{

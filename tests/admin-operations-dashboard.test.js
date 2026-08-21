@@ -36,7 +36,7 @@ const expected=[
  ['papa-2','커플석','papa',1,1],['papa-bar4','바테이블','papa',1,2],
  ['outdoor-1','야외석1','outdoor',2,1],['outdoor-2','야외석2','outdoor',2,2],['outdoor-3','야외석3','outdoor',2,3],['outdoor-4','야외석4','outdoor',3,1],
  ['annex-1','별관1','annex',4,1],['annex-2','별관2','annex',4,2],['annex-3','별관3','annex',4,3],['annex-4','별관4','annex',5,1],
- ['room-1','룸1','room',6,1],['room-2','룸2','room',6,2],['room-3','룸3','room',6,3]
+ ['room-1','단체석1','room',6,1],['room-2','단체석2','room',6,2],['room-3','단체석3','room',6,3]
 ];
 assert.strictEqual((seatBlock.match(/\{id:/g)||[]).length,13,'exactly 13 real seats are configured');
 assert.strictEqual(new Set(expected.map(([id])=>id)).size,13,'real seat IDs are unique');
