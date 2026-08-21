@@ -17,6 +17,7 @@ test('actual admin DOM preserves click, double-click, keyboard, focus, paginatio
  assert.equal(result.seatReservationSync.initial.cards,13);assert.equal(new Set(result.seatReservationSync.initial.order).size,13);assert.equal(result.seatReservationSync.initial.transactions,0);assert.equal(result.seatReservationSync.initial.writes,0);
  assert.deepEqual(result.singleClick,{id:'fixture-32',selected:true,aria:'true',modalHidden:true,sameNode:true,focused:true});
  assert.equal(result.doubleClick.opens,1);assert.equal(result.doubleClick.modalHidden,false);assert.match(result.doubleClick.title,/32번/);assert.match(result.doubleClick.reservation,/예약시간/);assert.match(result.doubleClick.split,/식권대장/);
+ assert.equal(result.auditDetail.visible,true);assert.match(result.auditDetail.text,/상태 변경 기록.*감사기록 도입 이전 주문/);
  assert.deepEqual(result.closeX,{hidden:true,focusId:'fixture-32'});assert.deepEqual(result.enter,{opened:true,closed:true,focusId:'fixture-32'});assert.deepEqual(result.detailButton,{opened:true,closed:true});
  assert.equal(result.page2.label,'2 / 3');assert.equal(result.page2.selected,false);assert.equal(result.page2.detailDisabled,true);assert.match(result.page2.title,/다른 페이지/);
  assert.deepEqual(result.listener,{id:'fixture-32',selectedId:'fixture-32',connected:true});assert.deepEqual(result.deletion,{id:'fixture-32',selected:false,disabled:true});

@@ -12,6 +12,10 @@ assert.ok(html.includes('id="orderDetailModal"')&&html.includes('role="dialog"')
 assert.strictEqual((html.match(/id="orderDetailModal"/g)||[]).length,1,'the shared detail modal is not duplicated by status');
 assert.ok(admin.includes('function renderOrderDetail(order,seatId=null)'),'all entry points share the same detail renderer');
 assert.ok(admin.includes('function openOrderDetail(orderId,trigger=null)')&&admin.includes('function openSeatOrderDetail(seatId,trigger=null)'),'card and table entry points use shared detail opening');
+assert.ok(admin.includes('data-lifecycle-audit-order=')&&admin.includes('상태 변경 기록'),'reservation detail includes an administrator-only transition audit region');
+assert.ok(admin.includes('이 주문은 상태 변경 감사기록 도입 이전 주문입니다.'),'orders without audit history show the pre-observability notice');
+assert.match(admin,/reservation_timer:'자동'.*reservation_catch_up:'재접속 자동'.*admin_manual_ready:'관리자 수동'/,'audit source labels distinguish timer, catch-up, and manual transitions');
+assert.ok(admin.includes(".collection('lifecycleAudit').orderBy('transitionedAt','asc').get()"),'audit history is loaded only when the detail is opened');
 
 for(const renderer of ['takeoutProcessingCard']){
  const start=admin.indexOf(`function ${renderer}(`);

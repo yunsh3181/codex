@@ -57,7 +57,7 @@ test('reservation detail keeps foreign name, Korean phone, pickup timestamp, sta
 test('production reservation prep announcement is queued exactly after a successful transaction',async()=>{
  const source=admin.slice(admin.indexOf('async function executeReservationLifecycle('),admin.indexOf('const reservationLifecycleCoordinator=',admin.indexOf('async function executeReservationLifecycle(')));
  const calls=[];
- const context={db:{},Date:{now:()=>123},firebase:{firestore:{FieldValue:{serverTimestamp(){}}},auth:()=>({currentUser:{uid:'admin'}})},orderBusinessDayKey(){},enqueueSpeech:text=>calls.push(text),enqueueAutomaticTakeoutCall:()=>calls.push('ready')};
+ const context={db:{},Date:{now:()=>123},firebase:{firestore:{FieldValue:{serverTimestamp(){}}},auth:()=>({currentUser:{uid:'admin'}})},orderBusinessDayKey(){},transitionAuditContext:source=>({transitionSource:source}),enqueueSpeech:text=>calls.push(text),enqueueAutomaticTakeoutCall:()=>calls.push('ready')};
  vm.createContext(context);
  context.advanceReservationLifecycleTransaction=async()=>({announcement:'prep'});vm.runInContext(source,context);
  await context.executeReservationLifecycle({id:'r1',reservationLifecycleId:'life',pickup:{pickupAt:1}});

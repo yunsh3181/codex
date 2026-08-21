@@ -80,6 +80,7 @@
  const TERMINAL_AUTO_READY_CODES=new Set(['order/stale-state','order/stale-timer','order/not-found']);
  const RESERVATION_PREP_MS=15*60*1000;
  const RESERVATION_PAYMENT_TYPES=new Set(['prepaid','pay_on_pickup']);
+ const TRANSITION_SOURCES=new Set(['reservation_timer','reservation_catch_up','admin_manual_ready','admin_manual_pickup','admin_manual_cancel','takeout_auto_ready','takeout_auto_retry']);
  function firestoreErrorCode(error){return String(error?.code||'').replace(/^firestore\//,'')}
  function autoReadyIdentity(order){const due=timestampMillis(order?.readyDueAt),started=timestampMillis(order?.preparationStartedAt);return due===null||started===null?null:`${due}:${started}`}
  function autoReadyEligible(order){return order?.orderType==='takeout'&&order?.status==='cooking'&&order?.autoReadyEnabled===true&&autoReadyIdentity(order)!==null}
@@ -87,30 +88,73 @@
  function reservationLifecycleIdentity(order){const pickup=reservationPickupMillis(order);return pickup===null?null:`${pickup}:${String(order?.reservationLifecycleId||'')}`}
  function reservationLifecycleEligible(order){return order?.orderType==='takeout'&&order?.reservationLifecycleEnabled===true&&RESERVATION_PAYMENT_TYPES.has(order?.reservationPaymentType)&&reservationPickupMillis(order)!==null&&['reservation_pending','cooking'].includes(order.status)}
  function reservationPrepStartMillis(order){const pickup=reservationPickupMillis(order);return pickup===null?null:pickup-RESERVATION_PREP_MS}
+ function requireAuditContext({transitionSource,transactionStartedAt,clientInstanceId,appVersion,actorUid,actorRole='admin'}){
+  if(!TRANSITION_SOURCES.has(transitionSource)||timestampMillis(transactionStartedAt)===null||!clientInstanceId||!appVersion||!actorUid||actorRole!=='admin')throw operationError('order/invalid-audit-context','상태 변경 감사 정보가 올바르지 않습니다.');
+  return {transitionSource,transactionStartedAt,clientInstanceId:String(clientInstanceId),appVersion:String(appVersion),actorUid:String(actorUid),actorRole};
+ }
+ function transitionLifecycleId(order){
+  if(order?.reservationLifecycleId)return String(order.reservationLifecycleId);
+  const due=timestampMillis(order?.readyDueAt),started=timestampMillis(order?.preparationStartedAt);
+  return due===null||started===null?null:`takeout_${String(order.id)}`;
+ }
+ function transitionAuditId(lifecycleId,fromStatus,toStatus){return `${lifecycleId}__${fromStatus}__${toStatus}`}
+ function transitionType(fromStatus,toStatus){
+  if(fromStatus==='reservation_pending'&&toStatus==='cooking')return 'reservation_start_cooking';
+  if(fromStatus==='cooking'&&toStatus==='ready')return 'mark_ready';
+  if(fromStatus==='ready'&&toStatus==='completed')return 'mark_picked_up';
+  if(toStatus==='cancelled')return 'cancel';
+  throw operationError('order/invalid-transition','감사 대상 상태 전환이 아닙니다.');
+ }
+ function writeTransitionAudit({transaction,db,order,fromStatus,toStatus,expectedTransitionAt,serverTimestamp,auditContext}){
+  const lifecycleId=transitionLifecycleId(order),pickupAt=order?.pickup?.mode==='reserve'?order.pickup.pickupAt:order?.readyDueAt;
+  if(!lifecycleId||timestampMillis(pickupAt)===null||timestampMillis(expectedTransitionAt)===null)throw operationError('order/invalid-audit-target','상태 변경 감사 대상을 확인할 수 없습니다.');
+  const type=transitionType(fromStatus,toStatus),timestamp=serverTimestamp(),auditRef=db.collection('orders').doc(order.id).collection('lifecycleAudit').doc(transitionAuditId(lifecycleId,fromStatus,toStatus));
+  transaction.set(auditRef,{schemaVersion:1,storeId:String(order.storeId||''),orderId:String(order.id),orderNo:String(order.orderNo||order.customerNumber||order.id),fromStatus,toStatus,transitionType:type,transitionSource:auditContext.transitionSource,actorUid:auditContext.actorUid,actorRole:auditContext.actorRole,lifecycleId,pickupAt,expectedTransitionAt,transactionStartedAt:auditContext.transactionStartedAt,transitionedAt:timestamp,clientInstanceId:auditContext.clientInstanceId,appVersion:auditContext.appVersion});
+  return {auditRef,type,timestamp,orderFields:{lastTransitionType:type,lastTransitionSource:auditContext.transitionSource,lastTransitionAt:timestamp,lastTransitionBy:auditContext.actorUid}};
+ }
  async function startReservationLifecycleTransaction({db,orderId,paymentType,expectedPickupAt,serverTimestamp,timestampFromMillis,adminId='admin'}){
   if(!orderId||!RESERVATION_PAYMENT_TYPES.has(paymentType)||typeof timestampFromMillis!=='function')throw operationError('order/invalid-reservation','예약 결제 유형이 올바르지 않습니다.');
   return db.runTransaction(async transaction=>{const ref=db.collection('orders').doc(orderId),snapshot=await transaction.get(ref);if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');const order={id:orderId,...snapshot.data()},pickup=reservationPickupMillis(order);if(order.orderType!=='takeout'||order.pickup?.mode!=='reserve'||pickup===null)throw operationError('order/invalid-reservation','유효한 예약 포장 주문이 아닙니다.');if(!['payment_pending','new'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다.');if(expectedPickupAt&&!sameTimestamp(order.pickup.pickupAt,expectedPickupAt))throw operationError('order/stale-timer','예약 픽업 시각이 변경되었습니다.');const timestamp=serverTimestamp(),lifecycleId=`reservation_${orderId}_${pickup}`;transaction.update(ref,{status:'reservation_pending',reservationPaymentType:paymentType,reservationLifecycleEnabled:true,reservationLifecycleId:lifecycleId,reservationPrepStartAt:timestampFromMillis(pickup-RESERVATION_PREP_MS),reservationUpdatedAt:timestamp,reservationUpdatedBy:String(adminId||'admin'),updatedAt:timestamp});return {order,status:'reservation_pending',lifecycleId,orderWrites:1,displayWrites:0,seatWrites:0,paymentCalls:0}})
  }
- async function advanceReservationLifecycleTransaction({db,orderId,expectedLifecycleId,expectedPickupAt,nowMillis=Date.now(),serverTimestamp,adminId='admin',resolveBusinessDay=order=>order.businessDay}){
-  return db.runTransaction(async transaction=>{const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');const order={id:orderId,...snapshot.data()},pickup=reservationPickupMillis(order),prep=reservationPrepStartMillis(order);if(!reservationLifecycleEligible(order))throw operationError('order/stale-state','예약 lifecycle 대상 상태가 아닙니다.');if(order.reservationLifecycleId!==expectedLifecycleId||!sameTimestamp(order.pickup.pickupAt,expectedPickupAt))throw operationError('order/stale-timer','예약 lifecycle이 변경되었습니다.');if(nowMillis<prep)throw operationError('order/deadline-pending','아직 예약 조리 시작 시간이 아닙니다.');const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId),businessDay=resolveBusinessDay(order);if(!businessDay)throw operationError('order/invalid-business-day','주문의 영업일을 확인할 수 없습니다.');if(order.status==='reservation_pending'){transaction.update(orderRef,{status:'cooking',preparationMinutes:15,preparationStartedAt:order.reservationPrepStartAt,readyDueAt:order.pickup.pickupAt,autoReadyEnabled:false,reservationUpdatedAt:timestamp,reservationUpdatedBy:String(adminId||'admin'),updatedAt:timestamp});transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,reservationOrder:true,pickupAt:order.pickup.pickupAt,reservationPaymentType:order.reservationPaymentType,reservationLifecycleId:order.reservationLifecycleId,updatedAt:timestamp},{merge:true});return {order,status:'cooking',announcement:'prep',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0}}
-   if(nowMillis<pickup)throw operationError('order/deadline-pending','아직 예약 픽업 시간이 아닙니다.');transaction.update(orderRef,{status:'ready',reservationLifecycleEnabled:false,reservationUpdatedAt:timestamp,reservationUpdatedBy:String(adminId||'admin'),updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,reservationOrder:true,pickupAt:order.pickup.pickupAt,reservationPaymentType:order.reservationPaymentType,reservationLifecycleId:order.reservationLifecycleId,updatedAt:timestamp},{merge:true});return {order,status:'ready',announcement:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0}
-  })
+ async function advanceReservationLifecycleTransaction({db,orderId,expectedLifecycleId,expectedPickupAt,nowMillis=Date.now(),serverTimestamp,adminId,resolveBusinessDay=order=>order.businessDay,...auditInput}){
+  const auditContext=requireAuditContext({...auditInput,actorUid:adminId});
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
+   if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...snapshot.data()},pickup=reservationPickupMillis(order),prep=reservationPrepStartMillis(order);
+   if(!reservationLifecycleEligible(order))throw operationError('order/stale-state','예약 lifecycle 대상 상태가 아닙니다.');
+   if(order.reservationLifecycleId!==expectedLifecycleId||!sameTimestamp(order.pickup.pickupAt,expectedPickupAt))throw operationError('order/stale-timer','예약 lifecycle이 변경되었습니다.');
+   if(nowMillis<prep)throw operationError('order/deadline-pending','아직 예약 조리 시작 시간이 아닙니다.');
+   const displayRef=db.collection('publicOrderDisplays').doc(orderId),businessDay=resolveBusinessDay(order);
+   if(!businessDay)throw operationError('order/invalid-business-day','주문의 영업일을 확인할 수 없습니다.');
+   if(order.status==='reservation_pending'){
+    const audit=writeTransitionAudit({transaction,db,order,fromStatus:'reservation_pending',toStatus:'cooking',expectedTransitionAt:order.reservationPrepStartAt,serverTimestamp,auditContext});
+    transaction.update(orderRef,{status:'cooking',preparationMinutes:15,preparationStartedAt:order.reservationPrepStartAt,readyDueAt:order.pickup.pickupAt,autoReadyEnabled:false,reservationUpdatedAt:audit.timestamp,reservationUpdatedBy:adminId,updatedAt:audit.timestamp,...audit.orderFields});
+    transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'cooking',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,reservationOrder:true,pickupAt:order.pickup.pickupAt,reservationPaymentType:order.reservationPaymentType,reservationLifecycleId:order.reservationLifecycleId,updatedAt:audit.timestamp},{merge:true});
+    return {order,status:'cooking',announcement:'prep',orderWrites:1,displayWrites:1,auditWrites:1,seatWrites:0,paymentCalls:0};
+   }
+   if(nowMillis<pickup)throw operationError('order/deadline-pending','아직 예약 픽업 시간이 아닙니다.');
+   const audit=writeTransitionAudit({transaction,db,order,fromStatus:'cooking',toStatus:'ready',expectedTransitionAt:order.pickup.pickupAt,serverTimestamp,auditContext});
+   transaction.update(orderRef,{status:'ready',reservationLifecycleEnabled:false,reservationUpdatedAt:audit.timestamp,reservationUpdatedBy:adminId,updatedAt:audit.timestamp,completedAt:audit.timestamp,completedBy:adminId,...audit.orderFields});
+   transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,reservationOrder:true,pickupAt:order.pickup.pickupAt,reservationPaymentType:order.reservationPaymentType,reservationLifecycleId:order.reservationLifecycleId,updatedAt:audit.timestamp},{merge:true});
+   return {order,status:'ready',announcement:'ready',orderWrites:1,displayWrites:1,auditWrites:1,seatWrites:0,paymentCalls:0};
+  });
  }
- function createReservationLifecycleCoordinator({execute,getCurrentOrder,setTimer=setTimeout,clearTimer=clearTimeout,now=Date.now,onPermanentError=()=>{},retryMs=AUTO_READY_RETRY_MS}){const timers=new Map(),locks=new Set(),reported=new Set();function cancel(id){const entry=timers.get(String(id));if(entry)clearTimer(entry.timer);timers.delete(String(id))}function target(order){const pickup=reservationPickupMillis(order),prep=reservationPrepStartMillis(order);return order.status==='reservation_pending'?prep:pickup}function identity(order){return reservationLifecycleIdentity(order)+':'+order.status}function schedule(order){const id=String(order.id),key=identity(order);if(timers.has(id))return;const timer=setTimer(()=>{timers.delete(id);run(order,key)},Math.max(0,Math.min(target(order)-now(),2147483647)));timers.set(id,{timer,identity:key})}async function run(order,key=identity(order)){const id=String(order?.id||''),current=getCurrentOrder(id);if(!id||locks.has(id)||!reservationLifecycleEligible(current)||identity(current)!==key)return false;locks.add(id);try{await execute(current);reported.delete(`${id}:${key}`);return true}catch(error){const code=firestoreErrorCode(error),latest=getCurrentOrder(id);if(!latest||!reservationLifecycleEligible(latest)||identity(latest)!==key||TERMINAL_AUTO_READY_CODES.has(code))return false;if(code==='order/deadline-pending'||TRANSIENT_FIRESTORE_CODES.has(code)){const timer=setTimer(()=>{timers.delete(id);run(latest,identity(latest))},code==='order/deadline-pending'?Math.max(0,target(latest)-now()):Math.max(retryMs,AUTO_READY_RETRY_MS));timers.set(id,{timer,identity:identity(latest)});return false}const report=`${id}:${key}`;if(!reported.has(report)){reported.add(report);onPermanentError(error,latest)}return false}finally{locks.delete(id)}}function reconcile(list){const eligible=new Map((list||[]).filter(reservationLifecycleEligible).map(order=>[String(order.id),order]));timers.forEach((entry,id)=>{const order=eligible.get(id);if(!order||entry.identity!==identity(order))cancel(id)});eligible.forEach((order,id)=>{if(!timers.has(id)&&!locks.has(id)&&!reported.has(`${id}:${identity(order)}`))schedule(order)})}return {reconcile,run,cancel,timers,locks,reported}}
+ function createReservationLifecycleCoordinator({execute,getCurrentOrder,setTimer=setTimeout,clearTimer=clearTimeout,now=Date.now,onPermanentError=()=>{},retryMs=AUTO_READY_RETRY_MS}){const timers=new Map(),locks=new Set(),reported=new Set();function cancel(id){const entry=timers.get(String(id));if(entry)clearTimer(entry.timer);timers.delete(String(id))}function target(order){const pickup=reservationPickupMillis(order),prep=reservationPrepStartMillis(order);return order.status==='reservation_pending'?prep:pickup}function identity(order){return reservationLifecycleIdentity(order)+':'+order.status}function schedule(order){const id=String(order.id),key=identity(order),delay=Math.max(0,Math.min(target(order)-now(),2147483647));if(timers.has(id))return;const timer=setTimer(()=>{timers.delete(id);run(order,key,{catchUp:delay===0})},delay);timers.set(id,{timer,identity:key,catchUp:delay===0})}async function run(order,key=identity(order),context={catchUp:false}){const id=String(order?.id||''),current=getCurrentOrder(id);if(!id||locks.has(id)||!reservationLifecycleEligible(current)||identity(current)!==key)return false;locks.add(id);try{await execute(current,context);reported.delete(`${id}:${key}`);return true}catch(error){const code=firestoreErrorCode(error),latest=getCurrentOrder(id);if(!latest||!reservationLifecycleEligible(latest)||identity(latest)!==key||TERMINAL_AUTO_READY_CODES.has(code))return false;if(code==='order/deadline-pending'||TRANSIENT_FIRESTORE_CODES.has(code)){const timer=setTimer(()=>{timers.delete(id);run(latest,identity(latest),{catchUp:true})},code==='order/deadline-pending'?Math.max(0,target(latest)-now()):Math.max(retryMs,AUTO_READY_RETRY_MS));timers.set(id,{timer,identity:identity(latest),catchUp:true});return false}const report=`${id}:${key}`;if(!reported.has(report)){reported.add(report);onPermanentError(error,latest)}return false}finally{locks.delete(id)}}function reconcile(list){const eligible=new Map((list||[]).filter(reservationLifecycleEligible).map(order=>[String(order.id),order]));timers.forEach((entry,id)=>{const order=eligible.get(id);if(!order||entry.identity!==identity(order))cancel(id)});eligible.forEach((order,id)=>{if(!timers.has(id)&&!locks.has(id)&&!reported.has(`${id}:${identity(order)}`))schedule(order)})}return {reconcile,run,cancel,timers,locks,reported}}
  function createAutoReadyCoordinator({execute,getCurrentOrder,setTimer=setTimeout,clearTimer=clearTimeout,now=Date.now,onPermanentError=()=>{},retryMs=AUTO_READY_RETRY_MS}){
   const timers=new Map(),locks=new Set(),reported=new Set(),completed=new Set();
   function cancel(id){const entry=timers.get(String(id));if(entry)clearTimer(entry.timer);timers.delete(String(id))}
   function currentMatches(id,identity){const current=getCurrentOrder(String(id));return autoReadyEligible(current)&&autoReadyIdentity(current)===identity?current:null}
-  function schedule(order,delay){const id=String(order.id),identity=autoReadyIdentity(order);if(!identity||timers.has(id))return false;const timer=setTimer(()=>{const entry=timers.get(id);if(!entry||entry.identity!==identity)return false;timers.delete(id);return run(order,identity)},Math.max(0,Math.min(delay,2147483647)));timers.set(id,{timer,identity,delay:Math.max(0,delay)});return true}
-  async function run(order,identity=autoReadyIdentity(order)){
+  function schedule(order,delay,{retry=false}={}){const id=String(order.id),identity=autoReadyIdentity(order);if(!identity||timers.has(id))return false;const timer=setTimer(()=>{const entry=timers.get(id);if(!entry||entry.identity!==identity)return false;timers.delete(id);return run(order,identity,{retry})},Math.max(0,Math.min(delay,2147483647)));timers.set(id,{timer,identity,delay:Math.max(0,delay),retry});return true}
+  async function run(order,identity=autoReadyIdentity(order),context={retry:false}){
    const id=String(order?.id||'');if(!id||locks.has(id)||!currentMatches(id,identity))return false;
    locks.add(id);
-   try{await execute(order);reported.delete(`${id}:${identity}`);completed.add(`${id}:${identity}`);return true}
+   try{await execute(order,context);reported.delete(`${id}:${identity}`);completed.add(`${id}:${identity}`);return true}
    catch(error){
     const code=firestoreErrorCode(error),current=currentMatches(id,identity);
     if(!current||TERMINAL_AUTO_READY_CODES.has(code))return false;
     if(code==='order/deadline-pending'){schedule(current,Math.max(0,timestampMillis(current.readyDueAt)-now()));return false}
-    if(TRANSIENT_FIRESTORE_CODES.has(code)){schedule(current,Math.max(retryMs,AUTO_READY_RETRY_MS));return false}
+    if(TRANSIENT_FIRESTORE_CODES.has(code)){schedule(current,Math.max(retryMs,AUTO_READY_RETRY_MS),{retry:true});return false}
     const reportKey=`${id}:${identity}`;if(!reported.has(reportKey)){reported.add(reportKey);onPermanentError(error,current)}return false;
    }finally{locks.delete(id)}
   }
@@ -139,7 +183,8 @@
    return {order,status:'cooking',preparationMinutes,readyDueAt,orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
- async function autoCompleteTakeoutTransaction({db,orderId,expectedReadyDueAt,expectedPreparationStartedAt,nowMillis=Date.now(),serverTimestamp,adminId='admin',resolveBusinessDay=order=>order.businessDay}){
+ async function autoCompleteTakeoutTransaction({db,orderId,expectedReadyDueAt,expectedPreparationStartedAt,nowMillis=Date.now(),serverTimestamp,adminId,resolveBusinessDay=order=>order.businessDay,...auditInput}){
+  const auditContext=requireAuditContext({...auditInput,actorUid:adminId});
   if(!orderId||timestampMillis(expectedReadyDueAt)===null||!Number.isFinite(nowMillis))throw operationError('order/invalid-request','자동 완료 주문 정보가 올바르지 않습니다.');
   return db.runTransaction(async transaction=>{
    const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
@@ -150,12 +195,12 @@
    if(timestampMillis(order.readyDueAt)>nowMillis)throw operationError('order/deadline-pending','아직 조리 완료 예정 시간이 되지 않았습니다.');
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
-   const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   const displayRef=db.collection('publicOrderDisplays').doc(orderId),audit=writeTransitionAudit({transaction,db,order,fromStatus:'cooking',toStatus:'ready',expectedTransitionAt:order.readyDueAt,serverTimestamp,auditContext}),timestamp=audit.timestamp;
    const preparationDisplay=validPreparationMinutes(order.preparationMinutes)&&timestampMillis(order.preparationStartedAt)!==null&&timestampMillis(order.readyDueAt)!==null?{preparationMinutes:order.preparationMinutes,preparationStartedAt:order.preparationStartedAt,readyDueAt:order.readyDueAt,autoReadyEnabled:false}:{};
    const reservationUpdate=order.reservationLifecycleId?{reservationLifecycleEnabled:false,reservationUpdatedAt:timestamp,reservationUpdatedBy:String(adminId||'admin')}:{};
-   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,...reservationUpdate,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
+   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,...reservationUpdate,updatedAt:timestamp,completedAt:timestamp,completedBy:adminId,...audit.orderFields});
    transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,...preparationDisplay,updatedAt:timestamp},{merge:true});
-   return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+   return {order,status:'ready',orderWrites:1,displayWrites:1,auditWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
  function orderSeatIds(order){
@@ -198,7 +243,7 @@
   });
  }
  function displayIdentity(order){return order?.customerIdentityType==='name'&&typeof order.customerDisplayName==='string'?{customerIdentityType:'name',customerDisplayName:order.customerDisplayName,language:order.language||'en'}:order?.customerIdentityType==='phone_last4'?{customerIdentityType:'phone_last4',language:'ko'}:{}}
- async function completeTakeoutTransaction({db,orderId,expectedStatus,serverTimestamp,adminId='admin',resolveBusinessDay=order=>order.businessDay}){
+ async function completeTakeoutTransaction({db,orderId,expectedStatus,serverTimestamp,adminId,resolveBusinessDay=order=>order.businessDay,...auditInput}){
   if(!orderId)throw operationError('order/invalid-request','주문 정보가 없습니다.');
   return db.runTransaction(async transaction=>{
    const orderRef=db.collection('orders').doc(orderId),snapshot=await transaction.get(orderRef);
@@ -208,15 +253,15 @@
    if(order.status!==expectedStatus||!['accepted','paid','cooking'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
    const businessDay=resolveBusinessDay(order);
    if(!businessDay)throw operationError('order/missing-business-day','주문의 영업일을 확인할 수 없습니다.');
-   const timestamp=serverTimestamp(),displayRef=db.collection('publicOrderDisplays').doc(orderId);
+   const displayRef=db.collection('publicOrderDisplays').doc(orderId),audited=Boolean(transitionLifecycleId(order)),auditContext=audited?requireAuditContext({...auditInput,actorUid:adminId}):null,audit=audited?writeTransitionAudit({transaction,db,order,fromStatus:order.status,toStatus:'ready',expectedTransitionAt:order.pickup?.mode==='reserve'?order.pickup.pickupAt:order.readyDueAt,serverTimestamp,auditContext}):null,timestamp=audit?.timestamp||serverTimestamp();
    const preparationDisplay=validPreparationMinutes(order.preparationMinutes)&&timestampMillis(order.preparationStartedAt)!==null&&timestampMillis(order.readyDueAt)!==null?{preparationMinutes:order.preparationMinutes,preparationStartedAt:order.preparationStartedAt,readyDueAt:order.readyDueAt,autoReadyEnabled:false}:{};
    const reservationUpdate=order.reservationLifecycleId?{reservationLifecycleEnabled:false,reservationUpdatedAt:timestamp,reservationUpdatedBy:String(adminId||'admin')}:{};
-   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,...reservationUpdate,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin')});
+   transaction.update(orderRef,{status:'ready',autoReadyEnabled:false,...reservationUpdate,updatedAt:timestamp,completedAt:timestamp,completedBy:String(adminId||'admin'),...(audit?.orderFields||{})});
    transaction.set(displayRef,{orderNumber:String(order.customerNumber||order.orderNo||orderId),...displayIdentity(order),displayStatus:'ready',storeId:String(order.storeId||'pangyo2-techno-valley'),businessDay,...preparationDisplay,updatedAt:timestamp},{merge:true});
-   return {order,status:'ready',orderWrites:1,displayWrites:1,seatWrites:0,paymentCalls:0};
+   return {order,status:'ready',orderWrites:1,displayWrites:1,auditWrites:audit?1:0,seatWrites:0,paymentCalls:0};
   });
  }
- async function completeTakeoutPickupTransaction({db,orderId,expectedStatus,serverTimestamp,adminId='admin'}){
+ async function completeTakeoutPickupTransaction({db,orderId,expectedStatus,serverTimestamp,adminId,...auditInput}){
   if(!orderId)throw operationError('order/invalid-request','주문 정보가 없습니다.');
   return db.runTransaction(async transaction=>{
    const orderRef=db.collection('orders').doc(orderId),displayRef=db.collection('publicOrderDisplays').doc(orderId);
@@ -225,10 +270,24 @@
    const order={id:orderId,...orderSnapshot.data()};
    if(order.orderType!=='takeout')throw operationError('order/invalid-transition','포장 주문만 픽업 완료할 수 있습니다.');
    if(expectedStatus!=='ready'||order.status!=='ready')throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
-   const timestamp=serverTimestamp();
-   transaction.update(orderRef,{status:'completed',updatedAt:timestamp,pickedUpAt:timestamp,pickedUpBy:String(adminId||'admin')});
+   const audited=Boolean(transitionLifecycleId(order)),auditContext=audited?requireAuditContext({...auditInput,actorUid:adminId}):null,audit=audited?writeTransitionAudit({transaction,db,order,fromStatus:'ready',toStatus:'completed',expectedTransitionAt:order.pickup?.mode==='reserve'?order.pickup.pickupAt:order.readyDueAt,serverTimestamp,auditContext}):null,timestamp=audit?.timestamp||serverTimestamp();
+   transaction.update(orderRef,{status:'completed',updatedAt:timestamp,pickedUpAt:timestamp,pickedUpBy:String(adminId||'admin'),...(audit?.orderFields||{})});
    transaction.delete(displayRef);
-   return {order,status:'completed',displayMissing:!displaySnapshot.exists,orderWrites:1,displayDeletes:1,seatWrites:0,paymentCalls:0};
+   return {order,status:'completed',displayMissing:!displaySnapshot.exists,orderWrites:1,displayDeletes:1,auditWrites:audit?1:0,seatWrites:0,paymentCalls:0};
+  });
+ }
+ async function cancelAuditedTakeoutTransaction({db,orderId,expectedStatus,serverTimestamp,adminId,...auditInput}){
+  if(!orderId)throw operationError('order/invalid-request','주문 정보가 없습니다.');
+  const auditContext=requireAuditContext({...auditInput,actorUid:adminId});
+  return db.runTransaction(async transaction=>{
+   const orderRef=db.collection('orders').doc(orderId),displayRef=db.collection('publicOrderDisplays').doc(orderId),snapshot=await transaction.get(orderRef);
+   if(!snapshot.exists)throw operationError('order/not-found','주문이 삭제되었습니다.');
+   const order={id:orderId,...snapshot.data()};
+   if(order.orderType!=='takeout'||order.status!==expectedStatus||['cancelled','completed'].includes(order.status))throw operationError('order/stale-state','다른 관리자가 이미 주문 상태를 변경했습니다. 최신 상태를 확인해 주세요.');
+   const expectedTransitionAt=order.pickup?.mode==='reserve'?order.pickup.pickupAt:order.readyDueAt,audit=writeTransitionAudit({transaction,db,order,fromStatus:order.status,toStatus:'cancelled',expectedTransitionAt,serverTimestamp,auditContext}),reservationUpdate=order.reservationLifecycleId?{reservationLifecycleEnabled:false,reservationUpdatedAt:audit.timestamp,reservationUpdatedBy:adminId}:{};
+   transaction.update(orderRef,{status:'cancelled',...reservationUpdate,updatedAt:audit.timestamp,...audit.orderFields});
+   transaction.delete(displayRef);
+   return {order,status:'cancelled',orderWrites:1,displayDeletes:1,auditWrites:1,seatWrites:0,paymentCalls:0};
   });
  }
  async function forceCompleteTransaction({db,orderId,expectedStatus,expectedConfirmation,serverTimestamp}){
@@ -261,5 +320,5 @@
    return {released:refs.length,seatWrites:refs.length,orderWrites:0};
   });
  }
- return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ORPHAN_HOLD_GRACE_MS,KIOSK_PRESENCE_STALE_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,AUTO_READY_RETRY_MS,TRANSIENT_FIRESTORE_CODES,TERMINAL_AUTO_READY_CODES,RESERVATION_PREP_MS,RESERVATION_PAYMENT_TYPES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,validPreparationMinutes,sameTimestamp,firestoreErrorCode,autoReadyIdentity,autoReadyEligible,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleIdentity,reservationLifecycleEligible,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,displayIdentity,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
+ return {FORCE_COMPLETE_STATUSES,OCCUPIED_EXPIRY_MS,ORPHAN_HOLD_GRACE_MS,KIOSK_PRESENCE_STALE_MS,ADMIN_SEAT_STATUSES,ADMIN_SEAT_ACTIONS,ADMIN_SEAT_CONFIRMATIONS,AUTO_READY_RETRY_MS,TRANSIENT_FIRESTORE_CODES,TERMINAL_AUTO_READY_CODES,RESERVATION_PREP_MS,RESERVATION_PAYMENT_TYPES,TRANSITION_SOURCES,normalizeAdminSeatStatus,getAdminSeatActions,transitionAdminSeatState,timestampMillis,orphanHeldSeatState,recoverOrphanHeldSeatTransaction,validPreparationMinutes,sameTimestamp,firestoreErrorCode,autoReadyIdentity,autoReadyEligible,createAutoReadyCoordinator,reservationPickupMillis,reservationPrepStartMillis,reservationLifecycleIdentity,reservationLifecycleEligible,transitionLifecycleId,transitionAuditId,transitionType,writeTransitionAudit,startReservationLifecycleTransaction,advanceReservationLifecycleTransaction,createReservationLifecycleCoordinator,startTakeoutPreparationTransaction,autoCompleteTakeoutTransaction,displayIdentity,orderSeatIds,seatSnapshotRecord,classifySeatOrderMismatch,forceConfirmationValue,seatReleasePayload,counterTakeoutOrderId,createCounterTakeoutTransaction,completeTakeoutTransaction,completeTakeoutPickupTransaction,cancelAuditedTakeoutTransaction,forceCompleteTransaction,expiredSeatGroups,releaseExpiredSeatGroupTransaction};
 });
