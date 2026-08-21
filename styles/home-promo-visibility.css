@@ -204,7 +204,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
-    min-height: 46px;
+    min-height: 50px;
     padding: 5px 10px;
     border-width: 2px;
     font-size: clamp(18px, 5.1vw, 20px) !important;
@@ -258,7 +258,7 @@ html[data-layout="kiosk21"] body[data-step="home"] .heroPromoStrip .takeoutPromo
   }
 
   html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .happyTakeoutOnly {
-    min-height: 44px;
+    min-height: 50px;
     font-size: 18px !important;
   }
 
