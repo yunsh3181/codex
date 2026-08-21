@@ -2234,12 +2234,12 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=seat-capacity-guidance-v1"></script>
-<script src="i18n/en.js?v=seat-capacity-guidance-v1"></script>
-<script src="i18n/ja.js?v=seat-capacity-guidance-v1"></script>
-<script src="i18n/zh.js?v=seat-capacity-guidance-v1"></script>
-<script src="i18n/vi.js?v=seat-capacity-guidance-v1"></script>
-<script src="i18n/es.js?v=seat-capacity-guidance-v1"></script>
+<script src="i18n/ko.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/en.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/ja.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/zh.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/vi.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/es.js?v=happy-hour-visibility-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
@@ -2894,8 +2894,8 @@ function view(){
   </div>
 
   <div class="heroPromoStrip">
-    <div class="heroPromo happyPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startHappyHourBanner()"><h3>${t('ui.hero.happyHour')}</h3><strong class="happyHours">16:00~20:00</strong><p class="happyTakeoutOnly">${t('home.happyHourTakeoutOnly')}</p><p class="happyDealLine">${homeHappyDealHTML()}</p><p class="happyOrderNow">${t('ui.hero.orderNow')}</p></div>
-    <div class="heroPromo takeoutPromo clickable" role="button" tabindex="0" onclick="startTakeoutDiscountBanner()"><h3>${t('ui.hero.takeout')}</h3><span class="takeoutSizeNote">${t('home.takeoutSizeNote')}</span><strong class="takeoutDiscount">${t('home.takeoutDiscountRate')}</strong><p class="takeoutOrderNow">${t('ui.hero.orderNow')}</p></div>
+    <div class="heroPromo happyPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startHappyHourBanner()"><h3>${t('ui.hero.happyHour')}</h3><div class="happyBenefit"><span class="happySize">${t('home.happyHourSize')}</span><strong class="happyPrice">${t('home.happyHourPrice')}</strong></div><strong class="happyHours">16:00~20:00</strong><span class="happyTakeoutOnly" role="note">${t('home.happyHourTakeoutOnly')}</span><p class="happyDineInExclusion">${t('home.happyHourDineInExclusion')}</p><p class="happyOrderNow">${t('ui.hero.orderNow')}</p></div>
+    <div class="heroPromo takeoutPromo clickable" role="button" tabindex="0" onclick="startTakeoutDiscountBanner()"><h3>${t('home.takeoutTitle')}</h3><strong class="takeoutDiscount">${t('home.takeoutDiscountRate')}</strong><span class="takeoutSizeNote">${t('home.takeoutSizeNote')}</span><p class="takeoutOrderNow">${t('ui.hero.orderNow')}</p></div>
   </div>
   ${startScreenVersionHTML()}
 </section>`;
@@ -7576,3 +7576,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
 <link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
+<link rel="stylesheet" href="styles/home-promo-visibility.css?v=happy-hour-visibility-v1">

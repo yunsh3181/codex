@@ -12,7 +12,7 @@ function harness(){
 }
 
 test('every kiosk page and logical subpage resolves to an explicit voice key',()=>{
- const cases=[['language','language'],['home','orderType'],['type','orderType'],['timing','timing'],['reserve','reserveTime'],['party','party'],['area','area'],['table','table'],['promo','benefit'],['setChoice','set'],['size','size'],['mode','crust'],['pizzaOptions','crust'],['pizza','pizza'],['crust','crust'],['topping','toppingPrompt'],['side','extraSide'],['drink','extraDrink'],['accompaniment','accompaniment'],['review','review'],['phone','phone'],['payment','payment']];
+ const cases=[['language','language'],['home','home'],['type','orderType'],['timing','timing'],['reserve','reserveTime'],['party','party'],['area','area'],['table','table'],['promo','benefit'],['setChoice','set'],['size','size'],['mode','crust'],['pizzaOptions','crust'],['pizza','pizza'],['crust','crust'],['topping','toppingPrompt'],['side','extraSide'],['drink','extraDrink'],['accompaniment','accompaniment'],['review','review'],['phone','phone'],['payment','payment']];
  for(const [step,key] of cases)assert.equal(routeFor({step}).key,key,step);
  assert.equal(routeFor({step:'pizza',secondPizza:true}).key,'secondPizza');
  assert.equal(routeFor({step:'topping',toppingSelection:true}).key,'toppingSelect');
@@ -68,6 +68,6 @@ test('all six locales contain the complete voice matrix and takeout-only banner 
  const root=path.resolve(__dirname,'..');
  for(const lang of ['ko','en','ja','zh','vi','es']){
   const source=fs.readFileSync(path.join(root,'i18n',`${lang}.js`),'utf8');
-  assert.match(source,/happyHourTakeoutOnly/);assert.match(source,/completeReservationForeignPostpaid/);assert.match(source,/inactivity:/);
+  assert.match(source,/happyHourTakeoutOnly/);assert.match(source,/happyHourDineInExclusion/);assert.match(source,/home:/);assert.match(source,/completeReservationForeignPostpaid/);assert.match(source,/inactivity:/);
  }
 });

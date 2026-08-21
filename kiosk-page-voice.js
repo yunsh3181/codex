@@ -10,7 +10,7 @@
   if(!step||SILENT_STEPS.has(step))return null;
   if(context.overlay==='waitlist')return {id:'overlay:waitlist',key:'waitlistPhone'};
   if(context.overlay==='disposables')return {id:'overlay:disposables',key:'disposables'};
-  const simple={language:'language',home:'orderType',type:'orderType',timing:'timing',reserve:'reserveTime',party:'party',area:'area',table:'table',promo:'benefit',setChoice:'set',size:'size',mode:'crust',pizzaOptions:'crust',crust:'crust',accompaniment:'accompaniment',review:'review'};
+  const simple={language:'language',home:'home',type:'orderType',timing:'timing',reserve:'reserveTime',party:'party',area:'area',table:'table',promo:'benefit',setChoice:'set',size:'size',mode:'crust',pizzaOptions:'crust',crust:'crust',accompaniment:'accompaniment',review:'review'};
   if(simple[step])return {id:`step:${step}`,key:simple[step]};
   if(step==='pizza')return {id:`step:pizza:${context.secondPizza?'second':'first'}`,key:context.secondPizza?'secondPizza':'pizza'};
   if(step==='topping')return {id:`step:topping:${context.toppingSelection?'select':'prompt'}`,key:context.toppingSelection?'toppingSelect':'toppingPrompt'};
