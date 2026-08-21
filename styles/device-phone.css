@@ -795,7 +795,7 @@ html[data-layout="phone"] body[data-step="home"] .mobileOrderTypeCard > span:las
 }
 
 html[data-layout="phone"] body[data-step="home"] .heroPromoStrip {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 6px !important;
   margin-top: 0 !important;
 }
@@ -818,7 +818,7 @@ html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo :whe
   color: #fff !important;
 }
 
-html[data-layout="phone"] body[data-step="home"] .heroPromoStrip :where(.happyHours, .takeoutDiscount, .beerAd strong) {
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip :where(.happyHours, .takeoutDiscount) {
   color: #111111 !important;
 }
 
@@ -1825,8 +1825,7 @@ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage .darkBenefitG
 
 /* Keep the white highlight pills readable over the shared orange banners. */
 html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo .happyHours,
-html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo .takeoutDiscount,
-html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo.beerAd strong {
+html[data-layout="phone"] body[data-step="home"] .heroPromoStrip .heroPromo .takeoutDiscount {
   color: #111111 !important;
 }
 

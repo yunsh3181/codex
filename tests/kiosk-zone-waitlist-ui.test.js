@@ -11,7 +11,8 @@ test('zone cards apply review closed full available priority and expose waitlist
  assert.match(html,/a\.status==='full'.*areaWaitlistBtn.*openZoneWaitlist/);
  assert.match(html,/a\.status==='closed'.*copy\.closed/);
  assert.match(html,/a\.status==='review'.*copy\.review/);
- assert.match(html,/if\(area\.status==='full'\|\|area\.status==='review'\|\|area\.status==='closed'\)return/);
+ assert.match(html,/if\(area\.status==='full'\|\|area\.status==='review'\)\{kioskPageVoice\?\.announce\('full'\);return\}/);
+ assert.match(html,/if\(area\.status==='closed'\)\{kioskPageVoice\?\.announce\('closed'\);return\}/);
  assert.doesNotMatch(html,/joinZoneWaitlist/);
 });
 
