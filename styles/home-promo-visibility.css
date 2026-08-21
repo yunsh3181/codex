@@ -26,6 +26,7 @@ body[data-step="home"] .heroPromoStrip .heroPromo > * {
 }
 
 body[data-step="home"] .heroPromoStrip .heroPromo h3 {
+  padding-block: 4px !important;
   color: #ffffff !important;
   font-size: clamp(28px, 3.35vw, 44px) !important;
   line-height: 1.08 !important;
@@ -35,6 +36,7 @@ body[data-step="home"] .heroPromoStrip .heroPromo h3 {
 body[data-step="home"] .happyBenefit {
   display: flex;
   min-width: 0;
+  padding-block: 4px !important;
   align-items: baseline;
   justify-content: center;
   gap: clamp(6px, 1vw, 14px);
@@ -58,6 +60,10 @@ body[data-step="home"] .heroPromoStrip .takeoutPromo .takeoutDiscount {
   font-size: clamp(34px, 4.2vw, 52px) !important;
   line-height: 1.1 !important;
   font-weight: 1000 !important;
+}
+
+body[data-step="home"] .heroPromoStrip .takeoutPromo .takeoutDiscount {
+  padding-block: 4px !important;
 }
 
 body[data-step="home"] .happyTakeoutOnly {
