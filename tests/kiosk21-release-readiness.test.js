@@ -10,7 +10,7 @@ const html = read('index.html');
 const kiosk = read('styles/device-kiosk21.css');
 const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
 
-test('release changes do not alter protected application sources', () => {
+test('release guards preserve protected sources outside the approved PR-B phone banner layout', () => {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
   assert.equal(pkg.version, '1.2.25');
@@ -19,7 +19,7 @@ test('release changes do not alter protected application sources', () => {
   assert.match(html, /kioskIdleScreen/);
   assert.match(html, /const SEAT_IDLE_MS=30000/);
   assert.equal(sha256(read('device-manager.js')), '83ce3316c896d34cfb29e3d8c9454a8e628ba4830d8031ece159e9abd5f10e09');
-  assert.equal(sha256(read('styles/device-phone.css')), 'a50d3a03d0e0b3ab1e039c6f380d7aea0b608ddeeb449b837447c20fbf0f11a8');
+  assert.equal(sha256(read('styles/device-phone.css')), '53692833d664963bb070368444bc7f063a05d35c37255b466fb73edd6938992e');
   assert.equal(sha256(read('styles/device-tablet.css')), '37e0df47da0b899550f627e8cf68060736c5740920c4832d86d32e10c2740341');
   assert.equal(sha256(kiosk), 'abc872a02583b234111bc8ccd9703af5fb98549ae1f2a32ee09ff180e165dad4');
   assert.equal(sha256(read('kiosk-scroll-indicator.js')), 'b4aa9f1a60a94bea90da79793a300cc838a872b2c451c00ec7597753a393b95d');

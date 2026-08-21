@@ -614,7 +614,7 @@ body{
 }
 .heroPromoStrip{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:18px;
   margin-top:20px;
 }
@@ -1218,8 +1218,6 @@ button:active:not(:disabled){transform:scale(.98)}
 .heroPromo.clickable{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
 .heroPromo.clickable:active{transform:scale(.985)}
 .heroPromo.clickable::after{content:attr(data-order-label);display:block;margin-top:14px;font-weight:900;color:#fff}
-.heroPromo.beerAd{cursor:default;background:linear-gradient(145deg,rgba(0,94,64,.85),rgba(0,47,34,.92));border-color:rgba(255,255,255,.22)}
-.heroPromo.beerAd strong{color:#ffd34e!important}
 .quickSizeRow{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px}
 .quickSizeRow button{border:1px solid #d5ded9;background:#fff;border-radius:14px;padding:12px 20px;font-weight:900}
 .quickSizeRow button.active{background:#087348;color:#fff;border-color:#087348}
@@ -1376,7 +1374,7 @@ button:active:not(:disabled){transform:scale(.98)}
   background:rgba(23,52,42,.22)!important;
 }
 .heroPromoStrip{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
 }
 .heroPromo{
   aspect-ratio:1/1!important;
@@ -1397,7 +1395,7 @@ button:active:not(:disabled){transform:scale(.98)}
   .heroChoice{aspect-ratio:1/1!important;min-height:0!important;padding:11px 8px!important;border-radius:16px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;text-align:center!important}
   .heroChoice h2{font-size:20px!important;margin:4px 0!important}
   .heroChoice .eyebrow{font-size:9px!important;letter-spacing:1px!important}
-  .heroPromoStrip{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important}
+  .heroPromoStrip{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;margin-top:8px!important}
   .heroPromo{aspect-ratio:1/1!important;min-height:0!important;padding:7px 5px!important;border-radius:12px!important;text-align:center!important;align-items:center!important}
   .heroPromo h3{font-size:10px!important;line-height:1.1!important;margin:0 0 5px!important}
   .heroPromo strong{font-size:10px!important;line-height:1.2!important}
@@ -1499,13 +1497,13 @@ button,a,[role="button"],.card,.tableCard,.areaCard,.darkBenefitCard,.darkSetCar
   box-shadow:0 5px 14px rgba(0,0,0,.12)!important;
 }
 
-/* 하단 배너 3개: 정사각형, 기존 대비 약 30% 축소, 한 줄 중앙 정렬 */
+/* 하단 배너 2개: 같은 비율을 유지하며 넓은 화면에서는 2열로 배치 */
 .heroPromoStrip{
   width:70%!important;
   max-width:980px!important;
   margin-left:auto!important;
   margin-right:auto!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   justify-content:center!important;
 }
 .heroPromo{
@@ -2252,6 +2250,8 @@ try{
 <script src="waitlist-phone-keypad.js?v=1"></script>
 <script src="customer-identity.js?v=1"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
+<script src="speech.js?v=1"></script>
+<script src="kiosk-page-voice.js?v=1"></script>
 <script>window.PJ_KIOSK_DIAGNOSTICS?.record('remote-module-check',{source:'index.html:remote-module-check'})</script>
 <script src="test-mode-remote-channel.js?v=1"></script>
 <script>
@@ -2279,6 +2279,27 @@ function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
 function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
 const navigationHistory=[];let navigationBackInProgress=false;
 const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null};
+const kioskPageVoice=window.PJ_KIOSK_PAGE_VOICE?.createKioskPageVoiceController({
+ synth:window.speechSynthesis,
+ createUtterance:window.PJSpeech?.createSpeechUtterance,
+ translate:(key,vars)=>t(key,vars),
+ language:()=>window.PJ_I18N?.currentLanguage?.()||'ko',
+ localeTags
+});
+function kioskVoiceContext(){
+ const foreign=(window.PJ_I18N?.currentLanguage?.()||'ko')!=='ko';
+ return {step:state.step,overlay:state.modal==='zoneWaitlist'?'waitlist':state.modal==='disposables'?'disposables':null,secondPizza:state.step==='pizza'&&state.mode==='half'&&Boolean(state.left),toppingSelection:state.step==='topping'&&state.toppingChoice==='add',includedSide:state.step==='side'&&Boolean(state.set)&&!state.setSideExtraMode,includedDrink:state.step==='drink'&&Boolean(state.set)&&!state.setDrinkExtraMode,foreign,paymentMethod:state.paymentMethod,orderTiming:state.orderTiming,reservationPaymentType:state.reservationPaymentType||'pay_on_pickup',orderNo:state.orderNo,customerName:state.customerDisplayName,completionToken:state.firebaseOrderId};
+}
+function syncKioskPageVoice(){kioskPageVoice?.update(kioskVoiceContext())}
+function unlockKioskPageVoice(){
+ if(!kioskPageVoice?.unlock())return;
+ document.removeEventListener('pointerdown',unlockKioskPageVoice,true);
+ document.removeEventListener('touchstart',unlockKioskPageVoice,true);
+ document.removeEventListener('keydown',unlockKioskPageVoice,true)
+}
+document.addEventListener('pointerdown',unlockKioskPageVoice,{capture:true,passive:true});
+document.addEventListener('touchstart',unlockKioskPageVoice,{capture:true,passive:true});
+document.addEventListener('keydown',unlockKioskPageVoice,true);
 let seatReservationConflictActive=false;let bottleHoursConflictActive=false;let seatOrderCommitStarted=false;let bottlePolicyTimer=null;
 let kioskAppVersion='DEV';
 function normalizedKioskAppVersion(value){
@@ -2809,6 +2830,7 @@ function render(){
  lastRenderedStep=state.step;
  if(state.step==='idle')startIdlePromotionTimers();
  syncOrderIdleTimer(stepChanged);
+ syncKioskPageVoice();
  scheduleOrderReviewFit();
  window.PJ_KIOSK_SCROLL_INDICATOR?.schedule();
 }
@@ -2871,9 +2893,8 @@ function view(){
   </div>
 
   <div class="heroPromoStrip">
-    <div class="heroPromo happyPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startHappyHourBanner()"><h3>${t('ui.hero.happyHour')}</h3><strong class="happyHours">16:00~20:00</strong><p class="happyDealLine">${homeHappyDealHTML()}</p><p class="happyOrderNow">${t('ui.hero.orderNow')}</p></div>
+    <div class="heroPromo happyPromo clickable" data-order-label="${escAttr(t('ui.hero.orderNow'))}" role="button" tabindex="0" onclick="startHappyHourBanner()"><h3>${t('ui.hero.happyHour')}</h3><strong class="happyHours">16:00~20:00</strong><p class="happyTakeoutOnly">${t('home.happyHourTakeoutOnly')}</p><p class="happyDealLine">${homeHappyDealHTML()}</p><p class="happyOrderNow">${t('ui.hero.orderNow')}</p></div>
     <div class="heroPromo takeoutPromo clickable" role="button" tabindex="0" onclick="startTakeoutDiscountBanner()"><h3>${t('ui.hero.takeout')}</h3><span class="takeoutSizeNote">${t('home.takeoutSizeNote')}</span><strong class="takeoutDiscount">${t('home.takeoutDiscountRate')}</strong><p class="takeoutOrderNow">${t('ui.hero.orderNow')}</p></div>
-    <div class="heroPromo beerAd"><h3>${t('home.beerTitle')}</h3><strong>${t('home.beerHeineken')}</strong><p>${t('home.beerBudweiser')}</p></div>
   </div>
   ${startScreenVersionHTML()}
 </section>`;
@@ -3164,7 +3185,8 @@ function areaPolicyMessage(area){
 function handleAreaClick(id){
  const area=getDiningAreas().find(a=>a.id===id);
  if(!area)return;
- if(area.status==='full'||area.status==='review'||area.status==='closed')return;
+ if(area.status==='full'||area.status==='review'){kioskPageVoice?.announce('full');return}
+ if(area.status==='closed'){kioskPageVoice?.announce('closed');return}
  if(!area.enabled){alert(areaPolicyMessage(area));return;}
  selectArea(id);
 }
@@ -3222,7 +3244,7 @@ function scheduleOrderIdleCountdown(generation){
  const remaining=orderIdleDeadline-orderIdleNow();
  if(remaining<=0){expireOrderIdle(generation);return}
  const seconds=Math.ceil(remaining/1000);
- if(seconds<=10){orderIdleSeconds=seconds;if(!orderIdleWarningOpen){orderIdleWarningOpen=true;renderOrderIdleWarning()}else renderOrderIdleWarning()}
+ if(seconds<=10){orderIdleSeconds=seconds;if(!orderIdleWarningOpen){orderIdleWarningOpen=true;renderOrderIdleWarning();kioskPageVoice?.announce('inactivity')}else renderOrderIdleWarning()}
  orderIdleCountdownTimer=setTimeout(()=>scheduleOrderIdleCountdown(generation),Math.max(1,remaining-(seconds-1)*1000))
 }
 async function expireOrderIdle(generation=orderIdleGeneration,force=false){
@@ -4027,6 +4049,7 @@ async function complete(event){
   setTimeout(()=>{reset();render()},5000)
  }catch(error){
   console.error(error);
+  kioskPageVoice?.announce('error');
   seatOrderCommitStarted=false;
   if(error?.code==='SEAT_RESERVED'||error?.message==='SEAT_RESERVED'){showSeatReservationConflict();return}
   if(error?.code==='BOTTLE_HOURS_CLOSED'||error?.message==='BOTTLE_HOURS_CLOSED'){showBottleHoursConflict();return}
@@ -4079,7 +4102,7 @@ scheduleBottlePolicyBoundary();
 window.addEventListener?.('focus',()=>{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()});
 document.addEventListener?.('visibilitychange',()=>{if(document.hidden)stopIdlePromotionTimers();else{checkBottleHoursBoundary();if(state.step==='idle')startIdlePromotionTimers()}});
 ['pointerdown','touchstart','keydown','wheel','click','input'].forEach(type=>document.addEventListener(type,recordOrderActivity,{capture:true,passive:type!=='keydown'}));
-window.addEventListener('pagehide',()=>{clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
+window.addEventListener('pagehide',()=>{kioskPageVoice?.reset();clearTimeout(bottlePolicyTimer);if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 window.addEventListener('beforeunload',()=>{if(!state.firebaseOrderId)releaseSeats().catch(()=>{})});
 render();
 window.__PJ_BOOT_OK=true;
@@ -5053,7 +5076,7 @@ html,body{background:var(--v4-cream)!important}
 .heroPromoStrip{
   max-width:1080px!important;
   margin:0 auto!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:10px!important;
 }
 .heroPromo{
@@ -5190,7 +5213,7 @@ body[data-step="side"] .card h3,
   .heroChoice .eyebrow{font-size:9px!important}
   .heroChoice .heroDivider,
   .heroChoice .heroChoiceFeatures{display:none!important}
-  .heroPromoStrip{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  .heroPromoStrip{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
   .heroPromo{min-height:104px!important;padding:9px 5px!important}
   .darkBenefitGrid,.darkSetGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
   .darkBenefitCard,.darkSetCard{padding:13px 8px!important;border-radius:16px!important}
@@ -5236,8 +5259,7 @@ body[data-step="side"] .card h3,
   background:rgba(255,255,255,.12)!important;
 }
 .heroPromo,
-.heroPromo.clickable,
-.heroPromo.beerAd{
+.heroPromo.clickable{
   border:1px solid #8d9290!important;
   background:linear-gradient(145deg,#737977,#5f6563)!important;
   color:#fff!important;
@@ -6504,8 +6526,7 @@ body[data-step="home"] .takeoutOrderNow{
 }
 body[data-step="home"] .heroPromo.clickable::after{display:none!important}
 body[data-step="home"] .happyPromo .happyHours,
-body[data-step="home"] .happyPromo .happyPrice,
-body[data-step="home"] .beerAd strong{
+body[data-step="home"] .happyPromo .happyPrice{
   color:var(--home-accent-yellow)!important;
 }
 @media(max-width:560px){
@@ -6640,8 +6661,7 @@ body[data-step="home"] .heroPromo p,
 body[data-step="home"] .takeoutSizeNote,
 body[data-step="home"] .takeoutPromo .takeoutDiscount,
 body[data-step="home"] .happyPromo .happyHours,
-body[data-step="home"] .happyPromo .happyPrice,
-body[data-step="home"] .beerAd strong{
+body[data-step="home"] .happyPromo .happyPrice{
   color:#fff!important;
 }
 body[data-step="home"] .heroPromo strong{
@@ -7186,8 +7206,7 @@ body[data-step="home"] .heroPromo>*{
   word-break:keep-all;
 }
 body[data-step="home"] .happyPromo .happyHours,
-body[data-step="home"] .takeoutPromo .takeoutDiscount,
-body[data-step="home"] .beerAd strong{
+body[data-step="home"] .takeoutPromo .takeoutDiscount{
   display:inline-flex!important;
   align-items:center;
   justify-content:center;
@@ -7319,8 +7338,7 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
     line-height:1.08!important;
   }
   body[data-step="home"] .heroPromo strong,
-  body[data-step="home"] .happyPromo .happyHours,
-  body[data-step="home"] .beerAd strong{
+  body[data-step="home"] .happyPromo .happyHours{
     font-size:17px!important;
     line-height:1.12!important;
   }
@@ -7381,8 +7399,7 @@ body[data-step="language"] .languageScreen>.heroLogoDark{
     padding:12px 7px!important;
   }
   body[data-step="home"] .happyPromo .happyHours,
-  body[data-step="home"] .takeoutPromo .takeoutDiscount,
-  body[data-step="home"] .beerAd strong{
+  body[data-step="home"] .takeoutPromo .takeoutDiscount{
     padding:3px 5px!important;
   }
   body[data-step="home"] .happyOrderNow,

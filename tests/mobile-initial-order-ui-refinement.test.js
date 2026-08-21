@@ -8,14 +8,16 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const phone=fs.readFileSync(path.join(root,'styles/device-phone.css'),'utf8');
 
 test('home promotion banners share the orange phone banner component',()=>{
-  for(const name of ['happyPromo clickable','takeoutPromo clickable','beerAd'])assert.ok(html.includes(name));
+  for(const name of ['happyPromo clickable','takeoutPromo clickable'])assert.ok(html.includes(name));
+  assert.doesNotMatch(html,/class="heroPromo beerAd"|home\.beerHeineken/);
   const strip=html.match(/<div class="heroPromoStrip">([\s\S]*?)<\/div>\s*\$\{startScreenVersionHTML\(\)\}/)?.[1]||'';
-  assert.equal((strip.match(/class="heroPromo /g)||[]).length,3);
+  assert.equal((strip.match(/class="heroPromo /g)||[]).length,2);
+  assert.match(strip,/happyTakeoutOnly/);
   assert.equal((strip.match(/startHappyHourBanner\(\)/g)||[]).length,1);
   assert.equal((strip.match(/startTakeoutDiscountBanner\(\)/g)||[]).length,1);
-  assert.match(phone,/\.heroPromoStrip \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(phone,/\.heroPromoStrip \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(phone,/\.heroPromoStrip \.heroPromo \{[\s\S]*?height: 104px !important;[\s\S]*?background: #d86f00 !important/);
-  assert.match(phone,/\.heroPromoStrip \.heroPromo \.happyHours,[\s\S]*?\.heroPromo \.takeoutDiscount,[\s\S]*?\.heroPromo\.beerAd strong \{[\s\S]*?color: #111111 !important/);
+  assert.match(phone,/\.heroPromoStrip \.heroPromo \.happyHours,[\s\S]*?\.heroPromo \.takeoutDiscount \{[\s\S]*?color: #111111 !important/);
   assert.doesNotMatch(phone,/\.heroPromoStrip \.clickable \{\s*display: none !important/);
 });
 

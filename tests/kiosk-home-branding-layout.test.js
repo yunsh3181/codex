@@ -44,7 +44,7 @@ test('language logo, banners, footer and promo layout use kiosk-only refinements
   assert.match(networkCss, /var\(--kiosk21-summary-height\)[\s\S]*?var\(--safe-bottom\)/);
 });
 
-test('tablet home fits its viewport while preserving three equal banners', () => {
+test('tablet home fits its viewport while preserving two equal banners', () => {
   const tabletHome = html.match(/@media \(min-width:701px\) and \(max-width:1024px\) and \(orientation:portrait\)\{([\s\S]*?)\n\}\n\n@media\(max-width:700px\)/)?.[1] || '';
   assert.match(tabletHome, /body\[data-step="home"\] \.app\{[\s\S]*?padding-bottom:0!important/);
   assert.match(tabletHome, /\.darkHero\{[\s\S]*?min-height:100vh!important[\s\S]*?padding-bottom:calc\(96px \+ var\(--safe-bottom\)\)!important/);
