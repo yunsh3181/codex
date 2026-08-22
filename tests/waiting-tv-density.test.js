@@ -28,9 +28,9 @@ test('waiting TV density calculation has no Firestore mutation path',()=>{
 test('waiting TV updates only the changed CSS and JS cache keys',()=>{
  const html=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/index.html'),'utf8');
  assert.equal((html.match(/waiting-tv\.css\?v=9/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.css\?v=8/);
- assert.equal((html.match(/waiting-tv\.js\?v=9/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.js\?v=8/);
+ assert.equal((html.match(/waiting-tv\.js\?v=10/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.js\?v=[89](?:["'])/);
  assert.equal((html.match(/waiting-tv-locales\.js\?v=1/g)||[]).length,1);
- assert.equal((html.match(/waiting-tv-locales\.css\?v=2/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=1/);
+ assert.equal((html.match(/waiting-tv-locales\.css\?v=3/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=[12]/);
  assert.match(html,/speech\.js\?v=1/,'unchanged speech cache key stays intact');
 });
 
@@ -38,6 +38,25 @@ test('waiting TV status line box keeps Windows glyph safety without shrinking un
  assert.match(localeCss,/\.order-number \.order-status\{[^}]*font-size:max\(18px,calc\(var\(--waiting-order-label-size\) - 1px\)\)[^}]*line-height:1\.45[^}]*max-height:2\.9em/);
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number \.order-status\{min-height:35px\}/);
  assert.doesNotMatch(localeCss,/overflow:hidden|transform:scale|margin-(?:top|bottom):-/);
+});
+
+test('waiting TV card typography prevents flex compression and restores safe identity line boxes',()=>{
+ assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.45[^}]*flex-shrink:0/);
+ assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.42[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:2\.84em/);
+ assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong,\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.45\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong,\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.42\}/);
+ assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.9\)\)\}/);
+ assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.82\)\)\}/);
+ assert.match(localeCss,/\.order-number \.order-status,\.order-number \.order-timing,\.order-number \.order-guidance\{flex-shrink:0\}/);
+ assert.match(localeCss,/\.order-number \.order-timing,\.order-number \.order-guidance\{line-height:1\.4\}/);
+ assert.match(localeCss,/\.order-number \.order-guidance\{max-height:2\.8em\}/);
+});
+
+test('waiting TV scales only foreign names beyond ten graphemes without changing input limits',()=>{
+ assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'phone_last4'}),'');
+ assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'ALEXANDER'}),'');
+ assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'MARY JANE LEE'}),' name-length-long');
+ assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'MARY JANE WATSON LEE'}),' name-length-maximum');
 });
 
 test('waiting TV typography measurement uses distinct semantic selectors',()=>{

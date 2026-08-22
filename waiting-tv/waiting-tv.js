@@ -60,11 +60,17 @@ function waitingCardCopy(item){
 }
 function waitingCardDetails(item){const copy=waitingCardCopy(item);return `<span class="order-status">${escapeHTML(copy.status)}</span>${copy.timing?`<small class="order-timing">${escapeHTML(copy.timing)}</small>`:''}<small class="order-guidance">${escapeHTML(copy.guidance)}</small>`}
 function waitingCustomerLabel(item){const name=item?.customerIdentityType==='name'?String(item.customerDisplayName||'').trim():'';return name||`${spokenOrderNumber(item.orderNumber)}번`}
+function waitingCustomerNameLengthClass(item){
+ if(item?.customerIdentityType!=='name')return '';
+ const name=String(item.customerDisplayName||'').trim();
+ const length=typeof Intl!=='undefined'&&Intl.Segmenter?Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(name)).length:Array.from(name).length;
+ return length>15?' name-length-maximum':length>10?' name-length-long':'';
+}
 function renderDisplay(target,items,emptyText){
  if(!target.dataset)target.dataset={};
  target.dataset.density=waitingOrderDensity(items.length);
  if(typeof target.querySelectorAll!=='function'||typeof document.createElement!=='function'){
-  target.innerHTML=items.length?items.map(item=>`<div class="order-number${isReadyOverdue(item)?' ready-overdue':''}" lang="${waitingOrderLanguage(item)}" data-language="${waitingOrderLanguage(item)}"><strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${waitingCardDetails(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
+  target.innerHTML=items.length?items.map(item=>`<div class="order-number${waitingCustomerNameLengthClass(item)}${isReadyOverdue(item)?' ready-overdue':''}" lang="${waitingOrderLanguage(item)}" data-language="${waitingOrderLanguage(item)}"><strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${waitingCardDetails(item)}</div>`).join(''):`<p class="empty">${emptyText}</p>`;
   return;
  }
  const desired=new Map(items.map(item=>[item.id,item]));
@@ -74,7 +80,7 @@ function renderDisplay(target,items,emptyText){
  items.forEach(item=>{
   let node=existing.get(item.id);
   if(!node){node=document.createElement('div');node.dataset.orderKey=item.id}
-  node.className=`order-number${isReadyOverdue(item)?' ready-overdue':''}`;
+  node.className=`order-number${waitingCustomerNameLengthClass(item)}${isReadyOverdue(item)?' ready-overdue':''}`;
   node.lang=waitingOrderLanguage(item);node.dataset.language=node.lang;
   node.innerHTML=`<strong>${escapeHTML(waitingCustomerLabel(item))}</strong>${waitingCardDetails(item)}`;
   target.appendChild(node);
