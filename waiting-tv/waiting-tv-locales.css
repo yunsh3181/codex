@@ -1,0 +1,19 @@
+.order-number strong{width:100%;min-width:0;box-sizing:border-box;font-size:max(18px,calc(var(--waiting-order-number-size) - 1px));line-height:1.45;flex-shrink:0}
+.order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(42px,5.8vw,72px) - 1px))}
+.number-grid[data-density="double"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(40px,5.4vw,64px) - 1px))}
+.number-grid[data-density="triple"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(38px,5vw,58px) - 1px))}
+.number-grid[data-density="compact"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(36px,4.5vw,52px) - 1px))}
+.number-grid[data-density="dense"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(34px,3.6vw,50px) - 1px))}
+.order-number:not([lang="ko"]) strong{font-size:var(--waiting-name-size);line-height:1.42;white-space:normal;word-break:normal;overflow-wrap:anywhere;text-wrap:balance;max-height:2.84em}
+.number-grid[data-density="compact"] .order-number strong,.number-grid[data-density="dense"] .order-number strong{line-height:1.45}
+.number-grid[data-density="compact"] .order-number:not([lang="ko"]) strong,.number-grid[data-density="dense"] .order-number:not([lang="ko"]) strong{line-height:1.42}
+.number-grid[data-density="single"] .order-number strong{line-height:1.5}
+.number-grid[data-density="single"] .order-number:not([lang="ko"]) strong{line-height:1.5;max-height:calc(3em + 2px)}
+.order-number.name-length-long:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .9))}
+.order-number.name-length-maximum:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .82))}
+.order-number .order-status,.order-number .order-timing,.order-number .order-guidance{flex-shrink:0}
+.order-number .order-status{box-sizing:border-box;font-size:max(18px,calc(var(--waiting-order-label-size) - 1px));line-height:1.45;min-width:0;max-height:2.9em}
+.order-number .order-timing,.order-number .order-guidance{line-height:1.4}
+.order-number .order-guidance{max-height:2.8em}
+.number-grid[data-density="single"] .order-number .order-status{min-height:35px}
+@media(max-height:900px) and (min-width:801px){.number-grid[data-density="double"] .order-status{font-size:21px}.number-grid[data-density="triple"] .order-status{font-size:20px}.number-grid[data-density="compact"] .order-status{font-size:19px}.number-grid[data-density="dense"] .order-status{font-size:18px}}

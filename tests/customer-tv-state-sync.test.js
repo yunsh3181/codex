@@ -4,6 +4,7 @@ const path=require('path');
 const vm=require('vm');
 
 const source=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/waiting-tv.js'),'utf8');
+const PJWaitingTvLocale=require('../waiting-tv/waiting-tv-locales.js');
 class FakeNode{
  constructor(tagName='div'){this.tagName=tagName;this.children=[];this.parentNode=null;this.dataset={};this.className='';this.textContent='';this.classList={toggle(){}}}
  appendChild(node){node.remove();node.parentNode=this;this.children.push(node);return node}
@@ -26,6 +27,7 @@ const NativeDate=Date;
 class FakeDate extends NativeDate{static now(){return now}}
 const context={
  console:{debug(){},error(){}},Date:FakeDate,Intl,Map,Set,Promise,URLSearchParams,
+ PJWaitingTvLocale,
  location:{hostname:'example.com',search:''},navigator:{onLine:true},
  localStorage:{getItem:()=> 'false',setItem(){},removeItem(){}},
  document:{getElementById:element,createElement:tag=>new FakeNode(tag)},
