@@ -11,8 +11,8 @@ test('actual Chromium unlocks and reuses one completion AudioContext without dup
  assertElectronSucceeded(assert,run,report);
  const result=JSON.parse(fs.readFileSync(report,'utf8'));
  assert.deepEqual(result.initial,{starts:0,contexts:0,ready:0,button:'알림음·음성 안내 시작'});assert.equal(result.unlock.contexts,1);assert.equal(result.unlock.resumeCalls,1);assert.equal(result.unlock.state,'running');assert.equal(result.unlock.button,'알림음·음성 안내 켜짐');
- assert.equal(result.transition.starts,2);assert.match(result.transition.ready,/1111번.*포장 주문이 완료되었습니다.*카운터에서 주문을 받아주세요/s);assert.equal(result.duplicate,2);
- assert.deepEqual(result.reload,{starts:0,ready:1});assert.equal(result.newReady,2);assert.equal(result.twoOrders,6);
+ assert.equal(result.transition.starts,2);assert.match(result.transition.ready,/1111번.*조리완료.*카운터로 와주시기 바랍니다/s);assert.equal(result.duplicate,2);
+ assert.equal(result.reload.starts,0);assert.equal(result.reload.ready,1);assert.equal(result.reload.language,'es');assert.match(result.reload.text,/MARÍA.*Listo para recoger.*Acérquese al mostrador/s);assert.equal(result.newReady,2);assert.equal(result.twoOrders,6);
  assert.equal(result.resumeFailure.starts,result.resumeFailure.before);assert.equal(result.resumeFailure.resumeCalls,2);assert.match(result.resumeFailure.ready,/5555번/);assert.match(result.resumeFailure.button,/알림음 차단됨/);
  assert.equal(result.hidden,result.resumeFailure.starts);assert.equal(result.removed,0);assert.equal(result.reappeared,result.resumeFailure.starts);assert.deepEqual({...result.maximum,gridScroll:undefined},{count:24,longNumber:true,gridScroll:undefined,horizontalOverflow:0,verticalOverflow:0,headerOverlap:false});assert.ok(result.maximum.gridScroll>0);
  assert.deepEqual(result.mixed,{cooking:2,ready:2,headerOverlap:false});

@@ -5,6 +5,7 @@ const vm=require('vm');
 
 const speechSource=fs.readFileSync(path.resolve(__dirname,'../speech.js'),'utf8');
 const source=fs.readFileSync(path.resolve(__dirname,'../waiting-tv/waiting-tv.js'),'utf8');
+const PJWaitingTvLocale=require('../waiting-tv/waiting-tv-locales.js');
 const spoken=[];
 let soundPlays=0;
 const subscriptions={};
@@ -18,6 +19,7 @@ const context={
  console,
  Map,
  Promise,
+ PJWaitingTvLocale,
  SpeechSynthesisUtterance:Utterance,
  document:{getElementById:()=>element()},
  navigator:{onLine:true},
