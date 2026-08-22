@@ -18,7 +18,10 @@ app.commandLine.appendSwitch('force-device-scale-factor','1');
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const languages=['ko','en','ja','zh','vi','es'];
 const customerNames={en:['ALEXANDER','MARY JANE','JANE WATSON'],ja:['さくら','山田 はなこ','田中 あきら'],zh:['王小明','李 小龙','欧阳娜娜'],vi:['MINH ANH','NGUYỄN MINH','THỊ BÍCH'],es:['MARÍA JOSÉ','JOSÉ LUIS','ANA MARÍA']};
-const maximumCustomerNames={en:'MARY JANE WATSON LEE',ja:'アレクサンダー タナカ',zh:'欧阳娜娜测试顾客',vi:'NGUYỄN THỊ MINH ANH',es:'ALEJANDRA MONTSERRAT'};
+const maximumCustomerNames={en:'MARY JANE WATSON LEE',ja:'アレクサンダー TANAKA LEE A',zh:'欧阳娜娜 TEST CUSTOMER A',vi:'NGUYỄN THỊ MINH ANHA',es:'ALEJANDRA MONTSERRAT'};
+const fixtureNameLengths=[1,10,11,15,16,20];
+const graphemes=value=>typeof Intl!=='undefined'&&Intl.Segmenter?Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(value),part=>part.segment):Array.from(value);
+const fixtureName=(language,length)=>{const parts=graphemes(maximumCustomerNames[language]).slice(0,length);while(parts.at(-1)===' ')parts.pop();while(parts.length<length)parts.push('I');return parts.join('')};
 
 function exportFixtureSite(target){
  for(const directory of ['waiting-tv','assets/images','tests/fixtures'])fs.mkdirSync(path.join(target,directory),{recursive:true});
@@ -41,6 +44,8 @@ const measure=`(()=>{
  const all=[...document.querySelectorAll('.order-number')],hr=header.getBoundingClientRect();
  return {cooking:list('#cookingOrders'),ready:list('#readyOrders'),horizontalOverflow:Math.max(0,document.documentElement.scrollWidth-document.documentElement.clientWidth),documentVerticalOverflow:Math.max(0,document.documentElement.scrollHeight-document.documentElement.clientHeight),headerOverlap:all.some(card=>card.getBoundingClientRect().top<hr.bottom),buttonOverlap:all.some(card=>rectOverlap(card.getBoundingClientRect(),button.getBoundingClientRect())),logoOverlap:all.some(card=>rectOverlap(card.getBoundingClientRect(),logo.getBoundingClientRect()))};
 })()`;
+const enrichTypographySample=(sample,cardClasses)=>{for(const column of ['cooking','ready']){const list=sample[column],classes=cardClasses[column];for(const metrics of [list.identityMetrics,list.statusMetrics,list.guidanceMetrics,list.timingMetrics])for(const metric of metrics){metric.orderCount=list.count;metric.clipping=metric.scrollWidth>metric.clientWidth||metric.scrollHeight>metric.clientHeight;if(metric.textSafety)metric.textSafety.totalVertical=metric.textSafety.top+metric.textSafety.bottom}for(const metric of list.identityMetrics){metric.identityLength=graphemes(metric.text).length;metric.lengthClass=classes[metric.cardIndex]?.split(/\s+/).find(value=>value.startsWith('name-length-'))||''}}return sample};
+const cardClassMeasure=`({cooking:[...document.querySelectorAll('#cookingOrders .order-number')].map(value=>value.className),ready:[...document.querySelectorAll('#readyOrders .order-number')].map(value=>value.className)})`;
 
 async function main(lifecycle){
  lifecycle.expectReport(reportPath);
@@ -56,9 +61,9 @@ async function main(lifecycle){
   const captures=new Map([['ready-1','orders-1.png'],['ready-2','orders-2.png'],['ready-3','orders-3.png'],['ready-4','orders-4.png'],['ready-5','orders-5-plus.png'],['mixed-4-1','cooking-4-ready-1.png'],['mixed-1-4','cooking-1-ready-4.png'],['maximum-12-12','maximum-mixed-24.png']]);
   for(const [width,height] of [[1080,1920],[1920,1080],[1440,900],[1100,800]]){
    view.setBounds({x:0,y:0,width,height});await delay(100);const viewportKey=`${width}x${height}`;result.locales[viewportKey]={};
-   const scenarios=[...Array.from({length:5},(_,index)=>[`cooking-${index+1}`,index+1,0,false]),...Array.from({length:5},(_,index)=>[`ready-${index+1}`,0,index+1,false]),['mixed-1-3',1,3,false],['mixed-3-1',3,1,false],['mixed-4-1',4,1,false],['mixed-1-4',1,4,false],['mixed-4-4',4,4,false],['maximum-12-12',12,12,false],['reservation-1-1',1,1,true]];
-   for(const language of languages){const samples={};for(const [name,cookingCount,readyCount,reservation] of scenarios){
-    const scenarioRows=rows(cookingCount,readyCount,Date.now(),language).map(item=>reservation?{...item,...(language==='ko'?{}:{customerDisplayName:maximumCustomerNames[language]}),reservationOrder:true,pickupAt:Date.now()+30*60*1000,preparationMinutes:15,preparationStartedAt:Date.now()-1000,readyDueAt:Date.now()+8*60*1000}:item);await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(scenarioRows)})`);await delay(35);samples[name]=await view.webContents.executeJavaScript(measure);
+   const scenarios=[...Array.from({length:5},(_,index)=>[`cooking-${index+1}`,index+1,0,false,null]),...Array.from({length:5},(_,index)=>[`ready-${index+1}`,0,index+1,false,null]),['mixed-1-3',1,3,false,null],['mixed-3-1',3,1,false,null],['mixed-4-1',4,1,false,null],['mixed-1-4',1,4,false,null],['mixed-4-4',4,4,false,null],['maximum-12-12',12,12,false,null],['reservation-1-1',1,1,true,null],...fixtureNameLengths.map(length=>[`name-length-${length}`,1,0,false,length])];
+   for(const language of languages){const samples={};for(const [name,cookingCount,readyCount,reservation,nameLength] of scenarios){
+    const scenarioRows=rows(cookingCount,readyCount,Date.now(),language).map(item=>({...item,...(nameLength&&language!=='ko'?{customerDisplayName:fixtureName(language,nameLength)}:{}),...(reservation?{...(language==='ko'?{}:{customerDisplayName:maximumCustomerNames[language]}),reservationOrder:true,pickupAt:Date.now()+30*60*1000,preparationMinutes:15,preparationStartedAt:Date.now()-1000,readyDueAt:Date.now()+8*60*1000}:{})}));await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(scenarioRows)})`);await delay(35);const measured=await view.webContents.executeJavaScript(measure),classes=await view.webContents.executeJavaScript(cardClassMeasure);samples[name]=enrichTypographySample(measured,classes);
     if(language==='ko'&&width===1080&&height===1920&&captures.has(name)&&screenshotDir){const image=await view.webContents.capturePage();fs.writeFileSync(path.join(screenshotDir,captures.get(name)),nativeImage.createFromBuffer(image.toPNG()).toPNG())}
    }result.locales[viewportKey][language]=samples}
    result.viewports[viewportKey]=result.locales[viewportKey].ko;
@@ -75,6 +80,9 @@ async function main(lifecycle){
   await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(mixed)})`);await delay(100);result.semantics.mixed=await view.webContents.executeJavaScript(measure);
   const invalidLanguages=[undefined,null,'','fr'];const invalid=invalidLanguages.map((language,index)=>({...row(index%2?'ready':'cooking',index+400,now,'ko'),id:`invalid-${index}`,language}));
   await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(invalid)})`);await delay(100);result.semantics.fallback=await view.webContents.executeJavaScript(measure);
+  const longNameRows=[{...row('cooking',500,now,'en'),customerDisplayName:maximumCustomerNames.en}];
+  await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(longNameRows)})`);await delay(60);result.transitions.longNameFirst=enrichTypographySample(await view.webContents.executeJavaScript(measure),await view.webContents.executeJavaScript(cardClassMeasure)).cooking.identityMetrics[0];
+  await view.webContents.executeJavaScript(`__tvFixture.emitPublic(${JSON.stringify(longNameRows)})`);await delay(60);result.transitions.longNameRepeat=enrichTypographySample(await view.webContents.executeJavaScript(measure),await view.webContents.executeJavaScript(cardClassMeasure)).cooking.identityMetrics[0];
   await lifecycle.writeReportAtomically(reportPath,result);
  }finally{fs.rmSync(site,{recursive:true,force:true})}
 }

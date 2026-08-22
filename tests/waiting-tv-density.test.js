@@ -45,18 +45,21 @@ test('waiting TV card typography prevents flex compression and restores safe ide
  assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.42[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:2\.84em/);
  assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong,\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.45\}/);
  assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong,\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.42\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number strong\{line-height:1\.5\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.5;max-height:3em\}/);
  assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.9\)\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.82\)\)\}/);
  assert.match(localeCss,/\.order-number \.order-status,\.order-number \.order-timing,\.order-number \.order-guidance\{flex-shrink:0\}/);
  assert.match(localeCss,/\.order-number \.order-timing,\.order-number \.order-guidance\{line-height:1\.4\}/);
  assert.match(localeCss,/\.order-number \.order-guidance\{max-height:2\.8em\}/);
+ assert.doesNotMatch(localeCss,/text-overflow|ellipsis/);
 });
 
 test('waiting TV scales only foreign names beyond ten graphemes without changing input limits',()=>{
  assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'phone_last4'}),'');
- assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'ALEXANDER'}),'');
- assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'MARY JANE LEE'}),' name-length-long');
- assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'MARY JANE WATSON LEE'}),' name-length-maximum');
+ for(const length of [1,10])assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'A'.repeat(length)}),'');
+ for(const length of [11,15])assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'A'.repeat(length)}),' name-length-long');
+ for(const length of [16,20])assert.equal(context.waitingCustomerNameLengthClass({customerIdentityType:'name',customerDisplayName:'A'.repeat(length)}),' name-length-maximum');
 });
 
 test('waiting TV typography measurement uses distinct semantic selectors',()=>{
@@ -64,4 +67,5 @@ test('waiting TV typography measurement uses distinct semantic selectors',()=>{
  assert.match(densityVerifier,/querySelector\('\.order-status'\)/);
  assert.doesNotMatch(densityVerifier,/label=card\?\.querySelector\('span'\)/);
  assert.match(densityVerifier,/guidances\[index\]!==statuses\[index\]/);
+ for(const field of ['identityLength','lengthClass','orderCount','totalVertical','clipping'])assert.match(densityVerifier,new RegExp(field));
 });
