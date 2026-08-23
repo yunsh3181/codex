@@ -42,12 +42,12 @@ test('waiting TV status line box keeps Windows glyph safety without shrinking un
 
 test('waiting TV card typography prevents flex compression and restores safe identity line boxes',()=>{
  assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.5[^}]*flex-shrink:0/);
- assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.5[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:calc\(3\.08em \+ 2px\)/);
+ assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.51[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:calc\(3\.08em \+ 2px\)/);
  assert.match(localeCss,/\.number-grid\[data-density="triple"\] \.order-number strong\{line-height:1\.52\}/);
  assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong\{line-height:1\.53\}/);
  assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.54\}/);
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number strong\{line-height:1\.5\}/);
- assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.5;max-height:calc\(3em \+ 2px\)\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.51;max-height:calc\(3\.02em \+ 2px\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.9\)\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.82\)\)\}/);
  assert.match(localeCss,/\.order-number \.order-status,\.order-number \.order-timing,\.order-number \.order-guidance\{flex-shrink:0\}/);
