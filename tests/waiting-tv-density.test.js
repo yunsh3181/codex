@@ -41,10 +41,10 @@ test('waiting TV status line box keeps Windows glyph safety without shrinking un
 });
 
 test('waiting TV card typography prevents flex compression and restores safe identity line boxes',()=>{
- assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.45[^}]*flex-shrink:0/);
- assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.42[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:2\.84em/);
- assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong,\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.45\}/);
- assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong,\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.42\}/);
+ assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.5[^}]*flex-shrink:0/);
+ assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.5[^}]*overflow-wrap:anywhere[^}]*text-wrap:balance[^}]*max-height:calc\(3em \+ 2px\)/);
+ assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong,\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.5\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong,\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.5\}/);
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number strong\{line-height:1\.5\}/);
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.5;max-height:calc\(3em \+ 2px\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.9\)\)\}/);
