@@ -50,8 +50,8 @@ test('waiting TV card typography prevents flex compression and restores safe ide
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.52;max-height:calc\(3\.04em \+ 2px\)\}/);
  assert.match(localeCss,/\.number-grid\[data-density="double"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.53\}/);
  assert.match(localeCss,/\.number-grid\[data-density="triple"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.54\}/);
- assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.55\}/);
- assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.56\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.57\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.6\}/);
  assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.9\)\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.82\)\)\}/);
  assert.match(localeCss,/\.order-number \.order-status,\.order-number \.order-timing,\.order-number \.order-guidance\{flex-shrink:0\}/);
