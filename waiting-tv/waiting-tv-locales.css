@@ -4,9 +4,10 @@
 .number-grid[data-density="triple"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(38px,5vw,58px) - 1px))}
 .number-grid[data-density="compact"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(36px,4.5vw,52px) - 1px))}
 .number-grid[data-density="dense"] .order-number:not([lang="ko"]){--waiting-name-size:max(18px,calc(clamp(34px,3.6vw,50px) - 1px))}
-.order-number:not([lang="ko"]) strong{font-size:var(--waiting-name-size);line-height:1.5;white-space:normal;word-break:normal;overflow-wrap:anywhere;text-wrap:balance;max-height:calc(3em + 2px)}
-.number-grid[data-density="compact"] .order-number strong,.number-grid[data-density="dense"] .order-number strong{line-height:1.5}
-.number-grid[data-density="compact"] .order-number:not([lang="ko"]) strong,.number-grid[data-density="dense"] .order-number:not([lang="ko"]) strong{line-height:1.5}
+.order-number:not([lang="ko"]) strong{font-size:var(--waiting-name-size);line-height:1.5;white-space:normal;word-break:normal;overflow-wrap:anywhere;text-wrap:balance;max-height:calc(3.08em + 2px)}
+.number-grid[data-density="triple"] .order-number strong{line-height:1.52}
+.number-grid[data-density="compact"] .order-number strong{line-height:1.53}
+.number-grid[data-density="dense"] .order-number strong{line-height:1.54}
 .number-grid[data-density="single"] .order-number strong{line-height:1.5}
 .number-grid[data-density="single"] .order-number:not([lang="ko"]) strong{line-height:1.5;max-height:calc(3em + 2px)}
 .order-number.name-length-long:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .9))}
