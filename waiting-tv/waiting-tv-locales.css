@@ -16,7 +16,7 @@
 .number-grid[data-density="dense"] .order-number:not([lang="ko"]) strong{line-height:1.66}
 .order-number.name-length-long:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .9))}
 .order-number.name-length-maximum:not([lang="ko"]){padding-left:6px;padding-right:6px}
-.order-number.name-length-maximum:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .82));word-break:keep-all;text-wrap:wrap}
+.order-number.name-length-maximum:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .82));word-break:keep-all;overflow-wrap:break-word;text-wrap:wrap}
 .order-number .order-status,.order-number .order-timing,.order-number .order-guidance{flex-shrink:0}
 .order-number .order-status{box-sizing:border-box;font-size:max(18px,calc(var(--waiting-order-label-size) - 1px));line-height:1.45;min-width:0;max-height:2.9em}
 .order-number .order-timing,.order-number .order-guidance{line-height:1.4}
