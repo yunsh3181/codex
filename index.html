@@ -2235,11 +2235,11 @@ try{
 
 </script>
 <script src="i18n/ko.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/en.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/ja.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/zh.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/vi.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/es.js?v=happy-hour-visibility-v1"></script>
+<script src="i18n/en.js?v=foreign-name-limit-v1"></script>
+<script src="i18n/ja.js?v=foreign-name-limit-v1"></script>
+<script src="i18n/zh.js?v=foreign-name-limit-v1"></script>
+<script src="i18n/vi.js?v=foreign-name-limit-v1"></script>
+<script src="i18n/es.js?v=foreign-name-limit-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.2"></script>
 <script src="business-hours.js"></script>
@@ -2248,7 +2248,7 @@ try{
 <script src="kiosk-seat-transaction.js?v=1"></script>
 <script src="kiosk-order-number.js?v=1"></script>
 <script src="waitlist-phone-keypad.js?v=1"></script>
-<script src="customer-identity.js?v=1"></script>
+<script src="customer-identity.js?v=2"></script>
 <script src="after-hours-test-mode.js?v=1"></script>
 <script src="meal-ticket-split.js?v=1"></script>
 <script src="speech.js?v=1"></script>
@@ -3948,7 +3948,7 @@ function customerNameView(){
  return shell(`<div class="phoneStep customerNameStep"><h1 class="title">${t('customerName.title')}</h1><p class="sub">${t('customerName.subtitle')}</p><div class="summary"><input id="customerNameDisplay" class="customerNameDisplay ${valid?'isComplete':'isIncomplete'}" value="${escAttr(state.customerDisplayName)}" readonly inputmode="none" autocomplete="off" aria-label="${escAttr(t('customerName.label'))}"><div class="customerNameKeyboard" aria-label="${escAttr(t('customerName.keyboard'))}">${rows.map(row=>`<div class="customerNameKeyRow">${Array.from(row).map(key=>`<button type="button" onclick="pressCustomerName('${escAttr(key)}')">${key}</button>`).join('')}</div>`).join('')}<div class="customerNameKeyRow customerNameActions">${language==='en'?`<button type="button" class="customerNameShift ${state.customerNameUppercase?'active':''}" aria-pressed="${state.customerNameUppercase}" onclick="toggleCustomerNameCase()">${t('customerName.shift')}</button>`:''}<button type="button" onclick="pressCustomerName(' ')">${t('customerName.space')}</button><button type="button" onclick="backCustomerName()">⌫</button><button type="button" onclick="clearCustomerName()">${t('customerName.clear')}</button></div></div><div class="notice ${valid?'isComplete':'isIncomplete'}">${valid?t('customerName.ready',{count:customerNameValidation().length}):t('customerName.invalid')}</div><button id="phoneNext" class="next" ${valid?'':'disabled'} onclick="goPayment()">${t('customerName.confirm')}</button></div></div>`)
 }
 function toggleCustomerNameCase(){state.customerNameUppercase=!state.customerNameUppercase;render()}
-function pressCustomerName(value){const next=window.PJCustomerIdentity.validateDisplayName(state.customerDisplayName+String(value));if(next.length<=20)state.customerDisplayName=state.customerDisplayName+String(value);render()}
+function pressCustomerName(value){const next=state.customerDisplayName+String(value),length=window.PJCustomerIdentity.graphemes(next).length;if(length<=window.PJCustomerIdentity.MAX_DISPLAY_NAME_LENGTH)state.customerDisplayName=next;render()}
 function backCustomerName(){state.customerDisplayName=window.PJCustomerIdentity.graphemes(state.customerDisplayName).slice(0,-1).join('');render()}
 function clearCustomerName(){state.customerDisplayName='';render()}
 function mobileCustomerIdentity(){const language=mobileOrderLanguage();return language==='ko'?{customerIdentityType:'phone_last4',phoneLast4:last4()}:window.PJCustomerIdentity?.identityFor({language,name:state.customerDisplayName,phoneLast4:last4()})||null}

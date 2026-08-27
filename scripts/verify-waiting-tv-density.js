@@ -18,8 +18,8 @@ app.commandLine.appendSwitch('force-device-scale-factor','1');
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const languages=['ko','en','ja','zh','vi','es'];
 const customerNames={en:['ALEXANDER','MARY JANE','JANE WATSON'],ja:['さくら','山田 はなこ','田中 あきら'],zh:['王小明','李 小龙','欧阳娜娜'],vi:['MINH ANH','NGUYỄN MINH','THỊ BÍCH'],es:['MARÍA JOSÉ','JOSÉ LUIS','ANA MARÍA']};
-const maximumCustomerNames={en:'MARY JANE WATSON LEE',ja:'アレクサンダー TANAKA LEE A',zh:'欧阳娜娜 TEST CUSTOMER A',vi:'NGUYỄN THỊ MINH ANHA',es:'ALEJANDRA MONTSERRAT'};
-const fixtureNameLengths=[1,10,11,15,16,20];
+const maximumCustomerNames={en:'MARY JANE',ja:'アレクサンダー田中',zh:'欧阳娜娜测试顾客甲',vi:'NGUYỄN MIN',es:'ALEJANDRA'};
+const fixtureNameLengths=[1,6,7,8,9,10];
 const graphemes=value=>typeof Intl!=='undefined'&&Intl.Segmenter?Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(value),part=>part.segment):Array.from(value);
 const fixtureName=(language,length)=>{const parts=graphemes(maximumCustomerNames[language]).slice(0,length);while(parts.at(-1)===' ')parts.pop();while(parts.length<length)parts.push('I');return parts.join('')};
 

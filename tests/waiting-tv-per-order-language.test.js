@@ -40,5 +40,5 @@ test('production waiting-TV renderer uses each order language without schema or 
  assert.match(production,/node\.lang=waitingOrderLanguage\(item\);node\.dataset\.language=node\.lang/);
  assert.doesNotMatch(production,/collection\([^)]*\)\.(?:add|set|update)|\.doc\([^)]*\)\.(?:set|update|delete)/);
  assert.equal((html.match(/waiting-tv-locales\.js\?v=1/g)||[]).length,1);
- assert.ok(html.indexOf('waiting-tv-locales.js?v=1')<html.indexOf('waiting-tv.js?v=10'));
+ assert.ok(html.indexOf('waiting-tv-locales.js?v=1')<html.indexOf('waiting-tv.js?v=11'));
 });

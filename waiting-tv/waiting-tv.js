@@ -64,7 +64,7 @@ function waitingCustomerNameLengthClass(item){
  if(item?.customerIdentityType!=='name')return '';
  const name=String(item.customerDisplayName||'').trim();
  const length=typeof Intl!=='undefined'&&Intl.Segmenter?Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(name)).length:Array.from(name).length;
- return length>15?' name-length-maximum':length>10?' name-length-long':'';
+ return length>8?' name-length-maximum':length>6?' name-length-long':'';
 }
 function renderDisplay(target,items,emptyText){
  if(!target.dataset)target.dataset={};
