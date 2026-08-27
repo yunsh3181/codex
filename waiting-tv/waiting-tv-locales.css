@@ -13,7 +13,7 @@
 .number-grid[data-density="double"] .order-number:not([lang="ko"]) strong{line-height:1.59}
 .number-grid[data-density="triple"] .order-number:not([lang="ko"]) strong{line-height:1.6}
 .number-grid[data-density="compact"] .order-number:not([lang="ko"]) strong{line-height:1.62}
-.number-grid[data-density="dense"] .order-number:not([lang="ko"]) strong{line-height:1.66}
+.number-grid[data-density="dense"] .order-number:not([lang="ko"]) strong{line-height:1.7}
 .order-number.name-length-long:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .75))}
 .order-number.name-length-maximum:not([lang="ko"]){padding-left:6px;padding-right:6px}
 .order-number.name-length-maximum:not([lang="ko"]) strong{font-size:max(18px,calc(var(--waiting-name-size) * .65))}

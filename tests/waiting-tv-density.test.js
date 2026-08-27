@@ -30,7 +30,7 @@ test('waiting TV updates only the changed CSS and JS cache keys',()=>{
  assert.equal((html.match(/waiting-tv\.css\?v=9/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.css\?v=8/);
  assert.equal((html.match(/waiting-tv\.js\?v=11/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.js\?v=10(?:["'])/);
  assert.equal((html.match(/waiting-tv-locales\.js\?v=1/g)||[]).length,1);
- assert.equal((html.match(/waiting-tv-locales\.css\?v=5/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=4/);
+ assert.equal((html.match(/waiting-tv-locales\.css\?v=6/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=5/);
  assert.match(html,/speech\.js\?v=1/,'unchanged speech cache key stays intact');
 });
 
@@ -51,7 +51,7 @@ test('waiting TV card typography prevents flex compression and restores safe ide
  assert.match(localeCss,/\.number-grid\[data-density="double"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.59\}/);
  assert.match(localeCss,/\.number-grid\[data-density="triple"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.6\}/);
  assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.62\}/);
- assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.66\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.7\}/);
  assert.match(localeCss,/\.order-number\.name-length-long:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.75\)\)\}/);
  assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\)\{padding-left:6px;padding-right:6px\}/);
  assert.match(localeCss,/\.order-number\.name-length-maximum:not\(\[lang="ko"\]\) strong\{font-size:max\(18px,calc\(var\(--waiting-name-size\) \* \.65\)\)\}/);
