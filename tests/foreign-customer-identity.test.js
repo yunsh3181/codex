@@ -41,11 +41,14 @@ test('English keyboard supports exact mixed case without opening the OS keyboard
 });
 
 test('name sanitization is grapheme-aware and rejects unsafe or invalid input',()=>{
+ assert.equal(identity.MAX_DISPLAY_NAME_LENGTH,10);
  assert.deepEqual(identity.validateDisplayName('  <script>alert(1)</script> Ana\u0000  María  '),{valid:true,value:'Ana María',length:9});
  assert.equal(identity.validateDisplayName('   ').valid,false);
- assert.equal(identity.validateDisplayName('😀'.repeat(20)).valid,true);
- assert.equal(identity.validateDisplayName('😀'.repeat(21)).valid,false);
+ assert.equal(identity.validateDisplayName('😀'.repeat(10)).valid,true);
+ assert.equal(identity.validateDisplayName('😀'.repeat(11)).valid,false);
  assert.equal(identity.identityFor({language:'en',name:'<script>x</script>'}),null);
+ assert.ok(html.includes('length<=window.PJCustomerIdentity.MAX_DISPLAY_NAME_LENGTH'));
+ assert.ok(!html.includes('next.length<=20'));
 });
 
 test('DOM payload rules admin TV and TTS use one production identity path',()=>{
@@ -64,5 +67,10 @@ test('all locale bundles contain the complete name screen copy',()=>{
  for(const locale of ['ko','en','ja','zh','vi','es']){
   const source=fs.readFileSync(`i18n/${locale}.js`,'utf8');
   for(const key of ['title','subtitle','label','keyboard','space','clear','confirm','invalid','ready'])assert.match(source,new RegExp(`${key}:'`),`${locale}.${key}`);
+ }
+ for(const locale of ['en','ja','zh','vi','es']){
+  const source=fs.readFileSync(`i18n/${locale}.js`,'utf8');
+  assert.match(source,/customerName:\{[^\n]*10/,`${locale} displays the ten-character limit`);
+  assert.doesNotMatch(source,/customerName:\{[^\n]*20/,`${locale} no longer displays the old limit`);
  }
 });
