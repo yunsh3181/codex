@@ -30,7 +30,7 @@ test('waiting TV updates only the changed CSS and JS cache keys',()=>{
  assert.equal((html.match(/waiting-tv\.css\?v=9/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.css\?v=8/);
  assert.equal((html.match(/waiting-tv\.js\?v=11/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv\.js\?v=10(?:["'])/);
  assert.equal((html.match(/waiting-tv-locales\.js\?v=1/g)||[]).length,1);
- assert.equal((html.match(/waiting-tv-locales\.css\?v=6/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=5/);
+ assert.equal((html.match(/waiting-tv-locales\.css\?v=7/g)||[]).length,1);assert.doesNotMatch(html,/waiting-tv-locales\.css\?v=6/);
  assert.match(html,/speech\.js\?v=1/,'unchanged speech cache key stays intact');
 });
 
@@ -41,12 +41,9 @@ test('waiting TV status line box keeps Windows glyph safety without shrinking un
 });
 
 test('waiting TV card typography prevents flex compression and restores safe identity line boxes',()=>{
- assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.5[^}]*flex-shrink:0/);
+ assert.match(localeCss,/\.order-number strong\{[^}]*width:100%[^}]*min-width:0[^}]*box-sizing:border-box[^}]*font-size:max\(18px,calc\(var\(--waiting-order-number-size\) - 1px\)\)[^}]*line-height:1\.6[^}]*flex-shrink:0/);
  assert.match(localeCss,/\.order-number:not\(\[lang="ko"\]\) strong\{[^}]*font-size:var\(--waiting-name-size\)[^}]*line-height:1\.58[^}]*white-space:nowrap[^}]*overflow-wrap:normal[^}]*text-wrap:nowrap[^}]*max-height:calc\(1\.66em \+ 2px\)/);
- assert.match(localeCss,/\.number-grid\[data-density="triple"\] \.order-number strong\{line-height:1\.52\}/);
- assert.match(localeCss,/\.number-grid\[data-density="compact"\] \.order-number strong\{line-height:1\.53\}/);
- assert.match(localeCss,/\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.54\}/);
- assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number strong\{line-height:1\.5\}/);
+ assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number strong,\.number-grid\[data-density="double"\] \.order-number strong,\.number-grid\[data-density="triple"\] \.order-number strong,\.number-grid\[data-density="compact"\] \.order-number strong,\.number-grid\[data-density="dense"\] \.order-number strong\{line-height:1\.6\}/);
  assert.match(localeCss,/\.number-grid\[data-density="single"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.58;max-height:calc\(1\.58em \+ 2px\)\}/);
  assert.match(localeCss,/\.number-grid\[data-density="double"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.59\}/);
  assert.match(localeCss,/\.number-grid\[data-density="triple"\] \.order-number:not\(\[lang="ko"\]\) strong\{line-height:1\.6\}/);
