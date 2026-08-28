@@ -29,12 +29,15 @@ html:not([data-layout="phone"]) body[data-step="setChoice"] .cartmain>.networkSt
 html:not([data-layout="phone"]) body[data-step="setChoice"] .cartprice{display:none}
 html:not([data-layout="phone"]) body[data-step="setChoice"] .cartbar>button{flex:0 0 auto;align-self:center;min-width:86px;min-height:58px!important}
 
-@media (min-width:820px) and (max-width:850px) and (orientation:portrait),
-       (min-width:768px) and (max-width:819px) and (orientation:portrait){
- body[data-step="setChoice"] .darkSetPage{padding:4px 24px!important}
- body[data-step="setChoice"] .darkSetSub{margin-bottom:54px!important}
- body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:690px!important;margin-inline:auto;gap:18px!important}
- body[data-step="setChoice"] .darkSetCard{height:150px!important;min-height:150px!important;border-radius:18px!important}
+@media (min-width:768px) and (max-width:850px) and (orientation:portrait){
+ html[data-layout="tablet"] body[data-step="setChoice"] .app{display:flex;height:100dvh;min-height:0;padding-bottom:0!important;flex-direction:column;overflow:hidden}
+ html[data-layout="tablet"] body[data-step="setChoice"] .app>:where(.head,.progress){flex:0 0 auto}
+ html[data-layout="tablet"] body[data-step="setChoice"] .stage{box-sizing:border-box;min-height:0!important;padding-top:12px!important;padding-bottom:108px!important;flex:1 1 auto;overflow-x:hidden!important;overflow-y:auto!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch}
+ html[data-layout="tablet"] body[data-step="setChoice"] .darkSetPage{box-sizing:border-box;display:grid;min-height:100%;padding:0 24px 22px!important;grid-template-rows:auto auto minmax(474px,1fr) auto}
+ html[data-layout="tablet"] body[data-step="setChoice"] .darkSetTitle{margin:0 0 14px!important}
+ html[data-layout="tablet"] body[data-step="setChoice"] .darkSetSub{margin:0 0 22px!important}
+ body[data-step="setChoice"] .darkSetGrid{width:100%;height:100%;min-height:474px;max-width:690px!important;margin:0 auto 22px;grid-template-rows:repeat(3,150px)!important;align-content:center;gap:clamp(12px,2vh,24px)!important}
+ body[data-step="setChoice"] .darkSetGrid .darkSetCard{height:150px!important;min-height:150px!important;border-radius:18px!important}
  body[data-step="setChoice"] .darkSetIdentity{padding:14px 20px} body[data-step="setChoice"] .darkSetDetails{padding:14px 18px}
  body[data-step="setChoice"] .darkSetBadges{min-height:24px;margin-bottom:8px}
  body[data-step="setChoice"] :is(.darkSetBadge,.bestRibbon){padding:4px 9px!important;font-size:14px!important}
@@ -43,22 +46,7 @@ html:not([data-layout="phone"]) body[data-step="setChoice"] .cartbar>button{flex
  body[data-step="setChoice"] .darkSetDesc{margin-top:5px!important;font-size:17px!important}
  body[data-step="setChoice"] .darkSetActionRow{margin-top:8px;padding-top:8px}
  body[data-step="setChoice"] .darkSetPrice{font-size:29px!important} body[data-step="setChoice"] .darkSetSelect{padding:7px 12px!important;font-size:17px!important}
- body[data-step="setChoice"] .darkSetNote{max-width:690px;margin:40px auto 0!important;padding:8px 12px!important;font-size:15px!important;line-height:1.3}
- body[data-step="setChoice"] .stage{padding-bottom:123px!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch}
-}
-
-@media (min-width:768px) and (max-width:850px) and (orientation:portrait) and (max-height:1040px){
- body[data-step="setChoice"] .darkSetSub{margin-bottom:44px!important}
- body[data-step="setChoice"] .darkSetNote{margin-top:25px!important}
-}
-
-@media (min-width:768px) and (max-width:850px) and (orientation:portrait) and (min-height:1041px){
- body[data-step="setChoice"] .darkSetSub{margin-bottom:46px!important}
- body[data-step="setChoice"] .stage{padding-bottom:105px!important}
-}
-
-@media (min-width:820px) and (max-width:850px) and (orientation:portrait) and (min-height:1041px){
- body[data-step="setChoice"] .darkSetNote{margin-top:32px!important}
+ body[data-step="setChoice"] .darkSetNote{width:100%;max-width:690px;margin:0 auto!important;padding:8px 12px!important;font-size:15px!important;line-height:1.3}
 }
 
 html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:980px;margin-inline:auto;gap:16px!important}
