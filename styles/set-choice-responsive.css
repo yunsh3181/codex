@@ -33,7 +33,7 @@ html:not([data-layout="phone"]) body[data-step="setChoice"] .cartbar>button{flex
        (min-width:768px) and (max-width:819px) and (orientation:portrait){
  body[data-step="setChoice"] .darkSetPage{padding:4px 24px!important}
  body[data-step="setChoice"] .darkSetSub{margin-bottom:54px!important}
- body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:690px!important;margin-inline:auto;gap:9px!important}
+ body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:690px!important;margin-inline:auto;gap:18px!important}
  body[data-step="setChoice"] .darkSetCard{height:150px!important;min-height:150px!important;border-radius:18px!important}
  body[data-step="setChoice"] .darkSetIdentity{padding:14px 20px} body[data-step="setChoice"] .darkSetDetails{padding:14px 18px}
  body[data-step="setChoice"] .darkSetBadges{min-height:24px;margin-bottom:8px}
@@ -49,7 +49,16 @@ html:not([data-layout="phone"]) body[data-step="setChoice"] .cartbar>button{flex
 
 @media (min-width:768px) and (max-width:850px) and (orientation:portrait) and (max-height:1040px){
  body[data-step="setChoice"] .darkSetSub{margin-bottom:44px!important}
- body[data-step="setChoice"] .darkSetNote{margin-top:28px!important}
+ body[data-step="setChoice"] .darkSetNote{margin-top:25px!important}
+}
+
+@media (min-width:768px) and (max-width:850px) and (orientation:portrait) and (min-height:1041px){
+ body[data-step="setChoice"] .darkSetSub{margin-bottom:46px!important}
+ body[data-step="setChoice"] .stage{padding-bottom:105px!important}
+}
+
+@media (min-width:820px) and (max-width:850px) and (orientation:portrait) and (min-height:1041px){
+ body[data-step="setChoice"] .darkSetNote{margin-top:32px!important}
 }
 
 html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:980px;margin-inline:auto;gap:16px!important}
