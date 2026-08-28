@@ -53,7 +53,7 @@ test('all six locale files provide complete inactivity copy',()=>{
 
 test('safe PR 181 release path and protected seat conditions remain canonical',()=>{
  assert.match(html,/if\(heldSeats\.length\)await releaseSeats\(heldSeats\)/);
- assert.match(html,/reset\('idle',\{skipRelease:true\}\);render\(\)/);
+ assert.match(html,/await endCustomerSessionToStart\(\)/);
  assert.match(html,/saved\.status==='held'&&saved\.heldBy===seatClientId&&!saved\.orderId/);
  assert.match(html,/function isIdleResetProtected\(\)\{return mobileOrderSubmitting\|\|seatOrderCommitStarted\|\|Boolean\(state\.firebaseOrderId\)\}/);
 });

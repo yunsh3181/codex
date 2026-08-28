@@ -42,7 +42,7 @@ test('live reservation conflicts are guarded and reset through the home workflow
  assert.match(kiosk,/if\(seatReservationConflictActive\|\|state\.firebaseOrderId\)return/);
  assert.match(kiosk,/selectedTables\.some\(id=>mobileSeatDocs\[id\]\?\.status==='reserved'\)/);
  assert.match(kiosk,/ui\.seatReservation\.conflict/);
- assert.match(kiosk,/function confirmSeatReservationConflict\(\)\{reset\(\)/);
+ assert.match(kiosk,/function confirmSeatReservationConflict\(\)[^{]*\{[^}]*endCustomerSessionToStart\(\)/);
 });
 
 test('final order transaction rejects reservations before order write',()=>{

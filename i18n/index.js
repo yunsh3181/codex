@@ -24,7 +24,8 @@ function readInitialLanguage(){
  const params=new URLSearchParams(location.search);
  let saved='';
  try{saved=localStorage.getItem(LANGUAGE_STORAGE_KEY)||''}catch(e){}
- const requested=params.get('lang')||saved||DEFAULT_LANGUAGE;
+ const kioskDefault=document.documentElement.dataset?.layout==='kiosk21';
+ const requested=kioskDefault?DEFAULT_LANGUAGE:(params.get('lang')||saved||DEFAULT_LANGUAGE);
  return SUPPORTED_LANGUAGES.includes(requested)?requested:DEFAULT_LANGUAGE;
 }
 var currentLanguage=readInitialLanguage();
@@ -120,5 +121,5 @@ function setLanguage(lang,opts={}){
  document.documentElement.lang=t('meta.htmlLang');
  document.title=t('meta.title');
 }
-setLanguage(currentLanguage);
+setLanguage(currentLanguage,{persist:document.documentElement.dataset?.layout==='kiosk21'});
 window.PJ_I18N={SUPPORTED_LANGUAGES,DEFAULT_LANGUAGE,LANGUAGE_STORAGE_KEY,I18N,LOGIC_LABEL_KEYS,MENU_I18N_IDS,ENGLISH_MENU_NAMES_BY_ID,readInitialLanguage,translationValue,interpolate,t,label,menuTranslationValue,menuLabel,setLanguage,optionKey,doughName,doughDesc,sizeName,sizeDesc,crustName,crustDesc,crustSizeLabel,toppingName,toppingDesc,toppingCategory,toppingPriceLabel,sideName,sideDesc,sideCategory,sidePriceLabel,drinkName,drinkDesc,drinkCategory,drinkPriceLabel,drinkGroupName,drinkVariant,pizzaName,menuItemName,currentLanguage:currentLanguageCode};
