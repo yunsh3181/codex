@@ -1,0 +1,58 @@
+/* Sole layout owner for set-choice cards; legacy layers only supply theme tokens. */
+body[data-step="setChoice"] .darkSetGrid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-items:stretch!important}
+html[data-layout] body[data-step="setChoice"] .darkSetGrid .darkSetCard{display:grid!important;grid-template-columns:minmax(0,34%) minmax(0,66%)!important;grid-template-rows:minmax(0,1fr)!important;grid-template-areas:none!important;align-items:stretch!important;min-width:0;padding:0!important;text-align:left!important;overflow:hidden!important;transform:none!important}
+body[data-step="setChoice"] :is(.darkSetIdentity,.darkSetDetails){display:flex;min-width:0;flex-direction:column}
+body[data-step="setChoice"] .darkSetIdentity{justify-content:center;padding:20px 24px;background:linear-gradient(145deg,#07513c,#003d2d);color:#fff}
+body[data-step="setChoice"] .darkSetBadges{display:flex;min-height:30px;margin-bottom:12px;gap:7px;align-items:center;flex-wrap:wrap}
+body[data-step="setChoice"] :is(.darkSetBadge,.bestRibbon){position:static!important;display:inline-flex!important;width:auto!important;height:auto!important;min-height:0!important;margin:0!important;padding:5px 11px!important;align-items:center;border-radius:999px!important;font-size:16px!important;line-height:1.15!important;white-space:nowrap}
+body[data-step="setChoice"] .bestRibbon{background:var(--v4-red)!important;color:#fff}
+body[data-step="setChoice"] .darkSetCard h2{margin:0!important;color:#fff!important;font-size:40px!important;line-height:1.12!important;text-align:left!important;white-space:nowrap;word-break:keep-all}
+body[data-step="setChoice"] .darkSetDetails{justify-content:center;padding:20px 24px;background:#fffdf8;color:var(--v4-ink)}
+body[data-step="setChoice"] :is(.darkSetSize,.darkSetDesc){display:block!important;margin:0!important;color:var(--v4-ink)!important;text-align:left!important;white-space:normal!important;word-break:keep-all;overflow-wrap:anywhere}
+body[data-step="setChoice"] .darkSetSize{font-size:27px!important;line-height:1.2!important;font-weight:1000}
+body[data-step="setChoice"] .darkSetDesc{margin-top:8px!important;font-size:20px!important;line-height:1.3!important;font-weight:750!important}
+body[data-step="setChoice"] .darkSetActionRow{display:flex;min-width:0;margin-top:14px;padding-top:13px;gap:14px;align-items:center;justify-content:space-between;border-top:1px dashed #d8d0c5}
+body[data-step="setChoice"] .darkSetPrice{margin:0!important;color:var(--v4-green)!important;font-size:34px!important;line-height:1.1;white-space:nowrap}
+body[data-step="setChoice"] .darkSetSelect{display:inline-flex!important;min-height:44px;padding:9px 16px!important;align-items:center;border-radius:16px;color:#fff!important;font-size:19px!important;white-space:nowrap}
+body[data-step="setChoice"] .darkSetCard.best .darkSetPrice{color:var(--v4-red)!important}
+body[data-step="setChoice"] .darkSetCard.best .darkSetSelect{background:var(--v4-red)!important}
+body[data-step="setChoice"] .darkSetCard:focus-visible{outline:4px solid #ffd21c!important;outline-offset:3px}
+body[data-step="setChoice"] .darkSetNote{background:#fffdf8!important;color:var(--v4-ink)!important}
+
+@media (min-width:820px) and (max-width:850px) and (orientation:portrait){
+ body[data-step="setChoice"] .darkSetPage{padding:4px 24px!important}
+ body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:690px!important;margin-inline:auto;gap:9px!important}
+ body[data-step="setChoice"] .darkSetCard{height:150px!important;min-height:150px!important;border-radius:18px!important}
+ body[data-step="setChoice"] .darkSetIdentity{padding:14px 20px} body[data-step="setChoice"] .darkSetDetails{padding:14px 18px}
+ body[data-step="setChoice"] .darkSetBadges{min-height:24px;margin-bottom:8px}
+ body[data-step="setChoice"] :is(.darkSetBadge,.bestRibbon){padding:4px 9px!important;font-size:14px!important}
+ body[data-step="setChoice"] .darkSetCard h2{font-size:36px!important} body[data-step="setChoice"] .darkSetSize{font-size:24px!important}
+ html:not(:lang(ko)) body[data-step="setChoice"] .darkSetCard h2{font-size:28px!important;white-space:normal}
+ body[data-step="setChoice"] .darkSetDesc{margin-top:5px!important;font-size:17px!important}
+ body[data-step="setChoice"] .darkSetActionRow{margin-top:8px;padding-top:8px}
+ body[data-step="setChoice"] .darkSetPrice{font-size:29px!important} body[data-step="setChoice"] .darkSetSelect{padding:7px 12px!important;font-size:17px!important}
+ body[data-step="setChoice"] .darkSetNote{max-width:690px;margin:8px auto 0!important;padding:8px 12px!important;font-size:15px!important;line-height:1.3}
+}
+
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetGrid{width:100%;max-width:980px;margin-inline:auto;gap:16px!important}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard{height:224px!important;min-height:224px!important}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetIdentity{padding:28px 34px} html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetDetails{padding:26px 34px}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetCard h2{font-size:52px!important} html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetSize{font-size:34px!important}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetDesc{font-size:25px!important} html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetPrice{font-size:42px!important}
+html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetSelect{font-size:23px!important} html[data-layout="kiosk21"] body[data-step="setChoice"] .darkSetNote{max-width:980px;margin:16px auto 0!important;font-size:18px!important}
+html[data-layout="kiosk21"]:not(:lang(ko)) body[data-step="setChoice"] .darkSetCard h2{font-size:38px!important;white-space:normal}
+html[data-layout="kiosk21"]:not(:lang(ko)) body[data-step="setChoice"] .darkSetGrid .darkSetCard :is(.darkSetBadge,.bestRibbon){max-width:100%;padding:5px 9px!important;font-size:16px!important;white-space:normal;text-align:center}
+
+@media (min-width:851px) and (max-height:1100px){
+ body[data-step="setChoice"] .stage{height:calc(100dvh - 330px)!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;padding-bottom:160px!important}
+}
+
+/* Preserve the established phone geometry despite the semantic panel wrappers. */
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetCard{display:grid!important;grid-template-columns:62px minmax(0,1fr) auto!important;grid-template-rows:auto auto auto!important;min-height:91px!important;height:auto!important;padding:8px 9px!important;overflow:visible!important}
+html[data-layout="phone"] body[data-step="setChoice"] :is(.darkSetIdentity,.darkSetDetails,.darkSetActionRow){display:contents}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetBadges{grid-column:1;grid-row:1/4;align-self:center;margin:0}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetBadge{max-width:62px;white-space:normal;font-size:9px!important}
+html[data-layout="phone"] body[data-step="setChoice"] .bestRibbon{position:absolute!important;top:3px!important;right:5px!important;padding:2px 5px!important;font-size:7px!important}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetCard h2{grid-column:2;grid-row:1;font-size:16px!important;color:var(--v4-ink)!important}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetSize{grid-column:2;grid-row:2;font-size:10px!important} html[data-layout="phone"] body[data-step="setChoice"] .darkSetDesc{grid-column:2;grid-row:3;font-size:9px!important}
+html[data-layout="phone"] body[data-step="setChoice"] .darkSetPrice{grid-column:3;grid-row:1/3;font-size:15px!important} html[data-layout="phone"] body[data-step="setChoice"] .darkSetSelect{grid-column:3;grid-row:3;min-height:0;padding:3px 6px!important;font-size:8px!important}

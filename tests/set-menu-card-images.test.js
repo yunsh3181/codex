@@ -4,6 +4,7 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const responsiveCss = fs.readFileSync(path.join(root, 'styles/set-choice-responsive.css'), 'utf8');
 const setChoice = html.slice(
   html.indexOf("if(state.step==='setChoice')"),
   html.indexOf("if(state.step==='pizzaOptions')")
@@ -29,8 +30,18 @@ for (const image of [
 
 assert(!setChoice.includes('<img'), 'set cards must be text-only');
 assert(!html.includes('<link rel="stylesheet" href="styles/set-menu-card-images.css">'));
-assert.match(html, /body\[data-step="setChoice"\] \.darkSetCard\{[\s\S]*?height:auto!important/);
-assert.match(html, /body\[data-step="setChoice"\] \.darkSetDesc\{[\s\S]*?font-size:clamp\(26px,3\.2vw,36px\)!important;[\s\S]*?font-weight:1000!important;[\s\S]*?text-align:center!important/);
+assert.match(html, /darkSetIdentity/);
+assert.match(html, /darkSetDetails/);
+assert.match(html, /darkSetActionRow/);
+assert.match(html, /darkSetPrice[\s\S]*darkSetSelect/);
+assert.match(html, /darkSetSelect" aria-hidden="true"/);
+assert.match(html, /styles\/set-choice-responsive\.css/);
+assert.match(responsiveCss, /grid-template-columns:minmax\(0,34%\) minmax\(0,66%\)!important/);
+assert.match(responsiveCss, /min-width:820px[\s\S]*max-width:850px[\s\S]*orientation:portrait/);
+assert.match(responsiveCss, /html\[data-layout="kiosk21"\][\s\S]*height:224px!important/);
+assert.match(responsiveCss, /html\[data-layout="phone"\][\s\S]*min-height:91px!important/);
+assert.doesNotMatch(responsiveCss, /flex-direction:column!important/);
+assert.match(responsiveCss, /:is\(\.darkSetBadge,\.bestRibbon\)\{[^}]*border-radius:999px!important/);
 
 // The confirmed 4-person product configuration contains one drink.
 assert(
