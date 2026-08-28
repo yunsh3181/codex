@@ -12,7 +12,7 @@ const workflow = fs.readFileSync(
 const parsed = YAML.parse(workflow);
 
 test('Electron Xvfb runs each protected suite exactly three times', () => {
-  assert.equal(parsed.jobs.repeated_linux_xvfb.steps.length, 9);
+  assert.equal(parsed.jobs.repeated_linux_xvfb.steps.length, 8);
   assert.equal((workflow.match(/for iteration in \{1\.\.3\}; do/g) || []).length, 3);
   assert.equal((workflow.match(/for iteration in \{1\.\.10\}; do/g) || []).length, 0);
   assert.match(workflow, /Full Xvfb suite \$\{iteration\}\/3/);

@@ -49,14 +49,6 @@ jobs:
             xvfb-run --auto-servernum npm test
           done
 
-      - name: Upload set-choice touch diagnostics
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: set-choice-touch-diagnostics-linux-xvfb-${{ github.run_id }}
-          path: artifacts/set-choice-touch-diagnostics/
-          if-no-files-found: warn
-
       - name: Run all Electron browser tests together three times
         env:
           ELECTRON_DISABLE_SANDBOX: "true"

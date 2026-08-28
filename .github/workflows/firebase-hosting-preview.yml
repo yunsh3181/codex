@@ -39,14 +39,6 @@ jobs:
           node node_modules/electron/install.js
           xvfb-run --auto-servernum npm test
 
-      - name: Upload set-choice touch diagnostics
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: set-choice-touch-diagnostics-linux-hosting-${{ github.run_id }}
-          path: artifacts/set-choice-touch-diagnostics/
-          if-no-files-found: warn
-
       - name: Prepare Firebase Hosting files
         run: npm run build:hosting
 
