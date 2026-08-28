@@ -70,26 +70,27 @@ test('start-order handler locks before async cleanup and ignores a rapid second 
  let releases=0,resets=0,renders=0,resolveRelease;
  const releaseGate=new Promise(resolve=>{resolveRelease=resolve});
  const button={disabled:false};
- const context={idleStartLocked:false,state:{selectedTables:new Set(['A1']),firebaseOrderId:null},document:{querySelector(){return button}},async releaseSeats(){releases+=1;await releaseGate},reset(){resets+=1},render(){renders+=1},guardIdleStartTransition(){context.idleStartLocked=false},console};
+ let arms=0;
+ const context={idleStartLocked:false,state:{selectedTables:new Set(['A1']),firebaseOrderId:null},document:{querySelector(){return button}},async releaseSeats(){releases+=1;await releaseGate},reset(){resets+=1},armOrderIdleTimer(){arms+=1},render(){renders+=1},guardIdleStartTransition(){context.idleStartLocked=false},console};
  vm.createContext(context);vm.runInContext(source,context);
  const first=context.startOrderFromIdle();
  const second=context.startOrderFromIdle();
  assert.equal(releases,1);assert.equal(button.disabled,true);
  resolveRelease();await Promise.all([first,second]);
- assert.deepEqual({releases,resets,renders},{releases:1,resets:1,renders:1});
+ assert.deepEqual({releases,resets,arms,renders},{releases:1,resets:1,arms:1,renders:1});
 });
 
 test('idle transition installs a short click shield before unlocking the new screen',()=>{
  assert.match(html,/\.kioskIdleClickShield\{position:fixed;inset:0;z-index:99999/);
  assert.match(html,/function guardIdleStartTransition\(\)\{[\s\S]*?document\.body\.append\(shield\)[\s\S]*?setTimeout\(\(\)=>\{shield\.remove\(\);idleStartLocked=false\},800\)/);
- assert.match(html,/reset\('home',\{skipRelease:true\}\);render\(\);guardIdleStartTransition\(\)/);
+ assert.match(html,/reset\('home',\{skipRelease:true\}\);armOrderIdleTimer\(\);render\(\);guardIdleStartTransition\(\)/);
 });
 
 test('idle translations use a fresh cache key without changing unrelated assets',()=>{
  assert.match(html,/<script src="i18n\/ui\.js\?v=52"><\/script>/);
  assert.doesNotMatch(html,/<script src="i18n\/ui\.js\?v=51"><\/script>/);
  assert.equal((html.match(/i18n\/ui\.js\?v=/g)||[]).length,1);
- assert.match(html,/<script src="i18n\/index\.js\?v=44\.2"><\/script>/);
+ assert.match(html,/<script src="i18n\/index\.js\?v=44\.3"><\/script>/);
  assert.match(html,/<script src="bottle-seat-policy\.js\?v=1"><\/script>/);
  assert.match(html,/<link rel="stylesheet" href="styles\/device-kiosk21\.css\?v=order-review-single-screen-v17">/);
 });
@@ -122,13 +123,13 @@ test('kiosk21 always boots and resets to idle while other layouts keep their pol
  assert.match(html,/function defaultResetStep\(\)\{return isKioskInactivityLayout\(\)\?'idle':'home'\}/);
  assert.match(html,/const state=\{step:initialStep\(\)/);
  assert.match(html,/function reset\(targetStep=defaultResetStep\(\),options=\{\}\)/);
- assert.match(html,/reset\('home',\{skipRelease:true\}\);render\(\);guardIdleStartTransition\(\)/);
+ assert.match(html,/reset\('home',\{skipRelease:true\}\);armOrderIdleTimer\(\);render\(\);guardIdleStartTransition\(\)/);
 });
 
 test('unknown kiosk steps use the canonical safe reset path to idle',()=>{
  assert.match(html,/const KIOSK_VALID_STEPS=new Set\(\[\.\.\.flow,\.\.\.KIOSK_SPECIAL_STEPS\]\)/);
- assert.match(html,/function recoverUnknownKioskStep\(\)\{[\s\S]*?if\(!isKioskInactivityLayout\(\)\|\|KIOSK_VALID_STEPS\.has\(state\.step\)\)return false;[\s\S]*?if\(isIdleResetProtected\(\)\)return false;[\s\S]*?reset\('idle'\)/);
- assert.match(html,/function render\(\)\{\n recoverUnknownKioskStep\(\)/);
+ assert.match(html,/function recoverUnknownKioskStep\(\)\{[\s\S]*?if\(!isKioskInactivityLayout\(\)\|\|KIOSK_VALID_STEPS\.has\(state\.step\)\)return false;[\s\S]*?if\(isIdleResetProtected\(\)\)return false;[\s\S]*?endCustomerSessionToStart\(\)/);
+ assert.match(html,/function render\(\)\{\n if\(recoverUnknownKioskStep\(\)\)return/);
 });
 
 test('every runtime step extracted from the application is registered exactly once',()=>{
@@ -145,10 +146,11 @@ test('every runtime step extracted from the application is registered exactly on
  for(const step of referenced)assert.ok(registered.includes(step),`unregistered runtime step: ${step}`)
 });
 
-test('all terminal home actions reuse reset and therefore return kiosk21 to idle',()=>{
- assert.match(html,/class="doneHomeBtn" onclick="reset\(\);render\(\)"/);
- assert.match(html,/setTimeout\(\(\)=>\{reset\(\);render\(\)\},5000\)/);
+test('all terminal home actions use the customer-session boundary',()=>{
+ assert.match(html,/class="doneHomeBtn" onclick="endCustomerSessionToStart\(\)"/);
+ assert.match(html,/completionReturnTimer=setTimeout\(\(\)=>\{completionReturnTimer=null;endCustomerSessionToStart\(\)\},5000\)/);
  assert.match(html,/class="prev" onclick="reset\(\);render\(\)"/);
- assert.match(html,/function confirmSeatReservationConflict\(\)\{reset\(\)/);
- assert.match(html,/function confirmBottleHoursConflict\(\)\{[^}]*reset\(\)/);
+ assert.match(html,/customerHomeButton\.addEventListener\('click',\(\)=>endCustomerSessionToStart\(\)\)/);
+ assert.match(html,/function confirmSeatReservationConflict\(\)[^{]*\{[^}]*endCustomerSessionToStart\(\)/);
+ assert.match(html,/function confirmBottleHoursConflict\(\)[^{]*\{[^}]*endCustomerSessionToStart\(\)/);
 });

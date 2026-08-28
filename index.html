@@ -2241,7 +2241,7 @@ try{
 <script src="i18n/vi.js?v=foreign-name-limit-v1"></script>
 <script src="i18n/es.js?v=foreign-name-limit-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
-<script src="i18n/index.js?v=44.2"></script>
+<script src="i18n/index.js?v=44.3"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
 <script src="seat-capacity-policy.js?v=3"></script>
@@ -2327,8 +2327,25 @@ function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.
 function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
 const resetOrderState=reset;
 reset=function(...args){navigationHistory.length=0;const result=resetOrderState(...args);lastRenderedStep=state.step;return result};
+let customerSessionEndInProgress=false;let completionReturnTimer=null;
+async function endCustomerSessionToStart({skipSeatRelease=false,targetStep=defaultResetStep()}={}){
+ if(customerSessionEndInProgress)return false;
+ if(isIdleResetProtected()&&state.step!=='done')return false;
+ customerSessionEndInProgress=true;
+ if(typeof clearTimeout==='function')clearTimeout(completionReturnTimer);completionReturnTimer=null;
+ const kioskSession=isKioskInactivityLayout();
+ const heldSeats=!skipSeatRelease&&!state.firebaseOrderId?[...state.selectedTables]:[];
+ try{if(heldSeats.length)await releaseSeats(heldSeats)}catch(error){console.warn('고객 세션 종료 중 좌석 해제 실패',error)}
+ try{
+  kioskPageVoice?.reset();
+  reset(kioskSession?'idle':targetStep,{skipRelease:true});
+  if(kioskSession){window.PJ_I18N?.setLanguage('ko',{persist:true});sessionStorage.setItem('pjLangSelected','1')}
+  render();
+  return true
+ }finally{customerSessionEndInProgress=false}
+}
 function showSeatReservationConflict(){if(seatReservationConflictActive||state.firebaseOrderId)return;seatReservationConflictActive=true;state.modal='seatReservationConflict';render()}
-function confirmSeatReservationConflict(){reset();seatReservationConflictActive=false;seatOrderCommitStarted=false;render()}
+async function confirmSeatReservationConflict(){seatReservationConflictActive=false;seatOrderCommitStarted=false;await endCustomerSessionToStart()}
 const BOTTLE_COPY={
  ko:{annexBase:'파파존스 옆 파파보틀 좌석 공간입니다.',roomBase:'별관 내부 단체 좌석입니다.',operating:'평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',outside:'현재 운영시간이 아닙니다. 평일 오전 11시부터 오후 2시까지만 이용할 수 있습니다.',weekendHoliday:'주말과 공휴일에는 이용할 수 없습니다. 평일 오전 11시부터 오후 2시까지만 운영합니다.',short:'평일 11:00~14:00 운영',unavailable:'이용 불가',conflict:'별관·별관 단체석 운영시간이 종료되었습니다. 다른 좌석을 선택해 주세요.'},
  en:{annexBase:'This is the PapaBottle seating area next to Papa Johns.',roomBase:'This is group seating inside the Annex.',operating:'Available only on weekdays from 11:00 AM to 2:00 PM.',outside:'It is currently outside operating hours. Available only on weekdays from 11:00 AM to 2:00 PM.',weekendHoliday:'Unavailable on weekends and public holidays. Open only on weekdays from 11:00 AM to 2:00 PM.',short:'Weekdays 11:00–14:00',unavailable:'Unavailable',conflict:'Annex and Annex Group Seating hours have ended. Please choose another seat.'},
@@ -2343,7 +2360,7 @@ function bottleAvailability(now=new Date()){return bottlePolicy.getBottleSeatAva
 function bottleReason(a=bottleAvailability()){return bottleCopy()[a.reason==='weekend'||a.reason==='holiday'?'weekendHoliday':a.available?'operating':'outside']}
 function selectedBottleSeat(){return state.selectedTables.some(id=>bottlePolicy.isBottleSeat(id))}
 function showBottleHoursConflict(){if(bottleHoursConflictActive||seatReservationConflictActive||state.firebaseOrderId||seatOrderCommitStarted)return;bottleHoursConflictActive=true;state.modal='bottleHoursConflict';render()}
-function confirmBottleHoursConflict(){bottleHoursConflictActive=false;reset();seatOrderCommitStarted=false;render()}
+async function confirmBottleHoursConflict(){bottleHoursConflictActive=false;seatOrderCommitStarted=false;await endCustomerSessionToStart()}
 function checkBottleHoursBoundary(){if(selectedBottleSeat()&&!bottleAvailability().available)showBottleHoursConflict();else if(['area','table'].includes(state.step))render();scheduleBottlePolicyBoundary()}
 function scheduleBottlePolicyBoundary(){if(typeof setTimeout!=='function')return;if(typeof clearTimeout==='function')clearTimeout(bottlePolicyTimer);bottlePolicyTimer=setTimeout(checkBottleHoursBoundary,bottlePolicy.millisecondsUntilNextBoundary()+25)}
 
@@ -2353,10 +2370,9 @@ function isOrderingAllowed(){return true}
 
 let testCompletion=null;
 function endTestModeFlow(){
- reset();
  testCompletion=null;
  mobileOrderSubmitting=false;
- render()
+ endCustomerSessionToStart()
 }
 const testModeApi=window.PJ_AFTER_HOURS_TEST_MODE||{createController:options=>({start(){},isEnabled(){return false},disable(){},getState(){return {enabled:false,enabledAt:null,expiresAt:null}}})};
 const kioskTestModeController=testModeApi.createController({
@@ -2637,7 +2653,7 @@ async function startOrderFromIdle(){
  const button=document.querySelector('.kioskIdleStart');if(button)button.disabled=true;
  const heldSeats=[...state.selectedTables];
  try{if(heldSeats.length&&!state.firebaseOrderId)await releaseSeats(heldSeats)}catch(error){console.warn('주문 시작 전 좌석 해제 실패',error)}
- reset('home',{skipRelease:true});render();guardIdleStartTransition()
+ reset('home',{skipRelease:true});armOrderIdleTimer();render();guardIdleStartTransition()
 }
 function openLanguageSelect(){state.step='language';render()}
 function skipPizzaSelection(){state.left=null;state.right=null;state.size=null;state.mode='single';state.dough='오리지널';state.crust='오리지널';state.toppings={};state.step='side';render()}
@@ -2793,11 +2809,11 @@ const KIOSK_VALID_STEPS=new Set([...flow,...KIOSK_SPECIAL_STEPS]);
 function recoverUnknownKioskStep(){
  if(!isKioskInactivityLayout()||KIOSK_VALID_STEPS.has(state.step))return false;
  if(isIdleResetProtected())return false;
- reset('idle');
+ endCustomerSessionToStart();
  return true
 }
 function render(){
- recoverUnknownKioskStep();
+ if(recoverUnknownKioskStep())return;
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
  if(stepChanged&&lastRenderedStep&&KIOSK_VALID_STEPS.has(lastRenderedStep)&&!navigationBackInProgress){
@@ -2815,6 +2831,8 @@ function render(){
  applyAdaptiveCardSizing();
  if(state.step!=='phone')main.classList.add('pageSwap');
  document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
+ const customerHomeButton=document.querySelector('#cart .cartbar .prev[onclick="reset();render()"]');
+ if(customerHomeButton){customerHomeButton.removeAttribute('onclick');customerHomeButton.addEventListener('click',()=>endCustomerSessionToStart())}
  document.getElementById('modal').innerHTML=modalView();
  renderOrderIdleWarning();
  const activeProgress=document.querySelector('.progressStep.current');
@@ -2981,8 +2999,8 @@ function view(){
  if(state.step==='review')return shell(`<div class="reviewKioskHeader"><h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p></div><div class="reviewKioskLayout"><section class="reviewItemsPane">${reviewOrdersHTML()}</section><aside class="reviewSummaryPane">${reviewAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn reviewInlineConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div></aside></div>`);
  if(state.step==='phone')return foreignCustomerIdentity()?customerNameView():shell(`<div class="phoneStep"><h1 class="title stepTitleIcon">${uiIcon("phone")} ${t('phone.title')}</h1><p class="sub">${t('phone.subtitle')}</p><div class="summary"><div id="phoneDisplay" class="phoneDisplay ${validPhone()?'isComplete':'isIncomplete'}">${formatPhone(state.phone)}</div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pressPhone('${n}')">${n}</button>`).join('')}<button onclick="clearPhone()">${t('phone.clear')}</button><button onclick="pressPhone('0')">0</button><button onclick="backPhone()">⌫</button></div><div id="phoneNotice" class="notice ${validPhone()?'isComplete':'isIncomplete'}">${phoneNoticeHTML()}</div><button id="phoneNext" class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPhone()?'':'disabled'} onclick="goPayment()">${t('phone.next')}</button></div></div>`);
  if(state.step==='payment'){const total=currentOrderTotal()+cartTotal();return shell(`<h1 class="title">${t('ui.payment.title')}</h1><p class="sub">${t('ui.payment.subtitle')}</p><div class="summary"><div class="row grand"><span>${t('ui.payment.amount')}</span><strong>${money(total)}</strong></div><div class="paymentGrid">${['cash','card','meal_ticket','bizle'].map(method=>`<button class="paymentCard payment-method-${method} ${state.paymentMethod===method?'active':''}" data-payment-method="${method}" onclick="selectPayment('${method}')">${paymentName(method)}</button>`).join('')}</div>${isSplitPayment()?splitPaymentHTML(total):''}<button type="button" id="paymentSubmitBtn" data-action="submit-order" class="next paymentSubmitBtn" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPayment()?'':'disabled'}>${t('ui.payment.submit')}</button><div id="submitError" class="submitError"></div></div>`)};
- if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${orderNumberLabel(state.orderNo)}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentGuidanceName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="reset();render()">${t('done.home')}</button></div>`)
- if(state.step==='testDone')return shell(`<div class="done testDone"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('ui.testMode.doneTitle')}</h1><p>${t('ui.testMode.doneDescription')}</p><div class="summary testDoneSummary"><div class="row"><b>${t('ui.testMode.orderType')}</b><span>${testCompletion?.orderType==='dinein'?t('ui.hero.dineIn'):t('ui.hero.takeout')}</span></div><div class="row"><b>${t('ui.testMode.itemCount')}</b><span>${t('ui.common.count',{count:testCompletion?.itemCount||0})}</span></div><div class="row"><b>${t('ui.testMode.total')}</b><strong>${money(testCompletion?.total||0)}</strong></div><div class="row"><b>${t('ui.testMode.kind')}</b><strong>${t('ui.testMode.testOrder')}</strong></div></div><button class="doneHomeBtn" onclick="testCompletion=null;reset();render()">${t('ui.testMode.home')}</button><p class="doneGuide">${t('ui.testMode.continueGuide')}</p></div>`)
+ if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${orderNumberLabel(state.orderNo)}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentGuidanceName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="endCustomerSessionToStart()">${t('done.home')}</button></div>`)
+ if(state.step==='testDone')return shell(`<div class="done testDone"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('ui.testMode.doneTitle')}</h1><p>${t('ui.testMode.doneDescription')}</p><div class="summary testDoneSummary"><div class="row"><b>${t('ui.testMode.orderType')}</b><span>${testCompletion?.orderType==='dinein'?t('ui.hero.dineIn'):t('ui.hero.takeout')}</span></div><div class="row"><b>${t('ui.testMode.itemCount')}</b><span>${t('ui.common.count',{count:testCompletion?.itemCount||0})}</span></div><div class="row"><b>${t('ui.testMode.total')}</b><strong>${money(testCompletion?.total||0)}</strong></div><div class="row"><b>${t('ui.testMode.kind')}</b><strong>${t('ui.testMode.testOrder')}</strong></div></div><button class="doneHomeBtn" onclick="testCompletion=null;endCustomerSessionToStart()">${t('ui.testMode.home')}</button><p class="doneGuide">${t('ui.testMode.continueGuide')}</p></div>`)
 }
 
 const DINING_TABLES={
@@ -3219,7 +3237,7 @@ async function refreshSeatLeases(){
  const now=Date.now();if(now-lastSeatLeaseRefresh<5000)return;lastSeatLeaseRefresh=now;
  await Promise.all(state.selectedTables.map(id=>db.collection('seats').doc(id).set({heldUntil:firebase.firestore.Timestamp.fromMillis(now+SEAT_IDLE_MS),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})));
 }
-function isOrderIdleStep(){return !['language','idle','home','done','testDone'].includes(state.step)}
+function isOrderIdleStep(){return !['idle','done','testDone'].includes(state.step)}
 function isIdleResetProtected(){return mobileOrderSubmitting||seatOrderCommitStarted||Boolean(state.firebaseOrderId)}
 function isKioskInactivityLayout(){return document.documentElement.dataset?.layout==='kiosk21'}
 function orderIdleNow(){const now=Date.now();orderIdleLastNow=Math.max(orderIdleLastNow,now);return orderIdleLastNow}
@@ -3255,13 +3273,8 @@ async function expireOrderIdle(generation=orderIdleGeneration,force=false){
  if(idleResetInProgress||!isOrderIdleStep())return;
  if(isIdleResetProtected()){stopOrderIdleTimers();return}
  idleResetInProgress=true;
- const heldSeats=[...state.selectedTables];
  try{
-  if(heldSeats.length)await releaseSeats(heldSeats);
-  reset('idle',{skipRelease:true});render()
- }catch(error){
-  console.warn('무활동 초기화 중 좌석 해제 실패',error);
-  reset('idle',{skipRelease:true});render()
+  await endCustomerSessionToStart()
  }finally{idleResetInProgress=false}
 }
 function armOrderIdleTimer(){
@@ -3545,8 +3558,7 @@ async function confirmReviewReset(){
  const heldSeats=!state.firebaseOrderId?[...state.selectedTables]:[];
  try{
   if(heldSeats.length)await releaseSeats(heldSeats);
-  reset('idle',{skipRelease:true});
-  render()
+  await endCustomerSessionToStart({skipSeatRelease:true,targetStep:'idle'})
  }catch(error){
   console.warn('주문 초기화 좌석 해제 실패',error);
   state.modal='reviewResetConfirm';
@@ -4049,7 +4061,7 @@ async function complete(event){
   if(!foreignCustomerIdentity())state.orderNo=displayOrderNo();
   await submitMobileOrder();
   state.step='done';render();
-  setTimeout(()=>{reset();render()},5000)
+  completionReturnTimer=setTimeout(()=>{completionReturnTimer=null;endCustomerSessionToStart()},5000)
  }catch(error){
   console.error(error);
   kioskPageVoice?.announce('error');

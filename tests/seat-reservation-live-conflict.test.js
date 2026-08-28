@@ -39,8 +39,7 @@ test('held customer session receives one conflict modal and reset preserves rese
  assert.equal(vm.runInContext("state.modal",context),'seatReservationConflict');
  assert.equal(vm.runInContext("seatReservationConflictActive",context),true);
  assert.match(vm.runInContext('modalView()',context),/선택하신 좌석은 예약 완료되었습니다\. 다른 좌석을 선택해 주세요\./);
- vm.runInContext('confirmSeatReservationConflict()',context);
- await Promise.resolve();await Promise.resolve();
+ await vm.runInContext('confirmSeatReservationConflict()',context);
  assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify({step:state.step,selectedTables:state.selectedTables,cartItems:state.cartItems,promo:state.promo,left:state.left,firebaseOrderId:state.firebaseOrderId})",context)),{step:'home',selectedTables:[],cartItems:[],promo:null,left:null,firebaseOrderId:null});
  assert.equal(seat.status,'reserved');
  assert.equal(writes.length,0);
@@ -85,7 +84,7 @@ test('bottle conflict reset releases once, clears order state, and committed ord
  const harness=customerHarness({available:false,reason:'after-close'});
  vm.runInContext("Object.assign(state,{step:'promo',orderType:'dinein',selectedTables:['annex-1'],cartItems:[{id:'cart'}],promo:'set',left:'P001',firebaseOrderId:null});checkBottleHoursBoundary();checkBottleHoursBoundary()",harness.context);
  assert.equal(vm.runInContext('state.modal',harness.context),'bottleHoursConflict');
- harness.context.confirmBottleHoursConflict();await Promise.resolve();await Promise.resolve();
+ await harness.context.confirmBottleHoursConflict();
  assert.equal(harness.transactionCount(),1);
  assert.deepEqual(JSON.parse(vm.runInContext("JSON.stringify({step:state.step,selectedTables:state.selectedTables,cartItems:state.cartItems,promo:state.promo,left:state.left,firebaseOrderId:state.firebaseOrderId})",harness.context)),{step:'home',selectedTables:[],cartItems:[],promo:null,left:null,firebaseOrderId:null});
  const committed=customerHarness({available:false,reason:'holiday'});

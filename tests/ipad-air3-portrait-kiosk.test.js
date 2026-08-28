@@ -34,5 +34,5 @@ test('iPad order flow uses shared actions and safe review reset', () => {
   assert.match(html, /onclick="requestReviewReset\(\)"/);
   assert.match(html, /state\.modal='reviewResetConfirm'/);
   assert.match(html, /await releaseSeats\(heldSeats\)/);
-  assert.match(html, /reset\('idle',\{skipRelease:true\}\)/);
+  assert.match(html, /endCustomerSessionToStart\(\{skipSeatRelease:true,targetStep:'idle'\}\)/);
 });
