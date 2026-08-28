@@ -46,4 +46,22 @@ test('set choice split cards pass the complete viewport and locale geometry matr
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   assert.equal(new Set(report.rows.map(row => `${row.viewport}/${row.locale}`)).size, 8 * 6);
   assert.deepEqual(report.rows.flatMap(row => row.fail), []);
+  assert.deepEqual(report.firestoreIsolation, {
+    externalRequests: 0,
+    requests: [],
+    operatingReads: 0,
+    operatingWrites: 0,
+    authAttempts: 0,
+    listenerMode: 'test-stub',
+  });
+  assert.deepEqual(report.console.unexpected, []);
+  for (const fixture of report.touch.sequence) {
+    assert.deepEqual(fixture.viewport.inner, [834, 940]);
+    assert.deepEqual(fixture.viewport.client, [834, 940]);
+    assert.equal(fixture.viewport.deviceScaleFactor, 1);
+    assert.equal(fixture.viewport.firestoreFixture, true);
+    assert.ok(fixture.viewport.stage.max > 0);
+  }
+  assert.deepEqual(report.touch.swipe.viewport.inner, [834, 940]);
+  assert.ok(report.touch.swipe.viewport.stage.max > 0);
 });
