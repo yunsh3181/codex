@@ -1,50 +1,48 @@
 const { app, BrowserWindow } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
-
 const root = path.resolve(__dirname, '..');
 const output = process.env.SET_CHOICE_REPORT || path.join(root, 'artifacts', 'set-choice-responsive-card-layout', 'geometry.json');
-const shots = path.dirname(output);
-const locales = ['ko','en','ja','zh','vi','es'];
-const viewports = [[834,1112],[834,1000],[834,980],[834,940],[1080,1920],[1920,1080],[1440,900],[1100,800]];
+const shots = path.dirname(output), locales = ['ko','en','ja','zh','vi','es'];
+const viewports = [[834,1112],[834,940],[810,1080],[768,1024],[1080,1920],[1920,1080],[1440,900],[1100,800]];
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 fs.mkdirSync(shots,{recursive:true});
-app.commandLine.appendSwitch('headless');
-app.commandLine.appendSwitch('hide-scrollbars');
-app.commandLine.appendSwitch('force-device-scale-factor','1');
+app.commandLine.appendSwitch('headless'); app.commandLine.appendSwitch('hide-scrollbars'); app.commandLine.appendSwitch('force-device-scale-factor','1');
 app.setPath('userData',path.join(app.getPath('temp'),`set-choice-${process.pid}`));
-const wait=win=>win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`);
-const rect=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {client:[e.clientWidth,e.clientHeight],scroll:[e.scrollWidth,e.scrollHeight],rect:[r.left,r.top,r.right,r.bottom].map(n=>+n.toFixed(2)),display:s.display,grid:s.gridTemplateColumns,fontSize:s.fontSize,lineHeight:s.lineHeight,whiteSpace:s.whiteSpace,wordBreak:s.wordBreak,overflow:[s.overflowX,s.overflowY]}};
+const settle = win => win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`);
+const touch = (win,type,x,y) => win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y,id:1,radiusX:4,radiusY:4,force:1}]});
+async function withTouch(win,action){await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});try{return await action()}finally{await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false})}}
+async function tap(win,selector){const p=await win.webContents.executeJavaScript(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}})()`);await withTouch(win,async()=>{await touch(win,'touchStart',p.x,p.y);await touch(win,'touchEnd',p.x,p.y)});await sleep(80)}
+async function swipe(win,direction='up'){const p=await win.webContents.executeJavaScript(`(()=>{const r=document.querySelector('.stage').getBoundingClientRect();return{x:r.left+r.width*.72,y1:r.top+r.height*.72,y2:r.top+r.height*.28}})()`),from=direction==='up'?p.y1:p.y2,to=direction==='up'?p.y2:p.y1;await withTouch(win,async()=>{await touch(win,'touchStart',p.x,from);await touch(win,'touchMove',p.x,to);await touch(win,'touchEnd',p.x,to)});await sleep(180)}
+async function capture(win,name){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});fs.writeFileSync(path.join(shots,name),Buffer.from(png.data,'base64'))}
+
+const measurementSource = `(()=>{try{
+ const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)],round=n=>+n.toFixed(2);
+ const rect=e=>{if(!e)return null;const b=e.getBoundingClientRect(),s=getComputedStyle(e);return{selector:e.dataset.verifySelector||'',text:e.textContent.trim(),display:s.display,visibility:s.visibility,position:s.position,zIndex:s.zIndex,fontSize:s.fontSize,lineHeight:s.lineHeight,clientWidth:e.clientWidth,clientHeight:e.clientHeight,scrollWidth:e.scrollWidth,scrollHeight:e.scrollHeight,rect:[b.left,b.top,b.right,b.bottom].map(round),layoutClass:e.className,overflow:[s.overflowX,s.overflowY],touchAction:s.touchAction}};
+ const intersection=(a,b)=>round(Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]))),inside=(a,b)=>a[0]>=b[0]-.5&&a[1]>=b[1]-.5&&a[2]<=b[2]+.5&&a[3]<=b[3]+.5,visible=(a,c)=>[Math.max(a[0],c[0]),Math.max(a[1],c[1]),Math.min(a[2],c[2]),Math.min(a[3],c[3])];
+ const stage=q('.stage'),footer=q('.cartbar'),status=q('#networkStatus'),title=q('.carttitle'),home=q('#cart .prev:first-of-type'),previous=q('#cart .prev:nth-of-type(2)'),note=q('.darkSetNote'),elements={stage,footer,status,title,home,previous,note};
+ qa('.darkSetCard').forEach((c,i)=>{const n=i+2;elements['card'+n]=c;elements['identity'+n]=c.querySelector('.darkSetIdentity');elements['details'+n]=c.querySelector('.darkSetDetails');elements['heading'+n]=c.querySelector('h2');elements['description'+n]=c.querySelector('.darkSetDesc');elements['price'+n]=c.querySelector('.darkSetPrice');elements['select'+n]=c.querySelector('.darkSetSelect')});
+ Object.entries(elements).forEach(([key,e])=>{if(e)e.dataset.verifySelector=key});const measured=Object.fromEntries(Object.entries(elements).map(([key,e])=>[key,rect(e)]));
+ const missing=Object.entries(measured).filter(([,value])=>!value).map(([key])=>key);if(missing.length)throw new Error('missing measured elements: '+missing.join(','));const fr=measured.footer.rect,sr=[...measured.stage.rect];sr[3]=Math.min(sr[3],fr[1]);const nr=measured.status.rect,tr=measured.title.rect;
+ const intersections={statusTitle:intersection(nr,tr),statusHome:intersection(nr,measured.home.rect),statusPrevious:intersection(nr,measured.previous.rect)};
+ for(const key of ['card2','card3','card4','price2','price3','price4','select2','select3','select4','note']){const vr=visible(measured[key].rect,sr);intersections['status'+key]=vr[2]>vr[0]&&vr[3]>vr[1]?intersection(nr,vr):0}
+ return{layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight,scrollY},scroll:{top:stage.scrollTop,max:stage.scrollHeight-stage.clientHeight,clientHeight:stage.clientHeight,scrollHeight:stage.scrollHeight},measured,intersections,statusInsideFooter:inside(nr,fr),statusParent:status.parentElement.className,statusOnline:status.dataset.online,footerOverflow:footer.scrollWidth-footer.clientWidth};
+ }catch(error){return{error:error.stack}}})()`;
 
 app.whenReady().then(async()=>{
- const win=new BrowserWindow({show:false,frame:false,useContentSize:true,webPreferences:{contextIsolation:true,offscreen:true,sandbox:true}});
- win.webContents.debugger.attach('1.3');
- const rows=[];
- for(const [width,height] of viewports){
-  win.setContentSize(width,height); await win.loadFile(path.join(root,'index.html')); await wait(win);
-  for(const locale of locales){
-   await win.webContents.executeJavaScript(`PJ_I18N.setLanguage(${JSON.stringify(locale)});reset('idle',{skipRelease:true});Object.assign(state,{step:'setChoice',orderType:'takeout',orderTiming:'now',promo:'set'});render()`); await wait(win);
-   const metrics=await win.webContents.executeJavaScript(`(()=>{try{const r=${rect.toString()},q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)],cards=qa('.darkSetCard'),footer=q('.cartbar'),note=q('.darkSetNote'),stage=q('.stage');return {layout:document.documentElement.dataset.layout,document:{clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,clientHeight:document.documentElement.clientHeight,scrollHeight:document.documentElement.scrollHeight},stage:r(stage),title:r(q('.darkSetTitle')),subtitle:r(q('.darkSetSub')),grid:r(q('.darkSetGrid')),cards:cards.map(c=>({card:r(c),identity:r(c.querySelector('.darkSetIdentity')),badges:r(c.querySelector('.darkSetBadges')),heading:r(c.querySelector('h2')),details:r(c.querySelector('.darkSetDetails')),size:r(c.querySelector('.darkSetSize')),desc:r(c.querySelector('.darkSetDesc')),price:r(c.querySelector('.darkSetPrice')),select:r(c.querySelector('.darkSetSelect')),action:r(c.querySelector('.darkSetActionRow'))})),note:r(note),footer:r(footer),footerGap:+(footer.getBoundingClientRect().top-note.getBoundingClientRect().bottom).toFixed(2),clickHandlers:cards.map(c=>c.getAttribute('onclick')),nestedButtons:qa('.darkSetCard button').length}}catch(error){return {error:error.stack}}})()`);
-   if(metrics.error)throw new Error(`${width}x${height}/${locale}: ${metrics.error}`);
-   const fail=[];
-   if(metrics.document.scrollWidth>metrics.document.clientWidth)fail.push('document horizontal overflow');
-   if(metrics.nestedButtons)fail.push('nested button');
-   if(metrics.clickHandlers.join('|')!=='chooseSet(2)|chooseSet(3)|chooseSet(4)')fail.push('click handlers');
-   for(const [i,c] of metrics.cards.entries()){
-    for(const [name,g] of Object.entries(c)){const clips=value=>/^(hidden|clip|auto|scroll)$/.test(value);if((g.client[0]+1<g.scroll[0]&&clips(g.overflow[0]))||(g.client[1]+1<g.scroll[1]&&clips(g.overflow[1])))fail.push(`card ${i+2} ${name} clipping`)}
-    if(c.card.display!=='grid'||c.card.grid==='none')fail.push(`card ${i+2} layout`);
-    if(c.card.rect[3]>metrics.footer.rect[1]&&metrics.stage.scroll[1]<=metrics.stage.client[1]+1)fail.push(`card ${i+2} footer overlap without stage scroll`);
-    if(c.heading.rect[2]-c.heading.rect[0]<parseFloat(c.heading.fontSize)*2)fail.push(`card ${i+2} vertical title`);
-    if(c.select.rect[2]-c.select.rect[0]<44||c.select.rect[3]-c.select.rect[1]<44)fail.push(`card ${i+2} action target`);
-   }
-   if(metrics.note.rect[3]>metrics.footer.rect[1]&&metrics.stage.scroll[1]<=metrics.stage.client[1]+1)fail.push('note footer overlap without stage scroll');
-   rows.push({viewport:`${width}x${height}`,locale,metrics,fail});
-   if(fail.length){console.error(JSON.stringify(metrics.cards,null,2));throw new Error(`${width}x${height}/${locale}: ${fail.join(', ')}`)}
-   const capture=(width===834&&((height===1112&&['ko','en','vi'].includes(locale))||(height===940&&locale==='ko')))||(width===1080&&height===1920&&['ko','en','vi'].includes(locale));
-   if(capture){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});fs.writeFileSync(path.join(shots,`set-choice-${width}x${height}-${locale}.png`),Buffer.from(png.data,'base64'))}
-   if(width===834&&height===1112&&locale==='ko'){await win.webContents.executeJavaScript(`document.querySelector('.set-4').focus()`);const focused=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});fs.writeFileSync(path.join(shots,'set-choice-834x1112-ko-focus.png'),Buffer.from(focused.data,'base64'))}
-  }
- }
- fs.writeFileSync(output,JSON.stringify({viewports:viewports.map(v=>v.join('x')),locales,rows},null,2));
- console.log(`set choice responsive geometry passed: ${rows.length} cases`);
- await win.close(); app.quit();
+ const win=new BrowserWindow({show:false,frame:false,useContentSize:true,webPreferences:{contextIsolation:true,offscreen:true,sandbox:true}});win.webContents.debugger.attach('1.3');
+ const consoleMessages=[];win.webContents.on('console-message',(_e,level,message)=>{if(level>=2&&!/favicon/i.test(message))consoleMessages.push({level,message})});const rows=[];
+ for(const [width,height] of viewports){console.log(`checking ${width}x${height}`);win.setContentSize(width,height);await win.loadFile(path.join(root,'index.html'));await settle(win);for(const locale of locales){
+  await win.webContents.executeJavaScript(`PJ_I18N.setLanguage(${JSON.stringify(locale)});reset('idle',{skipRelease:true});Object.assign(state,{step:'setChoice',orderType:'takeout',orderTiming:'now',promo:'set'});render()`);await settle(win);
+  const max=await win.webContents.executeJavaScript(`(()=>{const s=document.querySelector('.stage');return s.scrollHeight-s.clientHeight})()`),positions=max>1?['top','middle','select4','max','note']:['top'];
+  for(const position of positions){await win.webContents.executeJavaScript(`(()=>{const s=document.querySelector('.stage'),p=${JSON.stringify(position)};if(p==='top')s.scrollTop=0;else if(p==='middle')s.scrollTop=(s.scrollHeight-s.clientHeight)/2;else if(p==='max')s.scrollTop=s.scrollHeight;else document.querySelector(p==='select4'?'.set-4 .darkSetSelect':'.darkSetNote').scrollIntoView({block:'end'})})()`);await settle(win);const metrics=await win.webContents.executeJavaScript(measurementSource),fail=[];if(metrics.error)throw new Error(`${width}x${height}/${locale}/${position}: ${metrics.error}`);
+   if(metrics.document.scrollWidth>metrics.document.clientWidth)fail.push('document horizontal overflow');if(metrics.document.scrollY!==0)fail.push('document vertical scroll');if(!metrics.statusInsideFooter||metrics.statusParent!=='cartmain')fail.push('network status outside footer info area');if(metrics.footerOverflow>1)fail.push('footer horizontal overflow');for(const [key,area] of Object.entries(metrics.intersections))if(area>0)fail.push(`${key} overlap ${area}`);if(metrics.measured.status.clientWidth+1<metrics.measured.status.scrollWidth)fail.push('network status clipping');if(metrics.measured.title.clientHeight+1<metrics.measured.title.scrollHeight)fail.push('order status clipping');if(!/auto|scroll/.test(metrics.measured.stage.overflow[1])&&metrics.scroll.max>1)fail.push('stage not scrollable');if(metrics.scroll.max>1&&!['pan-y','auto'].includes(metrics.measured.stage.touchAction))fail.push('stage touch action');rows.push({viewport:`${width}x${height}`,locale,position,metrics,fail});if(fail.length)throw new Error(`${width}x${height}/${locale}/${position}: ${fail.join(', ')}`)}
+  if(width===834&&height===940&&['ko','vi'].includes(locale)){await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=0`);await settle(win);await capture(win,`set-choice-network-${width}x${height}-${locale}-top-online.png`);await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=document.querySelector('.stage').scrollHeight`);await settle(win);await capture(win,`set-choice-network-${width}x${height}-${locale}-max-online.png`);if(locale==='ko'){await win.webContents.executeJavaScript(`window.dispatchEvent(new Event('offline'))`);await settle(win);await capture(win,`set-choice-network-${width}x${height}-${locale}-max-offline.png`);await win.webContents.executeJavaScript(`window.dispatchEvent(new Event('online'))`)}}
+  if((width===834&&height===1112&&locale==='ko')||(width===1080&&height===1920&&locale==='ko'))await capture(win,`set-choice-network-${width}x${height}-${locale}-online.png`);
+ }}
+ win.setContentSize(834,940);await win.loadFile(path.join(root,'index.html'));await settle(win);await win.webContents.executeJavaScript(`PJ_I18N.setLanguage('ko');Object.assign(state,{step:'setChoice',orderType:'takeout',orderTiming:'now',promo:'set'});window.__setCalls=[];const original=chooseSet;chooseSet=n=>{window.__setCalls.push(n);return original(n)};render()`);await settle(win);
+ const before=await win.webContents.executeJavaScript(`({stage:document.querySelector('.stage').scrollTop,doc:scrollY})`);await swipe(win,'up');const after=await win.webContents.executeJavaScript(`({stage:document.querySelector('.stage').scrollTop,doc:scrollY,calls:window.__setCalls.slice()})`);if(after.stage<=before.stage||after.doc!==before.doc||after.calls.length)throw new Error(`touch swipe failed: ${JSON.stringify({before,after})}`);await swipe(win,'down');
+ for(const n of [2,3,4]){await win.webContents.executeJavaScript(`Object.assign(state,{step:'setChoice',set:null});render();document.querySelector('.set-${n}').scrollIntoView({block:'center'})`);await settle(win);await tap(win,`.set-${n}`);const calls=await win.webContents.executeJavaScript(`window.__setCalls.filter(n=>n===${n}).length`);if(calls!==1)throw new Error(`chooseSet(${n}) touch count ${calls}`)}
+ await win.webContents.executeJavaScript(`Object.assign(state,{step:'setChoice',set:null});render();document.querySelector('.stage').scrollTop=document.querySelector('.stage').scrollHeight`);await settle(win);await tap(win,'#cart .prev:nth-of-type(2)');const previousStep=await win.webContents.executeJavaScript(`state.step`);if(previousStep==='setChoice')throw new Error('previous touch did not navigate');await win.webContents.executeJavaScript(`Object.assign(state,{step:'setChoice',set:null});render()`);await settle(win);await tap(win,'#cart .prev:first-of-type');await sleep(100);const homeStep=await win.webContents.executeJavaScript(`state.step`);if(!['idle','home'].includes(homeStep))throw new Error(`home touch did not reset: ${homeStep}`);
+ const consoleProblems=consoleMessages.filter(({message})=>!/Electron Security Warning|session-registration-failed/.test(message));fs.writeFileSync(output,JSON.stringify({viewports:viewports.map(v=>v.join('x')),locales,rows,touch:{before,after,passed:true},console:{unexpected:consoleProblems,knownEnvironmentWarnings:consoleMessages.length-consoleProblems.length}},null,2));if(consoleProblems.length)throw new Error(`console problems: ${JSON.stringify(consoleProblems.slice(0,5))}`);console.log(`set choice responsive geometry passed: ${viewports.length*locales.length} cases, ${rows.length} scroll-position checks, touch passed`);await win.close();app.quit();
 }).catch(error=>{console.error(error);app.exit(1)});

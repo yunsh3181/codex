@@ -7,7 +7,7 @@ const { assertElectronSucceeded, spawnElectronVerificationSync } = require('./he
 
 const root = path.resolve(__dirname, '..');
 
-test('set choice split cards pass the complete viewport and locale geometry matrix', { timeout: 120_000 }, t => {
+test('set choice split cards pass the complete viewport and locale geometry matrix', { timeout: 240_000 }, t => {
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'set-choice-responsive-'));
   const reportPath = path.join(outputDir, 'geometry.json');
   t.after(() => fs.rmSync(outputDir, { recursive: true, force: true }));
@@ -15,11 +15,11 @@ test('set choice split cards pass the complete viewport and locale geometry matr
     cwd: root,
     encoding: 'utf8',
     env: { ...process.env, SET_CHOICE_REPORT: reportPath },
-    timeout: 110_000,
+    timeout: 220_000,
     maxBuffer: 10 * 1024 * 1024,
   });
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-  assert.equal(report.rows.length, 8 * 6);
+  assert.equal(new Set(report.rows.map(row => `${row.viewport}/${row.locale}`)).size, 8 * 6);
   assert.deepEqual(report.rows.flatMap(row => row.fail), []);
 });

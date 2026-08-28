@@ -2195,7 +2195,7 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatusHost"><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div></div>
 <script src="kiosk-scroll-indicator.js?v=kiosk-scroll-indicator-v1.2.11"></script>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
@@ -2830,7 +2830,12 @@ function render(){
  main.querySelectorAll?.('.tableCard.reserved').forEach(card=>{card.setAttribute('aria-disabled','true');card.setAttribute('role','button');card.setAttribute('tabindex','-1');card.setAttribute('aria-label',`${card.querySelector('h2')?.textContent?.trim()||''} ${t('ui.seatReservation.disabled')}`);if(!card.querySelector('.reservedReason'))card.insertAdjacentHTML('beforeend',`<span class="reservedReason">${t('ui.seatReservation.disabled')}</span>`)});
  applyAdaptiveCardSizing();
  if(state.step!=='phone')main.classList.add('pageSwap');
+ const networkStatus=document.getElementById('networkStatus');
+ const networkStatusHost=document.getElementById('networkStatusHost');
+ if(networkStatus&&typeof networkStatusHost?.appendChild==='function')networkStatusHost.appendChild(networkStatus);
  document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
+ const networkStatusTarget=state.step==='setChoice'&&document.documentElement.dataset?.layout!=='phone'?document.querySelector('#cart .cartmain'):document.getElementById('networkStatusHost');
+ if(networkStatus&&typeof networkStatusTarget?.appendChild==='function')networkStatusTarget.appendChild(networkStatus);
  const customerHomeButton=document.querySelector('#cart .cartbar .prev[onclick="reset();render()"]');
  if(customerHomeButton){customerHomeButton.removeAttribute('onclick');customerHomeButton.addEventListener('click',()=>endCustomerSessionToStart())}
  document.getElementById('modal').innerHTML=modalView();
@@ -7588,5 +7593,5 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
 <link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
-<link rel="stylesheet" href="styles/set-choice-responsive.css?v=responsive-split-card-v1">
+<link rel="stylesheet" href="styles/set-choice-responsive.css?v=responsive-split-card-v2">
 <link rel="stylesheet" href="styles/home-promo-visibility.css?v=happy-hour-visibility-v1">
