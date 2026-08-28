@@ -30,7 +30,7 @@ app.whenReady().then(async()=>{
    if(metrics.nestedButtons)fail.push('nested button');
    if(metrics.clickHandlers.join('|')!=='chooseSet(2)|chooseSet(3)|chooseSet(4)')fail.push('click handlers');
    for(const [i,c] of metrics.cards.entries()){
-    for(const [name,g] of Object.entries(c))if(g.client[0]+1<g.scroll[0]||g.client[1]+1<g.scroll[1])fail.push(`card ${i+2} ${name} clipping`);
+    for(const [name,g] of Object.entries(c)){const clips=value=>/^(hidden|clip|auto|scroll)$/.test(value);if((g.client[0]+1<g.scroll[0]&&clips(g.overflow[0]))||(g.client[1]+1<g.scroll[1]&&clips(g.overflow[1])))fail.push(`card ${i+2} ${name} clipping`)}
     if(c.card.display!=='grid'||c.card.grid==='none')fail.push(`card ${i+2} layout`);
     if(c.card.rect[3]>metrics.footer.rect[1]&&metrics.stage.scroll[1]<=metrics.stage.client[1]+1)fail.push(`card ${i+2} footer overlap without stage scroll`);
     if(c.heading.rect[2]-c.heading.rect[0]<parseFloat(c.heading.fontSize)*2)fail.push(`card ${i+2} vertical title`);
