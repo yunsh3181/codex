@@ -2195,7 +2195,7 @@ body:has(.testModeBanner) .progress{top:134px}
 .testDoneSummary strong{color:#9a4100}
 @media(max-width:560px){.testModeBanner{font-size:14px;min-height:44px}body:has(.testModeBanner) .head{top:44px}body:has(.testModeBanner) .progress{top:114px}}
 </style>
-<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div>
+<div id="main" class="app" role="main" tabindex="0"></div><div id="kioskScrollIndicator" class="kiosk-scroll-indicator" aria-hidden="true" hidden><div id="kioskScrollIndicatorThumb" class="kiosk-scroll-indicator-thumb"></div></div><div id="cart"></div><div id="modal"></div><div id="inactivityWarningHost"></div><div id="networkStatusHost"><div id="networkStatus" class="networkStatus" data-online="true" role="status"></div></div>
 <script src="kiosk-scroll-indicator.js?v=kiosk-scroll-indicator-v1.2.11"></script>
 <script src="network-status.js"></script>
 <script src="assets/vendor/firebase/firebase-app-compat.js"></script>
@@ -2830,7 +2830,12 @@ function render(){
  main.querySelectorAll?.('.tableCard.reserved').forEach(card=>{card.setAttribute('aria-disabled','true');card.setAttribute('role','button');card.setAttribute('tabindex','-1');card.setAttribute('aria-label',`${card.querySelector('h2')?.textContent?.trim()||''} ${t('ui.seatReservation.disabled')}`);if(!card.querySelector('.reservedReason'))card.insertAdjacentHTML('beforeend',`<span class="reservedReason">${t('ui.seatReservation.disabled')}</span>`)});
  applyAdaptiveCardSizing();
  if(state.step!=='phone')main.classList.add('pageSwap');
+ const networkStatus=document.getElementById('networkStatus');
+ const networkStatusHost=document.getElementById('networkStatusHost');
+ if(networkStatus&&typeof networkStatusHost?.appendChild==='function')networkStatusHost.appendChild(networkStatus);
  document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
+ const networkStatusTarget=state.step==='setChoice'&&document.documentElement.dataset?.layout!=='phone'?document.querySelector('#cart .cartmain'):document.getElementById('networkStatusHost');
+ if(networkStatus&&typeof networkStatusTarget?.appendChild==='function')networkStatusTarget.appendChild(networkStatus);
  const customerHomeButton=document.querySelector('#cart .cartbar .prev[onclick="reset();render()"]');
  if(customerHomeButton){customerHomeButton.removeAttribute('onclick');customerHomeButton.addEventListener('click',()=>endCustomerSessionToStart())}
  document.getElementById('modal').innerHTML=modalView();
@@ -2980,7 +2985,7 @@ function view(){
  {n:2,key:'two',price:24000,recommend:true},
  {n:3,key:'three',price:33000},
  {n:4,key:'four',price:42000,best:true}
- ];return shell(`<div class="darkSetPage"><h1 class="darkSetTitle">${t('benefit.setChoice.title')}</h1><div class="darkSetSub">${t('benefit.setChoice.subtitle')}</div><div class="darkSetGrid">${sets.map(s=>`<button class="darkSetCard set-${s.n} ${s.best?'best':''} ${s.recommend?'recommend':''}" onclick="chooseSet(${s.n})"><span class="darkSetBadge">${t(`benefit.setChoice.card.${s.key}.badge`)}</span>${s.best?`<div class="bestRibbon">${t('benefit.best')}</div>`:''}<h2>${t(`benefit.setChoice.card.${s.key}.title`)}</h2><div class="darkSetSize">${t(`benefit.setChoice.card.${s.key}.size`)}</div><div class="darkSetDesc">${t(`benefit.setChoice.card.${s.key}.desc`)}</div><div class="darkSetPrice">${money(s.price)}</div><span class="darkSetSelect">${t('benefit.setChoice.select')}</span></button>`).join('')}</div><div class="darkSetNote">${t('benefit.setChoice.note')}</div></div>`)};
+ ];return shell(`<div class="darkSetPage"><h1 class="darkSetTitle">${t('benefit.setChoice.title')}</h1><div class="darkSetSub">${t('benefit.setChoice.subtitle')}</div><div class="darkSetGrid">${sets.map(s=>`<button class="darkSetCard set-${s.n} ${s.best?'best':''} ${s.recommend?'recommend':''}" onclick="chooseSet(${s.n})"><span class="darkSetIdentity"><span class="darkSetBadges"><span class="darkSetBadge">${t(`benefit.setChoice.card.${s.key}.badge`)}</span>${s.best?`<span class="bestRibbon">${t('benefit.best')}</span>`:''}</span><h2>${t(`benefit.setChoice.card.${s.key}.title`)}</h2></span><span class="darkSetDetails"><span class="darkSetSize">${t(`benefit.setChoice.card.${s.key}.size`)}</span><span class="darkSetDesc">${t(`benefit.setChoice.card.${s.key}.desc`)}</span><span class="darkSetActionRow"><span class="darkSetPrice">${money(s.price)}</span><span class="darkSetSelect" aria-hidden="true">${t('benefit.setChoice.select')}</span></span></span></button>`).join('')}</div><div class="darkSetNote">${t('benefit.setChoice.note')}</div></div>`)};
 
  if(state.step==='pizzaOptions'){const complete=standardPizzaOptionsValid();return shell(`<div class="optionSetup"><h1 class="title">${t('ui.pizzaOptions.title')}</h1><p class="sub">${t('ui.pizzaOptions.subtitle')}</p>
  ${state.promo==='normal'?`<button class="optionBtn noPizzaCard" onclick="skipPizzaSelection()">${t('pizza.noPizzaStrong')}<span class="optionReason">${t('pizza.noPizzaDesc')}</span></button>`:''}
@@ -7588,4 +7593,5 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-kiosk21.css?v=order-review-single-screen-v17">
 <link rel="stylesheet" href="styles/kiosk-scroll-free.css?v=kiosk-ui-polish-v1.2.13">
 <link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
+<link rel="stylesheet" href="styles/set-choice-responsive.css?v=responsive-split-card-v5">
 <link rel="stylesheet" href="styles/home-promo-visibility.css?v=happy-hour-visibility-v1">
