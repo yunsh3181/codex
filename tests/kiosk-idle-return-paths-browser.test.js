@@ -21,6 +21,8 @@ test('Chromium evidence runner covers every required idle return path at 1080x19
     '08-set-menu-idle'
   ]) assert.match(source, new RegExp(name));
   assert.match(source, /expireOrderIdle\(orderIdleGeneration,true\)/);
+  assert.match(source, /PJ_I18N\.setLanguage\('en',\{persist:true\}\)/);
+  assert.match(source, /result\.language!=='ko'\|\|result\.htmlLang!=='ko'\|\|result\.storedLanguage!=='ko'/);
   assert.match(source, /state\.step='done';state\.firebaseOrderId='completed-order'/);
   assert.match(source, /new Date\('2026-08-05T07:00:00Z'\)/);
   assert.match(source, /new Date\('2026-08-05T06:59:59Z'\)/);
@@ -31,7 +33,7 @@ test('Chromium evidence runner covers every required idle return path at 1080x19
 });
 
 test('Chromium evidence runner measures overflow and idle-only chrome', () => {
-  for (const marker of ['horizontalOverflow', 'verticalOverflow', 'mainVerticalOverflow', 'imageFit', 'startVisible', 'cartVisible', 'scrollIndicatorVisible', 'consoleMessages']) {
+  for (const marker of ['language', 'htmlLang', 'storedLanguage', 'horizontalOverflow', 'verticalOverflow', 'mainVerticalOverflow', 'imageFit', 'startVisible', 'cartVisible', 'scrollIndicatorVisible', 'consoleMessages']) {
     assert.match(source, new RegExp(marker));
   }
   assert.match(source, /size\.width !== 1080 \|\| size\.height !== 1920/);
