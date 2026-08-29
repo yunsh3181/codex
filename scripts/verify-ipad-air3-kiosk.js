@@ -77,7 +77,7 @@ const measure = `(()=>{
 })()`;
 async function shot(win,name,width,height){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});const image=nativeImage.createFromBuffer(Buffer.from(png.data,'base64'));if(image.getSize().width!==width||image.getSize().height!==height)throw new Error(`${name}: screenshot size`);fs.writeFileSync(path.join(screenshotDir,`${name}.png`),image.toPNG())}
 async function exerciseStageScroll(win,{wheel=true,touch=true}={}){
- const before=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.stage'),s=getComputedStyle(e),r=e.getBoundingClientRect(),action=document.querySelector('.selectionFooter,.reviewBottomActions'),cart=document.querySelector('.cartbar'),ar=action?.getBoundingClientRect(),cr=cart?.getBoundingClientRect();e.scrollTop=0;return {clientHeight:e.clientHeight,scrollHeight:e.scrollHeight,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom},usableBottom:Math.min(r.bottom,ar?.top??r.bottom,cr?.top??r.bottom),styles:{overflowX:s.overflowX,overflowY:s.overflowY,webkitOverflowScrolling:s.webkitOverflowScrolling,touchAction:s.touchAction}}})()`,true);
+ const before=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.reviewOrderList')||document.querySelector('.stage'),s=getComputedStyle(e),r=e.getBoundingClientRect(),action=document.querySelector('.selectionFooter,.reviewBottomActions'),cart=document.querySelector('.cartbar'),ar=action?.getBoundingClientRect(),cr=cart?.getBoundingClientRect();e.scrollTop=0;return {clientHeight:e.clientHeight,scrollHeight:e.scrollHeight,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom},usableBottom:Math.min(r.bottom,ar?.top??r.bottom,cr?.top??r.bottom),styles:{overflowX:s.overflowX,overflowY:s.overflowY,webkitOverflowScrolling:s.webkitOverflowScrolling,touchAction:s.touchAction}}})()`,true);
  const x=Math.round((before.rect.left+before.rect.right)/2),y=Math.round(Math.min(before.rect.top+200,before.usableBottom-40));
  await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false});
  let wheelTop=0;
@@ -85,10 +85,10 @@ async function exerciseStageScroll(win,{wheel=true,touch=true}={}){
   win.webContents.sendInputEvent({type:'mouseMove',...point});
   win.webContents.sendInputEvent({type:'mouseWheel',...point,deltaX:0,deltaY:-360,wheelTicksX:0,wheelTicksY:-3,hasPreciseScrollingDeltas:true,canScroll:true});
   await new Promise(resolve=>setTimeout(resolve,120));await wait(win);
-  wheelTop=await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true);
+  wheelTop=await win.webContents.executeJavaScript(`(document.querySelector('.reviewOrderList')||document.querySelector('.stage')).scrollTop`,true);
   if(wheelTop>0)break;
  }
- await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=0`,true);
+ await win.webContents.executeJavaScript(`(document.querySelector('.reviewOrderList')||document.querySelector('.stage')).scrollTop=0`,true);
  if(touch){
   await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
   await win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:y+120,id:1,radiusX:2,radiusY:2,force:1}]});
@@ -96,8 +96,8 @@ async function exerciseStageScroll(win,{wheel=true,touch=true}={}){
   await win.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await wait(win);
   await win.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false});
  }
- const touchTop=touch?await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true):0;
- const end=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.stage');e.scrollTop=e.scrollHeight;const action=document.querySelector('.selectionFooter,.reviewBottomActions'),er=e.getBoundingClientRect(),ar=action?.getBoundingClientRect();const candidates=[...e.querySelectorAll('.card:not(.selectionFooterCard),.reviewOrderCard:not([hidden]),.reviewSummaryPane,.reviewPager:not([hidden])')].filter(x=>{const s=getComputedStyle(x),r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0});const last=candidates.sort((a,b)=>a.getBoundingClientRect().bottom-b.getBoundingClientRect().bottom).at(-1);const lr=last?.getBoundingClientRect();return {scrollTop:e.scrollTop,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),lastBottom:lr?+lr.bottom.toFixed(2):null,visibleBottom:+Math.min(er.bottom,ar?.top??er.bottom).toFixed(2)}})()`,true);
+ const touchTop=touch?await win.webContents.executeJavaScript(`(document.querySelector('.reviewOrderList')||document.querySelector('.stage')).scrollTop`,true):0;
+ const end=await win.webContents.executeJavaScript(`(()=>{const e=document.querySelector('.reviewOrderList')||document.querySelector('.stage');e.scrollTop=e.scrollHeight;const action=document.querySelector('.selectionFooter,.reviewBottomActions'),er=e.getBoundingClientRect(),ar=action?.getBoundingClientRect();const candidates=[...e.querySelectorAll('.card:not(.selectionFooterCard),.reviewOrderCard:not([hidden]),.reviewSummaryPane,.reviewPager:not([hidden])')].filter(x=>{const s=getComputedStyle(x),r=x.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.height>0});const last=candidates.sort((a,b)=>a.getBoundingClientRect().bottom-b.getBoundingClientRect().bottom).at(-1);const lr=last?.getBoundingClientRect();return {scrollTop:e.scrollTop,maxScrollTop:Math.max(0,e.scrollHeight-e.clientHeight),lastBottom:lr?+lr.bottom.toFixed(2):null,visibleBottom:+Math.min(er.bottom,ar?.top??er.bottom).toFixed(2)}})()`,true);
  return {...before,wheelTop,touchTop,...end};
 }
 

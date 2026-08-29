@@ -14,16 +14,16 @@ assert.ok(start>=0&&end>start,'order detail renderer source exists');
 const catalog={
  pizzas:{P001:'페퍼로니'},
  toppings:{T001:'양파',T002:'피망'},
- sides:{S001:'치킨스트립'},
- drinks:{D001:'코카-콜라 1.25L'},
+ sides:{S001:'치킨스트립',S002:'베이컨 치즈 스틱'},
+ drinks:{D001:'코카-콜라 1.25L',D002:'스프라이트 1.5L'},
  sauces:{A001:'프레쉬 피클'}
 };
 const context={
  ORDER_CATALOG:catalog,
  PIZZAS:[{id:'P001',name:'페퍼로니'}],
  TOPPINGS:[{id:'T001',name:'양파',price:1500},{id:'T002',name:'피망',price:1500}],
- SIDES:[{id:'S001',name:'치킨스트립',price:9900}],
- DRINKS:[{id:'D001',name:'코카-콜라 1.25L',price:1250}],
+ SIDES:[{id:'S001',name:'치킨스트립',price:9900},{id:'S002',name:'베이컨 치즈 스틱',price:10900}],
+ DRINKS:[{id:'D001',name:'코카-콜라 1.25L',price:1250},{id:'D002',name:'스프라이트 1.5L',price:2500}],
  PJCommon:{legacyChannel:()=> 'mobile'},
  statusNames:{completed:'완료',payment_pending:'결제대기'},
  displayText(value,fallback='-'){
@@ -110,6 +110,27 @@ const legacy=context.renderOrderDetail({...baseOrder,disposables:undefined,items
 const chickenLine=legacy.match(/<div class="detail-menu-line extra"><span class="detail-menu-name">치킨스트립[\s\S]*?<\/div>/)?.[0]||'';
 assert.ok(chickenLine&&chickenLine.includes('×1')&&chickenLine.includes('9,900원'),'legacy numeric quantities use the catalog unit price safely');
 assert.ok(legacy.includes('코카-콜라 1.25L</span><span class="detail-menu-quantity">×2</span><strong class="detail-menu-price">2,500원'),'legacy drink quantity multiplies the catalog unit price once');
+
+const doubledSetItem={...baseOrder.items[0],set:4,promo:'set',qty:2,total:101000,normalTotal:128400,discountAmount:27400,
+ includedSides:{S001:{quantity:1},S002:{quantity:1}},sides:{},includedDrinks:{D001:{quantity:1}},drinks:{D002:{quantity:1,total:2500}}};
+const doubledSetOrder={...baseOrder,normalAmount:128400,totalAmount:101000,total:101000,items:[doubledSetItem]};
+const doubledSet=context.renderOrderDetail(doubledSetOrder);
+for(const name of ['치킨스트립','베이컨 치즈 스틱','코카-콜라 1.25L']){
+ const line=doubledSet.match(new RegExp(`<div class="detail-menu-line extra"><span class="detail-menu-name">${name}[\\s\\S]*?<\\/div>`))?.[0]||'';
+ assert.ok(line.includes('×2'),`${name} uses per-set quantity × parent quantity`);
+}
+const spriteLine=doubledSet.match(/<div class="detail-menu-line extra"><span class="detail-menu-name">스프라이트 1\.5L[\s\S]*?<\/div>/)?.[0]||'';
+assert.ok(spriteLine.includes('×1')&&!spriteLine.includes('×2'),'top-level extra Sprite remains ×1');
+assert.match(doubledSet,/페퍼로니[\s\S]*?detail-menu-quantity">×2/,'pizza keeps its already authoritative parent quantity without double multiplication');
+assert.ok(doubledSet.includes('101,000원'),'stored payment amount remains 101,000 won');
+
+for(const parentQuantity of [1,3]){
+ const markup=context.orderDetailMenuHTML({...baseOrder,items:[{...doubledSetItem,qty:parentQuantity}]});
+ const included=markup.match(/치킨스트립<\/span><span class="detail-menu-quantity">×(\d+)/)?.[1];
+ const extra=markup.match(/스프라이트 1\.5L<\/span><span class="detail-menu-quantity">×(\d+)/)?.[1];
+ assert.strictEqual(included,String(parentQuantity),`included side follows set quantity ${parentQuantity}`);
+ assert.strictEqual(extra,'1',`top-level extra remains one for set quantity ${parentQuantity}`);
+}
 
 const mixedItems=[{
  ...baseOrder.items[0],includedSides:{},sides:{S001:{quantity:1,total:9900}},

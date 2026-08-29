@@ -35,7 +35,7 @@ test('summary is positioned above the viewport edge and contains flexible text a
 test('summary-visible state activates the complete bottom stack', () => {
   assert.match(kiosk, /--kiosk21-bottom-stack-height: calc\([\s\S]*?var\(--kiosk21-cta-height\)[\s\S]*?var\(--kiosk21-active-summary-height\)[\s\S]*?var\(--safe-bottom\)/);
   assert.match(kiosk, /body:not\(\[data-step="home"\]\):not\(\[data-step="done"\]\) \{[\s\S]*?--kiosk21-active-summary-height: var\(--kiosk21-summary-height\)/);
-  assert.match(html, /function bar\(\)\{if\(\['home','done'\]\.includes\(state\.step\)\)return ''/);
+  assert.match(html, /function bar\(\)\{const minimal=\['idle','home','language','done'\]\.includes\(state\.step\);if\(minimal\)return `<div class="cartbar customerCartOnlyBar"/);
   assert.match(kiosk, /\.selectionFooterSpacer, \.c-selection-footer-spacer, \.footerSpacer\)[\s\S]*?height: var\(--kiosk21-bottom-stack-height\)/);
   assert.ok(html.includes('class="selectionFooterSpacer"'));
   assert.ok(html.includes('class="selectionFooter"'));

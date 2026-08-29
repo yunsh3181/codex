@@ -351,7 +351,8 @@ assert.ok(setDrinkMarkup.includes('setDrinkQuantity'),'included drink selection 
 const takeoutSetup="Object.assign(state,{step:'review',orderType:'takeout',orderTiming:'now',bannerTakeout:true,promo:'takeout',set:null,size:'L',mode:'single',dough:'오리지널',left:'P001',right:null,crust:'오리지널',toppingChoice:'add',toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cartItems:[]})";
 const reviewMarkup=render(takeoutSetup);
 assert.ok(reviewMarkup.includes('reviewAddMore'),'takeout review shows additional-order actions');
-for(const action of ['addAnotherSet()','addAnotherUpUp()','addAnotherSingle()'])assert.ok(reviewMarkup.includes(action),`${action} is rendered`);
+assert.ok(reviewMarkup.includes('addAnotherOrder()'),'the single additional-order action is rendered');
+for(const action of ['addAnotherSet()','addAnotherUpUp()','addAnotherSingle()'])assert.ok(!reviewMarkup.includes(`onclick="${action}"`),`${action} is not rendered as a competing review action`);
 
 const flowCases={
   addAnotherSet:{step:'setChoice',promo:'set'},

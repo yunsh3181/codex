@@ -8,6 +8,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const phone = fs.readFileSync(path.join(root, 'styles/device-phone.css'), 'utf8');
 const tablet = fs.readFileSync(path.join(root, 'styles/device-tablet.css'), 'utf8');
 const kiosk = fs.readFileSync(path.join(root, 'styles/device-kiosk21.css'), 'utf8');
+const reviewCart = fs.readFileSync(path.join(root, 'styles/order-review-cart-quantity.css'), 'utf8');
 
 test('order review uses device-scoped compact grids without changing other product cards', () => {
   for (const [layout, css] of [['phone', phone], ['tablet', tablet]]) {
@@ -64,7 +65,7 @@ test('pizza option pricing detail remains complete on the shared review renderer
 
 test('review totals still derive discount and final payment from stored order amounts', () => {
   const source = html.slice(
-    html.indexOf('function reviewTotals()'),
+    html.indexOf('function orderCollectionTotals'),
     html.indexOf('function price()')
   );
   assert.match(source, /orderDetailData\(o\)/);
@@ -75,10 +76,12 @@ test('review totals still derive discount and final payment from stored order am
   assert.match(source, /money\(totals\.final\)/);
 });
 
-test('kiosk single-page review requires a measured fit at every card count', () => {
+test('order review keeps every card in one independent scroll region', () => {
   const source = html.slice(html.indexOf('function fitOrderReview()'), html.indexOf('function changeReviewPage'));
-  assert.doesNotMatch(source, /cards\.length\s*<=\s*4\s*\|\|\s*fits\(\)/);
-  assert.match(source, /if\(fits\(\)\)reviewPages=\[cards\.map/);
-  assert.match(source, /reviewCompact1[\s\S]*?fits\(\)[\s\S]*?reviewCompact2[\s\S]*?fits\(\)/);
-  assert.match(source, /else\{[\s\S]*?reviewPaginated[\s\S]*?reviewPages\.push/);
+  assert.match(source, /cards\.forEach\(card=>card\.hidden=false\)/);
+  assert.match(source, /list\.scrollHeight-list\.clientHeight/);
+  assert.match(source, /updateReviewScrollControls\(\)/);
+  assert.match(source, /scrollReviewOrders\(direction\)/);
+  assert.match(reviewCart,/\.reviewOrderList\{[\s\S]*?overflow-y:auto!important[\s\S]*?touch-action:pan-y!important/);
+  assert.match(reviewCart,/\.reviewScrollControls\{[\s\S]*?flex-direction:column/);
 });

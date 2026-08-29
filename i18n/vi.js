@@ -28,6 +28,8 @@ window.PJ_I18N_LOCALES.vi={
     done:{title:'Đơn hàng đã được tiếp nhận',orderLabel:'Mã đơn hàng · 4 số cuối điện thoại',paymentRequired:'Vui lòng thanh toán bằng {payment} tại quầy',paymentMethodPhrase:{cash:'tiền mặt',card:'thẻ tín dụng',meal_ticket:'Sổ vé ăn',bizle:'Zero Pay'},paymentGuide:'Pizza sẽ bắt đầu được làm sau khi thanh toán hoàn tất.',reserveTime:'Giờ đặt trước {time}',guide:'Vui lòng kiểm tra mã đơn hàng và đến quầy.',home:'Về đầu'}
   };
 Object.assign(window.PJ_I18N_LOCALES.vi.review,{resetTitle:'Về màn hình đầu',resetBody:'Toàn bộ đơn hàng hiện tại sẽ bị xóa. Bạn có muốn về màn hình đầu không?',resetCancel:'Hủy',resetConfirm:'Về màn hình đầu'});
+Object.assign(window.PJ_I18N_LOCALES.vi.cart,{open:'Mở giỏ hàng',close:'Đóng',itemCount:'{count} món trong giỏ hàng'});
+Object.assign(window.PJ_I18N_LOCALES.vi.review,{subtitle:'Vui lòng kiểm tra món trong từng đơn và số tiền thanh toán cuối cùng.',orderHistory:'Lịch sử đơn hàng',orderOrdinal:'Đơn hàng thứ {count}',orderOrdinalSuffix:'Đơn hàng',singleBadge:'Món lẻ',edit:'Sửa',delete:'Xóa',addOrder:'Gọi thêm',addOrderDesc:'Bắt đầu đơn mới từ bước chọn ưu đãi',scrollControls:'Điều khiển cuộn lịch sử đơn',scrollUp:'Lên',scrollDown:'Xuống',totalAmount:'Tổng tiền',discountAmount:'Tiền giảm giá',paymentAmount:'Số tiền thanh toán'});
 window.PJ_I18N_LOCALES.vi.party.label='Số người';
 window.PJ_I18N_LOCALES.vi.benefit.card.normal.sideDrinkOnlyDesc='Bạn cũng có thể chỉ gọi món ăn kèm và đồ uống.';
 Object.assign(window.PJ_I18N_LOCALES.vi.benefit.card.set,{title:'Set Menu'});

@@ -37,9 +37,9 @@ test('six locales state takeout-only eligibility, dine-in exclusion and home voi
 
 test('Happy Hour CSS and Korean locale retain their key while changed foreign locale bundles use a fresh key',()=>{
  assert.equal((html.match(/home-promo-visibility\.css\?v=happy-hour-visibility-v1/g)||[]).length,1);
- assert.equal((html.match(/i18n\/ko\.js\?v=happy-hour-visibility-v1/g)||[]).length,1);
- assert.equal((html.match(/i18n\/(?:en|ja|zh|vi|es)\.js\?v=foreign-name-limit-v1/g)||[]).length,5);
+ assert.equal((html.match(/i18n\/ko\.js\?v=order-review-cart-quantity-v1/g)||[]).length,1);
+ assert.equal((html.match(/i18n\/(?:en|ja|zh|vi|es)\.js\?v=order-review-cart-quantity-v1/g)||[]).length,5);
  assert.equal((html.match(/seat-capacity-guidance-v1/g)||[]).length,0);
  const keys=[...html.matchAll(/(?:home-promo-visibility\.css|i18n\/(?:ko|en|ja|zh|vi|es)\.js)\?v=([^"']+)/g)].map(match=>match[1]);
- assert.deepEqual([...new Set(keys)],['happy-hour-visibility-v1','foreign-name-limit-v1']);
+ assert.deepEqual([...new Set(keys)],['order-review-cart-quantity-v1','happy-hour-visibility-v1']);
 });

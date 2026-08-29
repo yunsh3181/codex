@@ -18,9 +18,12 @@ app.setPath('userData', userDataPath);
 const viewports = [
   { name: '360x640', width: 360, height: 640 },
   { name: '390x844', width: 390, height: 844 },
+  { name: '834x940', width: 834, height: 940 },
   { name: '834x1112', width: 834, height: 1112 },
+  { name: '810x1080', width: 810, height: 1080 },
   { name: '768x1024', width: 768, height: 1024 },
   { name: '1080x1920', width: 1080, height: 1920 },
+  { name: '1920x1080', width: 1920, height: 1080 },
 ];
 const locales = ['ko', 'en', 'ja', 'zh', 'vi', 'es'];
 const scenarios = [
@@ -88,6 +91,9 @@ const scenarios = [
   },
   { name: 'max-cart-items', promo: 'set', size: 'L', mode: 'single', set: 3, right: null, included: true, extras: true, orderCount: 12 },
 ];
+const selectedViewports=process.env.ORDER_REVIEW_ONLY_VIEWPORT?viewports.filter(viewport=>viewport.name===process.env.ORDER_REVIEW_ONLY_VIEWPORT):viewports;
+const selectedLocales=process.env.ORDER_REVIEW_ONLY_LOCALE?locales.filter(locale=>locale===process.env.ORDER_REVIEW_ONLY_LOCALE):locales;
+const selectedScenarios=process.env.ORDER_REVIEW_ONLY_SCENARIO?scenarios.filter(scenario=>scenario.name===process.env.ORDER_REVIEW_ONLY_SCENARIO):scenarios;
 
 app.commandLine.appendSwitch('headless');
 app.commandLine.appendSwitch('hide-scrollbars');
@@ -117,9 +123,57 @@ const captureExact = async (window, viewport, prefix) => {
     image.toPNG()
   );
 };
+const dispatchTouch = (window,type,x,y,id=41) => window.webContents.debugger.sendCommand('Input.dispatchTouchEvent',{
+  type,
+  touchPoints:type==='touchEnd'?[]:[{x,y,id,radiusX:4,radiusY:4,force:1}],
+});
+const touchTap = async (window,selector) => {
+  const point=await window.webContents.executeJavaScript(`(()=>{const element=document.querySelector(${JSON.stringify(selector)}),rect=element.getBoundingClientRect();return{x:rect.left+rect.width/2,y:rect.top+rect.height/2}})()`,true);
+  await dispatchTouch(window,'touchStart',point.x,point.y);
+  await dispatchTouch(window,'touchEnd',point.x,point.y);
+  await waitForLayout(window);
+  return point;
+};
+const runTouchEvidence = async window => {
+  window.setContentSize(834,940);
+  await window.loadFile(path.join(root,'index.html'));
+  const scenario=scenarios.find(candidate=>candidate.name==='max-cart-items');
+  await window.webContents.executeJavaScript(fixtureScript('ko',scenario),true);
+  await waitForLayout(window);
+  await window.webContents.executeJavaScript(`(()=>{window.__reviewTouchEvents=[];window.__reviewActionTouches=0;window.__reviewTouchListener=event=>window.__reviewTouchEvents.push({type:event.type,trusted:event.isTrusted,pointerType:event.pointerType||null});window.__reviewActionListener=()=>window.__reviewActionTouches++;for(const type of ['pointerdown','touchstart','pointerup','touchend','click'])document.addEventListener(type,window.__reviewTouchListener,true);document.querySelector('.reviewOrderList').addEventListener('click',event=>{if(event.target.closest('.cartOrderActions'))window.__reviewActionListener()})})()`,true);
+  const plan=await window.webContents.executeJavaScript(`(()=>{const list=document.querySelector('.reviewOrderList'),rect=list.getBoundingClientRect();return{x:rect.left+rect.width*.55,from:rect.bottom-42,to:rect.top+42,before:list.scrollTop,max:list.scrollHeight-list.clientHeight}})()`,true);
+  await window.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+  try{
+    await dispatchTouch(window,'touchStart',plan.x,plan.from,42);
+    for(let index=1;index<=8;index+=1){await dispatchTouch(window,'touchMove',plan.x,plan.from+(plan.to-plan.from)*index/8,42);await new Promise(resolve=>setTimeout(resolve,16))}
+    await dispatchTouch(window,'touchEnd',plan.x,plan.to,42);
+    await new Promise(resolve=>setTimeout(resolve,240));
+    const afterSwipe=await window.webContents.executeJavaScript(`document.querySelector('.reviewOrderList').scrollTop`,true);
+    await touchTap(window,'.reviewScrollDown');
+    await new Promise(resolve=>setTimeout(resolve,360));
+    const afterDown=await window.webContents.executeJavaScript(`document.querySelector('.reviewOrderList').scrollTop`,true);
+    await window.webContents.executeJavaScript(`{const list=document.querySelector('.reviewOrderList');list.scrollTop=list.scrollHeight;list.dispatchEvent(new Event('scroll'))}`,true);
+    const bottom=await window.webContents.executeJavaScript(`(()=>{const list=document.querySelector('.reviewOrderList');return{top:list.scrollTop,max:list.scrollHeight-list.clientHeight,downDisabled:document.querySelector('.reviewScrollDown').disabled}})()`,true);
+    await touchTap(window,'.reviewScrollUp');
+    await new Promise(resolve=>setTimeout(resolve,360));
+    const afterUp=await window.webContents.executeJavaScript(`document.querySelector('.reviewOrderList').scrollTop`,true);
+    await touchTap(window,'#customerCartButton');
+    const modalOpened=await window.webContents.executeJavaScript(`state.modal==='cartView'&&document.querySelectorAll('.cartViewModal').length===1`,true);
+    const modalPlan=await window.webContents.executeJavaScript(`(()=>{const list=document.querySelector('.cartModalOrderList'),rect=list.getBoundingClientRect();return{x:rect.left+rect.width/2,from:rect.bottom-32,to:rect.top+32,before:list.scrollTop,max:list.scrollHeight-list.clientHeight}})()`,true);
+    await dispatchTouch(window,'touchStart',modalPlan.x,modalPlan.from,43);
+    for(let index=1;index<=8;index+=1){await dispatchTouch(window,'touchMove',modalPlan.x,modalPlan.from+(modalPlan.to-modalPlan.from)*index/8,43);await new Promise(resolve=>setTimeout(resolve,16))}
+    await dispatchTouch(window,'touchEnd',modalPlan.x,modalPlan.to,43);
+    await new Promise(resolve=>setTimeout(resolve,240));
+    const modalAfter=await window.webContents.executeJavaScript(`document.querySelector('.cartModalOrderList').scrollTop`,true);
+    await touchTap(window,'.cartModalClose');
+    return await window.webContents.executeJavaScript(`({afterSwipe:${afterSwipe},afterDown:${afterDown},bottom:${JSON.stringify(bottom)},afterUp:${afterUp},modalOpened:${modalOpened},modalScrollBefore:${modalPlan.before},modalScrollMax:${modalPlan.max},modalAfter:${modalAfter},modalClosed:state.modal===null,focusReturned:document.activeElement?.id==='customerCartButton',actionMisselects:window.__reviewActionTouches,events:window.__reviewTouchEvents,trusted:window.__reviewTouchEvents.every(event=>event.trusted)})`,true);
+  }finally{
+    await window.webContents.debugger.sendCommand('Emulation.setTouchEmulationEnabled',{enabled:false});
+  }
+};
 
 const fixtureScript = (locale, scenario) => `
-  (() => {
+  (async () => {
     window.PJ_I18N.setLanguage(${JSON.stringify(locale)});
     Object.assign(state, {
       step: 'review',
@@ -149,11 +203,9 @@ const fixtureScript = (locale, scenario) => `
       snapshots.push(orderSnapshot());
     }
     state.cartItems = Array.from(
-      { length: document.documentElement.dataset.layout === 'kiosk21'
-        ? ${JSON.stringify(scenario.orderCount || 1)}
-        : document.documentElement.dataset.layout === 'phone'
-          ? ${JSON.stringify(scenario.phoneOrderCount || 1)}
-          : 1 },
+      { length: document.documentElement.dataset.layout === 'phone'
+        ? ${JSON.stringify(scenario.phoneOrderCount || scenario.orderCount || 1)}
+        : ${JSON.stringify(scenario.orderCount || 1)} },
       (_, index) => ({ ...snapshots[index % snapshots.length], qty: ${JSON.stringify(scenario.quantity || 1)} })
     );
     clearCurrentProduct();
@@ -177,29 +229,29 @@ const measureScript = `
   (() => {
     const root = document.documentElement;
     const targets = [...document.querySelectorAll(
-      '.reviewOrderCard *, .reviewAddMore *, .reviewDiscountBox *, .reviewConfirmBtn'
+      '.reviewOrderCard *, .reviewAddMore *, .reviewDiscountBox *, .reviewConfirmBtn, .reviewScrollControls *'
     )];
     const coreTextTargets = [...document.querySelectorAll(
-      '.cartPizzaMeta, .cartPizzaToppingLine, .cartPizzaPriceLine, .cartItemSummary, ' +
-      '.cartBenefitRow, .cartOrderTotal, .reviewDiscountBox .line'
+      '.reviewMenuName, .reviewMenuQuantity, .reviewMenuAmount, .reviewOrderTotal, ' +
+      '.reviewOrderBadge, .reviewDiscountBox .line'
     )];
     const textTargets = targets.filter(element => {
       const rect=element.getBoundingClientRect();
       return element.children.length===0&&element.textContent.trim()&&rect.width>0&&rect.height>0;
     });
     const touchTargets = [...document.querySelectorAll(
-      '.cartOrderActions button, .reviewAddMoreGrid button, .reviewConfirmBtn, .langTopBtn'
+      '.reviewOrderActions button, .reviewAddOrderButton, .reviewScrollControls button, ' +
+      '.reviewBottomActions button, .customerCartButton, .langTopBtn'
     )].filter(element => { const rect=element.getBoundingClientRect(); return rect.width>0&&rect.height>0 });
     const isPhoneReview = root.dataset.layout === 'phone';
     const requiredSelector = [
       '.progress',
       '.progress .progressStep',
       '.langTopBtn span',
-      ...(root.dataset.layout === 'kiosk21' ? [
-        '.reviewBottomActions .reviewHomeBtn',
-        '.reviewBottomActions .reviewBackBtn',
-        '.reviewBottomActions .reviewDockConfirm',
-      ] : ['.cartbar .cartmain', '.cartbar .cartprice']),
+      '.reviewBottomActions .reviewHomeBtn',
+      '.reviewBottomActions .reviewBackBtn',
+      '.reviewBottomActions .customerCartButton',
+      '.reviewBottomActions .reviewDockConfirm',
       ...(isPhoneReview ? ['.brandName', '.brandLogo', '.reviewBrandTagline'] : []),
     ].join(', ');
     const requiredVisibleTargets = [...document.querySelectorAll(requiredSelector)];
@@ -222,9 +274,8 @@ const measureScript = `
       clientHeight: element.clientHeight,
       scrollHeight: element.scrollHeight,
     }));
-    const cartbarRect = (root.dataset.layout === 'kiosk21'
-      ? document.querySelector('.reviewBottomActions')
-      : document.querySelector('.cartbar'))?.getBoundingClientRect();
+    const cartbarRect = (document.querySelector('.reviewBottomActions') ||
+      document.querySelector('.cartbar'))?.getBoundingClientRect();
     const orderList = document.querySelector('.reviewOrderList');
     const brandRect = document.querySelector('.brand')?.getBoundingClientRect();
     const locationRect = document.querySelector('.brandName')?.getBoundingClientRect();
@@ -295,6 +346,7 @@ const measureScript = `
       viewport: { width: innerWidth, height: innerHeight },
       orderItemCount: document.querySelectorAll('.reviewOrderCard').length,
       orderQuantity: state.cartItems.reduce((sum, item) => sum + Number(item.qty || 1), 0),
+      cartBadgeCount: cartTopLevelQuantity(),
       compressionStage: Number(document.body.dataset.reviewCompression || 0),
       densityMode: document.body.dataset.reviewDensity || 'default',
       reviewPageFits: document.body.dataset.reviewPageFits === 'true',
@@ -314,7 +366,18 @@ const measureScript = `
       orderRegion: {
         scrollHeight: orderList?.scrollHeight || 0,
         clientHeight: orderList?.clientHeight || 0,
+        scrollTop: orderList?.scrollTop || 0,
       },
+      scrollControls: (() => {
+        const controls = document.querySelector('.reviewScrollControls');
+        const up = controls?.querySelector('.reviewScrollUp');
+        const down = controls?.querySelector('.reviewScrollDown');
+        return {
+          hidden: Boolean(controls?.hidden),
+          upDisabled: Boolean(up?.disabled),
+          downDisabled: Boolean(down?.disabled),
+        };
+      })(),
       scroll: { width: root.scrollWidth, height: root.scrollHeight },
       fits: root.scrollWidth <= innerWidth && root.scrollHeight <= innerHeight,
       horizontalOverflow,
@@ -323,9 +386,9 @@ const measureScript = `
       overlapCount: overlaps.length,
       typography: {
         title: fontSize('.title', 0),
-        menuName: fontSize('.cartPizzaCategory h2', 0),
-        options: fontSize('.cartItemSummary', fontSize('.cartPizzaMeta', 0)),
-        quantityPrice: fontSize('.cartItemPrice', fontSize('.cartItemQuantity', 17)),
+        menuName: fontSize('.reviewMenuName', 0),
+        options: fontSize('.reviewOrderBadge', 0),
+        quantityPrice: fontSize('.reviewMenuAmount', fontSize('.reviewMenuQuantity', 0)),
         summary: fontSize('.reviewDiscountBox .line', 0),
         totalPayment: fontSize('.reviewDiscountBox .final strong', 0),
         footerButton: fontSize('.reviewDockConfirm', fontSize('.reviewInlineConfirm', 0)),
@@ -339,9 +402,8 @@ const measureScript = `
           element.getBoundingClientRect().height>lineHeight*1.5;
       }).map(element=>element.textContent.trim()),
       confirmButton: (() => {
-        const button = root.dataset.layout === 'kiosk21'
-          ? document.querySelector('.reviewDockConfirm')
-          : document.querySelector('.reviewInlineConfirm');
+        const button = document.querySelector('.reviewDockConfirm') ||
+          document.querySelector('.reviewInlineConfirm');
         const bounds = button?.getBoundingClientRect();
         return {
           rect: rect(bounds),
@@ -422,6 +484,36 @@ const measureScript = `
   })()
 `;
 
+const cartModalMeasureScript = `
+  (async () => {
+    openCartModal();
+    const modal = document.querySelector('.cartViewModal');
+    const list = document.querySelector('.cartModalOrderList');
+    const totals = document.querySelector('.cartModalTotals');
+    const close = document.querySelector('.cartModalClose');
+    const backdrop = document.querySelector('.cartViewBackdrop');
+    const rect = element => { const value=element?.getBoundingClientRect(); return value ? {top:value.top,right:value.right,bottom:value.bottom,left:value.left,width:value.width,height:value.height} : null };
+    const text = [...modal.querySelectorAll('h2,button,span,strong,small')].filter(element => {
+      const value=element.getBoundingClientRect(); return value.width>0&&value.height>0&&element.children.length===0&&element.textContent.trim();
+    });
+    const result = {
+      modal: rect(modal), list: rect(list), totals: rect(totals), close: rect(close), backdrop: rect(backdrop),
+      itemCount: document.querySelectorAll('.cartModalOrderCard').length,
+      empty: Boolean(document.querySelector('.cartModalEmpty')),
+      horizontalOverflow: Math.max(0, modal.scrollWidth-modal.clientWidth),
+      listOverflow: list ? Math.max(0,list.scrollHeight-list.clientHeight) : 0,
+      clipped: text.filter(element=>element.scrollWidth>element.clientWidth+2||element.scrollHeight>element.clientHeight+2).map(element=>element.textContent.trim()),
+      backgroundLocked: getComputedStyle(document.querySelector('.stage')).overflow==='hidden',
+      dialogCount: document.querySelectorAll('.cartViewModal').length,
+    };
+    closeCartModal();
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    result.closed = state.modal===null && !document.querySelector('.cartViewModal');
+    result.focusReturned = document.activeElement?.id==='customerCartButton';
+    return result;
+  })()
+`;
+
 const paginationTraceScript = `
   (async () => {
     if(document.documentElement.dataset.layout!=='kiosk21'||reviewPages.length<2)return null;
@@ -492,10 +584,10 @@ const quantityMutationScript = `
       total:reviewTotals().final,
     });
     const before=snapshot();
-    document.querySelector('.reviewOrderCard .cartOrderActions button:nth-child(2)').click();
+    changeCartQty(0,1);
     await settle();
     const afterIncrement=snapshot();
-    document.querySelector('.reviewOrderCard .cartOrderActions button:first-child').click();
+    changeCartQty(0,-1);
     await settle();
     const afterDecrement=snapshot();
     return {before,afterIncrement,afterDecrement};
@@ -543,21 +635,24 @@ runElectronVerification({ app }, async lifecycle => {
   const results = [];
   lifecycle.attachDebugger();
 
-  for (const viewport of viewports) {
+  for (const viewport of selectedViewports) {
     window.setContentSize(viewport.width, viewport.height);
     await window.loadFile(path.join(root, 'index.html'));
-    for (const locale of locales) {
-      for (const scenario of scenarios) {
+    for (const locale of selectedLocales) {
+      for (const scenario of selectedScenarios) {
         await window.webContents.executeJavaScript(fixtureScript(locale, scenario), true);
         await waitForLayout(window);
         const measurement = await window.webContents.executeJavaScript(measureScript, true);
+        const cartModal = ['normal-whole','three-items','max-cart-items'].includes(scenario.name)
+          ? await window.webContents.executeJavaScript(cartModalMeasureScript, true)
+          : null;
         const paginationTrace = await window.webContents.executeJavaScript(paginationTraceScript, true);
         const compressionTrace = await window.webContents.executeJavaScript(compressionTraceScript, true);
         const quantityMutation = scenario.name === 'set-four'
           ? await window.webContents.executeJavaScript(quantityMutationScript, true)
           : null;
         const confirmClick = await window.webContents.executeJavaScript(confirmClickScript, true);
-        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, paginationTrace, compressionTrace, quantityMutation, confirmClick });
+        results.push({ viewportName: viewport.name, locale, scenario: scenario.name, ...measurement, cartModal, paginationTrace, compressionTrace, quantityMutation, confirmClick });
       }
     }
     if (captureScreenshots) {
@@ -565,6 +660,33 @@ runElectronVerification({ app }, async lifecycle => {
       await window.webContents.executeJavaScript(fixtureScript('ko', captureScenario), true);
       await waitForLayout(window);
       await captureExact(window, viewport, 'after');
+      const captureNamedScenario=async(scenarioName,locale,evidenceName,{bottom=false,modal=false}={})=>{
+        const evidenceScenario=scenarios.find(candidate=>candidate.name===scenarioName);
+        await window.webContents.executeJavaScript(fixtureScript(locale,evidenceScenario),true);
+        await waitForLayout(window);
+        if(bottom)await window.webContents.executeJavaScript(`{const list=document.querySelector('.reviewOrderList');list.scrollTop=list.scrollHeight;list.dispatchEvent(new Event('scroll'))}`,true);
+        if(modal){await window.webContents.executeJavaScript(`openCartModal()`,true);await waitForLayout(window)}
+        await captureExact(window,viewport,evidenceName);
+      };
+      if(viewport.name==='1080x1920'){
+        await captureNamedScenario('three-items','ko','required-ko-orders-3');
+        await captureNamedScenario('max-cart-items','ko','required-ko-orders-12-top');
+        await captureNamedScenario('max-cart-items','ko','required-ko-orders-12-bottom',{bottom:true});
+      }
+      if(viewport.name==='834x940')await captureNamedScenario('six-items','ko','required-ko-orders-6');
+      if(viewport.name==='834x1112'){
+        await captureNamedScenario('three-items','ko','required-ko-orders-3');
+        await captureNamedScenario('three-items','vi','required-vi-orders-3');
+        await window.webContents.executeJavaScript(`(()=>{PJ_I18N.setLanguage('ko');reset('home',{skipRelease:true});render();openCartModal()})()`,true);
+        await waitForLayout(window);await captureExact(window,viewport,'required-cart-empty-modal');
+        await captureNamedScenario('three-items','ko','required-cart-orders-3-modal',{modal:true});
+        await captureNamedScenario('long-complex-order','es','required-cart-long-quantity-2-modal',{modal:true});
+        for(const step of ['home','promo','pizza','side','review']){
+          await window.webContents.executeJavaScript(fixtureScript('ko',scenarios.find(candidate=>candidate.name==='normal-whole')),true);
+          await window.webContents.executeJavaScript(`state.step=${JSON.stringify(step)};render()`,true);await waitForLayout(window);
+          await captureExact(window,viewport,`required-cart-button-${step}`);
+        }
+      }
       if(viewport.name==='1080x1920'){
         for (const [scenarioName, evidenceName] of [
           ['set-three-photo','set-three-after'],
@@ -592,10 +714,10 @@ runElectronVerification({ app }, async lifecycle => {
         await window.webContents.executeJavaScript(fixtureScript('ko',bulkScenario),true);
         await waitForLayout(window);
         await captureExact(window,viewport,'pagination-first');
-        await window.webContents.executeJavaScript(`for(let index=0;index<Math.floor((reviewPages.length-1)/2);index+=1)document.querySelector('.reviewPageNext').click()`,true);
+        await window.webContents.executeJavaScript(`{const list=document.querySelector('.reviewOrderList');list.scrollTop=(list.scrollHeight-list.clientHeight)/2;list.dispatchEvent(new Event('scroll'))}`,true);
         await waitForLayout(window);
         await captureExact(window,viewport,'pagination-middle');
-        await window.webContents.executeJavaScript(`while(!document.querySelector('.reviewPageNext').disabled)document.querySelector('.reviewPageNext').click()`,true);
+        await window.webContents.executeJavaScript(`{const list=document.querySelector('.reviewOrderList');list.scrollTop=list.scrollHeight;list.dispatchEvent(new Event('scroll'))}`,true);
         await waitForLayout(window);
         await captureExact(window,viewport,'pagination-last');
       }
@@ -630,10 +752,12 @@ runElectronVerification({ app }, async lifecycle => {
     }
   }
 
+  const touchEvidence = await runTouchEvidence(window);
 const report = {
     viewports,
     locales,
     scenarios: scenarios.map(({ name }) => name),
+    touchEvidence,
     results,
   };
   if (writeAggregateReport) {

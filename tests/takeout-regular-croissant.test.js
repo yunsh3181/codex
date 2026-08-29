@@ -38,12 +38,12 @@ test('quantity multiplies the stored surcharge-inclusive line total',()=>{
  assert.match(html,/total:\(x\.price\|\|0\)\*\(x\.qty\|\|1\)/);
 });
 
-test('regular takeout renders guidance without a zero-valued discount row',()=>{
+test('regular takeout renders guidance and keeps the authoritative zero-valued discount row',()=>{
  const breakdown=sourceBetween('function cartPizzaPriceBreakdownHtml','function cartCategoryHtml');
  assert.match(breakdown,/pricing\.discount\?line/);
  assert.match(breakdown,/ui\.sizeScreen\.discountUnavailable/);
  assert.doesNotMatch(breakdown,/line\(t\('review\.benefitDiscount'[^\n]+pricing\.discount,'discount'\)\}\$\{line/);
- assert.match(html,/totals\.discount\?`<div class="line totalDiscount"/);
+ assert.match(html,/<div class="line totalDiscount"><span>\$\{t\('review\.discountAmount'\)\}<\/span><strong>−\$\{money\(totals\.discount\)\}<\/strong><\/div>/);
 });
 
 test('happy-hour boundaries use the injected instant in Asia\/Seoul',()=>{

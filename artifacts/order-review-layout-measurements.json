@@ -2,9 +2,12 @@
   "viewports": [
     "360x640",
     "390x844",
+    "834x940",
     "834x1112",
+    "810x1080",
     "768x1024",
-    "1080x1920"
+    "1080x1920",
+    "1920x1080"
   ],
   "locales": [
     "ko",
@@ -39,37 +42,37 @@
     "bulk-pagination",
     "max-cart-items"
   ],
-  "totalCombinations": 690,
+  "totalCombinations": 1104,
   "overlapCount": 0,
   "clippedTextCount": 0,
   "maxHorizontalOverflow": 0,
   "scrollHeightByLocale": {
     "ko": {
-      "min": 1002,
-      "max": 3989
+      "min": 640,
+      "max": 844
     },
     "en": {
-      "min": 1022,
-      "max": 4099
+      "min": 640,
+      "max": 844
     },
     "ja": {
-      "min": 1005,
-      "max": 4100
+      "min": 640,
+      "max": 844
     },
     "zh": {
-      "min": 1002,
-      "max": 3989
+      "min": 640,
+      "max": 844
     },
     "vi": {
-      "min": 1002,
-      "max": 4009
+      "min": 640,
+      "max": 844
     },
     "es": {
-      "min": 1044,
-      "max": 4185
+      "min": 640,
+      "max": 844
     }
   },
-  "minimumBottomSafetyGap": 92,
+  "minimumBottomSafetyGap": 258,
   "typography": {
     "review": {
       "title": {
@@ -77,28 +80,28 @@
         "max": 24
       },
       "menuName": {
-        "min": 17,
-        "max": 17
+        "min": 12,
+        "max": 12
       },
       "options": {
-        "min": 13,
-        "max": 15
+        "min": 0,
+        "max": 0
       },
       "quantityPrice": {
-        "min": 14,
-        "max": 17
+        "min": 12,
+        "max": 12
       },
       "summary": {
-        "min": 14,
-        "max": 14
+        "min": 13,
+        "max": 13
       },
       "totalPayment": {
-        "min": 20,
-        "max": 20
+        "min": 21,
+        "max": 21
       },
       "footerButton": {
-        "min": 18,
-        "max": 18
+        "min": 16,
+        "max": 16
       }
     },
     "homeCards": {
@@ -113,14 +116,14 @@
     {
       "scenario": "normal-whole",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 212,
-      "remainingHeight": 1124,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -130,15 +133,15 @@
     {
       "scenario": "two-items",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 428,
-      "remainingHeight": 908,
+      "availableHeight": 1382,
+      "usedHeight": 360,
+      "remainingHeight": 1022,
       "visibleIndexes": [
         0,
         1
       ],
       "visibleCount": 2,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 2,
       "pagerReservedHeight": 0,
@@ -148,16 +151,16 @@
     {
       "scenario": "three-items",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 644,
-      "remainingHeight": 692,
+      "availableHeight": 1382,
+      "usedHeight": 546,
+      "remainingHeight": 836,
       "visibleIndexes": [
         0,
         1,
         2
       ],
       "visibleCount": 3,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 3,
       "pagerReservedHeight": 0,
@@ -167,9 +170,9 @@
     {
       "scenario": "four-items",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 860,
-      "remainingHeight": 476,
+      "availableHeight": 1382,
+      "usedHeight": 732,
+      "remainingHeight": 650,
       "visibleIndexes": [
         0,
         1,
@@ -177,7 +180,7 @@
         3
       ],
       "visibleCount": 4,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 4,
       "pagerReservedHeight": 0,
@@ -187,14 +190,14 @@
     {
       "scenario": "takeout-half",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 212,
-      "remainingHeight": 1124,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -204,14 +207,14 @@
     {
       "scenario": "set-2",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 234,
-      "remainingHeight": 1102,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -221,14 +224,14 @@
     {
       "scenario": "set-3",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 212,
-      "remainingHeight": 1124,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -238,14 +241,14 @@
     {
       "scenario": "set-4",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 234,
-      "remainingHeight": 1102,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -255,14 +258,14 @@
     {
       "scenario": "set-one",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 279,
-      "remainingHeight": 1057,
+      "availableHeight": 1382,
+      "usedHeight": 223,
+      "remainingHeight": 1159,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 15,
+      "minimumFontSize": 13,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -272,16 +275,16 @@
     {
       "scenario": "set-three-photo",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 845,
-      "remainingHeight": 491,
+      "availableHeight": 1382,
+      "usedHeight": 693,
+      "remainingHeight": 689,
       "visibleIndexes": [
         0,
         1,
         2
       ],
       "visibleCount": 3,
-      "minimumFontSize": 15,
+      "minimumFontSize": 13,
       "pageCount": 1,
       "cardCount": 3,
       "pagerReservedHeight": 0,
@@ -291,9 +294,9 @@
     {
       "scenario": "set-four",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 1216,
-      "remainingHeight": 120,
+      "availableHeight": 1382,
+      "usedHeight": 928,
+      "remainingHeight": 454,
       "visibleIndexes": [
         0,
         1,
@@ -301,7 +304,7 @@
         3
       ],
       "visibleCount": 4,
-      "minimumFontSize": 15,
+      "minimumFontSize": 13,
       "pageCount": 1,
       "cardCount": 4,
       "pagerReservedHeight": 0,
@@ -310,10 +313,10 @@
     },
     {
       "scenario": "set-four-long",
-      "densityMode": "compact",
-      "availableHeight": 1336,
-      "usedHeight": 1010,
-      "remainingHeight": 326,
+      "densityMode": "default",
+      "availableHeight": 1382,
+      "usedHeight": 1320,
+      "remainingHeight": 62,
       "visibleIndexes": [
         0,
         1,
@@ -321,7 +324,7 @@
         3
       ],
       "visibleCount": 4,
-      "minimumFontSize": 15,
+      "minimumFontSize": 13,
       "pageCount": 1,
       "cardCount": 4,
       "pagerReservedHeight": 0,
@@ -331,9 +334,9 @@
     {
       "scenario": "set-four-upup",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 1172,
-      "remainingHeight": 164,
+      "availableHeight": 1382,
+      "usedHeight": 928,
+      "remainingHeight": 454,
       "visibleIndexes": [
         0,
         1,
@@ -341,7 +344,7 @@
         3
       ],
       "visibleCount": 4,
-      "minimumFontSize": 15,
+      "minimumFontSize": 13,
       "pageCount": 1,
       "cardCount": 4,
       "pagerReservedHeight": 0,
@@ -350,77 +353,35 @@
     },
     {
       "scenario": "four-items-forced-overflow",
-      "densityMode": "pagination",
-      "availableHeight": 1244,
-      "usedHeight": 1092,
-      "remainingHeight": 152,
+      "densityMode": "default",
+      "availableHeight": 1382,
+      "usedHeight": 1320,
+      "remainingHeight": 62,
       "visibleIndexes": [
         0,
         1,
-        2
+        2,
+        3
       ],
-      "visibleCount": 3,
-      "minimumFontSize": 15,
-      "pageCount": 2,
+      "visibleCount": 4,
+      "minimumFontSize": 13,
+      "pageCount": 1,
       "cardCount": 4,
-      "pagerReservedHeight": 92,
+      "pagerReservedHeight": 0,
       "canFitNextCard": false,
-      "pages": [
-        {
-          "page": 1,
-          "visibleIndexes": [
-            0,
-            1,
-            2
-          ],
-          "visibleCount": 3,
-          "availableHeight": 1244,
-          "usedHeight": 1092,
-          "remainingHeight": 152,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": true,
-          "nextDisabled": false,
-          "statusText": "1 / 2",
-          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 360,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액246,000원최종 결제금액246,000원"
-        },
-        {
-          "page": 2,
-          "visibleIndexes": [
-            3
-          ],
-          "visibleCount": 1,
-          "availableHeight": 1244,
-          "usedHeight": 360,
-          "remainingHeight": 884,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": false,
-          "nextDisabled": true,
-          "statusText": "2 / 2",
-          "focusClass": "reviewPageStatus",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 0,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액246,000원최종 결제금액246,000원"
-        }
-      ]
+      "pages": []
     },
     {
       "scenario": "upup",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 234,
-      "remainingHeight": 1102,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -430,14 +391,14 @@
     {
       "scenario": "happy-hour",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 234,
-      "remainingHeight": 1102,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -447,14 +408,14 @@
     {
       "scenario": "multi-pizza",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 234,
-      "remainingHeight": 1102,
+      "availableHeight": 1382,
+      "usedHeight": 174,
+      "remainingHeight": 1208,
       "visibleIndexes": [
         0
       ],
       "visibleCount": 1,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 1,
       "pagerReservedHeight": 0,
@@ -464,9 +425,9 @@
     {
       "scenario": "max-categories",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 345,
-      "remainingHeight": 991,
+      "availableHeight": 1382,
+      "usedHeight": 288,
+      "remainingHeight": 1094,
       "visibleIndexes": [
         0
       ],
@@ -480,10 +441,10 @@
     },
     {
       "scenario": "long-complex-order",
-      "densityMode": "compact",
-      "availableHeight": 1336,
-      "usedHeight": 1138,
-      "remainingHeight": 198,
+      "densityMode": "default",
+      "availableHeight": 1382,
+      "usedHeight": 1188,
+      "remainingHeight": 194,
       "visibleIndexes": [
         0,
         1,
@@ -501,9 +462,9 @@
     {
       "scenario": "five-items",
       "densityMode": "default",
-      "availableHeight": 1336,
-      "usedHeight": 1076,
-      "remainingHeight": 260,
+      "availableHeight": 1382,
+      "usedHeight": 918,
+      "remainingHeight": 464,
       "visibleIndexes": [
         0,
         1,
@@ -512,7 +473,7 @@
         4
       ],
       "visibleCount": 5,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 5,
       "pagerReservedHeight": 0,
@@ -521,10 +482,10 @@
     },
     {
       "scenario": "six-items",
-      "densityMode": "compact",
-      "availableHeight": 1336,
-      "usedHeight": 930,
-      "remainingHeight": 406,
+      "densityMode": "default",
+      "availableHeight": 1382,
+      "usedHeight": 1104,
+      "remainingHeight": 278,
       "visibleIndexes": [
         0,
         1,
@@ -534,7 +495,7 @@
         5
       ],
       "visibleCount": 6,
-      "minimumFontSize": 16,
+      "minimumFontSize": 15,
       "pageCount": 1,
       "cardCount": 6,
       "pagerReservedHeight": 0,
@@ -543,10 +504,10 @@
     },
     {
       "scenario": "bulk-pagination",
-      "densityMode": "pagination",
-      "availableHeight": 1244,
-      "usedHeight": 1242,
-      "remainingHeight": 2,
+      "densityMode": "scroll",
+      "availableHeight": 1382,
+      "usedHeight": 1848,
+      "remainingHeight": -466,
       "visibleIndexes": [
         0,
         1,
@@ -555,154 +516,45 @@
         4,
         5,
         6,
-        7
+        7,
+        8,
+        9
       ],
-      "visibleCount": 8,
-      "minimumFontSize": 16,
-      "pageCount": 2,
+      "visibleCount": 10,
+      "minimumFontSize": 15,
+      "pageCount": 1,
       "cardCount": 10,
-      "pagerReservedHeight": 92,
+      "pagerReservedHeight": 0,
       "canFitNextCard": false,
-      "pages": [
-        {
-          "page": 1,
-          "visibleIndexes": [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
-          ],
-          "visibleCount": 8,
-          "availableHeight": 1244,
-          "usedHeight": 1242,
-          "remainingHeight": 2,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": true,
-          "nextDisabled": false,
-          "statusText": "1 / 2",
-          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 150,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액295,000원최종 결제금액295,000원"
-        },
-        {
-          "page": 2,
-          "visibleIndexes": [
-            8,
-            9
-          ],
-          "visibleCount": 2,
-          "availableHeight": 1244,
-          "usedHeight": 306,
-          "remainingHeight": 938,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": false,
-          "nextDisabled": true,
-          "statusText": "2 / 2",
-          "focusClass": "reviewPageStatus",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 0,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액295,000원최종 결제금액295,000원"
-        }
-      ]
+      "pages": []
     },
     {
       "scenario": "max-cart-items",
-      "densityMode": "pagination",
-      "availableHeight": 1244,
-      "usedHeight": 1010,
-      "remainingHeight": 234,
+      "densityMode": "scroll",
+      "availableHeight": 1382,
+      "usedHeight": 3984,
+      "remainingHeight": -2602,
       "visibleIndexes": [
         0,
         1,
         2,
-        3
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
       ],
-      "visibleCount": 4,
-      "minimumFontSize": 15,
-      "pageCount": 3,
+      "visibleCount": 12,
+      "minimumFontSize": 13,
+      "pageCount": 1,
       "cardCount": 12,
-      "pagerReservedHeight": 92,
+      "pagerReservedHeight": 0,
       "canFitNextCard": false,
-      "pages": [
-        {
-          "page": 1,
-          "visibleIndexes": [
-            0,
-            1,
-            2,
-            3
-          ],
-          "visibleCount": 4,
-          "availableHeight": 1244,
-          "usedHeight": 1010,
-          "remainingHeight": 234,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": true,
-          "nextDisabled": false,
-          "statusText": "1 / 3",
-          "focusClass": "reviewCompact1 reviewCompact2 reviewPaginated",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 248,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
-        },
-        {
-          "page": 2,
-          "visibleIndexes": [
-            4,
-            5,
-            6,
-            7
-          ],
-          "visibleCount": 4,
-          "availableHeight": 1244,
-          "usedHeight": 1010,
-          "remainingHeight": 234,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": false,
-          "nextDisabled": false,
-          "statusText": "2 / 3",
-          "focusClass": "reviewPageStatus",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 248,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
-        },
-        {
-          "page": 3,
-          "visibleIndexes": [
-            8,
-            9,
-            10,
-            11
-          ],
-          "visibleCount": 4,
-          "availableHeight": 1244,
-          "usedHeight": 1010,
-          "remainingHeight": 234,
-          "overflow": 0,
-          "clipping": 0,
-          "previousDisabled": false,
-          "nextDisabled": true,
-          "statusText": "3 / 3",
-          "focusClass": "reviewPageStatus",
-          "pagerReservedHeight": 92,
-          "nextCardHeight": 0,
-          "canFitNextCard": false,
-          "totalsText": "상품 정상금액618,000원최종 결제금액618,000원"
-        }
-      ]
+      "pages": []
     }
   ],
   "protectedLayouts": {
@@ -715,7 +567,7 @@
     },
     "tablet": {
       "changed": false,
-      "combinations": 276,
+      "combinations": 552,
       "overlapCount": 0,
       "clippedTextCount": 0,
       "maxHorizontalOverflow": 0
