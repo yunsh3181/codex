@@ -28,7 +28,8 @@ test('iPad order flow uses shared actions and safe review reset', () => {
   assert.match(html, /device-ipad-air3-portrait\.css\?v=ipad-air3-review-list-v6/);
   assert.match(html, /--ipad-review-summary-dock-height/);
   assert.match(html, /matchMedia\('\(min-width:820px\) and \(max-width:850px\) and \(orientation:portrait\)'\)/);
-  assert.match(html, /if\(ipadPortrait\)reviewPages=\[cards\.map/);
+  assert.match(html, /const list=document\.querySelector\('\.reviewOrderList'\)/);
+  assert.match(html, /reviewPages=\[cards\.map\(\(_,index\)=>index\)\]/);
   assert.match(html, /reviewOrderFinancials/);
   assert.match(html, /reviewBackBtn[\s\S]*reviewHomeBtn[\s\S]*reviewDockConfirm/);
   assert.match(html, /onclick="requestReviewReset\(\)"/);

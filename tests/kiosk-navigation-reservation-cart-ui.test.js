@@ -163,14 +163,14 @@ test('whole, normal, UP & UP, happy hour, and set use stored discounts without d
   assert.deepEqual(set,{kind:'set',normal:29000,discount:7000,final:22000,benefit:'set'});
 });
 
-test('order quantity and option quantity are multiplied exactly once',()=>{
+test('order totals multiply by order quantity while standalone option display quantities remain stored',()=>{
   const unit=baseOrder({toppings:{T1:2},price:49500,normalPrice:49500,qty:2});
   const {model}=displayModel(unit);
   assert.equal(model.mode,'standard');
   assert.equal(model.total,99000);
   assert.equal(model.componentTotal,99000);
   assert.equal(model.categories.pizza.find(row=>row.id==='pizza').amount,null);
-  assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,4);
+  assert.equal(model.categories.toppings.find(row=>row.id==='T1').qty,2);
   assert.equal(model.categories.toppings.find(row=>row.id==='T1').amount,6000);
   assert.equal(model.categories.sides[0].amount,19800);
   assert.equal(model.categories.drinks[0].amount,5000);

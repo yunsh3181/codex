@@ -2234,12 +2234,12 @@ try{
 }
 
 </script>
-<script src="i18n/ko.js?v=happy-hour-visibility-v1"></script>
-<script src="i18n/en.js?v=foreign-name-limit-v1"></script>
-<script src="i18n/ja.js?v=foreign-name-limit-v1"></script>
-<script src="i18n/zh.js?v=foreign-name-limit-v1"></script>
-<script src="i18n/vi.js?v=foreign-name-limit-v1"></script>
-<script src="i18n/es.js?v=foreign-name-limit-v1"></script>
+<script src="i18n/ko.js?v=order-review-cart-quantity-v1"></script>
+<script src="i18n/en.js?v=order-review-cart-quantity-v1"></script>
+<script src="i18n/ja.js?v=order-review-cart-quantity-v1"></script>
+<script src="i18n/zh.js?v=order-review-cart-quantity-v1"></script>
+<script src="i18n/vi.js?v=order-review-cart-quantity-v1"></script>
+<script src="i18n/es.js?v=order-review-cart-quantity-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.3"></script>
 <script src="business-hours.js"></script>
@@ -2279,7 +2279,7 @@ const KIOSK_SPECIAL_STEPS=['language','idle','home','party','area','table','rese
 function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
 function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
 const navigationHistory=[];let navigationBackInProgress=false;
-const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null};
+const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],reviewEditIndex:null,editingOrderQty:1,finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null};
 const kioskPageVoice=window.PJ_KIOSK_PAGE_VOICE?.createKioskPageVoiceController({
  synth:window.speechSynthesis,
  createUtterance:window.PJSpeech?.createSpeechUtterance,
@@ -2324,7 +2324,7 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
+function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],reviewEditIndex:null,editingOrderQty:1,finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
 const resetOrderState=reset;
 reset=function(...args){navigationHistory.length=0;const result=resetOrderState(...args);lastRenderedStep=state.step;return result};
 let customerSessionEndInProgress=false;let completionReturnTimer=null;
@@ -2699,6 +2699,7 @@ let reviewFitFrame=0;
 let reviewPage=0;
 let reviewPages=[];
 let reviewPageMetrics={availableHeight:0,gap:0,cardHeights:[]};
+let reviewSavedScrollTop=0;
 function applyAdaptiveCardSizing(){
  document.querySelectorAll('.grid,.areaGrid,.tableGrid,.darkBenefitGrid,.darkSetGrid,.optionGrid,.menuGrid').forEach(grid=>{
   const count=[...grid.children].filter(el=>!el.hidden).length;
@@ -2731,75 +2732,32 @@ function fitOrderReview(){
  body.classList.remove('reviewCompact1','reviewCompact2','reviewPaginated');
  body.dataset.reviewCompression='0';
  if(state.step!=='review')return 0;
- if(document.documentElement.dataset?.layout==='phone')return 0;
- if(document.documentElement.dataset?.layout==='kiosk21'||isIpadAir3PortraitViewport()){
-  syncIpadReviewDockReservation();
-  const list=document.querySelector('.reviewOrderList');
-  const cards=[...document.querySelectorAll('.reviewOrderCard')];
-  const pager=document.querySelector('.reviewPager');
-  if(!list||!cards.length)return 0;
-  if(pager)pager.hidden=true;
-  cards.forEach(card=>card.hidden=false);
-  reviewPages=[];
-  const ipadPortrait=isIpadAir3PortraitViewport();
-  const fits=()=>list.scrollHeight<=list.clientHeight+1;
-  if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact1');body.dataset.reviewCompression='1'}
-  if(!ipadPortrait&&!fits()){body.classList.add('reviewCompact2');body.dataset.reviewCompression='2'}
-  if(ipadPortrait)reviewPages=[cards.map((_,index)=>index)];
-  else if(fits())reviewPages=[cards.map((_,index)=>index)];
-  else{
-   body.classList.add('reviewPaginated');
-   if(pager)pager.hidden=false;
-   const availableHeight=list.clientHeight;
-   const gap=parseFloat(getComputedStyle(list).rowGap)||0;
-   const showOnly=indexes=>{const visible=new Set(indexes);cards.forEach((card,index)=>card.hidden=!visible.has(index))};
-   const cardHeights=cards.map((card,index)=>{showOnly([index]);return Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight))});
-   reviewPageMetrics={availableHeight,gap,cardHeights};
-   let page=[];
-   cards.forEach((card,index)=>{
-    const candidate=[...page,index];
-    showOnly(candidate);
-    if(page.length&&list.scrollHeight>list.clientHeight){reviewPages.push(page);page=[index];showOnly(page)}else page=candidate;
-   });
-   if(page.length)reviewPages.push(page);
-   const pageMetrics=reviewPages.map((indexes,pageIndex)=>{
-    showOnly(indexes);
-    const heights=indexes.map(index=>Math.ceil(Math.max(cards[index].getBoundingClientRect().height,cards[index].scrollHeight)));
-    const usedHeight=heights.reduce((sum,height)=>sum+height,0)+Math.max(0,heights.length-1)*gap;
-    const nextIndex=reviewPages[pageIndex+1]?.[0];
-    let canFitNextCard=false;
-    if(nextIndex!==undefined){showOnly([...indexes,nextIndex]);canFitNextCard=list.scrollHeight<=list.clientHeight}
-    return {availableHeight:list.clientHeight,usedHeight,remainingHeight:list.clientHeight-usedHeight,nextCardHeight:nextIndex===undefined?0:cardHeights[nextIndex],canFitNextCard};
-   });
-   reviewPageMetrics={availableHeight,gap,cardHeights,pageMetrics};
-  }
-  if(reviewPages.length===1){const gap=parseFloat(getComputedStyle(list).rowGap)||0;reviewPageMetrics={availableHeight:list.clientHeight,gap,cardHeights:cards.map(card=>Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight)))}}
-  reviewPage=Math.min(Math.max(0,reviewPage),Math.max(0,reviewPages.length-1));
-  const visible=new Set(reviewPages[reviewPage]||[]);
-  cards.forEach((card,index)=>card.hidden=!visible.has(index));
-  const paginated=reviewPages.length>1;
-  if(pager){pager.hidden=!paginated;pager.querySelector('.reviewPageStatus').textContent=`${reviewPage+1} / ${reviewPages.length}`;pager.querySelector('.reviewPagePrev').disabled=reviewPage===0;pager.querySelector('.reviewPageNext').disabled=reviewPage===reviewPages.length-1}
-  const currentPageFits=ipadPortrait||list.scrollHeight<=list.clientHeight+1;
-  document.querySelectorAll('.reviewConfirmBtn').forEach(button=>{button.disabled=!state.cartItems.length||!currentPageFits});
-  body.dataset.reviewPageFits=String(currentPageFits);
-  body.dataset.reviewDensity=ipadPortrait?'scroll':paginated?'pagination':Number(body.dataset.reviewCompression)?'compact':'default';
-  list.scrollTo({top:0,left:0,behavior:'auto'});
-  return Number(body.dataset.reviewCompression);
- }
- const orderCount=Math.max(1,document.querySelectorAll('.reviewOrderCard').length);
- body.style.setProperty('--review-order-columns',String(Math.min(orderCount,4)));
- if(reviewContentOverflows()){
-  body.classList.add('reviewCompact1');
-  body.dataset.reviewCompression='1';
- }
- if(reviewContentOverflows()){
-  body.classList.add('reviewCompact2');
-  body.dataset.reviewCompression='2';
- }
- return Number(body.dataset.reviewCompression);
+ syncIpadReviewDockReservation();
+ const list=document.querySelector('.reviewOrderList');
+ const cards=[...document.querySelectorAll('.reviewOrderCard')];
+ if(!list)return 0;
+ cards.forEach(card=>card.hidden=false);
+ reviewPages=[cards.map((_,index)=>index)];
+ reviewPage=0;
+ const max=Math.max(0,list.scrollHeight-list.clientHeight);
+ list.scrollTop=Math.min(Math.max(0,reviewSavedScrollTop),max);
+ reviewSavedScrollTop=list.scrollTop;
+ const gap=parseFloat(getComputedStyle(list).rowGap)||0;
+ reviewPageMetrics={availableHeight:list.clientHeight,gap,cardHeights:cards.map(card=>Math.ceil(Math.max(card.getBoundingClientRect().height,card.scrollHeight))),scrollHeight:list.scrollHeight,maxScrollTop:max};
+ body.dataset.reviewPageFits='true';
+ body.dataset.reviewDensity=max>1?'scroll':'default';
+ document.querySelectorAll('.reviewConfirmBtn').forEach(button=>{button.disabled=!state.cartItems.length});
+ updateReviewScrollControls();
+ return 0;
 }
-function changeReviewPage(delta){const next=Math.min(Math.max(0,reviewPage+delta),Math.max(0,reviewPages.length-1));if(next===reviewPage)return;reviewPage=next;fitOrderReview();document.querySelector('.reviewPageStatus')?.focus({preventScroll:true})}
+function rememberReviewScroll(){const list=document.querySelector('.reviewOrderList');if(list)reviewSavedScrollTop=list.scrollTop}
+function updateReviewScrollControls(){const list=document.querySelector('.reviewOrderList'),controls=document.querySelector('.reviewScrollControls');if(!list||!controls)return;const max=Math.max(0,list.scrollHeight-list.clientHeight),overflow=max>1,top=list.scrollTop;controls.hidden=!overflow;const up=controls.querySelector('.reviewScrollUp'),down=controls.querySelector('.reviewScrollDown');if(up)up.disabled=!overflow||top<=1;if(down)down.disabled=!overflow||top>=max-1;controls.dataset.overflow=String(overflow);controls.dataset.scrollTop=String(Math.round(top));controls.dataset.maxScrollTop=String(Math.round(max))}
+function scrollReviewOrders(direction){const list=document.querySelector('.reviewOrderList');if(!list)return;const cards=[...list.querySelectorAll('.reviewOrderCard')],down=direction==='down',current=list.scrollTop,targetCard=(down?[...cards].find(card=>card.offsetTop>current+8):[...cards].reverse().find(card=>card.offsetTop<current-8));const delta=Math.max(1,Math.round(list.clientHeight*.7)),target=targetCard?targetCard.offsetTop:(down?current+delta:current-delta);list.scrollTo({top:target,left:0,behavior:'smooth'});reviewSavedScrollTop=Math.max(0,target);setTimeout(updateReviewScrollControls,280)}
+function changeReviewPage(delta){scrollReviewOrders(delta<0?'up':'down')}
 function scheduleOrderReviewFit(){
+ document.documentElement.style?.setProperty?.('--customer-viewport-height',`${window.innerHeight}px`);
+ const cartHost=document.getElementById?.('cart');
+ if(cartHost)document.documentElement.style?.setProperty?.('--customer-cart-host-top',`${cartHost.getBoundingClientRect().top}px`);
  if(typeof requestAnimationFrame!=='function'){fitOrderReview();return}
  if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(reviewFitFrame);
  reviewFitFrame=requestAnimationFrame(()=>requestAnimationFrame(fitOrderReview));
@@ -2814,6 +2772,7 @@ function recoverUnknownKioskStep(){
 }
 function render(){
  if(recoverUnknownKioskStep())return;
+ document.documentElement.style?.setProperty?.('--customer-viewport-height',`${window.innerHeight}px`);
  normalizeHappyHourFlow();
  const stepChanged=lastRenderedStep!==state.step;
  if(stepChanged&&lastRenderedStep&&KIOSK_VALID_STEPS.has(lastRenderedStep)&&!navigationBackInProgress){
@@ -2833,12 +2792,16 @@ function render(){
  const networkStatus=document.getElementById('networkStatus');
  const networkStatusHost=document.getElementById('networkStatusHost');
  if(networkStatus&&typeof networkStatusHost?.appendChild==='function')networkStatusHost.appendChild(networkStatus);
- document.getElementById('cart').innerHTML=['language','idle','testDone'].includes(state.step)?'':bar();
- const networkStatusTarget=state.step==='setChoice'&&document.documentElement.dataset?.layout!=='phone'?document.querySelector('#cart .cartmain'):document.getElementById('networkStatusHost');
+ document.getElementById('cart').innerHTML=state.step==='testDone'?'':bar();
+ const cartHost=document.getElementById('cart');
+ document.documentElement.style?.setProperty?.('--customer-cart-host-top',`${cartHost.getBoundingClientRect().top}px`);
+ const networkStatusTarget=document.documentElement.dataset?.layout!=='phone'?(document.querySelector('#cart .cartmain')||document.getElementById('networkStatusHost')):document.getElementById('networkStatusHost');
  if(networkStatus&&typeof networkStatusTarget?.appendChild==='function')networkStatusTarget.appendChild(networkStatus);
  const customerHomeButton=document.querySelector('#cart .cartbar .prev[onclick="reset();render()"]');
  if(customerHomeButton){customerHomeButton.removeAttribute('onclick');customerHomeButton.addEventListener('click',()=>endCustomerSessionToStart())}
  document.getElementById('modal').innerHTML=modalView();
+ const reviewList=document.querySelector('.reviewOrderList');if(reviewList)reviewList.addEventListener('scroll',()=>{reviewSavedScrollTop=reviewList.scrollTop;updateReviewScrollControls()},{passive:true});
+ if(state.modal==='cartView')requestAnimationFrame(()=>document.querySelector('.cartModalClose')?.focus({preventScroll:true}));
  renderOrderIdleWarning();
  const activeProgress=document.querySelector('.progressStep.current');
  if(activeProgress)requestAnimationFrame(()=>activeProgress.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'}));
@@ -2859,6 +2822,7 @@ function render(){
  window.PJ_KIOSK_SCROLL_INDICATOR?.schedule();
 }
 window.addEventListener('resize',scheduleOrderReviewFit);
+window.visualViewport?.addEventListener?.('resize',scheduleOrderReviewFit);
 
 const kioskScrollContainer=document.getElementById('main');
 if(kioskScrollContainer?.addEventListener)kioskScrollContainer.addEventListener('keydown',event=>{
@@ -3001,7 +2965,7 @@ function view(){
  if(state.step==='side'){if(state.finalAddMode==='side')return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.sideScreen.paidBanner')}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipReview'))}`);if(state.set){const need=state.set===4?2:1;const complete=sum(state.setSides)===need;if(state.setSideExtraMode)return shell(`<h1 class="title">${t('ui.sideScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.sideScreen.extraComplete',{count:sum(state.setSides)})}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSideExtra()',t('ui.sideScreen.finishToDrink'))}`);return shell(`<h1 class="title">${t('ui.sideScreen.includedTitle')} ${complete?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="notice">${t('ui.sideScreen.selectionGuide',{need,current:sum(state.setSides)})}</div><div class="grid sideMenuGrid">${SIDES.filter(x=>state.set===2?x.set2:x.set).map(x=>setSideCard(x,need)).join('')}</div>${selectionFooter('continueSetSide()',t('ui.sideScreen.finishToDrink'),'setSideContinue',!complete)}`)}return shell(`<h1 class="title">${t('ui.sideScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.sideScreen.recommendation')}</div><div class="grid sideMenuGrid">${SIDES.map(x=>qcard(x,'extraSides')).join('')}</div>${selectionFooter('skipSide()',t('ui.sideScreen.skipToDrink'))}`)};
  if(state.step==='drink'){if(state.finalAddMode==='drink')return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="finalAddBanner">${t('ui.drinkScreen.paidBanner')}</div><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`);if(state.set){if(state.setDrinkExtraMode)return shell(`<h1 class="title">${t('ui.drinkScreen.additionalTitle')}</h1><div class="extraModeBanner">${t('ui.drinkScreen.extraPaidBanner')}</div><h2>${t('ui.drinkScreen.additionalPurchase')}</h2><p class="sub">${t('ui.drinkScreen.selectTypeSize')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrinkExtra()',t('ui.drinkScreen.finishNext'))}`);let provided=state.set===2?DRINKS.filter(x=>x.small):DRINKS.filter(x=>x.large);return shell(`<h1 class="title">${t('ui.drinkScreen.includedTitle')} ${state.setDrink?`<span class="setCompleteBadge">${t('ui.common.baseComplete')}</span>`:''}</h1><div class="grid four drinkTextGrid">${provided.map(x=>setDrinkCard(x)).join('')}</div>${selectionFooter('continueSetDrink()',t('ui.drinkScreen.finishNext'),'setDrinkContinue',!state.setDrink)}`)}return shell(`<h1 class="title">${t('ui.drinkScreen.title')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.recommendation')}</div><p class="sub">${t('ui.drinkScreen.subtitle')}</p><div class="grid four drinkTextGrid v3DrinkGrid">${drinkGroups().map(g=>drinkGroupCard(g)).join('')}</div>${standaloneDrinkCards()}${selectionFooter('skipDrink()',t('ui.drinkScreen.finishNext'))}`)};
  if(state.step==='accompaniment')return shell(`<h1 class="title">${t('ui.drinkScreen.accompanimentTitle')}</h1><div class="smartRecommend">${uiIcon("spark")} ${t('ui.drinkScreen.accompanimentRecommendation')}</div><p class="sub">${t('ui.drinkScreen.optional')}</p><div class="grid four accompanimentGrid">${SAUCES.map(x=>textQtyCard(x,'extraDrinks')).join('')}</div>${selectionFooter('finishAccompaniment()',t('ui.drinkScreen.finishReview'))}`);
- if(state.step==='review')return shell(`<div class="reviewKioskHeader"><h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p></div><div class="reviewKioskLayout"><section class="reviewItemsPane">${reviewOrdersHTML()}</section><aside class="reviewSummaryPane">${reviewAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn reviewInlineConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div></aside></div>`);
+ if(state.step==='review')return shell(`<div class="reviewKioskHeader"><h1 class="title">${t('review.title')}</h1><p class="sub">${t('review.subtitle')}</p>${state.disposables===null?'':`<p class="reviewDisposables"><b>${t('ui.summary.disposables')}</b> · ${t(state.disposables?'ui.summary.needed':'ui.summary.notNeeded')}</p>`}</div><div class="reviewKioskLayout"><section class="reviewItemsPane"><h2 class="reviewSectionTitle">${t('review.orderHistory')}</h2>${reviewOrdersHTML()}</section><aside class="reviewSummaryPane">${reviewAddActionsHTML()}${reviewTotalsHTML()}<button type="button" class="reviewConfirmBtn reviewInlineConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button><div class="reviewConfirmNote">${t('review.confirmNote')}</div></aside></div>`);
  if(state.step==='phone')return foreignCustomerIdentity()?customerNameView():shell(`<div class="phoneStep"><h1 class="title stepTitleIcon">${uiIcon("phone")} ${t('phone.title')}</h1><p class="sub">${t('phone.subtitle')}</p><div class="summary"><div id="phoneDisplay" class="phoneDisplay ${validPhone()?'isComplete':'isIncomplete'}">${formatPhone(state.phone)}</div><div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pressPhone('${n}')">${n}</button>`).join('')}<button onclick="clearPhone()">${t('phone.clear')}</button><button onclick="pressPhone('0')">0</button><button onclick="backPhone()">⌫</button></div><div id="phoneNotice" class="notice ${validPhone()?'isComplete':'isIncomplete'}">${phoneNoticeHTML()}</div><button id="phoneNext" class="next" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPhone()?'':'disabled'} onclick="goPayment()">${t('phone.next')}</button></div></div>`);
  if(state.step==='payment'){const total=currentOrderTotal()+cartTotal();return shell(`<h1 class="title">${t('ui.payment.title')}</h1><p class="sub">${t('ui.payment.subtitle')}</p><div class="summary"><div class="row grand"><span>${t('ui.payment.amount')}</span><strong>${money(total)}</strong></div><div class="paymentGrid">${['cash','card','meal_ticket','bizle'].map(method=>`<button class="paymentCard payment-method-${method} ${state.paymentMethod===method?'active':''}" data-payment-method="${method}" onclick="selectPayment('${method}')">${paymentName(method)}</button>`).join('')}</div>${isSplitPayment()?splitPaymentHTML(total):''}<button type="button" id="paymentSubmitBtn" data-action="submit-order" class="next paymentSubmitBtn" style="width:100%;padding:18px;border:0;border-radius:14px;font-weight:900" ${validPayment()?'':'disabled'}>${t('ui.payment.submit')}</button><div id="submitError" class="submitError"></div></div>`)};
  if(state.step==='done')return shell(`<div class="done"><div class="iconBox" style="margin:0 auto 18px">${uiIcon("check")}</div><h1>${t('done.title')}</h1><p class="doneOrderLabel">${t('done.orderLabel')}</p><div class="num">${orderNumberLabel(state.orderNo)}</div><div class="paymentRequiredBox"><strong>${t('done.paymentRequired',{payment:paymentGuidanceName(state.paymentMethod)})}</strong><span>${t('done.paymentGuide')}</span></div>${state.orderTiming==='reserve'?`<p class="doneReserve">${t('done.reserveTime',{time:state.reserveTime})}</p>`:''}<p class="doneGuide">${t('done.guide')}</p><button class="doneHomeBtn" onclick="endCustomerSessionToStart()">${t('done.home')}</button></div>`)
@@ -3162,10 +3126,10 @@ function getDiningAreas(){
  });
 }
 function areaName(id){return seatAreaName(id)}
-function startDineIn(){navigationHistory.length=0;state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.finalAddMode=null;
+function startDineIn(){navigationHistory.length=0;state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.reviewEditIndex=null;state.editingOrderQty=1;state.finalAddMode=null;
  state.orderType='dinein';state.orderTiming='now';state.partySize=2;state.diningArea=null;state.selectedTables=[];state.step='party';armOrderIdleTimer();render()
 }
-function startTakeout(){navigationHistory.length=0;state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.finalAddMode=null;
+function startTakeout(){navigationHistory.length=0;state.happyReserveOnly=false;state.bannerTakeout=false;state.finalUpsellPrompted=false;state.benefitPromptedKeys=[];state.cartItems=[];state.reviewEditIndex=null;state.editingOrderQty=1;state.finalAddMode=null;
  state.orderType='takeout';state.partySize=null;state.diningArea=null;state.selectedTables=[];state.step='timing';armOrderIdleTimer();render()
 }
 function chooseTakeoutTiming(mode){
@@ -3515,12 +3479,17 @@ function orderDetailData(order){
  return {qty,promo,setNo,size,sizeLabel,dough,crust,crustLabel,mode,pizzaNames,pizzaTitle,topLines,sideLines,drinkLines,incSideLines,incDrinkLines,amount}
 }
 function detailList(title,lines,included=false){if(!lines.length)return '';return `<div class="reviewSection"><b>${title}</b><ul>${lines.map(x=>`<li><span>${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}</span><span>${included?t('review.included'):x.amount?'+ '+money(x.amount):'-'}</span></li>`).join('')}</ul></div>`}
-function reviewOrderCard(order,index){const model=buildCartDisplayModel(order),amount=orderNormalAndDiscount(order),quantity=Math.max(1,Number(order.qty)||1);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}">${cartOrderDetailHtml(model)}<aside class="reviewOrderFinancials"><div><span>${t('ui.common.quantityLabel')}</span><strong>${quantity}</strong></div><div><span>${t('review.setNormalAmount')}</span><strong>${money(amount.normal*quantity)}</strong></div><div class="discount"><span>${t('review.setDiscountAmount')}</span><strong>${amount.discount?'−':''}${money(amount.discount*quantity)}</strong></div><div class="final"><span>${t('review.setFinalAmount')}</span><strong>${money(amount.final*quantity)}</strong></div></aside><div class="cartOrderActions"><button onclick="changeCartQty(${index},-1)">−</button><button onclick="changeCartQty(${index},1)">＋</button><button class="remove" onclick="removeCartItem(${index})">${t('cart.remove')}</button></div></article>`}
+function reviewMenuRows(model){const pizza=model.categories.pizza.map(row=>({...row,group:t('ui.summary.pizza'),amount:model.priceBreakdown?.final??model.total})),named=(group,rows)=>rows.map(row=>({...row,group}));return [...pizza,...named(t('review.additionalToppings'),model.categories.toppings),...named(t('review.includedSides'),model.categories.sides.filter(row=>row.included)),...named(t('review.additionalSides'),model.categories.sides.filter(row=>!row.included)),...named(t('review.includedDrinks'),model.categories.drinks.filter(row=>row.included)),...named(t('review.additionalDrinks'),model.categories.drinks.filter(row=>!row.included)),...named(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment)]}
+function reviewOrderTypeLabel(order){return order.set?setOrderName(order.set):t('review.singleBadge')}
+function reviewOrderBenefitLabel(order,model){const label=String(order.discountLabel||'').trim()||(order.promo&&order.promo!=='normal'?benefitName(order.promo):'');return label&&label!==reviewOrderTypeLabel(order)?label:''}
+function reviewMenuRowsHTML(model){return `<div class="reviewMenuTable" role="table">${reviewMenuRows(model).map(row=>`<div class="reviewMenuRow ${row.included?'included':'added'}" role="row"><span class="reviewMenuName" role="cell"><small>${row.group}</small>${row.name}</span><strong class="reviewMenuQuantity" role="cell">×${row.qty}</strong><strong class="reviewMenuAmount" role="cell">${row.included?t('review.included'):money(row.amount||0)}</strong></div>`).join('')}</div>`}
+function reviewOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}"><div class="reviewOrderIdentity"><strong>${index+1}</strong><span>${t('review.orderOrdinalSuffix')}</span></div><div class="reviewOrderBody"><header class="reviewOrderHead"><div class="reviewOrderBadges"><span class="reviewOrderTypeBadge">${reviewOrderTypeLabel(order)}</span>${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</div><div class="cartOrderActions"><button type="button" class="edit" onclick="editReviewOrder(${index})">${t('review.edit')}</button><button type="button" class="remove" onclick="removeCartItem(${index})">${t('review.delete')}</button></div></header>${reviewMenuRowsHTML(model)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(model.total)}</strong></div></div></article>`}
 function allReviewOrders(){return (state.cartItems||[]).map(x=>({...x,__current:false}))}
-function reviewOrdersHTML(){return `<div class="reviewOrderList" role="region" aria-label="${escAttr(t('review.orderListLabel'))}">${allReviewOrders().map(reviewOrderCard).join('')}</div><nav class="reviewPager" aria-label="${escAttr(t('review.paginationLabel'))}" hidden><button type="button" class="reviewPagePrev" aria-label="${escAttr(t('review.previousItems'))}" onclick="changeReviewPage(-1)">${t('review.previousItems')}</button><span class="reviewPageStatus" role="status" aria-live="polite" tabindex="-1">1 / 1</span><button type="button" class="reviewPageNext" aria-label="${escAttr(t('review.nextItems'))}" onclick="changeReviewPage(1)">${t('review.nextItems')}</button></nav>`}
-function reviewAddActionsHTML(){return `<section class="reviewAddMore"><h2>${t('cart.addMoreTitle')}</h2><div class="reviewAddMoreGrid"><button type="button" onclick="addAnotherSet()">${t('cart.addSet')}</button><button type="button" onclick="addAnotherUpUp()">${t('cart.addUpUp')}</button><button type="button" onclick="addAnotherSingle()">${t('cart.addSingle')}</button></div><p>${t('cart.continueCheckout')}</p></section>`}
-function reviewTotals(){const orders=allReviewOrders();let normal=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),q=d.qty||1;normal+=d.amount.normal*q;final+=d.amount.final*q;const itemDiscount=Math.max(0,d.amount.normal-d.amount.final)*q;if(itemDiscount)discounts[d.amount.label]=(discounts[d.amount.label]||0)+itemDiscount});return {normal,discount:Math.max(0,normal-final),final,discounts}}
-function reviewTotalsHTML(){const totals=reviewTotals(),disposables=state.disposables===null?'':`<div class="line reviewDisposables"><span>${t('ui.summary.disposables')}</span><strong>${t(state.disposables===true?'ui.summary.needed':'ui.summary.notNeeded')}</strong></div>`;return `<div class="reviewDiscountBox">${disposables}<div class="line"><span>${t('orderSummary.normalAmount')}</span><strong>${money(totals.normal)}</strong></div>${Object.entries(totals.discounts).map(([k,v])=>`<div class="line discountLine"><span>${k}</span><strong>−${money(v)}</strong></div>`).join('')}${totals.discount?`<div class="line totalDiscount"><span>${t('orderSummary.totalDiscount')}</span><strong>−${money(totals.discount)}</strong></div>`:''}<div class="line final"><span>${t('orderSummary.finalPayment')}</span><strong>${money(totals.final)}</strong></div></div>`}
+function reviewOrdersHTML(){return `<div class="reviewListFrame"><div class="reviewOrderList" role="region" tabindex="0" aria-label="${escAttr(t('review.orderListLabel'))}">${allReviewOrders().map(reviewOrderCard).join('')}</div><nav class="reviewScrollControls" aria-label="${escAttr(t('review.scrollControls'))}" hidden><button type="button" class="reviewScrollUp" onclick="scrollReviewOrders('up')">▲ ${t('review.scrollUp')}</button><button type="button" class="reviewScrollDown" onclick="scrollReviewOrders('down')">▼ ${t('review.scrollDown')}</button></nav></div>`}
+function reviewAddActionsHTML(){return `<section class="reviewAddMore"><button type="button" class="reviewAddOrderButton" onclick="addAnotherOrder()"><span class="reviewAddIcon" aria-hidden="true">＋</span><span><strong>${t('review.addOrder')}</strong><small>${t('review.addOrderDesc')}</small></span></button></section>`}
+function orderCollectionTotals(orders){let normal=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),q=d.qty||1;normal+=d.amount.normal*q;final+=d.amount.final*q;const itemDiscount=Math.max(0,d.amount.normal-d.amount.final)*q;if(itemDiscount)discounts[d.amount.label]=(discounts[d.amount.label]||0)+itemDiscount});return {normal,discount:Math.max(0,normal-final),final,discounts}}
+function reviewTotals(){return orderCollectionTotals(allReviewOrders())}
+function reviewTotalsHTML(totals=reviewTotals()){return `<div class="reviewDiscountBox"><div class="line normal"><span>${t('review.totalAmount')}</span><strong>${money(totals.normal)}</strong></div><div class="line totalDiscount"><span>${t('review.discountAmount')}</span><strong>−${money(totals.discount)}</strong></div><div class="line final"><span>${t('review.paymentAmount')}</span><strong>${money(totals.final)}</strong></div></div>`}
 function price(){let pizza=pizzaBase(),half=state.mode==='half'?SETTINGS.HALF_EXTRA:0,crust=crustFee(),tops=topFee(),side=sideFee(),drink=drinkFee(),discount=0,label='';let product=state.left?(pizza+half+crust+tops):0;if(state.set){product=(state.set===2?24000:state.set===3?33000:42000)+half+crust+tops;const includedSides=Object.entries(state.setSides||{}).reduce((sum,[id,q])=>sum+(Number(SIDES.find(item=>item.id===id)?.price)||0)*Number(q||0),0);const includedDrink=Number(DRINKS.find(item=>item.id===state.setDrink)?.price)||0;const normal=pizza+half+crust+tops+includedSides+includedDrink;discount=Math.max(0,normal-product);label=benefitName('set')}else if(state.promo==='happy'&&state.left){let normal=po(state.left).R+tops;discount=Math.max(0,normal-(SETTINGS.HAPPY_PRICE+tops));product=SETTINGS.HAPPY_PRICE+tops;label=benefitName('happy')}else if(state.promo==='takeout'&&['L','F'].includes(state.size)){const normal=product;discount=Math.max(0,normal-Math.round(normal*(1-SETTINGS.PACK_DISCOUNT/100)));product=normal-discount;label=benefitName('takeout')}else if(state.promo==='upup'&&state.left){let normalSize=effectiveSize(),leftPrice=po(state.left)?.[normalSize]||0,rightPrice=po(state.right)?.[normalSize]||0,normalPizza=state.mode==='half'&&state.right?((leftPrice+rightPrice)/2):leftPrice,normalCrust=state.crust==='크루아상'?6000:(CRUSTS.find(c=>c.name===state.crust)?.[normalSize]||0),normal=normalPizza+half+normalCrust+tops;let pay=pizza+half+tops;discount=Math.max(0,normal-pay);product=pay;label=benefitName('upup')}return{pizza,half,crust,tops,side,drink,discount,label,total:product+side+drink}}
 function summary(){let p=price(),rows=[[t('ui.summary.orderMethod'),label('orderType',state.orderType)],[t('ui.summary.orderTime'),state.orderTiming==='reserve'?t('ui.summary.reserve',{time:state.reserveTime}):t('ui.summary.now')],[t('ui.summary.benefit'),eventLabel()],[t('ui.summary.pizza'),state.mode==='half'?`${pizzaName(po(state.left))} / ${pizzaName(po(state.right))}`:pizzaName(po(state.left))],[t('ui.summary.size'),effectiveSize()+(state.promo==='upup'&&state.crust==='크루아상'?` (${t('ui.summary.croissantLarge')})`:'')],[t('ui.summary.dough'),customerDoughLabel(state.dough)],[t('ui.summary.crust'),customerCrustLabel(state.crust)]];let html=rows.map(x=>`<div class="row"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');if(state.disposables!==null)html+=`<div class="row"><b>${t('ui.summary.disposables')}</b><span>${t(state.disposables?'ui.summary.needed':'ui.summary.notNeeded')}</span></div>`;[[t('ui.summary.halfFee'),p.half],[t('ui.summary.toppingFee'),p.tops],[t('ui.summary.crustFee'),p.crust],[t('ui.summary.sideFee'),p.side],[t('ui.summary.drinkFee'),p.drink]].forEach(x=>{if(x[1])html+=`<div class="row"><b>${x[0]}</b><span>+${money(x[1])}</span></div>`});if(p.discount)html+=`<div class="row discount"><b>${p.label}</b><span>−${money(p.discount)}</span></div>`;return html}
 function canNext(){return false}
@@ -3547,11 +3516,14 @@ function prevStep(){
  while(navigationHistory.length&&!previous){const candidate=navigationHistory.pop();if(candidate!==state.step&&KIOSK_VALID_STEPS.has(candidate))previous=candidate}
  navigationBackInProgress=true;state.step=previous||defaultResetStep();render()
 }
-function bar(){if(['home','done'].includes(state.step))return '';const reviewOrder=state.step==='review'&&state.cartItems.length?allReviewOrders()[0]:null;const reviewDetail=reviewOrder?orderDetailData(reviewOrder):null;let cur=reviewDetail?reviewDetail.pizzaTitle+(state.cartItems.length>1?` +${state.cartItems.length-1}`:''):(state.left?(state.mode==='half'&&state.right?pizzaName(po(state.left))+' / '+pizzaName(po(state.right)):pizzaName(po(state.left))):(currentHasItems()?t('cart.additionalOrder'):t('cart.notSelected')));let timing=state.orderType==='takeout'?(state.orderTiming==='reserve'?t('pickup.reserve')+' '+(state.reserveTime||t('cart.reservationTimeMissing')):t('pickup.now')):t('labels.orderType.dinein');let opts=reviewDetail?[eventLabel(),timing,t('unit.quantity',{count:reviewDetail.qty})].filter(Boolean).join(' · '):[eventLabel(),timing,state.left?customerSizeLabel(effectiveSize()):'',customerDoughLabel(state.dough),customerCrustLabel(state.crust),sum(state.toppings)?t('cart.toppingCount',{count:sum(state.toppings)}):'',sum(state.extraSides)?t('cart.sideCount',{count:sum(state.extraSides)}):'',sum(state.extraDrinks)?t('cart.drinkCount',{count:sum(state.extraDrinks)}):''].filter(Boolean).join(' · ');const barTotal=reviewDetail?reviewTotals().final:(currentHasItems()?price().total:null);return `<div class="cartbar"><div class="cartmain"><div class="carttitle">${cur}</div><div class="cartdetail">${opts}</div></div><span class="cartprice">${barTotal===null?'':money(barTotal)}</span><button class="prev" onclick="reset();render()">${t('nav.home')}</button>${state.step!=='type'?`<button class="prev" onclick="prevStep()">${t('nav.previous')}</button>`:''}${canNext()?`<button class="next" onclick="nextStep()">${t('nav.next')}</button>`:''}</div>`}
+function cartOrderTopLevelQuantity(order){if(!order)return 0;const parent=order.set||order.pizzaLeft||order.pizza?Math.max(1,Number(order.qty)||1):0;return parent+sum(order.sides||{})+sum(order.drinks||{})}
+function cartTopLevelQuantity(){if(['idle','home','done','testDone'].includes(state.step))return 0;const stored=(state.cartItems||[]).reduce((total,order)=>total+cartOrderTopLevelQuantity(order),0),draft=currentHasItems()?cartOrderTopLevelQuantity({set:state.set,pizzaLeft:state.left,qty:state.editingOrderQty,sides:state.extraSides,drinks:state.extraDrinks}):0;return stored+draft}
+function customerCartButtonHTML(){const count=cartTopLevelQuantity();return `<button type="button" id="customerCartButton" class="customerCartButton" aria-label="${escAttr(t('cart.open'))}" onclick="openCartModal(event)"><span class="customerCartIcon" aria-hidden="true">${uiIcon('cart')}</span><span class="customerCartLabel">${t('cart.title')}</span>${count?`<span class="customerCartBadge" aria-label="${escAttr(t('cart.itemCount',{count}))}">${count}</span>`:''}</button>`}
+function bar(){const minimal=['idle','home','language','done'].includes(state.step);if(minimal)return `<div class="cartbar customerCartOnlyBar"><div class="cartmain"><div class="carttitle">${t('cart.notSelected')}</div><div class="cartdetail"></div></div>${customerCartButtonHTML()}</div>`;const reviewOrder=state.step==='review'&&state.cartItems.length?allReviewOrders()[0]:null;const reviewDetail=reviewOrder?orderDetailData(reviewOrder):null;let cur=reviewDetail?reviewDetail.pizzaTitle+(state.cartItems.length>1?` +${state.cartItems.length-1}`:''):(state.left?(state.mode==='half'&&state.right?pizzaName(po(state.left))+' / '+pizzaName(po(state.right)):pizzaName(po(state.left))):(currentHasItems()?t('cart.additionalOrder'):t('cart.notSelected')));let timing=state.orderType==='takeout'?(state.orderTiming==='reserve'?t('pickup.reserve')+' '+(state.reserveTime||t('cart.reservationTimeMissing')):t('pickup.now')):t('labels.orderType.dinein');let opts=reviewDetail?[eventLabel(),timing,t('unit.quantity',{count:reviewDetail.qty})].filter(Boolean).join(' · '):[eventLabel(),timing,state.left?customerSizeLabel(effectiveSize()):'',customerDoughLabel(state.dough),customerCrustLabel(state.crust),sum(state.toppings)?t('cart.toppingCount',{count:sum(state.toppings)}):'',sum(state.extraSides)?t('cart.sideCount',{count:sum(state.extraSides)}):'',sum(state.extraDrinks)?t('cart.drinkCount',{count:sum(state.extraDrinks)}):''].filter(Boolean).join(' · ');const barTotal=reviewDetail?reviewTotals().final:(currentHasItems()?price().total:null);return `<div class="cartbar"><div class="cartmain"><div class="carttitle">${cur}</div><div class="cartdetail">${opts}</div></div><span class="cartprice">${barTotal===null?'':money(barTotal)}</span>${customerCartButtonHTML()}<button class="prev" onclick="reset();render()">${t('nav.home')}</button>${state.step!=='type'?`<button class="prev" onclick="prevStep()">${t('nav.previous')}</button>`:''}${canNext()?`<button class="next" onclick="nextStep()">${t('nav.next')}</button>`:''}</div>`}
 
 const standardBar=bar;
 bar=function(){
- if(state.step==='review')return `<aside class="reviewSummaryDock">${reviewAddActionsHTML()}${reviewTotalsHTML()}</aside><nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewHomeBtn" onclick="requestReviewReset()">${t('nav.home')}</button><button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
+ if(state.step==='review')return `<aside class="reviewSummaryDock">${reviewAddActionsHTML()}${reviewTotalsHTML()}</aside><nav class="reviewBottomActions" aria-label="${escAttr(t('review.title'))}"><button type="button" class="reviewBackBtn" onclick="prevStep()">${t('nav.previous')}</button><button type="button" class="reviewHomeBtn" onclick="requestReviewReset()">${t('nav.home')}</button>${customerCartButtonHTML()}<button type="button" class="reviewConfirmBtn reviewDockConfirm" ${state.cartItems.length?'':'disabled'} onclick="confirmReviewOrder(event)">${t('review.confirmOrder')}</button></nav>`;
  return standardBar();
 };
 function requestReviewReset(){if(state.step!=='review'||state.modal)return;state.modal='reviewResetConfirm';render()}
@@ -3611,7 +3583,7 @@ function benefitName(id){return label('promo',id,id)}
 function orderSnapshot(){
  const p=po(state.left),r=po(state.right),pricing=price();
  return {
-  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:pricing.total,normalPrice:pricing.total+pricing.discount,discount:pricing.discount,discountLabel:pricing.label,qty:1,
+  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:pricing.total,normalPrice:pricing.total+pricing.discount,discount:pricing.discount,discountLabel:pricing.label,qty:Math.max(1,Number(state.editingOrderQty)||1),
   mode:state.mode,pizza:state.left,pizzaLeft:state.left,pizzaRight:state.right,pizzaName:state.mode==='half'?`${pizzaName(p)||''} / ${pizzaName(r)||''}`:(p?pizzaName(p):''),
   crust:state.crust||'오리지널',dough:state.dough||'오리지널',toppings:{...(state.toppings||{})},sides:{...(state.extraSides||{})},drinks:{...(state.extraDrinks||{})},includedSides:{...(state.setSides||{})},includedDrinks:state.setDrink?{[state.setDrink]:1}:{}
  }
@@ -3626,7 +3598,7 @@ function cartCatalogLines(map,master,unitPrice,orderQty,included=false){
   const item=master.find(candidate=>candidate.id===id),qty=Number(value)||0;
   if(!item||qty<=0)return [];
   const unit=included?0:Number(unitPrice(item)||0);
-  return [{id,name:optionDisplayName(item),qty:qty*orderQty,amount:unit*qty*orderQty,included,added:false}];
+  return [{id,name:optionDisplayName(item),qty:included?qty*orderQty:qty,amount:unit*qty*orderQty,included,added:false}];
  })
 }
 function pizzaOptionFee(dough,crust,size){const option=dough==='크루아상'?'크루아상':(crust||'오리지널');return Number(CRUSTS.find(item=>item.name===option)?.[size]||0)}
@@ -3708,11 +3680,14 @@ function cartOrderDetailHtml(model){
   drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
  return `${cartPizzaCategoryHtml(model)}${cartCategoryHtml(t('review.toppingAddTitle'),model.categories.toppings)}${cartCategoryHtml(sideTitle,model.categories.sides,true)}${cartCategoryHtml(drinkTitle,model.categories.drinks,true)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment,true)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div>`
 }
-function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;item.qty=Math.max(1,(item.qty||1)+d);render()}
-function removeCartItem(i){state.cartItems.splice(i,1);render()}
-function clearCurrentProduct(){Object.assign(state,{setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null})}
-function addCurrentOrderToReview(){if(currentHasItems())state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct();state.step='review';render()}
-function preserveCurrentOrderForAdd(){if(currentHasItems())state.cartItems=[...state.cartItems,orderSnapshot()];clearCurrentProduct()}
+function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;rememberReviewScroll();item.qty=Math.max(1,(item.qty||1)+d);render()}
+function removeCartItem(i){rememberReviewScroll();state.cartItems.splice(i,1);if(!state.cartItems.length)reviewSavedScrollTop=0;render()}
+function editReviewOrder(i){const order=state.cartItems[i];if(!order||state.modal)return;rememberReviewScroll();state.cartItems.splice(i,1);Object.assign(state,{reviewEditIndex:i,editingOrderQty:Math.max(1,Number(order.qty)||1),promo:order.promo||'normal',set:order.set||null,size:order.size||null,mode:order.mode||'single',dough:order.dough||'오리지널',left:order.pizzaLeft||order.pizza||null,right:order.pizzaRight||null,crust:order.crust||'오리지널',toppingChoice:Object.keys(order.toppings||{}).length?'add':null,toppings:{...(order.toppings||{})},extraSides:{...(order.sides||{})},extraDrinks:{...(order.drinks||{})},setSides:{...(order.includedSides||{})},setDrink:Object.keys(order.includedDrinks||{})[0]||null,step:'promo'});render()}
+function clearCurrentProduct(){Object.assign(state,{reviewEditIndex:null,editingOrderQty:1,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null})}
+function storeCurrentOrderSnapshot(){if(!currentHasItems())return;const snapshot=orderSnapshot(),index=Number.isInteger(state.reviewEditIndex)?Math.min(Math.max(0,state.reviewEditIndex),state.cartItems.length):state.cartItems.length;state.cartItems.splice(index,0,snapshot)}
+function addCurrentOrderToReview(){storeCurrentOrderSnapshot();clearCurrentProduct();state.step='review';render()}
+function preserveCurrentOrderForAdd(){storeCurrentOrderSnapshot();clearCurrentProduct()}
+function addAnotherOrder(){preserveCurrentOrderForAdd();state.step='promo';render()}
 function addAnotherSet(){preserveCurrentOrderForAdd();state.promo='set';state.step='setChoice';render()}
 function addAnotherUpUp(){preserveCurrentOrderForAdd();state.promo='upup';state.size='F';state.step='mode';render()}
 function addAnotherSingle(){preserveCurrentOrderForAdd();state.step='promo';render()}
@@ -3869,7 +3844,13 @@ function chooseFinalUpsell(type){
  render()
 }
 
+function cartModalOrders(){if(['idle','home','done','testDone'].includes(state.step))return [];const orders=allReviewOrders();if(currentHasItems())orders.push({...orderSnapshot(),__current:true});return orders}
+function openCartModal(event){if(state.modal)return;event?.preventDefault();state.modal='cartView';render()}
+function closeCartModal(){if(state.modal!=='cartView')return;state.modal=null;render();requestAnimationFrame(()=>document.getElementById('customerCartButton')?.focus({preventScroll:true}))}
+function cartModalOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model);return `<article class="cartModalOrderCard"><header><strong>${t('review.orderOrdinal',{count:index+1})}</strong><span class="reviewOrderTypeBadge">${reviewOrderTypeLabel(order)}</span>${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</header>${reviewMenuRowsHTML(model)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(model.total)}</strong></div></article>`}
+function cartModalHTML(){const orders=cartModalOrders(),totals=orderCollectionTotals(orders);return `<div class="backdrop cartViewBackdrop"><section class="modal cartViewModal" role="dialog" aria-modal="true" aria-labelledby="cartViewTitle"><header class="cartModalHeader"><h2 id="cartViewTitle">${t('cart.title')}</h2><button type="button" class="cartModalClose" onclick="closeCartModal()"><span aria-hidden="true">×</span> ${t('cart.close')}</button></header>${orders.length?`<div class="cartModalOrderList" tabindex="0">${orders.map(cartModalOrderCard).join('')}</div><footer class="cartModalTotals">${reviewTotalsHTML(totals)}</footer>`:`<div class="cartModalEmpty">${t('cart.empty')}</div>`}</section></div>`}
 function modalView(){
+if(state.modal==='cartView')return cartModalHTML();
 if(state.modal==='zoneWaitlist'&&zoneWaitlistDraft){const copy=seatCapacityCopy(),phone=zoneWaitlistDraft.phone,valid=waitlistPhoneKeypad.valid(phone);return `<div class="backdrop"><div class="modal waitlistKeypadModal" role="dialog" aria-modal="true" aria-labelledby="waitlistKeypadTitle"><h2 id="waitlistKeypadTitle">${copy.queue}</h2><p>${t('seat.capacity.phoneGuide')}</p><input id="waitlistPhoneDisplay" class="waitlistPhoneDisplay ${zoneWaitlistDraft.error?'invalid':''}" type="text" inputmode="none" readonly autocomplete="off" aria-label="${escAttr(t('seat.capacity.phoneLabel'))}" value="${escAttr(waitlistPhoneKeypad.format(phone))}" placeholder="010-0000-0000"><div class="waitlistKeypad" aria-label="${escAttr(t('seat.capacity.keypadLabel'))}">${[1,2,3,4,5,6,7,8,9].map(value=>`<button type="button" onclick="pressWaitlistPhone('${value}')">${value}</button>`).join('')}<button type="button" class="waitlistClear" onclick="clearWaitlistPhone()">${t('seat.capacity.clear')}</button><button type="button" onclick="pressWaitlistPhone('0')">0</button><button type="button" aria-label="${escAttr(t('seat.capacity.backspace'))}" onclick="backWaitlistPhone()">⌫</button></div><p class="waitlistPhoneError" role="alert">${zoneWaitlistDraft.error||''}</p><div class="waitlistKeypadActions"><button type="button" class="waitlistCancel" onclick="closeZoneWaitlist()">${t('seat.capacity.cancel')}</button><button type="button" class="waitlistSubmit" ${valid&&!zoneWaitlistSubmitting?'':'disabled'} onclick="submitZoneWaitlist(event)">${zoneWaitlistSubmitting?t('seat.capacity.submitting'):t('seat.capacity.register')}</button></div></div></div>`}
 if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('review.resetTitle')}</h2><p>${t('review.resetBody')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('review.resetCancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('review.resetConfirm')}</button></div></div></div>`;
 if(state.modal==='seatReservationConflict')return `<div class="backdrop"><div class="modal seatReservationConflictModal" role="alertdialog" aria-modal="true" aria-labelledby="seatReservationConflictTitle"><h2 id="seatReservationConflictTitle">${t('ui.seatReservation.title')}</h2><p>${t('ui.seatReservation.conflict')}</p><div class="modalBtns" style="grid-template-columns:1fr"><button class="next" autofocus onclick="confirmSeatReservationConflict()">${t('ui.common.confirm')}</button></div></div></div>`;
@@ -4105,6 +4086,7 @@ document.addEventListener('click',function(event){
 document.addEventListener('keydown',function(event){
  if(event.key==='Escape'&&state.modal==='zoneWaitlist'){event.preventDefault();closeZoneWaitlist();return}
  if(event.key==='Escape'&&state.modal==='reviewResetConfirm'){event.preventDefault();cancelReviewReset();return}
+ if(event.key==='Escape'&&state.modal==='cartView'){event.preventDefault();closeCartModal();return}
  if((event.key==='Enter'||event.key===' ')&&document.activeElement&&document.activeElement.matches('#paymentSubmitBtn,[data-action="submit-order"]')){
   handlePaymentSubmit(event);
  }
@@ -7595,3 +7577,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
 <link rel="stylesheet" href="styles/set-choice-responsive.css?v=responsive-split-card-v5">
 <link rel="stylesheet" href="styles/home-promo-visibility.css?v=happy-hour-visibility-v1">
+<link rel="stylesheet" href="styles/order-review-cart-quantity.css?v=order-review-cart-quantity-v5">

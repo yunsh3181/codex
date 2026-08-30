@@ -28,6 +28,8 @@ window.PJ_I18N_LOCALES.zh={
     done:{title:'订单已接收',orderLabel:'订单号 · 手机号后4位',paymentRequired:'请在柜台使用{payment}支付',paymentMethodPhrase:{cash:'现金',card:'信用卡',meal_ticket:'餐券台账',bizle:'Zero Pay'},paymentGuide:'支付完成后将开始制作披萨。',reserveTime:'预约时间 {time}',guide:'请确认订单号后前往柜台。',home:'返回首页'}
   };
 Object.assign(window.PJ_I18N_LOCALES.zh.review,{resetTitle:'返回首页',resetBody:'当前订单内容将全部删除。是否返回初始画面？',resetCancel:'取消',resetConfirm:'返回首页'});
+Object.assign(window.PJ_I18N_LOCALES.zh.cart,{open:'打开购物车',close:'关闭',itemCount:'购物车内 {count} 件商品'});
+Object.assign(window.PJ_I18N_LOCALES.zh.review,{subtitle:'请确认每笔订单的商品和最终付款金额。',orderHistory:'订单明细',orderOrdinal:'第{count}笔订单',orderOrdinalSuffix:'笔订单',singleBadge:'单品',edit:'修改',delete:'删除',addOrder:'追加订单',addOrderDesc:'从优惠选择开始新订单',scrollControls:'订单明细滚动',scrollUp:'向上',scrollDown:'向下',totalAmount:'总金额',discountAmount:'优惠金额',paymentAmount:'付款金额'});
 window.PJ_I18N_LOCALES.zh.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.zh.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
 Object.assign(window.PJ_I18N_LOCALES.zh.benefit.card.set,{title:'Set Menu'});

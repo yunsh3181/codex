@@ -61,10 +61,10 @@ test('seat manager uses the new display name in cards and reservation prompts',(
 
 test('changed browser assets use fresh cache keys and unrelated admin assets remain stable',()=>{
  const kiosk=read('index.html'),admin=read('admin/index.html'),seat=read('seat/index.html');
- for(const locale of locales){const key=locale==='ko'?'happy-hour-visibility-v1':'foreign-name-limit-v1';assert.equal((kiosk.match(new RegExp(`i18n/${locale}\\.js\\?v=${key}`,'g'))||[]).length,1,locale)}
+ for(const locale of locales){const key='order-review-cart-quantity-v1';assert.equal((kiosk.match(new RegExp(`i18n/${locale}\\.js\\?v=${key}`,'g'))||[]).length,1,locale)}
  assert.equal((kiosk.match(/foreign-order-followup-v1/g)||[]).length,0);
  assert.equal((kiosk.match(/seat-capacity-policy\.js\?v=3/g)||[]).length,1);
- assert.equal((admin.match(/admin\.js\?v=49\.1\.1/g)||[]).length,1);
+ assert.equal((admin.match(/admin\.js\?v=49\.1\.2/g)||[]).length,1);
  assert.equal((admin.match(/admin-operations\.js\?v=49\.1\.0/g)||[]).length,1);
  assert.equal((admin.match(/admin\.css\?v=49\.0\.2/g)||[]).length,1);
  assert.equal((seat.match(/seats\.js\?v=48\.0\.2/g)||[]).length,1)

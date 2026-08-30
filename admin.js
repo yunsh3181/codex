@@ -1239,7 +1239,8 @@ function storedSelectionEntries(map,category,legacyMaster=[],{included=false,par
   const storedName=typeof value==='object'&&value!==null?value.name:'';
   const storedAmount=storedLineAmount(value),unitPrice=typeof value==='object'&&value!==null?storedLineAmount({amount:value.unitPrice??value.price}):catalogUnitPrice(id,legacyMaster);
   const amount=included?0:storedAmount??(unitPrice===null?null:unitPrice*quantity*safeDisplayQuantity(parentQuantity));
-  return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity,amount}];
+  const displayQuantity=included?quantity*safeDisplayQuantity(parentQuantity):quantity;
+  return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity:displayQuantity,amount}];
  });
 }
 function combinedStoredEntries(entries){

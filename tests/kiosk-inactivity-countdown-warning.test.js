@@ -43,7 +43,7 @@ test('warning interaction is explicit and background activity cannot extend the 
 
 test('all six locale files provide complete inactivity copy',()=>{
  for(const locale of ['ko','en','ja','zh','vi','es']){
-  const key=locale==='ko'?'happy-hour-visibility-v1':'foreign-name-limit-v1';
+  const key='order-review-cart-quantity-v1';
   assert.match(html,new RegExp(`<script src="i18n/${locale}\\.js\\?v=${key}"><\\/script>`),locale);
   const source=fs.readFileSync(path.join(root,'i18n',`${locale}.js`),'utf8');
   assert.match(source,/inactivity:\{title:[\s\S]*?body:[\s\S]*?guide:[\s\S]*?continue:[\s\S]*?home:[\s\S]*?seconds:/,locale);

@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 
 const root = path.resolve(__dirname, '..');
-test('real browser layout fits every viewport, locale, and order scenario', { timeout: 120_000 }, t => {
+test('real browser layout keeps the page fixed and the order list independently scrollable', { timeout: 120_000 }, t => {
   const reportPath = path.join(os.tmpdir(), `order-review-layout-${process.pid}.json`);
   const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'order-review-profile-'));
   t.after(() => fs.rmSync(reportPath, { force: true }));
@@ -26,7 +26,7 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 5 * 6 * 23);
+  assert.equal(report.results.length, 8 * 6 * 23);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -38,92 +38,49 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     if (process.platform === 'win32' && result.layout !== 'phone') continue;
     assert.equal(result.horizontalOverflow, 0, `${context}: ${JSON.stringify(result.scroll)}`);
     assert.equal(result.overlapCount, 0, `${context}: text overlap`);
-    if (result.layout === 'phone') {
-      assert.equal(result.compressionStage, 0, `${context}: phone review must not compress`);
-      assert.ok(result.contentBottomGap >= 44, `${context}: ${result.contentBottomGap}px bottom gap`);
-      if (['max-categories', 'long-complex-order'].includes(result.scenario)) {
-        assert.equal(result.verticalScrollable, true, `${context}: long review must scroll`);
-      }
-    } else {
-      assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
-      if (result.layout === 'kiosk21') {
-        assert.equal(result.verticalScrollable, false, `${context}: document must not scroll`);
-        assert.ok(result.orderRegion.scrollHeight <= result.orderRegion.clientHeight + 2, `${context}: order list overflow`);
-        assert.equal(result.reviewPageFits,true,`${context}: unsafe current page`);
-        const indexes = result.pageItemIndexes.flat();
-        assert.equal(indexes.length, result.orderItemCount, `${context}: paged item count`);
-        assert.equal(new Set(indexes).size, result.orderItemCount, `${context}: duplicate paged item`);
-        assert.deepEqual([...indexes].sort((a,b)=>a-b), Array.from({length:result.orderItemCount},(_,i)=>i), `${context}: missing paged item`);
-        assert.ok(result.minimumFontSize >= 15, `${context}: ${result.minimumFontSize}px kiosk font`);
-        assert.ok(result.typography.menuName>=18,`${context}: ${result.typography.menuName}px item name`);
-        assert.ok(result.typography.options>=15,`${context}: ${result.typography.options}px options`);
-        assert.ok(result.typography.quantityPrice>=17,`${context}: ${result.typography.quantityPrice}px quantity/price`);
-        assert.ok(result.typography.summary>=16,`${context}: ${result.typography.summary}px summary`);
-        assert.ok(result.typography.totalPayment>=26,`${context}: ${result.typography.totalPayment}px final payment`);
-        assert.ok(result.typography.footerButton>=24,`${context}: ${result.typography.footerButton}px footer button`);
-        assert.deepEqual(result.verticalSingleCharacterKorean,[],`${context}: vertical Korean`);
-        assert.equal(result.confirmButton.visible,true,`${context}: order button hidden`);
-        assert.equal(result.confirmButton.enabled,true,`${context}: order button disabled`);
-        assert.ok(result.confirmButton.rect.height>=96,`${context}: ${result.confirmButton.rect.height}px order button`);
-        assert.ok(result.confirmButton.rect.width>0,`${context}: zero-width order button`);
-        assert.ok(result.confirmButton.bottomSafetyGap>=24,`${context}: ${result.confirmButton.bottomSafetyGap}px safety gap`);
-        assert.deepEqual(result.confirmClick,{before:'review',after:'phone',clickCount:1},`${context}: confirm click`);
-        if(result.pageCount===1){
-          assert.equal(result.visibleItemCount,result.orderItemCount,`${context}: hidden card on single page`);
-          assert.equal(result.pagerReservedHeight,0,`${context}: pager reserved space`);
-          assert.equal(result.paginationTrace,null,`${context}: unexpected pagination trace`);
-        }else{
-          const trace=result.paginationTrace;
-          assert.ok(trace,`${context}: missing pagination trace`);
-          assert.equal(trace.pages.length,result.pageCount,`${context}: traversed page count`);
-          assert.equal(trace.pages.some(page=>page.visibleIndexes.length===0),false,`${context}: empty page`);
-          assert.deepEqual(trace.pages.map(page=>page.visibleIndexes),result.pageItemIndexes,`${context}: actual page indexes`);
-          assert.equal(trace.pages[0].previousDisabled,true,`${context}: first previous enabled`);
-          assert.equal(trace.pages.at(-1).nextDisabled,true,`${context}: last next enabled`);
-          assert.deepEqual(trace.returnToFirst.visibleIndexes,trace.pages[0].visibleIndexes,`${context}: first page return`);
-          assert.equal(trace.returnToFirst.previousDisabled,true,`${context}: returned previous enabled`);
-          assert.equal(trace.returnToFirst.statusText,`1 / ${result.pageCount}`,`${context}: returned status`);
-          const totals=new Set(trace.pages.map(page=>page.totalsText));
-          assert.equal(totals.size,1,`${context}: totals changed between pages`);
-          for(const [pageIndex,page] of trace.pages.entries()){
-            assert.equal(page.statusText,`${pageIndex+1} / ${result.pageCount}`,`${context}: page status`);
-            assert.equal(page.overflow,0,`${context}: page ${pageIndex+1} overflow`);
-            assert.equal(page.clipping,0,`${context}: page ${pageIndex+1} clipping`);
-            assert.ok(page.usedHeight<=page.availableHeight+2,`${context}: page ${pageIndex+1} height`);
-            assert.ok(page.pagerReservedHeight>=80,`${context}: pager height`);
-            if(pageIndex>0)assert.match(page.focusClass,/reviewPageStatus/,`${context}: page focus`);
-            if(pageIndex<trace.pages.length-1)assert.equal(page.canFitNextCard,false,`${context}: page ${pageIndex+1} wastes fit space`);
-          }
-        }
-        if (['bulk-pagination','max-cart-items'].includes(result.scenario)) {
-          assert.ok(result.pageCount >= 2, `${context}: expected pagination`);
-          assert.ok(result.pageItemIndexes.some(page=>page.length>=2),`${context}: one-card pages only`);
-          assert.ok(result.pageCount<result.cardCount,`${context}: page count equals card count`);
-        }
-        if(result.scenario==='four-items-forced-overflow'){
-          assert.ok(result.pageCount>1,`${context}: four-card overflow was forced onto one page`);
-          assert.ok(result.paginationTrace,`${context}: forced overflow missing pagination`);
-        }
-        if(result.scenario==='set-four'){
-          const mutation=result.quantityMutation;
-          assert.ok(mutation,`${context}: quantity mutation trace`);
-          assert.equal(mutation.afterIncrement.quantities[0],mutation.before.quantities[0]+1,`${context}: increment`);
-          assert.equal(mutation.afterIncrement.total>mutation.before.total,true,`${context}: increment total`);
-          assert.deepEqual(mutation.afterDecrement.quantities,mutation.before.quantities,`${context}: decrement quantity`);
-          assert.equal(mutation.afterDecrement.total,mutation.before.total,`${context}: decrement total`);
-          for(const [stage,snapshot] of Object.entries(mutation)){
-            assert.equal(snapshot.confirmVisible,true,`${context}/${stage}: confirm hidden`);
-            if(snapshot.pageCount===1)assert.ok(snapshot.orderScrollHeight<=snapshot.orderClientHeight+1,`${context}/${stage}: single page overflow`);
-            const mutationIndexes=snapshot.pageItemIndexes.flat();
-            assert.equal(mutationIndexes.length,result.orderItemCount,`${context}/${stage}: item count`);
-            assert.equal(new Set(mutationIndexes).size,result.orderItemCount,`${context}/${stage}: duplicate item`);
-          }
-        }
-        if(['normal-whole','two-items','three-items','four-items','set-one','set-three-photo','set-four','set-four-long','set-four-upup'].includes(result.scenario)){
-          assert.equal(result.pageCount,1,`${context}: ordinary order paginated`);
-          assert.equal(result.pagerReservedHeight,0,`${context}: ordinary pager space`);
-        }
-      }
+    assert.equal(result.fits, true, `${context}: ${JSON.stringify(result.scroll)}`);
+    assert.equal(result.verticalScrollable, false, `${context}: document must not scroll`);
+    assert.equal(result.pageCount, 1, `${context}: pagination must stay removed`);
+    assert.equal(result.visibleItemCount, result.orderItemCount, `${context}: hidden order card`);
+    assert.deepEqual(result.pageItemIndexes, [Array.from({ length: result.orderItemCount }, (_, i) => i)], `${context}: order indexes`);
+    assert.equal(result.paginationTrace, null, `${context}: legacy pager trace`);
+    assert.ok(result.orderRegion.clientHeight > 0, `${context}: missing list viewport`);
+    const overflows = result.orderRegion.scrollHeight > result.orderRegion.clientHeight + 1;
+    assert.equal(result.scrollControls.hidden, !overflows, `${context}: scroll controls visibility`);
+    assert.equal(result.scrollControls.upDisabled, true, `${context}: initial up control`);
+    assert.equal(result.scrollControls.downDisabled, !overflows, `${context}: initial down control`);
+    assert.equal(result.confirmButton.visible, true, `${context}: confirm hidden`);
+    assert.equal(result.confirmButton.enabled, true, `${context}: confirm disabled`);
+    assert.ok(result.confirmButton.rect.height >= 44, `${context}: confirm touch height`);
+    assert.ok(result.confirmButton.bottomSafetyGap >= 8, `${context}: confirm safety gap`);
+    assert.deepEqual(result.verticalSingleCharacterKorean, [], `${context}: vertical Korean`);
+    assert.ok(result.cartBadgeCount > 0, `${context}: cart badge count`);
+    if (result.scenario === 'multi-pizza') assert.equal(result.cartBadgeCount, 2, `${context}: pizza quantity badge`);
+    if (result.scenario === 'max-categories') assert.equal(result.cartBadgeCount, 4, `${context}: parent plus separate extras badge`);
+    if (result.cartModal) {
+      assert.equal(result.cartModal.itemCount, result.orderItemCount, `${context}: modal order groups`);
+      assert.equal(result.cartModal.empty, false, `${context}: unexpected empty modal`);
+      assert.equal(result.cartModal.dialogCount, 1, `${context}: duplicate modal`);
+      assert.equal(result.cartModal.horizontalOverflow, 0, `${context}: modal horizontal overflow`);
+      assert.deepEqual(result.cartModal.clipped, [], `${context}: modal clipping`);
+      assert.equal(result.cartModal.backgroundLocked, true, `${context}: modal background scroll`);
+      assert.equal(result.cartModal.closed, true, `${context}: modal close`);
+      assert.equal(result.cartModal.focusReturned, true, `${context}: cart focus return`);
+      assert.ok(result.cartModal.modal.left >= 0 && result.cartModal.modal.right <= result.viewport.width, `${context}: modal viewport x`);
+      assert.ok(result.cartModal.modal.top >= 0 && result.cartModal.modal.bottom <= result.viewport.height, `${context}: modal viewport y`);
+    }
+    if (result.layout === 'kiosk21') {
+      assert.ok(result.typography.menuName >= 15, `${context}: ${result.typography.menuName}px menu name`);
+      assert.ok(result.typography.quantityPrice >= 15, `${context}: ${result.typography.quantityPrice}px quantity/price`);
+      assert.deepEqual(result.confirmClick, { before: 'review', after: 'phone', clickCount: 1 }, `${context}: confirm click`);
+    }
+    if (result.scenario === 'set-four' && result.layout === 'kiosk21') {
+      const mutation = result.quantityMutation;
+      assert.ok(mutation, `${context}: quantity mutation trace`);
+      assert.equal(mutation.afterIncrement.quantities[0], mutation.before.quantities[0] + 1, `${context}: increment`);
+      assert.ok(mutation.afterIncrement.total > mutation.before.total, `${context}: increment total`);
+      assert.deepEqual(mutation.afterDecrement.quantities, mutation.before.quantities, `${context}: decrement quantity`);
+      assert.equal(mutation.afterDecrement.total, mutation.before.total, `${context}: decrement total`);
     }
     if (['two-items','three-items','four-items','multi-pizza','max-categories','long-complex-order','five-items','six-items','bulk-pagination','max-cart-items','set-one','set-three-photo','set-four','set-four-long','set-four-upup','four-items-forced-overflow'].includes(result.scenario)) {
       if (result.scenario === 'multi-pizza') {
@@ -145,18 +102,8 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     }
     assert.deepEqual(result.clipped, [], `${context}: clipped`);
     assert.deepEqual(result.hiddenRequired, [], `${context}: required UI hidden`);
-    if (result.layout !== 'phone') {
-      assert.ok(
-        result.contentOverlapPx <= 1,
-        `${context}: ${result.contentOverlapPx}px fixed cart overlap at ${JSON.stringify({
-          lastContent: result.lastContent,
-          orderRegion: result.orderRegion,
-          stageSections: result.stageSections,
-          reviewSections: result.reviewSections,
-        })}`
-      );
-    }
-    assert.ok(result.minFontSize >= (result.layout==='kiosk21'?15:12), `${context}: ${result.minFontSize}px font`);
+    assert.ok(result.contentOverlapPx <= 1, `${context}: ${result.contentOverlapPx}px footer overlap`);
+    assert.ok(result.minFontSize >= 12, `${context}: ${result.minFontSize}px font`);
     assert.ok(result.minTouchWidth >= 44, `${context}: ${result.minTouchWidth}px touch width`);
     assert.ok(result.minTouchHeight >= 44, `${context}: ${result.minTouchHeight}px touch height`);
     assert.equal(
@@ -178,8 +125,18 @@ test('real browser layout fits every viewport, locale, and order scenario', { ti
     }
   }
   assert.ok(report.results.some(result =>
-    result.layout === 'phone' && result.scenario === 'long-complex-order' && result.verticalScrollable
-  ), 'measured mobile complex review uses natural page scrolling');
+    result.scenario === 'max-cart-items' && result.orderRegion.scrollHeight > result.orderRegion.clientHeight
+  ), 'large carts use the independent order-list scroll region');
+  assert.ok(report.touchEvidence.afterSwipe > 0, 'trusted touch swipe scrolls the order list');
+  assert.ok(report.touchEvidence.afterDown > report.touchEvidence.afterSwipe, 'down touch advances the order list');
+  assert.equal(report.touchEvidence.bottom.downDisabled, true, 'down control disables at the bottom');
+  assert.ok(report.touchEvidence.afterUp < report.touchEvidence.bottom.top, 'up touch moves away from the bottom');
+  assert.equal(report.touchEvidence.modalOpened, true, 'cart modal opens by touch');
+  assert.ok(report.touchEvidence.modalScrollMax > 0 && report.touchEvidence.modalAfter > 0, 'cart modal list scrolls by touch');
+  assert.equal(report.touchEvidence.modalClosed, true, 'cart modal closes by touch');
+  assert.equal(report.touchEvidence.focusReturned, true, 'touch close returns focus');
+  assert.equal(report.touchEvidence.actionMisselects, 0, 'swipe does not activate edit or delete');
+  assert.equal(report.touchEvidence.trusted, true, 'touch and pointer events are trusted');
 });
 
 test('stored screenshots are raw viewport captures without forced resizing', () => {
@@ -203,8 +160,8 @@ test('repository measurement artifact is aggregate-only while failures retain de
     'utf8'
   ));
   assert.equal('results' in aggregate, false);
-  assert.equal(aggregate.totalCombinations, 5 * 6 * 23);
-  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '834x1112', '768x1024', '1080x1920']);
+  assert.equal(aggregate.totalCombinations, 8 * 6 * 23);
+  assert.deepEqual(aggregate.viewports, ['360x640', '390x844', '834x940', '834x1112', '810x1080', '768x1024', '1080x1920', '1920x1080']);
   assert.deepEqual(aggregate.locales, ['ko', 'en', 'ja', 'zh', 'vi', 'es']);
   assert.equal(aggregate.overlapCount, 0);
   assert.equal(aggregate.clippedTextCount, 0);

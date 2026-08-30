@@ -11,7 +11,7 @@ function source(relative,ref){
 function transformedAdmin(ref){
  let html=source('admin/index.html',ref).toString();
  html=html.replace(/\s*<script src="https:\/\/www\.gstatic\.com\/firebasejs\/[^"]+"><\/script>/g,'').replace('firebase-config.js?v=44.0.0','firebase-config.js?v=admin-visual-47.1.0');
- html=html.replace('admin-visual-47.1.0','admin-visual-47.2.0').replace('src="../seat/?v=44.0.0"','src="about:blank"');
+ html=html.replace('admin-visual-47.1.0','admin-visual-47.2.0').replace(/src="\.\.\/seat\/\?v=[^"]+"/,'src="about:blank"');
  return Buffer.from(html);
 }
 function createAdminVisualServer({ref=null,port=0}={}){

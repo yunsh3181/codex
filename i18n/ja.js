@@ -28,6 +28,8 @@ window.PJ_I18N_LOCALES.ja={
     done:{title:'注文を受け付けました',orderLabel:'注文番号・電話番号下4桁',paymentRequired:'カウンターで{payment}にてお支払いください',paymentMethodPhrase:{cash:'現金',card:'クレジットカード',meal_ticket:'食券台帳',bizle:'ゼロペイ'},paymentGuide:'お支払い完了後、ピザの調理を開始します。',reserveTime:'予約時間 {time}',guide:'注文番号をご確認のうえ、カウンターまでお越しください。',home:'最初へ'}
   };
 Object.assign(window.PJ_I18N_LOCALES.ja.review,{resetTitle:'最初に戻る',resetBody:'現在の注文内容はすべて削除されます。最初の画面に戻りますか？',resetCancel:'キャンセル',resetConfirm:'最初に戻る'});
+Object.assign(window.PJ_I18N_LOCALES.ja.cart,{open:'カートを開く',close:'閉じる',itemCount:'カート内の商品 {count}点'});
+Object.assign(window.PJ_I18N_LOCALES.ja.review,{subtitle:'注文ごとの商品と最終お支払い金額をご確認ください。',orderHistory:'注文履歴',orderOrdinal:'{count}件目の注文',orderOrdinalSuffix:'件目の注文',singleBadge:'単品',edit:'修正',delete:'削除',addOrder:'追加注文',addOrderDesc:'特典選択から新しい注文を開始します',scrollControls:'注文履歴スクロール',scrollUp:'上へ',scrollDown:'下へ',totalAmount:'合計金額',discountAmount:'割引金額',paymentAmount:'お支払い金額'});
 window.PJ_I18N_LOCALES.ja.party.label='人数';
 Object.assign(window.PJ_I18N_LOCALES.ja.drink.group,{coke:'Coca-Cola',cokeZero:'Coca-Cola Zero',sprite:'Sprite',spriteZero:'Sprite Zero'});
 Object.assign(window.PJ_I18N_LOCALES.ja.benefit.card.set,{title:'Set Menu'});
