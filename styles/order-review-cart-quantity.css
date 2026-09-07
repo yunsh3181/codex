@@ -101,6 +101,36 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
  .cartViewModal{width:calc(100vw - 16px)!important;height:calc(100dvh - 16px)}.cartModalHeader{min-height:62px;padding:9px 11px}.cartModalHeader h2{font-size:23px}.cartModalClose{min-width:88px;min-height:44px}.cartModalOrderList{padding:9px}.cartModalOrderCard .reviewMenuRow{grid-template-columns:minmax(0,1fr) 42px minmax(68px,auto);font-size:12px}.cartModalTotals{padding:8px}.cartModalTotals .reviewDiscountBox{grid-template-columns:1fr;gap:4px}.cartModalTotals .line{padding:5px 8px;font-size:13px}.cartModalTotals .final strong{font-size:18px}
 }
 
+/* Order quantities and paid extras remain distinct: the base card owns the
+ * configured pizza/set, while the final card owns individually priced items. */
+.reviewOrderTitle{margin:0 0 6px;color:#073f31;font-size:20px;line-height:1.25}
+.reviewOrderFooter{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;border-top:1px solid #dfe7e2;padding-top:8px}
+.reviewQuantityControl{display:inline-grid;grid-template-columns:44px minmax(42px,auto) 44px;align-items:center;overflow:hidden;border:1px solid #aac1b7;border-radius:12px;background:#fff}
+.reviewQuantityControl button{width:44px;height:44px;min-width:44px;min-height:44px;border:0;background:#edf5f1;color:#064c39;font-size:25px;font-weight:900;line-height:1}
+.reviewQuantityControl output{min-width:42px;padding:0 7px;color:#10251f;font-size:19px;font-weight:900;text-align:center}
+.reviewExtrasCard{margin:12px 0;padding:14px;border:2px solid #0b5b43;border-radius:18px;background:#fff}
+.reviewExtrasCard>h2{margin:0 0 10px;color:#064c39;font-size:22px}
+.reviewExtraRow{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) auto minmax(88px,auto);align-items:center;gap:12px;padding:9px 0;border-top:1px solid #e0e8e3}
+.reviewExtraRow:first-of-type{border-top:0}
+.reviewExtraName{min-width:0;overflow-wrap:anywhere;font-weight:800}
+.reviewExtraRow>strong{text-align:right;white-space:nowrap}
+.includedSauceModal,.quantityDialogModal{width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto}
+.includedSauceModal .modalBtns button{font-size:28px!important;line-height:1!important;font-weight:1000!important}
+.includedSauceModal>p{line-height:1.5}
+.includedSauceModal ul{margin:14px 0;padding:0;list-style:none;border:1px solid #d6e1db;border-radius:14px;background:#f7fbf9}
+.includedSauceModal li{display:flex;justify-content:space-between;gap:16px;padding:11px 14px;border-top:1px solid #dfe8e3}
+.includedSauceModal li:first-child{border-top:0}
+.includedSauceFree{font-weight:800;color:#075c43}
+.includedSauceNote{font-size:.88em;color:#765f19}
+
+@media(max-width:560px){
+ .reviewOrderFooter{align-items:flex-end;flex-direction:column}
+ .reviewQuantityControl{align-self:stretch;grid-template-columns:44px minmax(42px,1fr) 44px}
+ .reviewExtraRow{grid-template-columns:minmax(0,1fr) auto}
+ .reviewExtraRow>.reviewQuantityControl{grid-column:1/-1;grid-row:2}
+ .includedSauceModal,.quantityDialogModal{max-height:calc(100dvh - 20px);padding:18px!important}
+}
+
 /* Compact customer footer for tablet-class touch layouts. The stage ends at
  * the footer edge; its own scroll range owns the final 12px safety gap. */
 @media (min-width:701px) {
@@ -425,4 +455,12 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
  html[data-layout="phone"] body[data-step="review"] .reviewBottomActions>button,
  html[data-layout="phone"] body[data-step="review"] .reviewBottomActions>.customerCartButton{height:62px!important;min-height:62px!important}
  html[data-layout="phone"] body[data-step="review"] .reviewBottomActions .customerCartBadge{top:4px;right:6px}
+ html[data-layout="phone"] body[data-step="review"] .stage{padding-bottom:315px!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewOrderList{grid-column:auto!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewBottomActions{top:auto!important;bottom:32px!important;transform:none!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewBottomActions>.reviewDockConfirm{grid-column:auto!important;grid-row:auto!important;margin:0!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewSummaryDock{top:auto!important;bottom:170px!important;height:133px!important;transform:none!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewSummaryDock :is(.reviewAddOrderButton,.reviewDiscountBox){height:121px!important}
+ html[data-layout="phone"] body[data-step="review"] .reviewSummaryDock .reviewAddIcon{font-size:16px!important;line-height:1!important}
+ html[data-layout="phone"] body[data-step="review"] .networkStatus{top:auto!important;right:auto!important;bottom:6px!important;left:8px!important}
 }

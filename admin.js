@@ -1232,13 +1232,13 @@ function catalogUnitPrice(id,legacyMaster=[]){
  const price=legacyMaster.find(entry=>entry?.id===id)?.price;
  return Number.isFinite(Number(price))&&Number(price)>=0?Number(price):null;
 }
-function storedSelectionEntries(map,category,legacyMaster=[],{included=false,parentQuantity=1}={}){
+function storedSelectionEntries(map,category,legacyMaster=[],{included=false,parentQuantity=1,scaleWithParent=true}={}){
  return Object.entries(map||{}).flatMap(([id,value])=>{
   const quantity=typeof value==='object'&&value!==null?Number(value.quantity??value.qty):Number(value);
   if(!(quantity>0))return [];
   const storedName=typeof value==='object'&&value!==null?value.name:'';
   const storedAmount=storedLineAmount(value),unitPrice=typeof value==='object'&&value!==null?storedLineAmount({amount:value.unitPrice??value.price}):catalogUnitPrice(id,legacyMaster);
-  const amount=included?0:storedAmount??(unitPrice===null?null:unitPrice*quantity*safeDisplayQuantity(parentQuantity));
+  const amount=included?0:storedAmount??(unitPrice===null?null:unitPrice*quantity*(scaleWithParent?safeDisplayQuantity(parentQuantity):1));
   const displayQuantity=included?quantity*safeDisplayQuantity(parentQuantity):quantity;
   return [{name:displayText(storedName,productName(id,category,legacyMaster)),quantity:displayQuantity,amount}];
  });
@@ -1270,14 +1270,14 @@ function orderDetailPizzaLine(item){
  const quantity=safeDisplayQuantity(item?.qty);
  const toppings=combinedStoredEntries(storedSelectionEntries(item?.toppings,'toppings',TOPPINGS,{parentQuantity:quantity}));
  const toppingText=toppings.length?`<span class="detail-pizza-options">${toppings.map(entry=>orderDetailMenuLine({...entry,name:`+ ${entry.name}`} ,'option')).join('')}</span>`:'';
- const amount=storedLineAmount(item)??(()=>{const unit=storedLineAmount({amount:item?.unitPrice??item?.price});return unit===null?null:unit*quantity})();
+ const storedBase=storedLineAmount({amount:item?.baseTotal}),amount=storedBase??storedLineAmount(item)??(()=>{const unit=storedLineAmount({amount:item?.unitPrice??item?.price});return unit===null?null:unit*quantity})();
  return `<div class="detail-pizza-item"><div class="detail-menu-line pizza"><span class="detail-pizza-title">${renderPizzaDisplayCode(formatPizzaDisplayCode(item))}<span class="detail-pizza-name">${esc(adminPizzaName(item))}</span></span>${detailQuantityHTML(quantity)}${detailPriceHTML(amount)}</div>${toppingText}</div>`;
 }
 function orderDetailMenuHTML(order){
  const items=Array.isArray(order?.items)?order.items:[];
  const sides=combinedStoredEntries(items.flatMap(item=>[
   ...storedSelectionEntries(item?.includedSides,'sides',SIDES,{included:true,parentQuantity:item?.qty}),
-  ...storedSelectionEntries(item?.sides,'sides',SIDES,{parentQuantity:item?.qty})
+  ...storedSelectionEntries(item?.sides,'sides',SIDES,{parentQuantity:item?.qty,scaleWithParent:item?.extrasIndependent!==true})
  ]));
  const extras=items.reduce((result,item)=>{
   for(const map of [item?.includedDrinks,item?.drinks]){
@@ -1285,7 +1285,7 @@ function orderDetailMenuHTML(order){
     const category=ORDER_CATALOG.sauces?.[id]?'accompaniments':ORDER_CATALOG.drinks?.[id]?'drinks':'unknown';
     const lookupCategory=category==='accompaniments'?'sauces':category;
     const included=map===item?.includedDrinks;
-    result[category].push(...storedSelectionEntries({[id]:value},lookupCategory,DRINKS,{included,parentQuantity:item?.qty}));
+    result[category].push(...storedSelectionEntries({[id]:value},lookupCategory,DRINKS,{included,parentQuantity:item?.qty,scaleWithParent:included||item?.extrasIndependent!==true}));
    });
   }
   return result;

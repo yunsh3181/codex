@@ -75,7 +75,10 @@ const modalSetups={
   croissantNotice:"Object.assign(state,{modal:'croissantNotice'})",
   disposables:"Object.assign(state,{modal:'disposables'})",
   toppingLimitEach:"Object.assign(state,{modal:'toppingLimitEach'})",
-  toppingLimitTotal:"Object.assign(state,{modal:'toppingLimitTotal'})"
+  toppingLimitTotal:"Object.assign(state,{modal:'toppingLimitTotal'})",
+  includedSauce:"Object.assign(state,{modal:'includedSauce',orderType:'takeout'})",
+  quantityLimit:"quantityDialog={kind:'limit'};Object.assign(state,{modal:'quantityLimit'})",
+  quantityDelete:"quantityDialog={kind:'order',index:0,name:'fixture',hasExtras:false};Object.assign(state,{modal:'quantityDelete'})"
 };
 const visibleContent=markup=>{
   const accessibility=[...markup.matchAll(/\b(?:aria-label|alt|title)="([^"]*)"/g)].map(match=>match[1]);

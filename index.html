@@ -2016,7 +2016,8 @@ window.KIOSK_DATA = {
   "DRINKS": [
     {
       "id": "D001",
-      "name": "코카-콜라 500ml",
+      "name": "코카-콜라 500mL",
+      "volume": "500mL",
       "price": 1800,
       "small": true,
       "image": "assets/images/menu_image_001.png"
@@ -2024,13 +2025,15 @@ window.KIOSK_DATA = {
     {
       "id": "D002",
       "name": "코카-콜라 1.25L",
+      "volume": "1.25L",
       "price": 2500,
       "large": true,
       "image": "assets/images/menu_image_029.png"
     },
     {
       "id": "D003",
-      "name": "코카-콜라 제로 500ml",
+      "name": "코카-콜라 제로 500mL",
+      "volume": "500mL",
       "price": 1800,
       "small": true,
       "image": "assets/images/menu_image_030.jpg"
@@ -2038,13 +2041,15 @@ window.KIOSK_DATA = {
     {
       "id": "D004",
       "name": "코카-콜라 제로 1.25L",
+      "volume": "1.25L",
       "price": 2500,
       "large": true,
       "image": "assets/images/menu_image_030.jpg"
     },
     {
       "id": "D005",
-      "name": "스프라이트 500ml",
+      "name": "스프라이트 500mL",
+      "volume": "500mL",
       "price": 1800,
       "small": true,
       "image": "assets/images/menu_image_021.png"
@@ -2052,13 +2057,15 @@ window.KIOSK_DATA = {
     {
       "id": "D006",
       "name": "스프라이트 1.5L",
+      "volume": "1.5L",
       "price": 2500,
       "large": true,
       "image": "assets/images/menu_image_022.jpg"
     },
     {
       "id": "D007",
-      "name": "스프라이트 제로 500ml",
+      "name": "스프라이트 제로 500mL",
+      "volume": "500mL",
       "price": 1800,
       "small": true,
       "image": "assets/images/menu_image_026.png"
@@ -2066,6 +2073,7 @@ window.KIOSK_DATA = {
     {
       "id": "D008",
       "name": "스프라이트 제로 1.5L",
+      "volume": "1.5L",
       "price": 2500,
       "large": true,
       "image": "assets/images/menu_image_026.png"
@@ -2242,6 +2250,7 @@ try{
 <script src="i18n/es.js?v=order-review-cart-quantity-v1"></script>
 <script src="i18n/ui.js?v=52"></script>
 <script src="i18n/index.js?v=44.3"></script>
+<script src="included-sauce-policy.js?v=1"></script>
 <script src="business-hours.js"></script>
 <script src="bottle-seat-policy.js?v=1"></script>
 <script src="seat-capacity-policy.js?v=3"></script>
@@ -2280,6 +2289,10 @@ function defaultResetStep(){return isKioskInactivityLayout()?'idle':'home'}
 function initialStep(){return isKioskInactivityLayout()?'idle':(sessionStorage.getItem('pjLangSelected')?'idle':'language')}
 const navigationHistory=[];let navigationBackInProgress=false;
 const state={step:initialStep(),orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],reviewEditIndex:null,editingOrderQty:1,finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null};
+let quantityDialog=null;
+let customerModalReturnFocus=null;
+function rememberCustomerModalFocus(element){if(!element)return null;return {id:element.id||'',onclick:element.getAttribute?.('onclick')||'',ariaLabel:element.getAttribute?.('aria-label')||''}}
+function restoreCustomerModalFocus(){const saved=customerModalReturnFocus;customerModalReturnFocus=null;if(!saved)return;const target=(saved.id&&document.getElementById(saved.id))||[...document.querySelectorAll('button')].find(button=>(saved.onclick&&button.getAttribute('onclick')===saved.onclick)||(saved.ariaLabel&&button.getAttribute('aria-label')===saved.ariaLabel));target?.focus({preventScroll:true})}
 const kioskPageVoice=window.PJ_KIOSK_PAGE_VOICE?.createKioskPageVoiceController({
  synth:window.speechSynthesis,
  createUtterance:window.PJSpeech?.createSpeechUtterance,
@@ -2324,7 +2337,10 @@ Promise.resolve(window.kioskApp?.getVersion?.()).then(value=>{
  updateStartScreenVersion()
 }).catch(()=>{});
 function po(id){return PIZZAS.find(x=>x.id===id)};function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)};
-function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],reviewEditIndex:null,editingOrderQty:1,finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
+function safeMenuQuantity(value,fallback=0){const raw=typeof value==='object'&&value!==null?value.quantity??value.qty:value,number=Number(raw);return Number.isInteger(number)&&number>0?Math.min(9,number):fallback}
+function safeOrderQuantity(value){return safeMenuQuantity(value,1)}
+function normalizedQuantityMap(map){return Object.fromEntries(Object.entries(map||{}).flatMap(([id,value])=>{const quantity=safeMenuQuantity(value);return quantity?[[id,quantity]]:[]}))}
+function reset(targetStep=defaultResetStep(),options={}){if(!options.skipRelease&&!state.firebaseOrderId&&state.selectedTables.length)releaseSeats().catch(error=>console.warn('좌석 자동 해제 실패',error));stopOrderIdleTimers();quantityDialog=null;customerModalReturnFocus=null;Object.assign(state,{step:targetStep,orderType:null,partySize:null,diningArea:null,selectedTables:[],firebaseOrderId:null,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,happyRecommendationKey:null,cartItems:[],reviewEditIndex:null,editingOrderQty:1,finalAddMode:null,orderTiming:null,reserveTime:null,reserveHour:null,reserveMinute:null,happyReserveOnly:false,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null,disposables:null,phone:'',customerDisplayName:'',customerNameUppercase:false,paymentMethod:null,splitCount:1,orderNo:null})}
 const resetOrderState=reset;
 reset=function(...args){navigationHistory.length=0;const result=resetOrderState(...args);lastRenderedStep=state.step;return result};
 let customerSessionEndInProgress=false;let completionReturnTimer=null;
@@ -3419,7 +3435,19 @@ function skipSide(){if(state.finalAddMode==='side'){finishFinalAdd();return}cont
 function continueSetSide(){if(!setSideBaseComplete())return;if(!state.setSidePrompted){maybePromptSetSideExtra();return}continueAfterSide()}
 function skipSideExtra(){state.setSideExtraMode=false;continueAfterSide()}
 function continueAfterDrink(){if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}if(maybePromptBetterBenefit())return;openFinalUpsell()}
-function routeAfterDrink(){if(state.orderType==='takeout'){state.step='accompaniment';render();return}if(state.finalAddMode==='drink'){finishFinalAdd();return}continueAfterDrink()}
+function featureCopy(){return CUSTOMER_FEATURE_COPY[window.PJ_I18N?.currentLanguage?.()||'ko']||CUSTOMER_FEATURE_COPY.ko}
+const CUSTOMER_FEATURE_COPY={
+ ko:{includedTitle:'기본 제공 소스를 확인해 주세요',includedIntro:'현재 주문에는 다음 소스가 기본 제공됩니다.',garlic:'갈릭소스',pickle:'피클',hotSauce:'핫소스',honeyMustard:'허니머스타드',tomato:'토마토소스',freeStore:'피클과 핫소스는 매장에서 무료로 제공합니다.',extraGuide:'기본 제공 수량보다 더 필요한 경우 다음 화면에서 추가할 수 있습니다.',tomatoUnavailable:'토마토소스는 기본 제공 전용이며 추가 구매할 수 없습니다.',noExtra:'추가안함',chooseExtra:'추가선택',cancel:'취소',continueAdd:'확인하고 추가 선택',continueOrder:'확인하고 계속',extrasTitle:'추가 상품',orderQuantity:'주문 수량',extraQuantity:'상품 수량',maxMessage:'한 주문 또는 상품은 최대 9개까지 선택할 수 있습니다.',deleteOrderTitle:'이 주문을 삭제할까요?',deleteOrderBody:'선택한 주문 구성이 삭제됩니다.',deleteOrderWithExtrasBody:'이 주문과 연결된 추가 상품도 함께 삭제됩니다.',deleteExtraTitle:'{name}을(를) 삭제할까요?',delete:'삭제'},
+ en:{includedTitle:'Check the included sauces',includedIntro:'Your current order includes the following sauces.',garlic:'Garlic sauce',pickle:'Pickles',hotSauce:'Hot sauce',honeyMustard:'Honey mustard',tomato:'Tomato sauce',freeStore:'Pickles and hot sauce are available free in store.',extraGuide:'You can select paid extras on the next screen.',tomatoUnavailable:'Tomato sauce is included only and is not sold separately.',noExtra:'No extras',chooseExtra:'Add extras',cancel:'Cancel',continueAdd:'Confirm and add extras',continueOrder:'Confirm and continue',extrasTitle:'Additional products',orderQuantity:'Order quantity',extraQuantity:'Product quantity',maxMessage:'The maximum quantity per order or product is 9.',deleteOrderTitle:'Delete this order?',deleteOrderBody:'The selected order configuration will be deleted.',deleteOrderWithExtrasBody:'This order and its linked additional products will be deleted.',deleteExtraTitle:'Delete {name}?',delete:'Delete'},
+ ja:{includedTitle:'基本提供ソースをご確認ください',includedIntro:'現在の注文には次のソースが含まれます。',garlic:'ガーリックソース',pickle:'ピクルス',hotSauce:'ホットソース',honeyMustard:'ハニーマスタード',tomato:'トマトソース',freeStore:'ピクルスとホットソースは店内で無料提供します。',extraGuide:'必要な場合は次の画面で有料分を追加できます。',tomatoUnavailable:'トマトソースは基本提供専用で追加購入できません。',noExtra:'追加しない',chooseExtra:'追加選択',cancel:'キャンセル',continueAdd:'確認して追加選択',continueOrder:'確認して続ける',extrasTitle:'追加商品',orderQuantity:'注文数量',extraQuantity:'商品数量',maxMessage:'注文または商品ごとの上限は9個です。',deleteOrderTitle:'この注文を削除しますか？',deleteOrderBody:'選択した注文構成が削除されます。',deleteOrderWithExtrasBody:'この注文に紐づく追加商品も削除されます。',deleteExtraTitle:'{name}を削除しますか？',delete:'削除'},
+ zh:{includedTitle:'请确认随单赠送的酱料',includedIntro:'当前订单包含以下赠送酱料。',garlic:'蒜香酱',pickle:'酸黄瓜',hotSauce:'辣酱',honeyMustard:'蜂蜜芥末酱',tomato:'番茄酱',freeStore:'酸黄瓜和辣酱可在店内免费提供。',extraGuide:'如需更多，可在下一页选择付费加购。',tomatoUnavailable:'番茄酱仅随餐赠送，不单独销售。',noExtra:'不加购',chooseExtra:'选择加购',cancel:'取消',continueAdd:'确认并选择加购',continueOrder:'确认并继续',extrasTitle:'加购商品',orderQuantity:'订单数量',extraQuantity:'商品数量',maxMessage:'每份订单或商品最多可选9件。',deleteOrderTitle:'删除此订单？',deleteOrderBody:'所选订单配置将被删除。',deleteOrderWithExtrasBody:'此订单及其关联加购商品将一并删除。',deleteExtraTitle:'删除{name}？',delete:'删除'},
+ es:{includedTitle:'Comprueba las salsas incluidas',includedIntro:'Tu pedido actual incluye lo siguiente.',garlic:'Salsa de ajo',pickle:'Pepinillos',hotSauce:'Salsa picante',honeyMustard:'Mostaza con miel',tomato:'Salsa de tomate',freeStore:'Los pepinillos y la salsa picante son gratis en el local.',extraGuide:'Puedes elegir extras de pago en la pantalla siguiente.',tomatoUnavailable:'La salsa de tomate solo se incluye y no se vende por separado.',noExtra:'Sin extras',chooseExtra:'Elegir extras',cancel:'Cancelar',continueAdd:'Confirmar y elegir extras',continueOrder:'Confirmar y continuar',extrasTitle:'Productos adicionales',orderQuantity:'Cantidad del pedido',extraQuantity:'Cantidad del producto',maxMessage:'El máximo por pedido o producto es 9.',deleteOrderTitle:'¿Eliminar este pedido?',deleteOrderBody:'Se eliminará la configuración elegida.',deleteOrderWithExtrasBody:'También se eliminarán los extras vinculados.',deleteExtraTitle:'¿Eliminar {name}?',delete:'Eliminar'},
+ vi:{includedTitle:'Kiểm tra sốt được tặng kèm',includedIntro:'Đơn hiện tại có các loại sốt sau.',garlic:'Sốt tỏi',pickle:'Dưa chua',hotSauce:'Tương ớt',honeyMustard:'Mù tạt mật ong',tomato:'Sốt cà chua',freeStore:'Dưa chua và tương ớt được phục vụ miễn phí tại quán.',extraGuide:'Bạn có thể chọn phần mua thêm ở màn hình tiếp theo.',tomatoUnavailable:'Sốt cà chua chỉ được tặng kèm, không bán riêng.',noExtra:'Không thêm',chooseExtra:'Chọn thêm',cancel:'Hủy',continueAdd:'Xác nhận và chọn thêm',continueOrder:'Xác nhận và tiếp tục',extrasTitle:'Sản phẩm thêm',orderQuantity:'Số lượng đơn',extraQuantity:'Số lượng sản phẩm',maxMessage:'Tối đa 9 cho mỗi đơn hoặc sản phẩm.',deleteOrderTitle:'Xóa đơn này?',deleteOrderBody:'Cấu hình đơn đã chọn sẽ bị xóa.',deleteOrderWithExtrasBody:'Các sản phẩm thêm liên kết cũng sẽ bị xóa.',deleteExtraTitle:'Xóa {name}?',delete:'Xóa'}
+};
+function includedSauceOrders(){const orders=allReviewOrders();if(currentHasItems())orders.push(orderSnapshot());return orders}
+function requestIncludedSauceModal(event){if(state.modal)return;customerModalReturnFocus=rememberCustomerModalFocus(event?.currentTarget||document.activeElement);state.modal='includedSauce';render();requestAnimationFrame(()=>document.querySelector('.includedSauceModal button')?.focus())}
+function closeIncludedSauceModal(action){if(state.modal!=='includedSauce')return;state.modal=null;customerModalReturnFocus=null;if(action==='extras'&&state.orderType==='takeout'){state.step='accompaniment';render();return}continueAfterDrink()}
+function routeAfterDrink(event){if(state.finalAddMode==='drink'){finishFinalAdd();return}requestIncludedSauceModal(event)}
 function skipDrink(){routeAfterDrink()}
 function skipDrinkExtra(){state.setDrinkExtraMode=false;routeAfterDrink()}
 function finishAccompaniment(){if(!currentHasItems()&&state.cartItems.length){state.step='review';render();return}if(state.finalAddMode==='drink'){finishFinalAdd();return}continueAfterDrink()}
@@ -3442,18 +3470,20 @@ function drinkGroupCard(g){
  const family=g.key.startsWith('coke')?'cola':'sprite',variant=g.key.toLowerCase().includes('zero')?'zero':'regular';
  const knownGroup=['coke','cokeZero','sprite','spriteZero'].includes(g.key),source=small||large;
  const groupName=knownGroup?t(`drink.group.${g.key}`):(source.shortName||drinkName(source)).replace(/\s*(?:\d+(?:\.\d+)?\s*(?:ml|mL|L)|\d+\s*병)\s*$/,'').trim();
- const control=item=>{const q=state.extraDrinks[item.id]||0,size=t(item===large?'ui.drinkScreen.large':'ui.drinkScreen.small'),name=`${groupName} ${size}`;return `<div class="v3DrinkRow"><button type="button" aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="qty('extraDrinks','${item.id}',-1,9,99)">−</button><span class="v3DrinkVolume"><strong>${size}</strong><small>${money(item.price)}</small><em class="v3DrinkQuantity"><span>${t('ui.common.quantityLabel')}</span><strong>${q}</strong></em></span><button type="button" aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="qty('extraDrinks','${item.id}',1,9,99)">+</button></div>`};
+ const control=item=>{const q=state.extraDrinks[item.id]||0,size=drinkVolume(item),name=`${groupName} ${size}`;return `<div class="v3DrinkRow"><button type="button" aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="qty('extraDrinks','${item.id}',-1,9,99)">−</button><span class="v3DrinkVolume"><strong>${size}</strong><small>${money(item.price)}</small><em class="v3DrinkQuantity"><span>${t('ui.common.quantityLabel')}</span><strong>${q}</strong></em></span><button type="button" aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="qty('extraDrinks','${item.id}',1,9,99)">+</button></div>`};
  return `<div class="v3DrinkCard ${family} ${variant} ${total?'active':''}" role="group" aria-label="${escAttr(t('ui.drinkScreen.additionalGroup',{name:groupName}))}">${total?`<span class="v3DrinkCount">${t('ui.common.totalCount',{count:total})}</span>`:''}<div class="v3DrinkName">${groupName}</div><span class="srOnly">${t('ui.drinkScreen.sizeQuantity',{name:groupName})}</span><div class="v3DrinkControls ${items.length===1?'singleSize':''}">${items.map(control).join('')}</div></div>`
 }
 function setDrinkTheme(id){if(['D001','D002'].includes(id))return 'setCola';if(['D003','D004'].includes(id))return 'setColaZero';if(['D005','D006'].includes(id))return 'setSprite';return 'setSpriteZero'}
-function setDrinkCard(x){const selected=state.setDrink===x.id,zero=['D003','D004','D007','D008'].includes(x.id),localizedName=drinkName(x),name=zero?localizedName.replace(/\s*(제로|Zero)\s*/i,' ').trim():localizedName,label=t(zero?'ui.drinkScreen.zero':'ui.drinkScreen.regular');return `<button class="card drinkTextCard setDrinkTextCard setDrinkVariantCard ${setDrinkTheme(x.id)} ${zero?'zeroDrinkCard':'regularDrinkCard'} ${selected?'active':''}" onclick="chooseSetDrink('${x.id}')">${selected?`<span class="badge">${t('ui.common.selected')}</span>`:''}<span class="drinkVariantLabel ${zero?'zeroDrinkLabel':'regularDrinkLabel'}">${label}</span><h3>${name}</h3><div class="price">${t('ui.common.included')}</div><span class="setDrinkQuantity"><small>${t('ui.common.quantityLabel')}</small><strong>${selected?1:0}</strong></span></button>`}
+function setDrinkCard(x){const selected=state.setDrink===x.id,zero=['D003','D004','D007','D008'].includes(x.id),localizedName=drinkDisplayName(x),name=zero?localizedName.replace(/\s*(제로|Zero)\s*/i,' ').trim():localizedName,label=t(zero?'ui.drinkScreen.zero':'ui.drinkScreen.regular');return `<button class="card drinkTextCard setDrinkTextCard setDrinkVariantCard ${setDrinkTheme(x.id)} ${zero?'zeroDrinkCard':'regularDrinkCard'} ${selected?'active':''}" onclick="chooseSetDrink('${x.id}')">${selected?`<span class="badge">${t('ui.common.selected')}</span>`:''}<span class="drinkVariantLabel ${zero?'zeroDrinkLabel':'regularDrinkLabel'}">${label}</span><h3>${name}</h3><div class="price">${t('ui.common.included')}</div><span class="setDrinkQuantity"><small>${t('ui.common.quantityLabel')}</small><strong>${selected?1:0}</strong></span></button>`}
 
-function qty(key,id,d,maxEach,maxTotal){let o=state[key],n=Math.max(0,Math.min(maxEach,(o[id]||0)+d));if(d>0&&sum(o)>=maxTotal)return;if(n)o[id]=n;else delete o[id];render();if(key==='setSides')setTimeout(maybePromptSetSideExtra,120)}function toppingQty(id,d){let q=state.toppings[id]||0,total=sum(state.toppings);if(d>0&&q>=2){state.modal='toppingLimitEach';render();return}if(d>0&&total>=5){state.modal='toppingLimitTotal';render();return}let n=Math.max(0,q+d);if(n)state.toppings[id]=n;else delete state.toppings[id];render()}
+function qty(key,id,d,maxEach,maxTotal){let o=state[key],n=Math.max(0,Math.min(maxEach,(o[id]||0)+d));if(d>0&&['extraSides','extraDrinks'].includes(key)){const kind=key==='extraSides'?'side':'drink',stored=additionalProductEntries().find(row=>row.key===`${kind}:${id}`)?.qty||0;if(stored+(Number(o[id])||0)>=9){openQuantityDialog({kind:'limit'});return}}if(d>0&&sum(o)>=maxTotal)return;if(n)o[id]=n;else delete o[id];render();if(key==='setSides')setTimeout(maybePromptSetSideExtra,120)}function toppingQty(id,d){let q=state.toppings[id]||0,total=sum(state.toppings);if(d>0&&q>=2){state.modal='toppingLimitEach';render();return}if(d>0&&total>=5){state.modal='toppingLimitTotal';render();return}let n=Math.max(0,q+d);if(n)state.toppings[id]=n;else delete state.toppings[id];render()}
 function pizzaBase(){let a=po(state.left)?.[state.promo==='upup'?'L':state.size]||0;if(state.mode==='half'){if(!state.right)return a;let b=po(state.right)?.[state.promo==='upup'?'L':state.size]||0;return (a+b)/2}return a}
 function crustFee(){if(state.promo==='upup'&&!state.set)return 0;return pizzaOptionFee(state.dough,state.crust,state.size)}
 function topFee(){return Object.entries(state.toppings).reduce((s,[id,q])=>s+(TOPPINGS.find(x=>x.id===id)?.price[effectiveSize()]||0)*q,0)}function sideFee(){return Object.entries(state.extraSides).reduce((s,[id,q])=>s+(SIDES.find(x=>x.id===id)?.price||0)*q,0)}function drinkFee(){const items=[...DRINKS,...SAUCES];return Object.entries(state.extraDrinks).reduce((s,[id,q])=>s+(items.find(x=>x.id===id)?.price||0)*q,0)}
-function masterName(id,master){const item=master.find(x=>x.id===id)||{};return menuItemName(item)||id}
-function optionDisplayName(item){return item?menuItemName(item):''}
+function drinkVolume(item){const explicit=String(item?.volume||'').trim();if(explicit)return explicit;return String(item?.name||'').match(/\b(?:500m[lL]|1\.25L|1\.5L)\b/i)?.[0]?.replace(/ml$/i,'mL')||''}
+function drinkDisplayName(item){const volume=drinkVolume(item),name=drinkName(item);if(!volume)return name;const base=String(name||'').replace(/\s*\d+(?:\.\d+)?\s*(?:m[lL]|L)\s*$/i,'').trim();return `${base} ${volume}`.trim()}
+function masterName(id,master){const item=master.find(x=>x.id===id)||{};return optionDisplayName(item)||id}
+function optionDisplayName(item){if(!item)return '';return DRINKS.some(drink=>drink.id===item.id)?drinkDisplayName(item):menuItemName(item)}
 function mapLines(map,master,priceResolver){return Object.entries(map||{}).filter(([,q])=>Number(q)>0).map(([id,q])=>{const item=master.find(x=>x.id===id)||{};const unit=priceResolver?priceResolver(item):Number(item.price||0);return {name:optionDisplayName(item,master)||id,qty:Number(q),amount:unit*Number(q)}})}
 function orderNormalAndDiscount(order){
  if(order.__current){const p=price(),normal=p.total+p.discount;return {normal,discount:Math.max(0,normal-p.total),final:p.total,label:p.label||benefitName(state.promo||'normal')}}
@@ -3472,22 +3502,26 @@ function cartSizeLabel(size){return sizeName(size)}
 function setOrderName(count){return t('cart.setName',{count})}
 function cartPizzaNames(x){const left=po(x.pizzaLeft||x.pizza),right=po(x.pizzaRight);if(!left)return '';return x.mode==='half'?`${pizzaName(left)} / ${pizzaName(right)}`:pizzaName(left)}
 function orderDetailData(order){
- const current=order.__current;const left=current?state.left:order.pizzaLeft;const right=current?state.right:order.pizzaRight;const mode=current?state.mode:order.mode;const size=current?effectiveSize():order.size;const dough=current?(state.dough||'오리지널'):(order.dough||'오리지널');const crust=current?(state.crust||'오리지널'):(order.crust||'오리지널');const qty=Number(order.qty||1);const promo=current?(state.promo||'normal'):(order.promo||'normal');const setNo=current?state.set:order.set;
+ const current=order.__current;const left=current?state.left:order.pizzaLeft;const right=current?state.right:order.pizzaRight;const mode=current?state.mode:order.mode;const size=current?effectiveSize():order.size;const dough=current?(state.dough||'오리지널'):(order.dough||'오리지널');const crust=current?(state.crust||'오리지널'):(order.crust||'오리지널');const qty=safeOrderQuantity(order.qty);const promo=current?(state.promo||'normal'):(order.promo||'normal');const setNo=current?state.set:order.set;
  const toppings=current?state.toppings:order.toppings;const sides=current?state.extraSides:order.sides;const drinks=current?state.extraDrinks:order.drinks;const includedSides=current?state.setSides:order.includedSides;const includedDrinks=current?(state.setDrink?{[state.setDrink]:1}:{}):order.includedDrinks;
  const topLines=mapLines(toppings,TOPPINGS,x=>Number(x.price?.[size]||0));const sideLines=mapLines(sides,SIDES,x=>Number(x.price||0));const drinkLines=mapLines(drinks,[...DRINKS,...SAUCES],x=>Number(x.price||0));const incSideLines=mapLines(includedSides,SIDES,()=>0);const incDrinkLines=mapLines(includedDrinks,DRINKS,()=>0);
  const leftName=left?masterName(left,PIZZAS):'',rightName=right?masterName(right,PIZZAS):'';const pizzaNames=left?(mode==='half'?`${leftName} / ${rightName}`:leftName):'';const sizeLabel=left?customerSizeLabel(size):'';const crustLabel=left?customerCrustLabel(crust):'';const pizzaTitle=left?[crustLabel,sizeLabel,pizzaNames].filter(Boolean).join(' '):t('cart.additionalOrder');const amount=orderNormalAndDiscount(order);
  return {qty,promo,setNo,size,sizeLabel,dough,crust,crustLabel,mode,pizzaNames,pizzaTitle,topLines,sideLines,drinkLines,incSideLines,incDrinkLines,amount}
 }
 function detailList(title,lines,included=false){if(!lines.length)return '';return `<div class="reviewSection"><b>${title}</b><ul>${lines.map(x=>`<li><span>${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}</span><span>${included?t('review.included'):x.amount?'+ '+money(x.amount):'-'}</span></li>`).join('')}</ul></div>`}
-function reviewMenuRows(model){const pizza=model.categories.pizza.map(row=>({...row,group:t('ui.summary.pizza'),amount:model.priceBreakdown?.final??model.total})),named=(group,rows)=>rows.map(row=>({...row,group}));return [...pizza,...named(t('review.additionalToppings'),model.categories.toppings),...named(t('review.includedSides'),model.categories.sides.filter(row=>row.included)),...named(t('review.additionalSides'),model.categories.sides.filter(row=>!row.included)),...named(t('review.includedDrinks'),model.categories.drinks.filter(row=>row.included)),...named(t('review.additionalDrinks'),model.categories.drinks.filter(row=>!row.included)),...named(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment)]}
-function reviewOrderTypeLabel(order){return order.set?setOrderName(order.set):t('review.singleBadge')}
+function reviewMenuRows(model){const pizza=model.categories.pizza.map(row=>({...row,group:t('ui.summary.pizza'),amount:model.priceBreakdown?.final??model.total})),named=(group,rows)=>rows.map(row=>({...row,group}));return [...pizza,...named(t('review.additionalToppings'),model.categories.toppings),...named(t('review.includedSides'),model.categories.sides.filter(row=>row.included)),...named(t('review.includedDrinks'),model.categories.drinks.filter(row=>row.included))]}
+function reviewOrderTypeLabel(order){if(order.set)return setOrderName(order.set);if(['upup','happy'].includes(order.promo))return benefitName(order.promo);return t('review.singleBadge')}
 function reviewOrderBenefitLabel(order,model){const label=String(order.discountLabel||'').trim()||(order.promo&&order.promo!=='normal'?benefitName(order.promo):'');return label&&label!==reviewOrderTypeLabel(order)?label:''}
 function reviewMenuRowsHTML(model){return `<div class="reviewMenuTable" role="table">${reviewMenuRows(model).map(row=>`<div class="reviewMenuRow ${row.included?'included':'added'}" role="row"><span class="reviewMenuName" role="cell"><small>${row.group}</small>${row.name}</span><strong class="reviewMenuQuantity" role="cell">×${row.qty}</strong><strong class="reviewMenuAmount" role="cell">${row.included?t('review.included'):money(row.amount||0)}</strong></div>`).join('')}</div>`}
-function reviewOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}"><div class="reviewOrderIdentity"><strong>${index+1}</strong><span>${t('review.orderOrdinalSuffix')}</span></div><div class="reviewOrderBody"><header class="reviewOrderHead"><div class="reviewOrderBadges"><span class="reviewOrderTypeBadge">${reviewOrderTypeLabel(order)}</span>${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</div><div class="cartOrderActions"><button type="button" class="edit" onclick="editReviewOrder(${index})">${t('review.edit')}</button><button type="button" class="remove" onclick="removeCartItem(${index})">${t('review.delete')}</button></div></header>${reviewMenuRowsHTML(model)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(model.total)}</strong></div></div></article>`}
+function quantityControlHTML(kind,key,quantity,name){const label=kind==='order'?featureCopy().orderQuantity:featureCopy().extraQuantity;return `<div class="reviewQuantityControl" role="group" aria-label="${escAttr(label)}"><button type="button" aria-label="${escAttr(t('ui.common.quantityDecrease',{name}))}" onclick="event.stopPropagation();changeReviewQuantity('${kind}','${key}',-1,event)">−</button><output>${quantity}</output><button type="button" aria-label="${escAttr(t('ui.common.quantityIncrease',{name}))}" onclick="event.stopPropagation();changeReviewQuantity('${kind}','${key}',1,event)">＋</button></div>`}
+function baseOrderTotal(order){const totals=orderFinancialTotals(order);return Math.max(0,totals.final-totals.extras)}
+function reviewOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model),type=reviewOrderTypeLabel(order),qty=safeOrderQuantity(order.qty);return `<article class="reviewOrderCard cartOrderCard" data-order-index="${index}" data-price-mode="${model.mode}"><div class="reviewOrderIdentity"><strong>${index+1}</strong><span>${t('review.orderOrdinalSuffix')}</span></div><div class="reviewOrderBody"><header class="reviewOrderHead"><div><h2 class="reviewOrderTitle">${t('review.orderOrdinal',{count:index+1})} · ${type}</h2><div class="reviewOrderBadges">${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</div></div><div class="cartOrderActions"><button type="button" class="edit" onclick="editReviewOrder(${index})">${t('review.edit')}</button><button type="button" class="remove" onclick="requestOrderDelete(${index},event)">${t('review.delete')}</button></div></header>${cartPizzaMetaHtml(model.meta)}${reviewMenuRowsHTML(model)}<div class="reviewOrderFooter">${quantityControlHTML('order',index,qty,type)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(baseOrderTotal(order))}</strong></div></div></div></article>`}
 function allReviewOrders(){return (state.cartItems||[]).map(x=>({...x,__current:false}))}
-function reviewOrdersHTML(){return `<div class="reviewListFrame"><div class="reviewOrderList" role="region" tabindex="0" aria-label="${escAttr(t('review.orderListLabel'))}">${allReviewOrders().map(reviewOrderCard).join('')}</div><nav class="reviewScrollControls" aria-label="${escAttr(t('review.scrollControls'))}" hidden><button type="button" class="reviewScrollUp" onclick="scrollReviewOrders('up')">▲ ${t('review.scrollUp')}</button><button type="button" class="reviewScrollDown" onclick="scrollReviewOrders('down')">▼ ${t('review.scrollDown')}</button></nav></div>`}
+function additionalProductEntries(orders=allReviewOrders()){const entries=new Map();orders.forEach((order,orderIndex)=>[['side',order.sides,SIDES],['drink',order.drinks,[...DRINKS,...SAUCES]]].forEach(([kind,map,master])=>Object.entries(map||{}).forEach(([id,value])=>{const qty=safeMenuQuantity(value);if(!qty)return;const key=`${kind}:${id}`,item=master.find(x=>x.id===id)||{},current=entries.get(key)||{key,kind,id,name:optionDisplayName(item)||id,qty:0,unit:Number(item.price)||0,sources:[]};current.qty+=qty;current.sources.push({orderIndex,qty});entries.set(key,current)})));return [...entries.values()]}
+function reviewExtrasCard(orders=allReviewOrders()){const rows=additionalProductEntries(orders);if(!rows.length)return '';return `<article class="reviewExtrasCard"><h2>${featureCopy().extrasTitle}</h2>${rows.map(row=>`<div class="reviewExtraRow" data-extra-key="${row.key}"><span class="reviewExtraName">${row.name}</span>${quantityControlHTML('extra',row.key,row.qty,row.name)}<strong>${money(row.unit*row.qty)}</strong></div>`).join('')}</article>`}
+function reviewOrdersHTML(){const orders=allReviewOrders();return `<div class="reviewListFrame"><div class="reviewOrderList" role="region" tabindex="0" aria-label="${escAttr(t('review.orderListLabel'))}">${orders.map(reviewOrderCard).join('')}${reviewExtrasCard(orders)}</div><nav class="reviewScrollControls" aria-label="${escAttr(t('review.scrollControls'))}" hidden><button type="button" class="reviewScrollUp" onclick="scrollReviewOrders('up')">▲ ${t('review.scrollUp')}</button><button type="button" class="reviewScrollDown" onclick="scrollReviewOrders('down')">▼ ${t('review.scrollDown')}</button></nav></div>`}
 function reviewAddActionsHTML(){return `<section class="reviewAddMore"><button type="button" class="reviewAddOrderButton" onclick="addAnotherOrder()"><span class="reviewAddIcon" aria-hidden="true">＋</span><span><strong>${t('review.addOrder')}</strong><small>${t('review.addOrderDesc')}</small></span></button></section>`}
-function orderCollectionTotals(orders){let normal=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),q=d.qty||1;normal+=d.amount.normal*q;final+=d.amount.final*q;const itemDiscount=Math.max(0,d.amount.normal-d.amount.final)*q;if(itemDiscount)discounts[d.amount.label]=(discounts[d.amount.label]||0)+itemDiscount});return {normal,discount:Math.max(0,normal-final),final,discounts}}
+function orderCollectionTotals(orders){let normal=0,final=0;const discounts={};orders.forEach(o=>{const d=orderDetailData(o),amount=orderFinancialTotals(o);normal+=amount.normal;final+=amount.final;if(amount.discount)discounts[d.amount.label]=(discounts[d.amount.label]||0)+amount.discount});return {normal,discount:Math.max(0,normal-final),final,discounts}}
 function reviewTotals(){return orderCollectionTotals(allReviewOrders())}
 function reviewTotalsHTML(totals=reviewTotals()){return `<div class="reviewDiscountBox"><div class="line normal"><span>${t('review.totalAmount')}</span><strong>${money(totals.normal)}</strong></div><div class="line totalDiscount"><span>${t('review.discountAmount')}</span><strong>−${money(totals.discount)}</strong></div><div class="line final"><span>${t('review.paymentAmount')}</span><strong>${money(totals.final)}</strong></div></div>`}
 function price(){let pizza=pizzaBase(),half=state.mode==='half'?SETTINGS.HALF_EXTRA:0,crust=crustFee(),tops=topFee(),side=sideFee(),drink=drinkFee(),discount=0,label='';let product=state.left?(pizza+half+crust+tops):0;if(state.set){product=(state.set===2?24000:state.set===3?33000:42000)+half+crust+tops;const includedSides=Object.entries(state.setSides||{}).reduce((sum,[id,q])=>sum+(Number(SIDES.find(item=>item.id===id)?.price)||0)*Number(q||0),0);const includedDrink=Number(DRINKS.find(item=>item.id===state.setDrink)?.price)||0;const normal=pizza+half+crust+tops+includedSides+includedDrink;discount=Math.max(0,normal-product);label=benefitName('set')}else if(state.promo==='happy'&&state.left){let normal=po(state.left).R+tops;discount=Math.max(0,normal-(SETTINGS.HAPPY_PRICE+tops));product=SETTINGS.HAPPY_PRICE+tops;label=benefitName('happy')}else if(state.promo==='takeout'&&['L','F'].includes(state.size)){const normal=product;discount=Math.max(0,normal-Math.round(normal*(1-SETTINGS.PACK_DISCOUNT/100)));product=normal-discount;label=benefitName('takeout')}else if(state.promo==='upup'&&state.left){let normalSize=effectiveSize(),leftPrice=po(state.left)?.[normalSize]||0,rightPrice=po(state.right)?.[normalSize]||0,normalPizza=state.mode==='half'&&state.right?((leftPrice+rightPrice)/2):leftPrice,normalCrust=state.crust==='크루아상'?6000:(CRUSTS.find(c=>c.name===state.crust)?.[normalSize]||0),normal=normalPizza+half+normalCrust+tops;let pay=pizza+half+tops;discount=Math.max(0,normal-pay);product=pay;label=benefitName('upup')}return{pizza,half,crust,tops,side,drink,discount,label,total:product+side+drink}}
@@ -3501,11 +3535,9 @@ function nextStep(){
   if(needsDisposables()&&state.disposables===null){state.modal='disposables';render();return}
   state.step='drink';
  }else if(state.step==='drink'){
-  if(state.finalAddMode==='drink'){finishFinalAdd();return}
-  if(state.set&&!state.setDrinkPrompted){maybePromptSetDrinkExtra();return}
-  if(state.set||state.promo==='upup'){addCurrentOrderToReview();return}
-  if(maybePromptBetterBenefit())return;
-  openFinalUpsell();return
+ if(state.finalAddMode==='drink'){finishFinalAdd();return}
+ if(state.set&&!state.setDrinkPrompted){maybePromptSetDrinkExtra();return}
+  routeAfterDrink();return
  }else if(state.step==='review')state.step='phone';
  render()
 }
@@ -3516,7 +3548,7 @@ function prevStep(){
  while(navigationHistory.length&&!previous){const candidate=navigationHistory.pop();if(candidate!==state.step&&KIOSK_VALID_STEPS.has(candidate))previous=candidate}
  navigationBackInProgress=true;state.step=previous||defaultResetStep();render()
 }
-function cartOrderTopLevelQuantity(order){if(!order)return 0;const parent=order.set||order.pizzaLeft||order.pizza?Math.max(1,Number(order.qty)||1):0;return parent+sum(order.sides||{})+sum(order.drinks||{})}
+function cartOrderTopLevelQuantity(order){if(!order)return 0;const parent=order.set||order.pizzaLeft||order.pizza?safeOrderQuantity(order.qty):0;return parent+sum(normalizedQuantityMap(order.sides))+sum(normalizedQuantityMap(order.drinks))}
 function cartTopLevelQuantity(){if(['idle','home','done','testDone'].includes(state.step))return 0;const stored=(state.cartItems||[]).reduce((total,order)=>total+cartOrderTopLevelQuantity(order),0),draft=currentHasItems()?cartOrderTopLevelQuantity({set:state.set,pizzaLeft:state.left,qty:state.editingOrderQty,sides:state.extraSides,drinks:state.extraDrinks}):0;return stored+draft}
 function customerCartButtonHTML(){const count=cartTopLevelQuantity();return `<button type="button" id="customerCartButton" class="customerCartButton" aria-label="${escAttr(t('cart.open'))}" onclick="openCartModal(event)"><span class="customerCartIcon" aria-hidden="true">${uiIcon('cart')}</span><span class="customerCartLabel">${t('cart.title')}</span>${count?`<span class="customerCartBadge" aria-label="${escAttr(t('cart.itemCount',{count}))}">${count}</span>`:''}</button>`}
 function bar(){const minimal=['idle','home','language','done'].includes(state.step);if(minimal)return `<div class="cartbar customerCartOnlyBar"><div class="cartmain"><div class="carttitle">${t('cart.notSelected')}</div><div class="cartdetail"></div></div>${customerCartButtonHTML()}</div>`;const reviewOrder=state.step==='review'&&state.cartItems.length?allReviewOrders()[0]:null;const reviewDetail=reviewOrder?orderDetailData(reviewOrder):null;let cur=reviewDetail?reviewDetail.pizzaTitle+(state.cartItems.length>1?` +${state.cartItems.length-1}`:''):(state.left?(state.mode==='half'&&state.right?pizzaName(po(state.left))+' / '+pizzaName(po(state.right)):pizzaName(po(state.left))):(currentHasItems()?t('cart.additionalOrder'):t('cart.notSelected')));let timing=state.orderType==='takeout'?(state.orderTiming==='reserve'?t('pickup.reserve')+' '+(state.reserveTime||t('cart.reservationTimeMissing')):t('pickup.now')):t('labels.orderType.dinein');let opts=reviewDetail?[eventLabel(),timing,t('unit.quantity',{count:reviewDetail.qty})].filter(Boolean).join(' · '):[eventLabel(),timing,state.left?customerSizeLabel(effectiveSize()):'',customerDoughLabel(state.dough),customerCrustLabel(state.crust),sum(state.toppings)?t('cart.toppingCount',{count:sum(state.toppings)}):'',sum(state.extraSides)?t('cart.sideCount',{count:sum(state.extraSides)}):'',sum(state.extraDrinks)?t('cart.drinkCount',{count:sum(state.extraDrinks)}):''].filter(Boolean).join(' · ');const barTotal=reviewDetail?reviewTotals().final:(currentHasItems()?price().total:null);return `<div class="cartbar"><div class="cartmain"><div class="carttitle">${cur}</div><div class="cartdetail">${opts}</div></div><span class="cartprice">${barTotal===null?'':money(barTotal)}</span>${customerCartButtonHTML()}<button class="prev" onclick="reset();render()">${t('nav.home')}</button>${state.step!=='type'?`<button class="prev" onclick="prevStep()">${t('nav.previous')}</button>`:''}${canNext()?`<button class="next" onclick="nextStep()">${t('nav.next')}</button>`:''}</div>`}
@@ -3576,54 +3608,68 @@ function chooseSetDrink(id){
  state.setDrinkExtraMode=false;
  render()
 }
-function continueSetDrink(){if(!setDrinkBaseComplete())return;maybePromptSetDrinkExtra()}
+function continueSetDrink(){if(!setDrinkBaseComplete())return;if(state.setDrinkPrompted){routeAfterDrink();return}maybePromptSetDrinkExtra()}
 
 
 function benefitName(id){return label('promo',id,id)}
 function orderSnapshot(){
  const p=po(state.left),r=po(state.right),pricing=price();
+ const extras=sideFee()+drinkFee();
  return {
-  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:pricing.total,normalPrice:pricing.total+pricing.discount,discount:pricing.discount,discountLabel:pricing.label,qty:Math.max(1,Number(state.editingOrderQty)||1),
+  kind:state.set?'set':'single',set:state.set||null,name:state.set?setOrderName(state.set):(p?pizzaName(p):t('cart.additionalOrder')),size:state.left?effectiveSize():null,promo:state.promo||'normal',price:pricing.total,normalPrice:pricing.total+pricing.discount,basePrice:Math.max(0,pricing.total-extras),normalBasePrice:Math.max(0,pricing.total+pricing.discount-extras),discount:pricing.discount,discountLabel:pricing.label,qty:safeOrderQuantity(state.editingOrderQty),extrasIndependent:true,
   mode:state.mode,pizza:state.left,pizzaLeft:state.left,pizzaRight:state.right,pizzaName:state.mode==='half'?`${pizzaName(p)||''} / ${pizzaName(r)||''}`:(p?pizzaName(p):''),
   crust:state.crust||'오리지널',dough:state.dough||'오리지널',toppings:{...(state.toppings||{})},sides:{...(state.extraSides||{})},drinks:{...(state.extraDrinks||{})},includedSides:{...(state.setSides||{})},includedDrinks:state.setDrink?{[state.setDrink]:1}:{}
  }
 }
 function currentHasItems(){return !!state.left||sum(state.extraSides)>0||sum(state.extraDrinks)>0}
-function currentOrderTotal(){return currentHasItems()?price().total:0}
-function cartTotal(){return state.cartItems.reduce((s,x)=>s+(Number(x.price)||0)*(Number(x.qty)||1),0)}
+function currentOrderTotal(){return currentHasItems()?orderFinancialTotals(orderSnapshot()).final:0}
+function cartTotal(){return state.cartItems.reduce((s,x)=>s+orderFinancialTotals(x).final,0)}
 function optionLinesHtml(title,map,master,included=false){const lines=mapLines(map,master,()=>0);return lines.length?`<div class="cartOptionLine"><b>${title}</b><span>${lines.map(x=>`${x.name} ${t('unit.quantity',{count:x.qty})}${included?' · '+t('review.includedInSet'):''}`).join(', ')}</span></div>`:''}
 function cartMoney(amount,added=false){return `${added?'+':''}${money(Number(amount)||0)}`}
 function cartCatalogLines(map,master,unitPrice,orderQty,included=false){
  return Object.entries(map||{}).flatMap(([id,value])=>{
-  const item=master.find(candidate=>candidate.id===id),qty=Number(value)||0;
+  const item=master.find(candidate=>candidate.id===id),qty=safeMenuQuantity(value);
   if(!item||qty<=0)return [];
   const unit=included?0:Number(unitPrice(item)||0);
   return [{id,name:optionDisplayName(item),qty:included?qty*orderQty:qty,amount:unit*qty*orderQty,included,added:false}];
  })
 }
 function pizzaOptionFee(dough,crust,size){const option=dough==='크루아상'?'크루아상':(crust||'오리지널');return Number(CRUSTS.find(item=>item.name===option)?.[size]||0)}
+function paidExtrasUnitAmount(order){
+ return Object.entries(order?.sides||{}).reduce((sum,[id,value])=>sum+(Number(SIDES.find(item=>item.id===id)?.price)||0)*safeMenuQuantity(value),0)
+  +Object.entries(order?.drinks||{}).reduce((sum,[id,value])=>sum+(Number([...DRINKS,...SAUCES].find(item=>item.id===id)?.price)||0)*safeMenuQuantity(value),0)
+}
+function orderFinancialTotals(order){
+ const quantity=safeOrderQuantity(order?.qty),extrasUnit=paidExtrasUnitAmount(order),independent=order?.extrasIndependent===true;
+ const storedFinal=Math.max(0,Number(order?.price)||0),storedNormal=Math.max(storedFinal,Number(order?.normalPrice)||storedFinal+Math.max(0,Number(order?.discount)||0));
+ const explicitBase=Number(order?.basePrice),explicitNormalBase=Number(order?.normalBasePrice);
+ const multiplier=independent?1:quantity,baseFinal=Number.isFinite(explicitBase)?Math.max(0,explicitBase):Math.max(0,storedFinal-extrasUnit),baseNormal=Number.isFinite(explicitNormalBase)?Math.max(baseFinal,explicitNormalBase):Math.max(baseFinal,storedNormal-extrasUnit);
+ const normal=baseNormal*quantity+extrasUnit*multiplier,final=baseFinal*quantity+extrasUnit*multiplier;
+ return {normal,discount:Math.max(0,normal-final),final,extras:extrasUnit*multiplier,quantity,independent}
+}
 function buildCartDisplayModel(order){
- const qty=Math.max(1,Number(order.qty)||1),size=order.size,left=po(order.pizzaLeft||order.pizza),right=po(order.pizzaRight);
+ const qty=safeOrderQuantity(order.qty),size=order.size,left=po(order.pizzaLeft||order.pizza),right=po(order.pizzaRight);
  const pizzaUnit=left?(order.mode==='half'&&right?((Number(left[size])||0)+(Number(right[size])||0))/2:Number(left[size])||0):0;
  const crustUnit=left?pizzaOptionFee(order.dough,order.crust,size):0;
  const halfUnit=left&&order.mode==='half'?Number(SETTINGS.HALF_EXTRA||0):0;
  const toppings=cartCatalogLines(order.toppings,TOPPINGS,item=>Number(item.price?.[size]||0),qty);
  const includedSides=cartCatalogLines(order.includedSides,SIDES,()=>0,qty,true);
- const paidSides=cartCatalogLines(order.sides,SIDES,item=>Number(item.price||0),qty);
+ const extrasMultiplier=order.extrasIndependent===true?1:qty;
+ const paidSides=cartCatalogLines(order.sides,SIDES,item=>Number(item.price||0),extrasMultiplier);
  const includedDrinks=cartCatalogLines(order.includedDrinks,DRINKS,()=>0,qty,true);
- const paidDrinks=cartCatalogLines(order.drinks,DRINKS,item=>Number(item.price||0),qty);
- const accompaniment=cartCatalogLines(order.drinks,SAUCES,item=>Number(item.price||0),qty);
- const perOrderExtras=[...toppings,...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
- const componentUnit=pizzaUnit+crustUnit+halfUnit+perOrderExtras;
- const storedUnit=Number(order.price)||0,discount=Number(order.discount)||0,normal=Number(order.normalPrice)||storedUnit+discount;
+ const paidDrinks=cartCatalogLines(order.drinks,DRINKS,item=>Number(item.price||0),extrasMultiplier);
+ const accompaniment=cartCatalogLines(order.drinks,SAUCES,item=>Number(item.price||0),extrasMultiplier);
  const toppingUnit=toppings.reduce((sum,line)=>sum+line.amount/qty,0);
- const externalExtrasUnit=[...paidSides,...paidDrinks,...accompaniment].reduce((sum,line)=>sum+line.amount/qty,0);
+ const componentUnit=pizzaUnit+crustUnit+halfUnit+toppingUnit;
+ const storedUnit=Number(order.price)||0,discount=Number(order.discount)||0,normal=Number(order.normalPrice)||storedUnit+discount;
+ const externalExtrasUnit=paidExtrasUnitAmount(order),financial=orderFinancialTotals(order);
+ const baseFinalUnit=Number.isFinite(Number(order.basePrice))?Math.max(0,Number(order.basePrice)):Math.max(0,storedUnit-externalExtrasUnit),baseNormalUnit=Number.isFinite(Number(order.normalBasePrice))?Math.max(baseFinalUnit,Number(order.normalBasePrice)):Math.max(baseFinalUnit,normal-externalExtrasUnit);
  const pizzaNormalUnit=pizzaUnit+crustUnit+halfUnit+toppingUnit;
  const priceBreakdown=left?(order.set?{
-  kind:'set',
-  normal:Math.max(0,normal-externalExtrasUnit)*qty,
+ kind:'set',
+  normal:baseNormalUnit*qty,
   discount:Math.max(0,discount)*qty,
-  final:Math.max(0,storedUnit-externalExtrasUnit)*qty,
+  final:baseFinalUnit*qty,
   benefit:order.discountLabel||benefitName('set')
  }:{
   kind:'pizza',
@@ -3638,8 +3684,8 @@ function buildCartDisplayModel(order){
   final:Math.max(0,pizzaNormalUnit-discount)*qty,
   benefit:order.discountLabel||benefitName(order.promo||'normal')
  }):null;
- const hasIncluded=includedSides.length>0||includedDrinks.length>0;
- const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&componentUnit===storedUnit;
+ const hasIncluded=includedSides.length>0||includedDrinks.length>0,comparisonUnit=componentUnit+(financial.independent?0:externalExtrasUnit);
+ const standard=order.promo==='normal'&&!order.set&&!hasIncluded&&!discount&&normal===storedUnit&&comparisonUnit===storedUnit;
  const pizza=[];
  if(left)pizza.push({id:'pizza',name:cartPizzaNames(order),qty,amount:null,included:false,added:false});
  return {
@@ -3653,8 +3699,10 @@ function buildCartDisplayModel(order){
   categories:{pizza,toppings,sides:[...includedSides,...paidSides],drinks:[...includedDrinks,...paidDrinks],accompaniment},
   priceBreakdown,
   benefit:standard?'':(order.set?setOrderName(order.set):benefitName(order.promo||'normal')),
-  componentTotal:componentUnit*qty,
-  total:storedUnit*qty
+  componentTotal:componentUnit*qty+financial.extras,
+  normalTotal:financial.normal,
+  discountTotal:financial.discount,
+  total:financial.final
  }
 }
 function cartPizzaMetaHtml(meta){
@@ -3680,9 +3728,14 @@ function cartOrderDetailHtml(model){
   drinkTitle=window.PJ_I18N.drinkCategory({i18nId:'coke-500'});
  return `${cartPizzaCategoryHtml(model)}${cartCategoryHtml(t('review.toppingAddTitle'),model.categories.toppings)}${cartCategoryHtml(sideTitle,model.categories.sides,true)}${cartCategoryHtml(drinkTitle,model.categories.drinks,true)}${cartCategoryHtml(t('ui.drinkScreen.accompanimentTitle'),model.categories.accompaniment,true)}${model.benefit?`<div class="cartBenefitRow"><span>${t('ui.summary.benefit')}</span><strong>${model.benefit}</strong></div>`:''}<div class="cartOrderTotal"><span>${t('cart.totalPayment')}</span><strong>${money(model.total)}</strong></div>`
 }
-function changeCartQty(i,d){const item=state.cartItems[i];if(!item)return;rememberReviewScroll();item.qty=Math.max(1,(item.qty||1)+d);render()}
-function removeCartItem(i){rememberReviewScroll();state.cartItems.splice(i,1);if(!state.cartItems.length)reviewSavedScrollTop=0;render()}
-function editReviewOrder(i){const order=state.cartItems[i];if(!order||state.modal)return;rememberReviewScroll();state.cartItems.splice(i,1);Object.assign(state,{reviewEditIndex:i,editingOrderQty:Math.max(1,Number(order.qty)||1),promo:order.promo||'normal',set:order.set||null,size:order.size||null,mode:order.mode||'single',dough:order.dough||'오리지널',left:order.pizzaLeft||order.pizza||null,right:order.pizzaRight||null,crust:order.crust||'오리지널',toppingChoice:Object.keys(order.toppings||{}).length?'add':null,toppings:{...(order.toppings||{})},extraSides:{...(order.sides||{})},extraDrinks:{...(order.drinks||{})},setSides:{...(order.includedSides||{})},setDrink:Object.keys(order.includedDrinks||{})[0]||null,step:'promo'});render()}
+function openQuantityDialog(dialog,event){if(state.modal)return;customerModalReturnFocus=rememberCustomerModalFocus(event?.currentTarget||document.activeElement);quantityDialog=dialog;state.modal=dialog.kind==='limit'?'quantityLimit':'quantityDelete';render();requestAnimationFrame(()=>document.querySelector('.quantityDialogModal button')?.focus())}
+function requestOrderDelete(index,event){const item=state.cartItems[index];if(!item)return;openQuantityDialog({kind:'order',index,name:reviewOrderTypeLabel(item),hasExtras:paidExtrasUnitAmount(item)>0},event)}
+function changeReviewQuantity(kind,key,delta,event){if(state.modal)return;if(kind==='order'){const index=Number(key),item=state.cartItems[index];if(!item)return;const quantity=safeOrderQuantity(item.qty);if(delta>0&&quantity>=9){openQuantityDialog({kind:'limit'},event);return}if(delta<0&&quantity===1){requestOrderDelete(index,event);return}rememberReviewScroll();item.qty=safeOrderQuantity(quantity+delta);render();return}const entry=additionalProductEntries().find(row=>row.key===key);if(!entry)return;if(delta>0&&entry.qty>=9){openQuantityDialog({kind:'limit'},event);return}if(delta<0&&entry.qty===1){openQuantityDialog({kind:'extra',key,name:entry.name},event);return}rememberReviewScroll();const source=delta>0?entry.sources[0]:entry.sources[entry.sources.length-1],order=state.cartItems[source.orderIndex],map=entry.kind==='side'?order.sides:order.drinks,current=safeMenuQuantity(map[entry.id]),next=current+delta;if(next>0)map[entry.id]=next;else delete map[entry.id];render()}
+function cancelQuantityDialog(){if(!['quantityDelete','quantityLimit'].includes(state.modal))return;state.modal=null;quantityDialog=null;render();requestAnimationFrame(restoreCustomerModalFocus)}
+function confirmQuantityDelete(){const dialog=quantityDialog;if(!dialog||state.modal!=='quantityDelete')return;rememberReviewScroll();if(dialog.kind==='order')removeCartItem(dialog.index,false);else if(dialog.kind==='extra'){const [kind,id]=dialog.key.split(':');state.cartItems.forEach(order=>{const map=kind==='side'?order.sides:order.drinks;if(map)delete map[id]})}state.modal=null;quantityDialog=null;customerModalReturnFocus=null;render()}
+function changeCartQty(i,d){changeReviewQuantity('order',i,d)}
+function removeCartItem(i,rerender=true){rememberReviewScroll();state.cartItems.splice(i,1);if(!state.cartItems.length)reviewSavedScrollTop=0;if(rerender)render()}
+function editReviewOrder(i){const order=state.cartItems[i];if(!order||state.modal)return;rememberReviewScroll();state.cartItems.splice(i,1);Object.assign(state,{reviewEditIndex:i,editingOrderQty:safeOrderQuantity(order.qty),promo:order.promo||'normal',set:order.set||null,size:order.size||null,mode:order.mode||'single',dough:order.dough||'오리지널',left:order.pizzaLeft||order.pizza||null,right:order.pizzaRight||null,crust:order.crust||'오리지널',toppingChoice:Object.keys(order.toppings||{}).length?'add':null,toppings:{...(order.toppings||{})},extraSides:normalizedQuantityMap(order.sides),extraDrinks:normalizedQuantityMap(order.drinks),setSides:normalizedQuantityMap(order.includedSides),setDrink:Object.keys(normalizedQuantityMap(order.includedDrinks))[0]||null,step:'promo'});render()}
 function clearCurrentProduct(){Object.assign(state,{reviewEditIndex:null,editingOrderQty:1,setSidePrompted:false,setSideExtraMode:false,setDrinkPrompted:false,setDrinkExtraMode:false,finalUpsellPrompted:false,benefitPromptedKeys:[],pendingBenefit:null,finalAddMode:null,bannerTakeout:false,promo:null,set:null,size:null,mode:'single',dough:'오리지널',left:null,right:null,crust:'오리지널',toppingChoice:null,toppings:{},extraSides:{},extraDrinks:{},setSides:{},setDrink:null,cat:'ALL',modal:null})}
 function storeCurrentOrderSnapshot(){if(!currentHasItems())return;const snapshot=orderSnapshot(),index=Number.isInteger(state.reviewEditIndex)?Math.min(Math.max(0,state.reviewEditIndex),state.cartItems.length):state.cartItems.length;state.cartItems.splice(index,0,snapshot)}
 function addCurrentOrderToReview(){storeCurrentOrderSnapshot();clearCurrentProduct();state.step='review';render()}
@@ -3847,9 +3900,13 @@ function chooseFinalUpsell(type){
 function cartModalOrders(){if(['idle','home','done','testDone'].includes(state.step))return [];const orders=allReviewOrders();if(currentHasItems())orders.push({...orderSnapshot(),__current:true});return orders}
 function openCartModal(event){if(state.modal)return;event?.preventDefault();state.modal='cartView';render()}
 function closeCartModal(){if(state.modal!=='cartView')return;state.modal=null;render();requestAnimationFrame(()=>document.getElementById('customerCartButton')?.focus({preventScroll:true}))}
-function cartModalOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model);return `<article class="cartModalOrderCard"><header><strong>${t('review.orderOrdinal',{count:index+1})}</strong><span class="reviewOrderTypeBadge">${reviewOrderTypeLabel(order)}</span>${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</header>${reviewMenuRowsHTML(model)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(model.total)}</strong></div></article>`}
-function cartModalHTML(){const orders=cartModalOrders(),totals=orderCollectionTotals(orders);return `<div class="backdrop cartViewBackdrop"><section class="modal cartViewModal" role="dialog" aria-modal="true" aria-labelledby="cartViewTitle"><header class="cartModalHeader"><h2 id="cartViewTitle">${t('cart.title')}</h2><button type="button" class="cartModalClose" onclick="closeCartModal()"><span aria-hidden="true">×</span> ${t('cart.close')}</button></header>${orders.length?`<div class="cartModalOrderList" tabindex="0">${orders.map(cartModalOrderCard).join('')}</div><footer class="cartModalTotals">${reviewTotalsHTML(totals)}</footer>`:`<div class="cartModalEmpty">${t('cart.empty')}</div>`}</section></div>`}
+function cartModalOrderCard(order,index){const model=buildCartDisplayModel(order),benefit=reviewOrderBenefitLabel(order,model);return `<article class="cartModalOrderCard"><header><strong>${t('review.orderOrdinal',{count:index+1})} · ${reviewOrderTypeLabel(order)}</strong>${benefit?`<span class="reviewBenefitBadge">${benefit}</span>`:''}</header>${cartPizzaMetaHtml(model.meta)}${reviewMenuRowsHTML(model)}<div class="reviewOrderTotal"><span>${t('review.paymentAmount')}</span><strong>${money(baseOrderTotal(order))}</strong></div></article>`}
+function cartModalExtrasCard(orders){const rows=additionalProductEntries(orders);if(!rows.length)return '';return `<article class="cartModalOrderCard cartModalExtrasCard"><header><strong>${featureCopy().extrasTitle}</strong></header>${rows.map(row=>`<div class="reviewExtraRow"><span>${row.name}</span><span>×${row.qty}</span><strong>${money(row.unit*row.qty)}</strong></div>`).join('')}</article>`}
+function cartModalHTML(){const orders=cartModalOrders(),totals=orderCollectionTotals(orders);return `<div class="backdrop cartViewBackdrop"><section class="modal cartViewModal" role="dialog" aria-modal="true" aria-labelledby="cartViewTitle"><header class="cartModalHeader"><h2 id="cartViewTitle">${t('cart.title')}</h2><button type="button" class="cartModalClose" onclick="closeCartModal()"><span aria-hidden="true">×</span> ${t('cart.close')}</button></header>${orders.length?`<div class="cartModalOrderList" tabindex="0">${orders.map(cartModalOrderCard).join('')}${cartModalExtrasCard(orders)}</div><footer class="cartModalTotals">${reviewTotalsHTML(totals)}</footer>`:`<div class="cartModalEmpty">${t('cart.empty')}</div>`}</section></div>`}
 function modalView(){
+if(state.modal==='includedSauce'){const copy=featureCopy(),summary=window.PJ_INCLUDED_SAUCE_POLICY?.calculate(includedSauceOrders(),state.orderType)||{},rows=['garlic','pickle','hotSauce','honeyMustard','tomato'].filter(key=>Number(summary[key])>0).map(key=>`<li><span>${copy[key]}</span><strong>${t('unit.quantity',{count:summary[key]})}</strong></li>`).join(''),takeout=state.orderType==='takeout';return `<div class="backdrop"><section class="modal includedSauceModal" role="dialog" aria-modal="true" aria-labelledby="includedSauceTitle"><h2 id="includedSauceTitle">${copy.includedTitle}</h2><p>${copy.includedIntro}</p><ul>${rows||`<li><span>${copy.garlic}</span><strong>${t('unit.quantity',{count:0})}</strong></li>`}</ul>${state.orderType==='dinein'?`<p class="includedSauceFree">${copy.freeStore}</p>`:''}<p>${copy.extraGuide}</p><p class="includedSauceNote">${copy.tomatoUnavailable}</p><div class="modalBtns"${takeout?'':' style="grid-template-columns:1fr"'}><button type="button" class="prev" onclick="closeIncludedSauceModal('continue')">${copy.noExtra}</button>${takeout?`<button type="button" class="next" onclick="closeIncludedSauceModal('extras')">${copy.chooseExtra}</button>`:''}</div></section></div>`}
+if(state.modal==='quantityLimit')return `<div class="backdrop"><section class="modal quantityDialogModal" role="alertdialog" aria-modal="true"><h2>${featureCopy().maxMessage}</h2><div class="modalBtns" style="grid-template-columns:1fr"><button type="button" class="next" onclick="cancelQuantityDialog()">${t('ui.common.confirm')}</button></div></section></div>`;
+if(state.modal==='quantityDelete'&&quantityDialog){const copy=featureCopy(),order=quantityDialog.kind==='order',title=order?copy.deleteOrderTitle:copy.deleteExtraTitle.replace('{name}',quantityDialog.name),body=order?(quantityDialog.hasExtras?copy.deleteOrderWithExtrasBody:copy.deleteOrderBody):'';return `<div class="backdrop"><section class="modal quantityDialogModal" role="alertdialog" aria-modal="true"><h2>${title}</h2>${body?`<p>${body}</p>`:''}<div class="modalBtns"><button type="button" class="prev" onclick="cancelQuantityDialog()">${copy.cancel}</button><button type="button" class="next" onclick="confirmQuantityDelete()">${copy.delete}</button></div></section></div>`}
 if(state.modal==='cartView')return cartModalHTML();
 if(state.modal==='zoneWaitlist'&&zoneWaitlistDraft){const copy=seatCapacityCopy(),phone=zoneWaitlistDraft.phone,valid=waitlistPhoneKeypad.valid(phone);return `<div class="backdrop"><div class="modal waitlistKeypadModal" role="dialog" aria-modal="true" aria-labelledby="waitlistKeypadTitle"><h2 id="waitlistKeypadTitle">${copy.queue}</h2><p>${t('seat.capacity.phoneGuide')}</p><input id="waitlistPhoneDisplay" class="waitlistPhoneDisplay ${zoneWaitlistDraft.error?'invalid':''}" type="text" inputmode="none" readonly autocomplete="off" aria-label="${escAttr(t('seat.capacity.phoneLabel'))}" value="${escAttr(waitlistPhoneKeypad.format(phone))}" placeholder="010-0000-0000"><div class="waitlistKeypad" aria-label="${escAttr(t('seat.capacity.keypadLabel'))}">${[1,2,3,4,5,6,7,8,9].map(value=>`<button type="button" onclick="pressWaitlistPhone('${value}')">${value}</button>`).join('')}<button type="button" class="waitlistClear" onclick="clearWaitlistPhone()">${t('seat.capacity.clear')}</button><button type="button" onclick="pressWaitlistPhone('0')">0</button><button type="button" aria-label="${escAttr(t('seat.capacity.backspace'))}" onclick="backWaitlistPhone()">⌫</button></div><p class="waitlistPhoneError" role="alert">${zoneWaitlistDraft.error||''}</p><div class="waitlistKeypadActions"><button type="button" class="waitlistCancel" onclick="closeZoneWaitlist()">${t('seat.capacity.cancel')}</button><button type="button" class="waitlistSubmit" ${valid&&!zoneWaitlistSubmitting?'':'disabled'} onclick="submitZoneWaitlist(event)">${zoneWaitlistSubmitting?t('seat.capacity.submitting'):t('seat.capacity.register')}</button></div></div></div>`}
 if(state.modal==='reviewResetConfirm')return `<div class="backdrop"><div class="modal reviewResetConfirmModal" role="alertdialog" aria-modal="true" aria-labelledby="reviewResetConfirmTitle"><h2 id="reviewResetConfirmTitle">${t('review.resetTitle')}</h2><p>${t('review.resetBody')}</p><div class="modalBtns"><button type="button" class="prev" onclick="cancelReviewReset()">${t('review.resetCancel')}</button><button type="button" class="next" onclick="confirmReviewReset()">${t('review.resetConfirm')}</button></div></div></div>`;
@@ -3962,22 +4019,13 @@ function reservationPickupTimestamp(time,now=new Date()){
  const millis=Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(match[1])-9,Number(match[2]));
  return firebase.firestore.Timestamp.fromMillis(millis);
 }
+function payloadOrder(order,id){const clean={...order,toppings:normalizedQuantityMap(order.toppings),sides:normalizedQuantityMap(order.sides),drinks:normalizedQuantityMap(order.drinks),includedSides:normalizedQuantityMap(order.includedSides),includedDrinks:normalizedQuantityMap(order.includedDrinks)},totals=orderFinancialTotals(clean);return {id,promo:order.promo||'normal',set:order.set||null,size:order.size,mode:order.mode,pizza:order.pizzaLeft||order.pizza,pizzaLeft:order.pizzaLeft||order.pizza,pizzaRight:order.pizzaRight,pizzaName:order.pizzaName,crust:order.crust,dough:order.dough,doughType:order.dough,pizzaMode:order.mode,qty:safeOrderQuantity(order.qty),extrasIndependent:order.extrasIndependent===true,baseTotal:Math.max(0,totals.final-totals.extras),extrasTotal:totals.extras,normalTotal:totals.normal,discountAmount:totals.discount,discountLabel:order.discountLabel||'',total:totals.final,toppings:clean.toppings,sides:clean.sides,drinks:clean.drinks,includedSides:clean.includedSides,includedDrinks:clean.includedDrinks}}
 function buildMobileOrderPayload(){
- const p=po(state.left),right=po(state.right),finalTotal=currentOrderTotal()+cartTotal();
+ const finalTotal=currentOrderTotal()+cartTotal();
  const splitPlan=isSplitPayment()?mealTicketSplit(finalTotal,state.splitCount):null;
  if(isSplitPayment()&&!splitPlan){const error=new Error(t('ui.payment.splitInvalid'));error.code='MEAL_TICKET_SPLIT_INVALID';throw error}
- const currentItems=currentHasItems()?[{
-  id:'mobile-'+Date.now(),
-  promo:state.promo||'normal',set:state.set||null,size:state.left?effectiveSize():null,mode:state.mode,
-  pizza:state.left,pizzaLeft:state.left,pizzaRight:state.right,
-  pizzaName:state.left?(state.mode==='half'?`${p?.name||''} + ${right?.name||''}`:(p?.name||'피자')):t('cart.additionalOrder'),
-  crust:state.left?(state.crust||null):null,dough:state.left?(state.dough||'오리지널'):null,doughType:state.left?(state.dough||'오리지널'):null,pizzaMode:state.mode,qty:1,normalTotal:price().total+price().discount,discountAmount:price().discount,discountLabel:price().label,total:price().total,
-  toppings:{...(state.toppings||{})},
-  sides:{...(state.extraSides||{})},drinks:{...(state.extraDrinks||{})},
-  includedSides:{...(state.setSides||{})},
-  includedDrinks:state.setDrink?{[state.setDrink]:1}:{}
- }]:[];
- const cartPayload=(state.cartItems||[]).map((x,i)=>({id:'cart-'+Date.now()+'-'+i,promo:x.promo||'normal',set:x.set||null,size:x.size,mode:x.mode,pizza:x.pizzaLeft,pizzaLeft:x.pizzaLeft,pizzaRight:x.pizzaRight,pizzaName:x.pizzaName,crust:x.crust,dough:x.dough,doughType:x.dough,pizzaMode:x.mode,qty:x.qty||1,normalTotal:(x.normalPrice||x.price||0)*(x.qty||1),discountAmount:(x.discount||0)*(x.qty||1),discountLabel:x.discountLabel||'',total:(x.price||0)*(x.qty||1),toppings:{...(x.toppings||{})},sides:{...(x.sides||{})},drinks:{...(x.drinks||{})},includedSides:{...(x.includedSides||{})},includedDrinks:{...(x.includedDrinks||{})}}));
+ const currentItems=currentHasItems()?[payloadOrder(orderSnapshot(),'mobile-'+Date.now())]:[];
+ const cartPayload=(state.cartItems||[]).map((order,index)=>payloadOrder(order,'cart-'+Date.now()+'-'+index));
  const items=[...cartPayload,...currentItems];
  const language=mobileOrderLanguage(),identity=mobileCustomerIdentity(),reservationPickupAt=state.orderTiming==='reserve'?reservationPickupTimestamp(state.reserveTime):null;
  if(!identity)throw new Error(t('customerName.invalid'));
@@ -3994,7 +4042,7 @@ function buildMobileOrderPayload(){
   seat:state.orderType==='dinein'?{zone:state.diningArea,tables:[...(state.selectedTables||[])]}:null,
   pickup:state.orderType==='takeout'?{time:state.reserveTime||null,mode:state.orderTiming||'now',...(reservationPickupAt?{pickupAt:reservationPickupAt}:{})}:null,
   disposables:state.disposables===true,
-  items,itemCount:items.reduce((n,x)=>n+(Number(x.qty)||1),0),normalAmount:reviewTotals().normal,discountAmount:reviewTotals().discount,totalAmount:finalTotal,total:finalTotal,
+  items,itemCount:items.reduce((n,x)=>n+cartOrderTopLevelQuantity(x),0),normalAmount:items.reduce((n,x)=>n+Number(x.normalTotal||0),0),discountAmount:items.reduce((n,x)=>n+Number(x.discountAmount||0),0),totalAmount:finalTotal,total:finalTotal,
   benefit:state.promo||'normal',payment:{method:state.paymentMethod,methodName:paymentName(state.paymentMethod),splitCount:isSplitPayment()?state.splitCount:1,splitAmounts:isSplitPayment()?splitPlan.amounts:[finalTotal]},status:'payment_pending',
   recommendationEvents:[],
   createdAt:firebase.firestore.FieldValue.serverTimestamp(),
@@ -7577,4 +7625,4 @@ body[data-step="payment"] .paymentCard[data-payment-method="meal_ticket"].active
 <link rel="stylesheet" href="styles/device-ipad-air3-portrait.css?v=ipad-air3-review-list-v6">
 <link rel="stylesheet" href="styles/set-choice-responsive.css?v=responsive-split-card-v5">
 <link rel="stylesheet" href="styles/home-promo-visibility.css?v=happy-hour-visibility-v1">
-<link rel="stylesheet" href="styles/order-review-cart-quantity.css?v=order-review-cart-quantity-v5">
+<link rel="stylesheet" href="styles/order-review-cart-quantity.css?v=order-review-cart-quantity-v6">

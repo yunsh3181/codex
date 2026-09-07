@@ -63,14 +63,15 @@ test('pizza option pricing detail remains complete on the shared review renderer
   assert.match(source, /money\(amount\)/);
 });
 
-test('review totals still derive discount and final payment from stored order amounts', () => {
+test('review totals derive discount and final payment from base quantities plus independent extras', () => {
   const source = html.slice(
     html.indexOf('function orderCollectionTotals'),
     html.indexOf('function price()')
   );
   assert.match(source, /orderDetailData\(o\)/);
-  assert.match(source, /normal\+=d\.amount\.normal\*q/);
-  assert.match(source, /final\+=d\.amount\.final\*q/);
+  assert.match(source, /orderFinancialTotals\(o\)/);
+  assert.match(source, /normal\+=amount\.normal/);
+  assert.match(source, /final\+=amount\.final/);
   assert.match(source, /Math\.max\(0,normal-final\)/);
   assert.match(source, /class="line final"/);
   assert.match(source, /money\(totals\.final\)/);

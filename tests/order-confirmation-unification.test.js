@@ -40,7 +40,8 @@ test('all discovered benefits keep using the same review data and total renderer
     assert.ok(html.includes(`id:'${benefit}'`)||html.includes(`'${benefit}'`),benefit);
   }
   assert.match(html,/function reviewOrderCard\(order,index\)\{const model=buildCartDisplayModel\(order\)/);
-  assert.match(html,/function reviewOrderCard[\s\S]*?editReviewOrder\(\$\{index\}\)[\s\S]*?removeCartItem\(\$\{index\}\)/);
+  assert.match(html,/function reviewOrderCard[\s\S]*?editReviewOrder\(\$\{index\}\)[\s\S]*?requestOrderDelete\(\$\{index\},event\)/);
+  assert.match(html,/function reviewExtrasCard\(orders=allReviewOrders\(\)\)/);
   assert.match(html,/function allReviewOrders\(\)\{return \(state\.cartItems\|\|\[\]\)\.map/);
   assert.match(html,/function reviewTotals\(\)\{return orderCollectionTotals\(allReviewOrders\(\)\)\}/);
   assert.match(html,/function reviewTotalsHTML\(totals=reviewTotals\(\)\)\{/);

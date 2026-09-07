@@ -13,6 +13,7 @@ async function runChoice(win,needed){
  await click(win,needed?'.disposablesModal .next':'.disposablesModal .prev');
  const afterChoice=await win.webContents.executeJavaScript(`({value:state.disposables,step:state.step})`,true);
  await click(win,'.selectionFooterCard');await click(win,'.upsellModal .upsellNo');await click(win,'.selectionFooterCard');
+ await click(win,'.includedSauceModal .next');await click(win,'.selectionFooterCard');
  const review=await win.webContents.executeJavaScript(`({step:state.step,value:state.disposables,text:document.querySelector('.reviewDisposables')?.innerText||'',cart:JSON.stringify(state.cartItems),total:reviewTotals().final})`,true);
  await click(win,'.reviewBackBtn');const previous=await win.webContents.executeJavaScript(`state.step`,true);await click(win,'.selectionFooterCard');
  const returned=await win.webContents.executeJavaScript(`({step:state.step,value:state.disposables,text:document.querySelector('.reviewDisposables')?.innerText||'',cart:JSON.stringify(state.cartItems),total:reviewTotals().final})`,true);

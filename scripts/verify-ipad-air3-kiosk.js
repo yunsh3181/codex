@@ -161,7 +161,7 @@ runElectronVerification({app},async lifecycle=>{
   ['side-included',scenarios.find(x=>x[0]==='side-included')[1],{step:'side',modal:'setSideUpsell'}],
   ['side-extra',scenarios.find(x=>x[0]==='side-extra')[1],{step:'drink',modal:null}],
   ['drink-included',scenarios.find(x=>x[0]==='drink-included')[1],{step:'drink',modal:'setDrinkUpsell'}],
-  ['drink-extra',scenarios.find(x=>x[0]==='drink-extra')[1],{step:'accompaniment',modal:null}],
+  ['drink-extra',scenarios.find(x=>x[0]==='drink-extra')[1],{step:'drink',modal:'includedSauce'}],
   ['accompaniment',scenarios.find(x=>x[0]==='accompaniment')[1],{step:'accompaniment',modal:'betterBenefit'}]
  ]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const actual=await win.webContents.executeJavaScript(`(()=>{let clicks=0;const button=document.querySelector('.selectionFooterCard');button.addEventListener('click',()=>clicks++,{once:true});button.click();return {clicks,step:state.step,modal:state.modal}})()`,true);clickCases.push({scenario:name,expected,actual})}
  win.setContentSize(1112,834);await win.loadFile(path.join(root,'index.html'));

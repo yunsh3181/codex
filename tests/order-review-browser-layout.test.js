@@ -58,7 +58,8 @@ test('real browser layout keeps the page fixed and the order list independently 
     if (result.scenario === 'multi-pizza') assert.equal(result.cartBadgeCount, 2, `${context}: pizza quantity badge`);
     if (result.scenario === 'max-categories') assert.equal(result.cartBadgeCount, 4, `${context}: parent plus separate extras badge`);
     if (result.cartModal) {
-      assert.equal(result.cartModal.itemCount, result.orderItemCount, `${context}: modal order groups`);
+      assert.equal(result.cartModal.itemCount, result.orderItemCount + result.cartModal.extrasCardCount, `${context}: modal base orders plus optional extras group`);
+      assert.ok(result.cartModal.extrasCardCount === 0 || result.cartModal.extrasCardCount === 1, `${context}: duplicate extras group`);
       assert.equal(result.cartModal.empty, false, `${context}: unexpected empty modal`);
       assert.equal(result.cartModal.dialogCount, 1, `${context}: duplicate modal`);
       assert.equal(result.cartModal.horizontalOverflow, 0, `${context}: modal horizontal overflow`);

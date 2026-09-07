@@ -132,6 +132,10 @@ for(const parentQuantity of [1,3]){
  assert.strictEqual(extra,'1',`top-level extra remains one for set quantity ${parentQuantity}`);
 }
 
+const independentExtras=context.orderDetailMenuHTML({...baseOrder,items:[{...doubledSetItem,qty:3,extrasIndependent:true,drinks:{D002:2}}]});
+const independentDrink=independentExtras.match(/스프라이트 1\.5L<\/span><span class="detail-menu-quantity">×2<\/span><strong class="detail-menu-price">5,000원/)?.[0]||'';
+assert.ok(independentDrink,'new independent extra quantities and prices do not scale with parent order quantity');
+
 const mixedItems=[{
  ...baseOrder.items[0],includedSides:{},sides:{S001:{quantity:1,total:9900}},
  includedDrinks:{A001:{quantity:1,total:500}},drinks:{UNKNOWN:{name:'미분류 상품',quantity:1,total:700},D001:{quantity:1,total:2500}}
