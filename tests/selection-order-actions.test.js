@@ -23,7 +23,7 @@ const document={
 const storage={getItem(){return null},setItem(){}};
 const context={
   window:{},document,location:{search:''},URLSearchParams,console,Intl,Date,Math,Number,String,Object,Array,Set,Map,RegExp,JSON,
-  localStorage:storage,sessionStorage:storage,Image:function(){},setTimeout(){return 0},setInterval(){return 0},clearInterval(){},
+  localStorage:storage,sessionStorage:storage,Image:function(){},setTimeout(){return 0},setInterval(){return 0},clearInterval(){},requestAnimationFrame(callback){callback();return 1},
   alert(){},confirm(){return true},prompt(){return null},
   db:{collection(){return {onSnapshot(){},doc(){return {set(){}}},add(){return Promise.resolve({id:'test'})}}}},
   firebase:{firestore:{FieldValue:{serverTimestamp(){return null}}}}
@@ -125,9 +125,9 @@ for(const language of languages){
   const localizedCard=vm.runInContext("drinkGroupCard(drinkGroups()[0])",context);
   assert.ok(localizedCard.includes(`<div class="v3DrinkName">${localizedName}</div>`),`${language} drink card renders the current data-backed name`);
   assert.ok(localizedCard.includes("qty('extraDrinks','D001',1,9,99)"),`${language} drink card retains the quantity handler`);
-  assert.ok(!localizedCard.includes('500ml')&&!localizedCard.includes('1.25L'),`${language} non-set card hides numeric volumes`);
-  assert.ok(localizedCard.includes(vm.runInContext("t('ui.drinkScreen.large')",context)),`${language} non-set card localizes Large`);
-  assert.ok(localizedCard.includes(vm.runInContext("t('ui.drinkScreen.small')",context)),`${language} non-set card localizes Small`);
+  assert.ok(localizedCard.includes('500mL')&&localizedCard.includes('1.25L'),`${language} non-set card shows exact product volumes`);
+  assert.ok(!localizedCard.includes(`>${vm.runInContext("t('ui.drinkScreen.large')",context)}<`),`${language} non-set card does not show Large as a product size`);
+  assert.ok(!localizedCard.includes(`>${vm.runInContext("t('ui.drinkScreen.small')",context)}<`),`${language} non-set card does not show Small as a product size`);
   assert.ok(localizedCard.indexOf("qty('extraDrinks','D002',1,9,99)")<localizedCard.indexOf("qty('extraDrinks','D001',1,9,99)"),`${language} renders Large above Small with the original product IDs`);
 }
 context.window.PJ_I18N.setLanguage('ko');
@@ -341,6 +341,9 @@ assert.strictEqual(payloadItem.drinks.D002,1,'same drink can also be retained as
 assert.strictEqual(payloadItem.drinks.D009,2,'sauce quantity is retained');
 assert.ok(Number.isFinite(payload.normalAmount)&&Number.isFinite(payload.discountAmount)&&Number.isFinite(payload.total),'order amounts are finite');
 assert.ok(!Object.hasOwn(payload,'discountBreakdown'),'payload contains only Firestore-approved summary fields');
+assert.strictEqual(payload.itemCount,5,'payload counts one base order and four independent paid extras');
+assert.strictEqual(payloadItem.extrasIndependent,true,'new payload records the independent-extra contract');
+assert.ok(!Object.hasOwn(payloadItem,'includedSauces'),'informational included sauces never become stored paid products');
 
 const drinkMarkup=render(variants.drinkNormal);
 assert.ok(drinkMarkup.includes('v3DrinkQuantity'),'grouped drink quantity readout exists');
@@ -374,5 +377,31 @@ for(const [action,expected] of Object.entries(flowCases)){
   assert.strictEqual(after.cartItems[0].discount,before.discount,`${action} keeps the discount`);
   assert.strictEqual(after.total,before.total,`${action} cart total remains correct`);
 }
+
+vm.runInContext("render=()=>{};Object.assign(state,{modal:null,cartItems:[{promo:'set',set:3,size:'L',mode:'single',pizzaLeft:'P001',pizzaRight:null,crust:'오리지널',dough:'오리지널',qty:1,price:36700,normalPrice:41700,basePrice:25000,normalBasePrice:30000,discount:5000,extrasIndependent:true,toppings:{},sides:{S007:1},drinks:{D001:1},includedSides:{S004:1},includedDrinks:{D002:1}}]})",context);
+const quantityOne=JSON.parse(vm.runInContext('JSON.stringify(orderFinancialTotals(state.cartItems[0]))',context));
+vm.runInContext("changeReviewQuantity('order','0',1)",context);
+const quantityTwo=JSON.parse(vm.runInContext('JSON.stringify({qty:state.cartItems[0].qty,totals:orderFinancialTotals(state.cartItems[0]),extras:additionalProductEntries()})',context));
+assert.strictEqual(quantityTwo.qty,2,'base order increments as one configured bundle');
+assert.strictEqual(quantityTwo.totals.final,quantityOne.final+(quantityOne.final-quantityOne.extras),'base quantity adds only the configured base order');
+assert.strictEqual(quantityTwo.extras.find(row=>row.id==='S007').qty,1,'paid side remains independently quantity one');
+assert.strictEqual(quantityTwo.extras.find(row=>row.id==='D001').qty,1,'paid drink remains independently quantity one');
+vm.runInContext("state.cartItems[0].qty=9;state.modal=null;changeReviewQuantity('order','0',1)",context);
+assert.deepStrictEqual(JSON.parse(vm.runInContext('JSON.stringify({qty:state.cartItems[0].qty,modal:state.modal})',context)),{qty:9,modal:'quantityLimit'},'base quantity stops at nine with a visible limit dialog');
+vm.runInContext("state.modal=null;quantityDialog=null;state.cartItems[0].qty=1;changeReviewQuantity('order','0',-1)",context);
+assert.deepStrictEqual(JSON.parse(vm.runInContext('JSON.stringify({count:state.cartItems.length,modal:state.modal,kind:quantityDialog.kind,hasExtras:quantityDialog.hasExtras})',context)),{count:1,modal:'quantityDelete',kind:'order',hasExtras:true},'minus at one asks before deleting and warns about linked extras');
+vm.runInContext('cancelQuantityDialog()',context);
+assert.strictEqual(vm.runInContext('state.cartItems.length',context),1,'delete cancel preserves the order');
+const totalBeforeExtra=vm.runInContext('reviewTotals().final',context);
+vm.runInContext("changeReviewQuantity('extra','drink:D001',1)",context);
+assert.strictEqual(vm.runInContext('state.cartItems[0].drinks.D001',context),2,'extra product increments without changing the base order');
+assert.strictEqual(vm.runInContext('state.cartItems[0].qty',context),1,'extra product control leaves the base quantity unchanged');
+assert.strictEqual(vm.runInContext('reviewTotals().final',context)-totalBeforeExtra,1800,'extra product increments the total by exactly its catalog price');
+const sanitized=JSON.parse(vm.runInContext(`JSON.stringify(payloadOrder({promo:'normal',size:'L',mode:'single',pizzaLeft:'P001',qty:1.5,price:28500,normalPrice:28500,extrasIndependent:true,toppings:{T001:-1},sides:{S007:0,S011:1.25},drinks:{D001:'2',D009:'bad'},includedSides:{S004:'1'},includedDrinks:{}},'sanitized'))`,context));
+assert.strictEqual(sanitized.qty,1,'non-integer base quantity fails safely to one');
+assert.deepStrictEqual(sanitized.toppings,{},'negative option quantity is not stored');
+assert.deepStrictEqual(sanitized.sides,{},'zero and decimal extra quantities are not stored');
+assert.deepStrictEqual(sanitized.drinks,{D001:2},'numeric text is normalized to a stored integer and invalid text is removed');
+assert.deepStrictEqual(sanitized.includedSides,{S004:1},'valid included quantities remain compatible');
 
 console.log('fixed selection CTAs, 2/3/4-person included/paid state, drink quantities, P011 image, and additional-order flows passed');

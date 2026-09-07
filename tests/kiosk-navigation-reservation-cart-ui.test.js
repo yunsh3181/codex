@@ -71,6 +71,9 @@ function displayModel(order){
     customerDoughLabel:value=>value==='오리지널'?'클래식':value,
     customerSizeLabel:value=>({R:'레귤러',L:'라지',F:'패밀리사이즈'}[value]||value),
     customerCrustLabel:value=>value,
+    safeMenuQuantity:(value,fallback=0)=>{const raw=typeof value==='object'&&value!==null?value.quantity??value.qty:value,number=Number(raw);return Number.isInteger(number)&&number>0?Math.min(9,number):fallback},
+    safeOrderQuantity:value=>{const number=Number(value);return Number.isInteger(number)&&number>0?Math.min(9,number):1},
+    normalizedQuantityMap:map=>Object.fromEntries(Object.entries(map||{}).flatMap(([id,value])=>{const number=Number(value);return Number.isInteger(number)&&number>0?[[id,Math.min(9,number)]]:[]})),
     setOrderName:value=>`${value}인 세트`,
     benefitName:value=>value,
     t:key=>key

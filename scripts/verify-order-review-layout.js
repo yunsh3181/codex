@@ -499,6 +499,7 @@ const cartModalMeasureScript = `
     const result = {
       modal: rect(modal), list: rect(list), totals: rect(totals), close: rect(close), backdrop: rect(backdrop),
       itemCount: document.querySelectorAll('.cartModalOrderCard').length,
+      extrasCardCount: document.querySelectorAll('.cartModalExtrasCard').length,
       empty: Boolean(document.querySelector('.cartModalEmpty')),
       horizontalOverflow: Math.max(0, modal.scrollWidth-modal.clientWidth),
       listOverflow: list ? Math.max(0,list.scrollHeight-list.clientHeight) : 0,

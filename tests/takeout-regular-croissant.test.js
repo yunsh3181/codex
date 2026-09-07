@@ -34,8 +34,9 @@ test('croissant surcharge comes from the option catalog and is shared by live an
 test('quantity multiplies the stored surcharge-inclusive line total',()=>{
  const croissant=catalog.CRUSTS.find(item=>item.name==='크루아상');
  assert.strictEqual(croissant.L*2,12000);
- assert.match(html,/total:storedUnit\*qty/);
- assert.match(html,/total:\(x\.price\|\|0\)\*\(x\.qty\|\|1\)/);
+ assert.match(html,/baseFinal\*quantity\+extrasUnit\*multiplier/);
+ assert.match(html,/function payloadOrder\(order,id\)\{const clean=\{\.\.\.order,[\s\S]*?totals=orderFinancialTotals\(clean\)/);
+ assert.match(html,/total:totals\.final/);
 });
 
 test('regular takeout renders guidance and keeps the authoritative zero-valued discount row',()=>{

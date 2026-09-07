@@ -11,7 +11,7 @@ const css = fs.readFileSync(path.join(root, 'styles', 'order-review-cart-quantit
 test('cart badge counts parent products and separate extras without included children', () => {
   assert.match(html, /function cartOrderTopLevelQuantity\(order\)\{/);
   assert.match(html, /order\.set\|\|order\.pizzaLeft\|\|order\.pizza/);
-  assert.match(html, /parent\+sum\(order\.sides\|\|\{\}\)\+sum\(order\.drinks\|\|\{\}\)/);
+  assert.match(html, /parent\+sum\(normalizedQuantityMap\(order\.sides\)\)\+sum\(normalizedQuantityMap\(order\.drinks\)\)/);
   assert.doesNotMatch(html, /cartOrderTopLevelQuantity[\s\S]{0,300}included(?:Sides|Drinks)/);
   assert.match(html, /count\?`<span class="customerCartBadge"/);
 });

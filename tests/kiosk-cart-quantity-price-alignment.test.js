@@ -23,8 +23,9 @@ test('kiosk cart keeps quantities beside names and prices on one right edge',()=
   assert.match(css,/\.cartItemPrice\s*\{[\s\S]*?text-align:\s*right;[\s\S]*?font-variant-numeric:\s*tabular-nums;/);
 });
 
-test('cart totals still use the stored order price and shared money formatter',()=>{
-  assert.match(html,/total:storedUnit\*qty/);
+test('cart totals use the stored base price, independent extras, and shared money formatter',()=>{
+  assert.match(html,/function orderFinancialTotals\(order\)/);
+  assert.match(html,/baseFinal\*quantity\+extrasUnit\*multiplier/);
   assert.match(html,/class="cartOrderTotal"[\s\S]*?\$\{money\(model\.total\)\}/);
-  assert.match(html,/function changeCartQty\(i,d\)\{const item=state\.cartItems\[i\]/);
+  assert.match(html,/function changeCartQty\(i,d\)\{changeReviewQuantity\('order',i,d\)\}/);
 });
