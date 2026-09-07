@@ -5,14 +5,17 @@ const { randomUUID } = require('node:crypto');
 const INITIAL_CHECK_DELAY_MS = 15000;
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const OPERATIONAL_STATE_TIMEOUT_MS = 5000;
-const ALLOWED_ARCHITECTURES = new Set(['ia32', 'x64']);
+const DEFERRED_INSTALL_RETRY_MS = 10000;
+const ALLOWED_ARCHITECTURES = new Set(['ia32']);
 const OPERATIONAL_KEYS = [
-  'businessOpen',
+  'safeScreen',
   'orderInProgress',
   'paymentInProgress',
   'firestoreSaving',
+  'orderTransactionInProgress',
+  'seatHoldInProgress',
   'printerBusy',
-  'testModeEnabled'
+  'unrecoveredError'
 ];
 
 function sanitizeOperationalState(value) {
@@ -29,11 +32,29 @@ function installBlockers(operationalState) {
   const sanitized = sanitizeOperationalState(operationalState);
   if (!sanitized) return ['운영 상태를 확인할 수 없습니다.'];
   const blockers = [];
+  if (!sanitized.safeScreen) blockers.push('홈 또는 대기 화면이 아닙니다.');
   if (sanitized.orderInProgress) blockers.push('진행 중인 주문이 있습니다.');
   if (sanitized.paymentInProgress) blockers.push('결제가 진행 중입니다.');
   if (sanitized.firestoreSaving) blockers.push('주문 저장이 진행 중입니다.');
+  if (sanitized.orderTransactionInProgress) blockers.push('주문번호 발급이 진행 중입니다.');
+  if (sanitized.seatHoldInProgress) blockers.push('좌석 보류가 진행 중입니다.');
   if (sanitized.printerBusy) blockers.push('프린터 작업이 진행 중입니다.');
+  if (sanitized.unrecoveredError) blockers.push('복구되지 않은 주문 오류가 있습니다.');
   return blockers;
+}
+
+function parseDownloadLog(message) {
+  const text = String(message || '');
+  const size = text.match(/Full:\s*([\d,.]+)\s*KB,\s*To download:\s*([\d,.]+)\s*KB\s*\((\d+)%\)/i);
+  if (size) return {
+    downloadMode: 'differential',
+    fullSizeBytes: Math.round(Number(size[1].replace(/,/g, '')) * 1024),
+    plannedDownloadBytes: Math.round(Number(size[2].replace(/,/g, '')) * 1024),
+    differentialPercent: Number(size[3])
+  };
+  if (/Differential download:/i.test(text)) return { downloadMode: 'differential' };
+  if (/Cannot download differentially, fallback to full download/i.test(text)) return { downloadMode: 'full-fallback' };
+  return null;
 }
 
 function createKioskUpdater({
@@ -52,6 +73,8 @@ function createKioskUpdater({
   let initialized = false;
   let initialTimer = null;
   let intervalTimer = null;
+  let deferredInstallTimer = null;
+  let installAttemptInFlight = null;
   const pendingOperationalRequests = new Map();
   const enabled = app.isPackaged && platform === 'win32' && ALLOWED_ARCHITECTURES.has(arch) && !isPortable;
   const channel = ALLOWED_ARCHITECTURES.has(arch) ? `latest-${arch}` : null;
@@ -61,6 +84,11 @@ function createKioskUpdater({
     currentVersion: app.getVersion(),
     latestVersion: null,
     progress: 0,
+    transferredBytes: 0,
+    downloadTotalBytes: 0,
+    fullSizeBytes: 0,
+    plannedDownloadBytes: 0,
+    downloadMode: 'unknown',
     downloaded: false,
     installing: false,
     architecture: arch,
@@ -112,17 +140,40 @@ function createKioskUpdater({
     });
   }
 
-  async function installDownloadedUpdate() {
+  async function performInstallDownloadedUpdate() {
     if (!enabled || !state.downloaded || state.installing) return snapshot();
     const operationalState = await requestOperationalState();
     const blockers = installBlockers(operationalState);
     if (blockers.length) {
-      patchState({ status: 'blocked', blockers, error: null });
+      patchState({ status: 'deferred', blockers, error: null });
+      scheduleDeferredInstall();
       return snapshot();
     }
     patchState({ status: 'installing', installing: true, blockers: [], error: null });
     setTimeoutFn(() => autoUpdater.quitAndInstall(false, true), 0);
     return snapshot();
+  }
+
+  function installDownloadedUpdate() {
+    if (installAttemptInFlight) return installAttemptInFlight;
+    installAttemptInFlight = performInstallDownloadedUpdate().finally(() => { installAttemptInFlight = null; });
+    return installAttemptInFlight;
+  }
+
+  function scheduleDeferredInstall() {
+    if (deferredInstallTimer !== null || state.installing || !state.downloaded) return;
+    deferredInstallTimer = setTimeoutFn(() => {
+      deferredInstallTimer = null;
+      installDownloadedUpdate().catch(error => patchState({ status: 'error', error: error?.message || '업데이트 설치 준비에 실패했습니다.' }));
+    }, DEFERRED_INSTALL_RETRY_MS);
+  }
+
+  function updaterLogger(level, value) {
+    const message = value instanceof Error ? (value.stack || value.message) : String(value || '');
+    const parsed = parseDownloadLog(message);
+    if (parsed) patchState(parsed);
+    const method = level === 'debug' ? 'debug' : level === 'warn' ? 'warn' : level === 'error' ? 'error' : 'info';
+    console[method](`[kiosk-updater] ${message}`);
   }
 
   function openAdminPanel() {
@@ -154,13 +205,14 @@ function createKioskUpdater({
 
   function registerUpdaterEvents() {
     autoUpdater.on('update-available', info => {
-      patchState({ status: 'downloading', latestVersion: info?.version || null, progress: 0, error: null });
+      const installer = Array.isArray(info?.files) ? info.files.find(file => /\.exe(?:$|\?)/i.test(file?.url || '')) : null;
+      patchState({ status: 'downloading', latestVersion: info?.version || null, progress: 0, transferredBytes: 0, downloadTotalBytes: 0, fullSizeBytes: Number(installer?.size) || 0, plannedDownloadBytes: 0, downloadMode: 'unknown', error: null });
     });
     autoUpdater.on('update-not-available', info => {
       patchState({ status: 'up-to-date', latestVersion: info?.version || state.currentVersion, progress: 0, error: null });
     });
     autoUpdater.on('download-progress', progress => {
-      patchState({ status: 'downloading', progress: Math.max(0, Math.min(100, Number(progress?.percent) || 0)) });
+      patchState({ status: 'downloading', progress: Math.max(0, Math.min(100, Number(progress?.percent) || 0)), transferredBytes: Math.max(0, Number(progress?.transferred) || 0), downloadTotalBytes: Math.max(0, Number(progress?.total) || 0) });
     });
     autoUpdater.on('update-downloaded', info => {
       patchState({
@@ -170,9 +222,10 @@ function createKioskUpdater({
         downloaded: true,
         error: null
       });
+      installDownloadedUpdate().catch(error => patchState({ status: 'error', error: error?.message || '업데이트 설치 준비에 실패했습니다.' }));
     });
     autoUpdater.on('error', error => {
-      patchState({ status: 'error', error: error?.message || '업데이트 처리에 실패했습니다.' });
+      patchState({ status: 'error', installing: false, error: error?.message || '업데이트 처리에 실패했습니다.' });
     });
   }
 
@@ -182,10 +235,18 @@ function createKioskUpdater({
     registerIpc();
     if (!enabled) return snapshot();
     autoUpdater.autoDownload = true;
-    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.disableDifferentialDownload = false;
+    autoUpdater.disableWebInstaller = true;
     autoUpdater.allowDowngrade = false;
     autoUpdater.allowPrerelease = false;
     autoUpdater.channel = channel;
+    autoUpdater.logger = {
+      info: value => updaterLogger('info', value),
+      warn: value => updaterLogger('warn', value),
+      error: value => updaterLogger('error', value),
+      debug: value => updaterLogger('debug', value)
+    };
     registerUpdaterEvents();
     initialTimer = setTimeoutFn(checkForUpdates, INITIAL_CHECK_DELAY_MS);
     intervalTimer = setIntervalFn(checkForUpdates, CHECK_INTERVAL_MS);
@@ -195,7 +256,9 @@ function createKioskUpdater({
   function dispose() {
     if (initialTimer !== null) clearTimeoutFn(initialTimer);
     if (intervalTimer !== null) clearIntervalFn(intervalTimer);
+    if (deferredInstallTimer !== null) clearTimeoutFn(deferredInstallTimer);
     initialTimer = intervalTimer = null;
+    deferredInstallTimer = null;
     for (const resolve of pendingOperationalRequests.values()) resolve(null);
     pendingOperationalRequests.clear();
     ipcMain.removeListener('kiosk-updater:operational-state', handleOperationalState);
@@ -217,7 +280,9 @@ function createKioskUpdater({
 module.exports = {
   INITIAL_CHECK_DELAY_MS,
   CHECK_INTERVAL_MS,
+  DEFERRED_INSTALL_RETRY_MS,
   sanitizeOperationalState,
   installBlockers,
+  parseDownloadLog,
   createKioskUpdater
 };
