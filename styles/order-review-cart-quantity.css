@@ -161,6 +161,12 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
 .v3DrinkRow>.v3DrinkQuantity>span{display:none}
 .v3DrinkRow>.v3DrinkQuantity>strong{display:flex;height:36px!important;min-height:36px!important;padding:0!important;align-items:center;justify-content:center;color:#111!important;font-size:clamp(18px,2.35vw,23px)!important;line-height:1!important}
 
+@media (min-width:701px) and (max-width:900px) and (orientation:portrait){
+ /* Windows 500mL: 74.94px text + 6px padding + at least 4px font safety.
+  * Grow left into the artwork, without taking width from the controls. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume{min-width:85px}
+}
+
 @media (min-width:701px) and (orientation:landscape){
  body[data-step="drink"] .v3DrinkControls{left:34%!important;width:64%!important}
  /* Match the landscape tracks and controls; device.css fixes both at 84px with !important. */
@@ -173,6 +179,23 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
 @media(max-width:850px){
  body[data-step="review"] .reviewOrderFooter{gap:6px}
  body[data-step="review"] .reviewOrderTotal{align-items:flex-end;flex-direction:column;gap:2px;line-height:1.1}
+}
+
+/* Preserve the font and wrapping while giving Windows glyphs a complete line
+ * box. Spend existing heading whitespace, not card or footer space. */
+html[data-layout] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{
+ line-height:1.4!important;
+ min-block-size:1.4em;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+@media (min-width:701px){
+ html[data-layout] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{margin-top:.39em}
+}
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{margin-bottom:0!important}
+ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage>.darkBenefitSub{margin-bottom:0!important}
 }
 
 /* Compact customer footer for tablet-class touch layouts. The stage ends at
@@ -442,7 +465,8 @@ body[data-step="home"] .heroChoiceDescription{margin-block:0!important}
   line-height:1.1!important;
  }
  html[data-layout="tablet"] body[data-step="promo"] .darkBenefitSub{
-  margin:4px 0 8px!important;
+  /* The 36px heading gains 10.8px of line box; keep the card grid in place. */
+  margin:0 0 1.2px!important;
   font-size:18px!important;
   line-height:1.25!important;
  }

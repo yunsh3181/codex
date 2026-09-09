@@ -1,7 +1,8 @@
-const {app,BrowserWindow,nativeImage}=require('electron');
+const {app,BrowserWindow,nativeImage,session}=require('electron');
 const fs=require('node:fs');
 const path=require('node:path');
 const {runElectronVerification}=require('./electron-verification-lifecycle');
+const {installCustomerBrowserBootstrap}=require('../tests/helpers/customer-browser-bootstrap');
 
 const root=path.resolve(process.env.HOME_PROMO_ROOT||path.join(__dirname,'..'));
 const reportPath=process.env.HOME_PROMO_REPORT||path.join(root,'artifacts','home-promo-visibility.json');
@@ -44,6 +45,7 @@ const measure=`(()=>{
 async function shot(win,name,width,height){const png=await win.webContents.debugger.sendCommand('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});const image=nativeImage.createFromBuffer(Buffer.from(png.data,'base64'));if(image.getSize().width!==width||image.getSize().height!==height)throw new Error(`${name} screenshot size`);fs.writeFileSync(path.join(screenshotDir,`${name}.png`),image.toPNG())}
 
 runElectronVerification({app},async lifecycle=>{
+ const isolation=installCustomerBrowserBootstrap({session:session.defaultSession,root,profile:userDataPath});app.once('will-quit',()=>isolation.dispose());
  lifecycle.expectReport(reportPath);
  const win=lifecycle.trackWindow(new BrowserWindow({show:false,frame:false,useContentSize:true,webPreferences:{contextIsolation:true,offscreen:true,sandbox:true}}));
  lifecycle.attachDebugger();
@@ -54,5 +56,5 @@ runElectronVerification({app},async lifecycle=>{
  for(const [width,height] of viewports)for(const locale of locales){await resize(win,width,height);await win.webContents.executeJavaScript(fixture(locale),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:`${width}x${height}`,locale,metrics});if(capture&&screenshotCases.has(`${width}x${height}/${locale}`))await shot(win,`${screenshotLabel}-${locale}-${width}x${height}`,width,height)}
  await resize(win,834,1112);await win.webContents.executeJavaScript(fixture('ko'),true);await wait(win);
  const clickResults=await win.webContents.executeJavaScript(`(()=>{const out=[];document.querySelector('.happyPromo').click();out.push({card:'happy',step:state.step,orderType:state.orderType,promo:state.promo});reset('idle',{skipRelease:true});Object.assign(state,{step:'home'});render();document.querySelector('.takeoutPromo').click();out.push({card:'takeout',step:state.step,orderType:state.orderType,promo:state.promo});return out})()`,true);
- await lifecycle.writeReportAtomically(reportPath,{root,viewports:viewports.map(v=>v.join('x')),locales,results,clickResults,consoleMessages});
+ const firestoreIsolation=await isolation.verify(win);await lifecycle.writeReportAtomically(reportPath,{root,viewports:viewports.map(v=>v.join('x')),locales,results,clickResults,consoleMessages,firestoreIsolation});
 });

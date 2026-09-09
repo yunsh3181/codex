@@ -1,7 +1,8 @@
-const { app, BrowserWindow, nativeImage } = require('electron');
+const { app, BrowserWindow, nativeImage, session } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { runElectronVerification } = require('./electron-verification-lifecycle');
+const { installCustomerBrowserBootstrap } = require('../tests/helpers/customer-browser-bootstrap');
 
 // This verifier uses Chromium's offscreen renderer and debugger screenshot API.
 // Keep GPU-process initialization out of this test-only Electron process so a
@@ -54,6 +55,8 @@ const measure = `(()=>({
 }))()`;
 
 runElectronVerification({ app }, async lifecycle => {
+  const isolation = installCustomerBrowserBootstrap({ session: session.defaultSession, root, profile: userDataPath });
+  app.once('will-quit', () => isolation.dispose());
   if (reportPath) lifecycle.expectReport(reportPath);
   const window = lifecycle.trackWindow(new BrowserWindow({ show: false, frame: false, useContentSize: true, webPreferences: { contextIsolation: true, offscreen: true, sandbox: true } }));
   const consoleIssues = [];
@@ -118,6 +121,7 @@ runElectronVerification({ app }, async lifecycle => {
   })()`, true);
 
   const report = { overPizzaOptions, continuedPizzaOptions, backdropIsolation, otherModals, escapedModal, homeReset, automaticAndStale, consoleIssues };
+  report.firestoreIsolation = await isolation.verify(window);
   if (reportPath) await lifecycle.writeReportAtomically(reportPath, report);
   return report;
 });
