@@ -83,6 +83,6 @@ test('iPad home-screen icon is a single versioned dedicated asset',()=>{
  assert.equal(icon.readUInt32BE(16),180);
  assert.equal(icon.readUInt32BE(20),180);
  assert.equal(icon.readUInt8(25),2,'PNG uses truecolor RGB rather than indexed or grayscale data');
- assert.equal((html.match(/order-review-cart-quantity-v9/g)||[]).length,1);
- assert.equal((html.match(/order-review-cart-quantity-v8/g)||[]).length,0);
+ assert.equal((html.match(/order-review-cart-quantity-v10/g)||[]).length,1);
+ assert.equal((html.match(/order-review-cart-quantity-v9/g)||[]).length,0);
 });

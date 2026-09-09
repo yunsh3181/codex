@@ -3,6 +3,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 const {runElectronVerification}=require('./electron-verification-lifecycle');
+const {createCustomerGeometryRecorder}=require('./customer-geometry-diagnostics');
 
 const root=path.resolve(__dirname,'..');
 const reportPath=process.env.DRINK_SAUCE_QUANTITY_REPORT||path.join(app.getPath('temp'),`drink-sauce-quantity-${process.pid}.json`);
@@ -13,6 +14,7 @@ const firebaseRuntimeSource=fs.readFileSync(path.join(root,'tests','fixtures','a
 const firebaseRuntimePath=path.join(userDataPath,'fixture-firebase-runtime.js'),emptyRuntimePath=path.join(userDataPath,'fixture-empty-runtime.js'),firebaseRequests=[];
 fs.writeFileSync(firebaseRuntimePath,`${firebaseRuntimeSource};window.__PJ_FIRESTORE_FIXTURE__={externalRequests:0,reads:0,writes:0,authAttempts:0}`);fs.writeFileSync(emptyRuntimePath,'void 0');
 const firebaseRuntimeUrl=pathToFileURL(firebaseRuntimePath).href,emptyRuntimeUrl=pathToFileURL(emptyRuntimePath).href;
+const recordGeometry=createCustomerGeometryRecorder({name:'drink-volume',captureDir});
 app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('hide-scrollbars');app.commandLine.appendSwitch('force-device-scale-factor','1');
 
 const fixture=[
@@ -35,6 +37,7 @@ runElectronVerification({app},async lifecycle=>{
  const captures=[await capture(win,'834x1112-review-extras.png')];
  await win.webContents.executeJavaScript(`(()=>{reset('idle',{skipRelease:true});Object.assign(state,{step:'drink',orderType:'takeout',orderTiming:'now',promo:'normal',set:null,size:'L',mode:'single',left:'P001',right:null,crust:'오리지널',extraSides:{},extraDrinks:{}});render()})()`,true);await wait(win);
  const drinkRows=await win.webContents.executeJavaScript(`(()=>{const r=e=>{const x=e.getBoundingClientRect();return {left:+x.left.toFixed(2),right:+x.right.toFixed(2),top:+x.top.toFixed(2),bottom:+x.bottom.toFixed(2),width:+x.width.toFixed(2),height:+x.height.toFixed(2)}};const rows=[...document.querySelectorAll('.v3DrinkRow')],clipped=[...document.querySelectorAll('.v3DrinkRow *')].filter(e=>e.scrollWidth>e.clientWidth+1||e.scrollHeight>e.clientHeight+1);return {rows:rows.map(row=>({volume:row.querySelector('.v3DrinkVolume')?.textContent.trim(),price:row.querySelector('.v3DrinkPrice')?.textContent.trim(),volumeColor:getComputedStyle(row.querySelector('.v3DrinkVolume strong')).color,quantityColor:getComputedStyle(row.querySelector('.v3DrinkQuantity strong')).color,volumeRect:r(row.querySelector('.v3DrinkVolume')),minusRect:r(row.querySelector('.v3DrinkMinus')),quantityRect:r(row.querySelector('.v3DrinkQuantity')),plusRect:r(row.querySelector('.v3DrinkPlus')),priceRect:r(row.querySelector('.v3DrinkPrice'))})),clipped:clipped.length,clippedDetails:clipped.map(e=>({className:e.className,text:e.textContent.trim(),client:[e.clientWidth,e.clientHeight],scroll:[e.scrollWidth,e.scrollHeight]})),documentOverflow:[document.documentElement.scrollWidth-document.documentElement.clientWidth,document.documentElement.scrollHeight-document.documentElement.clientHeight]}})()`,true);
+ drinkRows.diagnostics=await recordGeometry(win,{caseName:'834x1112-ko-initial',selector:'.v3DrinkVolume',assertionFailed:drinkRows.clipped!==0,fixture:{width:834,height:1112,locale:'ko'}});
  captures.push(await capture(win,'834x1112-drink-volume-controls.png'));
  await win.webContents.executeJavaScript(setup(),true);await wait(win);
  const visualStates={};

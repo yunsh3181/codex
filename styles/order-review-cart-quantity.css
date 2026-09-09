@@ -163,7 +163,9 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
 
 @media (min-width:701px) and (orientation:landscape){
  body[data-step="drink"] .v3DrinkControls{left:34%!important;width:64%!important}
- body[data-step="drink"] .v3DrinkRow>button{width:48px!important;min-width:48px!important}
+ /* Match the landscape tracks and controls; device.css fixes both at 84px with !important. */
+ html[data-layout] body[data-step="drink"] .v3DrinkRow{grid-template-columns:48px minmax(64px,1fr) 48px!important}
+ html[data-layout] body[data-step="drink"] .v3DrinkRow>button{width:48px!important;min-width:48px!important}
  body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume{right:calc(100% + 6px);width:72px}
  body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{font-size:18px!important}
 }

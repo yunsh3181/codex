@@ -3,6 +3,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {pathToFileURL}=require('node:url');
 const {runElectronVerification}=require('./electron-verification-lifecycle');
+const {createCustomerGeometryRecorder}=require('./customer-geometry-diagnostics');
 
 const root=path.resolve(__dirname,'..');
 const reportPath=process.env.ORDER_TYPE_BENEFIT_REPORT||path.join(app.getPath('temp'),`order-type-benefit-${process.pid}.json`);
@@ -13,6 +14,7 @@ const firebaseRuntimeSource=fs.readFileSync(path.join(root,'tests','fixtures','a
 const firebaseRuntimePath=path.join(userDataPath,'fixture-firebase-runtime.js'),emptyRuntimePath=path.join(userDataPath,'fixture-empty-runtime.js'),externalRequests=[];
 fs.writeFileSync(firebaseRuntimePath,`${firebaseRuntimeSource};window.__PJ_FIRESTORE_FIXTURE__={externalRequests:0,reads:0,writes:0,authAttempts:0}`);fs.writeFileSync(emptyRuntimePath,'void 0');
 const firebaseRuntimeUrl=pathToFileURL(firebaseRuntimePath).href,emptyRuntimeUrl=pathToFileURL(emptyRuntimePath).href;
+const recordGeometry=createCustomerGeometryRecorder({name:'promotion-title',captureDir});
 app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('hide-scrollbars');app.commandLine.appendSwitch('force-device-scale-factor','2');
 
 const viewports=[[834,1112],[834,1024],[834,940],[810,1080],[768,1024],[1112,834],[360,640],[375,667],[390,844],[393,852],[412,915],[430,932],[1080,1920],[1920,1080]];
@@ -28,7 +30,12 @@ runElectronVerification({app},async lifecycle=>{
  const win=lifecycle.trackWindow(new BrowserWindow({show:false,frame:false,useContentSize:true,webPreferences:{contextIsolation:true,offscreen:true,sandbox:true}}),'order-type-benefit');
  win.setContentSize(834,1112);await win.loadFile(path.join(root,'index.html'));await resize(win,834,1112);
  const rows=[];
- for(const [width,height] of viewports){await resize(win,width,height);for(const locale of locales){for(const step of ['home','promo']){await win.webContents.executeJavaScript(setup(step,locale),true);await wait(win);rows.push({width,height,locale,...await win.webContents.executeJavaScript(measure,true)})}}}
+ for(const [width,height] of viewports){await resize(win,width,height);for(const locale of locales){for(const step of ['home','promo']){
+  await win.webContents.executeJavaScript(setup(step,locale),true);await wait(win);
+  const row={width,height,locale,...await win.webContents.executeJavaScript(measure,true)};
+  if(step==='promo'&&(row.clipped.length>0||(width===834&&height===1112&&locale==='ko'))){row.diagnostics=await recordGeometry(win,{caseName:`${width}x${height}-${locale}-${step}`,selector:'.darkBenefitTitle',assertionFailed:row.clipped.length!==0,fixture:{width,height,locale,step}})}
+  rows.push(row);
+ }}}
  const capture=async(name,step,locale='ko')=>{await resize(win,834,1112);await win.webContents.executeJavaScript(setup(step,locale),true);await wait(win);fs.writeFileSync(path.join(captureDir,name),(await win.capturePage()).toPNG())};
  await capture('834x1112-order-type-ko.png','home');await capture('834x1112-benefits-ko.png','promo');
  await resize(win,834,940);await win.webContents.executeJavaScript(setup('promo','ko'),true);await wait(win);fs.writeFileSync(path.join(captureDir,'834x940-benefits-ko.png'),(await win.capturePage()).toPNG());

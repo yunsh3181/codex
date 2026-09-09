@@ -11,6 +11,7 @@ test('drink volume, included sauce and independent quantities work in the real r
  t.after(()=>fs.rmSync(report,{force:true}));t.after(()=>fs.rmSync(captures,{recursive:true,force:true}));t.after(()=>fs.rmSync(profile,{recursive:true,force:true}));
  const run=spawnElectronVerificationSync(['scripts/verify-drink-sauce-order-quantity.js'],{cwd:root,encoding:'utf8',env:{...process.env,DRINK_SAUCE_QUANTITY_REPORT:report,DRINK_SAUCE_QUANTITY_CAPTURE_DIR:captures,ELECTRON_VERIFICATION_USER_DATA:profile},timeout:110000,maxBuffer:10*1024*1024});
  assertElectronSucceeded(assert,run,report);const result=JSON.parse(fs.readFileSync(report,'utf8'));
+ if(result.drinkRows.clipped)console.error('DRINK_VOLUME_GEOMETRY_DIAGNOSTICS',JSON.stringify(result.drinkRows.diagnostics,null,2));
  assert.equal(result.initial.extras!==null,true);assert.match(result.initial.labels,/1\.25L/);assert.equal(result.initial.clipped.length,0);assert.equal(result.initial.documentOverflow[0],0);
  assert.deepEqual(result.initial.extraRows.map(row=>[row.name,row.quantity,row.amount]),[['치즈 스틱 × 1',1,'9,900원'],['코카-콜라 1.25L × 1',1,'2,500원']]);
  assert.match(result.initial.extraTotal,/추가 상품 합계/);assert.match(result.initial.extraTotal,/12,400원/);assert.equal(result.initial.extraRows.every(row=>row.amount!=='0원'&&row.nameColor!=='rgb(255, 255, 255)'&&row.amountColor!=='rgb(255, 255, 255)'),true);
