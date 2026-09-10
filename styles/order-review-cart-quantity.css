@@ -165,6 +165,12 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
  /* Windows 500mL: 74.94px text + 6px padding + at least 4px font safety.
   * Grow left into the artwork, without taking width from the controls. */
  html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume{min-width:85px}
+ /* 810px Windows glyphs need 24px vertically. Keep four pixels of safety
+  * without changing font size, card geometry or the quantity/button tracks. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{line-height:1.4!important;min-block-size:28px!important}
+ /* Use the existing second row instead of increasing its intrinsic minimum,
+  * which would redistribute the auto tracks and move the quantity upward. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkPrice{align-self:stretch;display:flex;align-items:center;justify-content:center}
 }
 
 @media (min-width:701px) and (orientation:landscape){
@@ -329,6 +335,16 @@ html[data-layout] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{
  }
  html[data-layout="tablet"] body[data-step="setChoice"] .darkSetPage{
   padding-bottom:19px!important;
+ }
+}
+
+/* Narrow portrait tablets already center this fixed footer with left/right:0.
+ * Clear the desktop half-width translation; the 10px inner inset plus 2px
+ * clearance keeps the unchanged action card 12px above the customer footer. */
+@media (min-width:701px) and (max-width:819px) and (orientation:portrait) {
+ html[data-layout="tablet"] body[data-step="drink"] .selectionFooter{
+  transform:none!important;
+  bottom:calc(82px + var(--safe-bottom))!important;
  }
 }
 
