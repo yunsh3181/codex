@@ -30,6 +30,11 @@ body[data-step="review"] .reviewOrderCard{display:grid!important;min-width:0!imp
 body[data-step="review"] .reviewOrderIdentity{display:flex;min-width:0;padding:18px 10px;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(145deg,#07513c,#003d2d);color:#fff;text-align:center}
 body[data-step="review"] .reviewOrderIdentity strong{display:flex;min-block-size:max(54px,calc(1.25em + 6px));align-items:center;justify-content:center;color:#fff!important;font-size:48px;line-height:1.25;font-weight:1000;white-space:nowrap}
 body[data-step="review"] .reviewOrderIdentity span{margin-top:7px;color:#fff!important;font-size:15px;line-height:1.2;font-weight:900;overflow-wrap:anywhere}
+/* Windows reports 20px scrollHeight: give the 15px label a 24px line box.
+ * Reuse six pixels of the preceding gap to preserve the centered number/card. */
+@media(min-width:851px) and (max-width:1200px) and (orientation:landscape){
+ html body[data-step="review"] .reviewOrderIdentity>span{line-height:1.6;margin-top:1px}
+}
 body[data-step="review"] .reviewOrderBody{display:flex;min-width:0;padding:13px 16px;flex-direction:column}
 body[data-step="review"] .reviewOrderHead{display:flex;min-width:0;padding:0 0 9px;gap:10px;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e6e2}
 body[data-step="review"] .reviewOrderBadges{display:flex;min-width:0;gap:7px;flex-wrap:wrap}
