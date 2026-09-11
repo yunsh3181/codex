@@ -46,14 +46,43 @@ test('review contract separates base quantities from independent paid extras',()
  assert.match(admin,/item\?\.baseTotal/);
  assert.match(html,/baseTotal:Math\.max\(0,totals\.final-totals\.extras\),extrasTotal:totals\.extras/);
  assert.match(html,/itemCount:items\.reduce\(\(n,x\)=>n\+cartOrderTopLevelQuantity\(x\),0\)/);
+ assert.match(html,/reviewExtraName">\$\{row\.name\} <b>× \$\{row\.qty\}<\/b>/);
+ assert.match(html,/reviewExtrasTotal/);
+ assert.match(html,/copy\.extrasTotal/);
+ assert.match(html,/if\(!qty\|\|unit<=0\)return/);
 });
 
 test('included-sauce and quantity dialogs have six locale copies and safe modal semantics',()=>{
  for(const locale of ['ko','en','ja','zh','es','vi'])assert.match(html,new RegExp(`(?:^|\\s)${locale}:\\{includedTitle:`));
  for(const token of ['role="dialog" aria-modal="true" aria-labelledby="includedSauceTitle"','role="alertdialog"',"closeIncludedSauceModal('continue')","closeIncludedSauceModal('extras')",'confirmQuantityDelete()'])assert.ok(html.includes(token),token);
+ for(const token of ['includedTitleHighlight','includedSauceTitleMarkup(copy)','includedSauceTitleHighlight','extrasTotal'])assert.ok(html.includes(token),token);
+});
+
+test('grouped drink rows place volume beside the unchanged quantity controls and isolate price',()=>{
+ assert.match(html,/v3DrinkVolume[\s\S]*?v3DrinkMinus[\s\S]*?v3DrinkQuantity[\s\S]*?v3DrinkPlus[\s\S]*?v3DrinkPrice/);
+ assert.doesNotMatch(html,/v3DrinkVolume"><strong>\$\{size\}<\/strong><small>/);
 });
 
 test('set drink next remains actionable after the additional-drink prompt',()=>{
  assert.match(html,/function continueSetDrink\(\)\{if\(!setDrinkBaseComplete\(\)\)return;if\(state\.setDrinkPrompted\)\{routeAfterDrink\(\);return\}maybePromptSetDrinkExtra\(\)\}/);
  assert.match(html,/function closeIncludedSauceModal\(action\)[\s\S]*action==='extras'[\s\S]*continueAfterDrink\(\)/);
+});
+
+test('the real final add-side action cannot bypass the included-sauce dialog',()=>{
+ assert.match(html,/if\(type==='side'\)\{state\.finalAddMode=null;requestIncludedSauceModal\(\);return\}/);
+ assert.doesNotMatch(html,/state\.finalAddMode=type;\s*state\.step=type==='side'/);
+});
+
+test('iPad home-screen icon is a single versioned dedicated asset',()=>{
+ const matches=[...html.matchAll(/<link rel="apple-touch-icon"[^>]+href="([^"]+)"/g)];
+ assert.equal(matches.length,1);
+ assert.equal(matches[0][1],'assets/images/apple-touch-icon-papajohns-v1.png');
+ assert.match(html,/<meta name="apple-mobile-web-app-title" content="Papa Johns">/);
+ const icon=fs.readFileSync(path.join(root,matches[0][1]));
+ assert.equal(icon.subarray(1,4).toString(),'PNG');
+ assert.equal(icon.readUInt32BE(16),180);
+ assert.equal(icon.readUInt32BE(20),180);
+ assert.equal(icon.readUInt8(25),2,'PNG uses truecolor RGB rather than indexed or grayscale data');
+ assert.equal((html.match(/order-review-cart-quantity-v15/g)||[]).length,1);
+ assert.equal((html.match(/order-review-cart-quantity-v13/g)||[]).length,0);
 });

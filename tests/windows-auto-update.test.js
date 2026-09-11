@@ -8,8 +8,10 @@ const { EventEmitter } = require('node:events');
 const {
   INITIAL_CHECK_DELAY_MS,
   CHECK_INTERVAL_MS,
+  DEFERRED_INSTALL_RETRY_MS,
   sanitizeOperationalState,
   installBlockers,
+  parseDownloadLog,
   createKioskUpdater
 } = require('../desktop/updater');
 const {
@@ -46,7 +48,8 @@ function harness({
       send(channel, ...args) {
         sent.push([channel, ...args]);
         if (channel === 'kiosk-updater:request-operational-state' && autoRespondOperational) {
-          ipcMain.emit('kiosk-updater:operational-state', { sender: window.webContents }, args[0], operationalState);
+          const response = typeof operationalState === 'function' ? operationalState() : operationalState;
+          ipcMain.emit('kiosk-updater:operational-state', { sender: window.webContents }, args[0], response);
         }
       }
     }
@@ -118,12 +121,14 @@ const fakeDocument = {
 
 function idleOperationalState() {
   return {
-    businessOpen: false,
+    safeScreen: true,
     orderInProgress: false,
     paymentInProgress: false,
     firestoreSaving: false,
+    orderTransactionInProgress: false,
+    seatHoldInProgress: false,
     printerBusy: false,
-    testModeEnabled: false
+    unrecoveredError: false
   };
 }
 
@@ -135,15 +140,17 @@ function expireOperationalTimeout(value) {
   value.timers.find(item => item.delay === 5000)?.callback();
 }
 
-test('ia32 and x64 select separate immutable update channels', () => {
+test('only packaged ia32 NSIS builds use the immutable update channel', () => {
   const ia32 = harness({ arch: 'ia32' });
   const x64 = harness({ arch: 'x64' });
   assert.equal(ia32.manager.initialize().channel, 'latest-ia32');
-  assert.equal(x64.manager.initialize().channel, 'latest-x64');
+  assert.equal(x64.manager.initialize().channel, null);
+  assert.equal(x64.manager.snapshot().enabled, false);
   assert.equal(ia32.updater.channel, 'latest-ia32');
-  assert.equal(x64.updater.channel, 'latest-x64');
   assert.equal(ia32.updater.allowDowngrade, false);
-  assert.equal(ia32.updater.autoInstallOnAppQuit, false);
+  assert.equal(ia32.updater.autoInstallOnAppQuit, true);
+  assert.equal(ia32.updater.disableDifferentialDownload, false);
+  assert.equal(ia32.updater.disableWebInstaller, true);
 });
 
 test('initialization schedules one delayed check and one six-hour interval', () => {
@@ -203,7 +210,7 @@ test('downloaded updates are not checked or downloaded repeatedly', async () => 
   value.updater.emit('update-downloaded', { version: '1.1.0' });
   await value.manager.checkForUpdates();
   assert.equal(value.updater.checkCalls, 0);
-  assert.equal(value.manager.snapshot().status, 'downloaded');
+  assert.equal(value.manager.snapshot().status, 'deferred');
 });
 
 test('network and release errors keep the current version running', async () => {
@@ -217,71 +224,72 @@ test('network and release errors keep the current version running', async () => 
   assert.equal(value.updater.quitCalls, 0);
 });
 
-test('install is blocked by active operations but not by business hours', async () => {
+test('install is blocked by every active order safety condition', async () => {
   const operationalState = {
-    businessOpen: true,
+    safeScreen: false,
     orderInProgress: true,
     paymentInProgress: true,
     firestoreSaving: true,
+    orderTransactionInProgress: true,
+    seatHoldInProgress: true,
     printerBusy: true,
-    testModeEnabled: false
+    unrecoveredError: true
   };
-  assert.equal(installBlockers(operationalState).length, 4);
+  assert.equal(installBlockers(operationalState).length, 8);
   const value = harness({ operationalState });
   value.manager.initialize();
   value.updater.emit('update-downloaded', { version: '1.1.0' });
   const result = await value.manager.installDownloadedUpdate();
-  assert.equal(result.status, 'blocked');
+  assert.equal(result.status, 'deferred');
   assert.equal(value.updater.quitCalls, 0);
+  assert.ok(value.timers.some(item => item.delay === DEFERRED_INSTALL_RETRY_MS));
 });
 
-test('business hours never add an installation blocker', () => {
-  const businessOpen = { ...idleOperationalState(), businessOpen: true };
-  assert.deepEqual(installBlockers(businessOpen), []);
-  assert.deepEqual(installBlockers({ ...businessOpen, testModeEnabled: true }), []);
-
+test('safety blockers contain no clock, schedule, or business-hours input', () => {
   const protectedActivities = [
+    ['safeScreen', '홈 또는 대기 화면이 아닙니다.', false],
     ['orderInProgress', '진행 중인 주문이 있습니다.'],
     ['paymentInProgress', '결제가 진행 중입니다.'],
     ['firestoreSaving', '주문 저장이 진행 중입니다.'],
-    ['printerBusy', '프린터 작업이 진행 중입니다.']
+    ['orderTransactionInProgress', '주문번호 발급이 진행 중입니다.'],
+    ['seatHoldInProgress', '좌석 보류가 진행 중입니다.'],
+    ['printerBusy', '프린터 작업이 진행 중입니다.'],
+    ['unrecoveredError', '복구되지 않은 주문 오류가 있습니다.']
   ];
-  for (const [key, message] of protectedActivities) {
-    const state = { ...businessOpen, testModeEnabled: true, [key]: true };
+  for (const [key, message, value = true] of protectedActivities) {
+    const state = { ...idleOperationalState(), [key]: value };
     assert.deepEqual(installBlockers(state), [message]);
   }
   assert.deepEqual(installBlockers(idleOperationalState()), []);
+  assert.doesNotMatch(read('desktop/updater.js') + read('kiosk-updater-ui.js'), /businessOpen|businessHours|영업시간|영업 중|폐점/);
 });
 
-test('update guidance matches the business-open installation behavior', () => {
+test('update guidance describes background download and safety-only deferral', () => {
   const fakeDocument = { createElement: tag => new FakeNode(tag), createTextNode: text => new FakeNode('#text', text) };
   const rootNode = new FakeNode('div');
   renderPanelContent(fakeDocument, rootNode, normalizeUpdaterState({ status: 'downloaded', version: '1.2.22' }));
-  assert.match(rootNode.textContent, /영업 중에도 업데이트할 수 있습니다\. 진행 중인 주문·결제·저장·프린터 작업이 없을 때 재시작 후 설치됩니다\./);
+  assert.match(rootNode.textContent, /다운로드는 백그라운드에서 진행됩니다\./);
+  assert.match(rootNode.textContent, /안전한 홈 화면에서 자동 재실행합니다\./);
+  assert.doesNotMatch(rootNode.textContent, /영업/);
   const docs = read('docs/windows-auto-update.md');
-  assert.match(docs, /administrator may update while the store is open/);
-  assert.doesNotMatch(docs, /blocked while the store is open|Outside business hours/);
+  assert.doesNotMatch(docs, /business hours|store is open|Outside business hours/i);
 });
 
-test('business-hours update check, download, install, and restart remain available', async () => {
-  const operationalState = {
-    ...idleOperationalState(),
-    businessOpen: true,
-    testModeEnabled: false
-  };
-  const value = harness({ operationalState });
-  value.manager.initialize();
-  await value.manager.checkForUpdates();
-  assert.equal(value.updater.checkCalls, 1);
-  value.updater.emit('update-available', { version: '1.1.0' });
-  assert.equal(value.manager.snapshot().status, 'downloading');
-  value.updater.emit('update-downloaded', { version: '1.1.0' });
-  const result = await value.manager.installDownloadedUpdate();
-  assert.equal(result.status, 'installing');
-  const immediate = value.timers.find(item => item.delay === 0);
-  assert.ok(immediate);
-  immediate.callback();
-  assert.equal(value.updater.quitCalls, 1);
+test('checks and downloads have no time-based gate', async () => {
+  for (const instant of ['2026-09-07T00:00:00+09:00', '2026-09-07T12:00:00+09:00', '2026-09-07T21:59:00+09:00', '2026-09-07T23:59:00+09:00']) {
+    const value = harness({ operationalState: idleOperationalState() });
+    value.manager.initialize();
+    await value.manager.checkForUpdates();
+    assert.equal(value.updater.checkCalls, 1, instant);
+    value.updater.emit('update-available', { version: '1.1.0' });
+    assert.equal(value.manager.snapshot().status, 'downloading', instant);
+  }
+});
+
+test('differential and full-fallback logs expose byte-saving telemetry', () => {
+  assert.deepEqual(parseDownloadLog('Full: 100,000 KB, To download: 12,500 KB (13%)'), { downloadMode: 'differential', fullSizeBytes: 102400000, plannedDownloadBytes: 12800000, differentialPercent: 13 });
+  assert.deepEqual(parseDownloadLog('Differential download: https://example.test/new.exe'), { downloadMode: 'differential' });
+  assert.deepEqual(parseDownloadLog('Cannot download differentially, fallback to full download: 404'), { downloadMode: 'full-fallback' });
 });
 
 test('updater error handling remains active after an install starts', async () => {
@@ -296,7 +304,7 @@ test('updater error handling remains active after an install starts', async () =
 
 test('install does nothing before an update has downloaded', async () => {
   const value = harness({
-    operationalState: { ...idleOperationalState(), businessOpen: true, testModeEnabled: true }
+    operationalState: idleOperationalState()
   });
   value.manager.initialize();
   const result = await value.manager.installDownloadedUpdate();
@@ -315,6 +323,22 @@ test('downloaded ia32 update restarts only after a validated idle closed state',
   const immediate = value.timers.find(item => item.delay === 0);
   assert.ok(immediate);
   immediate.callback();
+  assert.equal(value.updater.quitCalls, 1);
+});
+
+test('a downloaded update retries after an order and auto-installs on the safe home screen', async () => {
+  let current = { ...idleOperationalState(), safeScreen: false, orderInProgress: true };
+  const value = harness({ operationalState: () => current });
+  value.manager.initialize();
+  value.updater.emit('update-downloaded', { version: '1.1.0' });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(value.manager.snapshot().status, 'deferred');
+  assert.equal(value.updater.quitCalls, 0);
+  current = idleOperationalState();
+  value.timers.find(item => item.delay === DEFERRED_INSTALL_RETRY_MS).callback();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(value.manager.snapshot().status, 'installing');
+  value.timers.find(item => item.delay === 0).callback();
   assert.equal(value.updater.quitCalls, 1);
 });
 
@@ -348,7 +372,7 @@ test('wrong request IDs and invalid boolean contracts cannot authorize installat
     );
     if (response.requestId) expireOperationalTimeout(value);
     const result = await installation;
-    assert.equal(result.status, 'blocked');
+    assert.equal(result.status, 'deferred');
     assert.equal(result.blockers[0], '운영 상태를 확인할 수 없습니다.');
     assert.equal(value.updater.quitCalls, 0);
   }
@@ -365,41 +389,37 @@ test('dispose removes updater IPC listeners and invoke handlers', async () => {
   value.manager.dispose();
   assert.equal(value.ipcMain.listenerCount('kiosk-updater:operational-state'), 0);
   assert.equal(value.handlers.size, 0);
-  assert.equal((await installation).status, 'blocked');
+  assert.equal((await installation).status, 'deferred');
 });
 
 test('operational IPC payload accepts only the exact boolean contract', () => {
   const valid = {
-    businessOpen: false,
+    safeScreen: true,
     orderInProgress: false,
     paymentInProgress: false,
     firestoreSaving: false,
+    orderTransactionInProgress: false,
+    seatHoldInProgress: false,
     printerBusy: false,
-    testModeEnabled: false,
+    unrecoveredError: false,
     ignored: 'value'
   };
   assert.deepEqual(sanitizeOperationalState(valid), {
-    businessOpen: false,
+    safeScreen: true,
     orderInProgress: false,
     paymentInProgress: false,
     firestoreSaving: false,
+    orderTransactionInProgress: false,
+    seatHoldInProgress: false,
     printerBusy: false,
-    testModeEnabled: false
+    unrecoveredError: false
   });
-  assert.deepEqual(sanitizeOperationalState({ ...valid, testModeEnabled: true }), {
-    businessOpen: false,
-    orderInProgress: false,
-    paymentInProgress: false,
-    firestoreSaving: false,
-    printerBusy: false,
-    testModeEnabled: true
-  });
-  const { testModeEnabled, ...missingTestMode } = valid;
-  assert.equal(sanitizeOperationalState(missingTestMode), null);
-  assert.equal(sanitizeOperationalState({ ...valid, testModeEnabled: 'true' }), null);
+  const { safeScreen, ...missingSafeScreen } = valid;
+  assert.equal(sanitizeOperationalState(missingSafeScreen), null);
+  assert.equal(sanitizeOperationalState({ ...valid, safeScreen: 'true' }), null);
   assert.equal(sanitizeOperationalState({ ...valid, printerBusy: 'no' }), null);
   assert.equal(sanitizeOperationalState(null), null);
-  assert.deepEqual(installBlockers({ ...valid, testModeEnabled: 1 }), ['운영 상태를 확인할 수 없습니다.']);
+  assert.deepEqual(installBlockers({ ...valid, unrecoveredError: 1 }), ['운영 상태를 확인할 수 없습니다.']);
 });
 
 test('renderer exposure is narrow and update controls are admin-shortcut only', () => {
@@ -410,7 +430,8 @@ test('renderer exposure is narrow and update controls are admin-shortcut only', 
   assert.doesNotMatch(preload, /nodeIntegration|require:\s*require|process:/);
   assert.match(main, /input\.control && input\.alt && input\.shift && key === 'u'/);
   assert.match(customer, /onOpenAdmin[\s\S]*?panelOpen = true/);
-  assert.match(customer, /testModeEnabled: isTestModeEnabled\(\)/);
+  assert.match(customer, /safeScreen: \['idle', 'home'\]\.includes\(state\.step\)/);
+  assert.doesNotMatch(customer, /businessOpen|businessHoursStatus/);
   assert.doesNotMatch(read('index.html'), /data-updater-action="check"|재시작 후 설치/);
 });
 
@@ -456,6 +477,7 @@ test('GitHub Release workflow publishes only the immutable ia32 Setup channel', 
     repo: 'codex',
     channel: 'latest'
   });
+  assert.equal(pkg.build.nsis.differentialPackage, true);
   assert.ok(workflow.includes('latest-ia32.yml'));
   assert.ok(workflow.includes('*-ia32.exe.blockmap'));
   assert.doesNotMatch(workflow, /latest-x64\.yml|\*-x64\.exe|push:\s*\n\s*tags:/);

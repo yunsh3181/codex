@@ -26,10 +26,15 @@ body[data-step="review"] .reviewScrollControls[hidden]{display:none!important}
 body[data-step="review"] .reviewListFrame:has(>.reviewScrollControls[hidden]){grid-template-columns:minmax(0,1fr);gap:0}
 body[data-step="review"] .reviewScrollControls button{min-width:0;min-height:72px;flex:1;border:0;border-radius:16px;background:#07513c;color:#fff;font-size:16px;font-weight:1000;touch-action:manipulation}
 body[data-step="review"] .reviewScrollControls button:disabled{background:#d9dfdb;color:#7b827d;box-shadow:none}
-body[data-step="review"] .reviewOrderCard{display:grid!important;min-width:0!important;min-height:174px!important;height:auto!important;padding:0!important;grid-template-columns:118px minmax(0,1fr)!important;gap:0!important;overflow:hidden!important;border:2px solid #d8e3dc!important;border-radius:20px!important;background:#fff!important;box-shadow:0 6px 16px rgba(18,35,29,.08)!important}
+body[data-step="review"] .reviewOrderCard{display:grid!important;min-width:0!important;min-height:174px!important;height:auto!important;padding:0!important;flex:0 0 auto;grid-template-columns:118px minmax(0,1fr)!important;gap:0!important;overflow:hidden!important;border:2px solid #d8e3dc!important;border-radius:20px!important;background:#fff!important;box-shadow:0 6px 16px rgba(18,35,29,.08)!important}
 body[data-step="review"] .reviewOrderIdentity{display:flex;min-width:0;padding:18px 10px;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(145deg,#07513c,#003d2d);color:#fff;text-align:center}
 body[data-step="review"] .reviewOrderIdentity strong{display:flex;min-block-size:max(54px,calc(1.25em + 6px));align-items:center;justify-content:center;color:#fff!important;font-size:48px;line-height:1.25;font-weight:1000;white-space:nowrap}
 body[data-step="review"] .reviewOrderIdentity span{margin-top:7px;color:#fff!important;font-size:15px;line-height:1.2;font-weight:900;overflow-wrap:anywhere}
+/* Windows reports 20px scrollHeight: give the 15px label a 24px line box.
+ * Reuse six pixels of the preceding gap to preserve the centered number/card. */
+@media(min-width:851px) and (max-width:1200px) and (orientation:landscape){
+ html body[data-step="review"] .reviewOrderIdentity>span{line-height:1.6;margin-top:1px}
+}
 body[data-step="review"] .reviewOrderBody{display:flex;min-width:0;padding:13px 16px;flex-direction:column}
 body[data-step="review"] .reviewOrderHead{display:flex;min-width:0;padding:0 0 9px;gap:10px;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e6e2}
 body[data-step="review"] .reviewOrderBadges{display:flex;min-width:0;gap:7px;flex-wrap:wrap}
@@ -105,17 +110,21 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
  * configured pizza/set, while the final card owns individually priced items. */
 .reviewOrderTitle{margin:0 0 6px;color:#073f31;font-size:20px;line-height:1.25}
 .reviewOrderFooter{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;border-top:1px solid #dfe7e2;padding-top:8px}
-.reviewQuantityControl{display:inline-grid;grid-template-columns:44px minmax(42px,auto) 44px;align-items:center;overflow:hidden;border:1px solid #aac1b7;border-radius:12px;background:#fff}
+.reviewQuantityControl{display:inline-grid;min-width:120px;flex:0 0 auto;grid-template-columns:44px 30px 44px;align-items:center;overflow:hidden;border:1px solid #aac1b7;border-radius:12px;background:#fff}
 .reviewQuantityControl button{width:44px;height:44px;min-width:44px;min-height:44px;border:0;background:#edf5f1;color:#064c39;font-size:25px;font-weight:900;line-height:1}
 .reviewQuantityControl output{min-width:42px;padding:0 7px;color:#10251f;font-size:19px;font-weight:900;text-align:center}
-.reviewExtrasCard{margin:12px 0;padding:14px;border:2px solid #0b5b43;border-radius:18px;background:#fff}
+.reviewExtrasCard{margin:12px 0;padding:14px;flex:0 0 auto;border:2px solid #0b5b43;border-radius:18px;background:#fff}
 .reviewExtrasCard>h2{margin:0 0 10px;color:#064c39;font-size:22px}
 .reviewExtraRow{display:grid;min-width:0;grid-template-columns:minmax(0,1fr) auto minmax(88px,auto);align-items:center;gap:12px;padding:9px 0;border-top:1px solid #e0e8e3}
 .reviewExtraRow:first-of-type{border-top:0}
-.reviewExtraName{min-width:0;overflow-wrap:anywhere;font-weight:800}
-.reviewExtraRow>strong{text-align:right;white-space:nowrap}
+.reviewExtraName{min-width:0;display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere;color:#10251f;font-weight:800;line-height:1.25}
+.reviewExtraName b{white-space:nowrap}
+.reviewExtraRow>strong{color:#10251f;text-align:right;white-space:nowrap}
+.reviewExtrasTotal{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px;padding:13px 0 2px;border-top:2px solid #0b5b43;color:#064c39;font-size:20px;font-weight:1000}
+.reviewExtrasTotal strong{color:#d71920;font-size:24px;white-space:nowrap}
 .includedSauceModal,.quantityDialogModal{width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto}
 .includedSauceModal .modalBtns button{font-size:28px!important;line-height:1!important;font-weight:1000!important}
+.includedSauceTitleHighlight{display:inline;padding:.08em .28em;border-radius:.3em;background:#ffd51f;color:#073f31;font:inherit;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .includedSauceModal>p{line-height:1.5}
 .includedSauceModal ul{margin:14px 0;padding:0;list-style:none;border:1px solid #d6e1db;border-radius:14px;background:#f7fbf9}
 .includedSauceModal li{display:flex;justify-content:space-between;gap:16px;padding:11px 14px;border-top:1px solid #dfe8e3}
@@ -126,9 +135,103 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
 @media(max-width:560px){
  .reviewOrderFooter{align-items:flex-end;flex-direction:column}
  .reviewQuantityControl{align-self:stretch;grid-template-columns:44px minmax(42px,1fr) 44px}
- .reviewExtraRow{grid-template-columns:minmax(0,1fr) auto}
- .reviewExtraRow>.reviewQuantityControl{grid-column:1/-1;grid-row:2}
+ body[data-step="review"] .reviewListFrame{grid-template-columns:minmax(0,1fr) 44px;gap:4px}
+ body[data-step="review"] .reviewScrollControls button{overflow:hidden;padding:0;color:transparent;font-size:0}
+ body[data-step="review"] .reviewScrollUp::after{content:'▲';color:#fff;font-size:18px}
+ body[data-step="review"] .reviewScrollDown::after{content:'▼';color:#fff;font-size:18px}
+ body[data-step="review"] .reviewScrollControls button:disabled::after{color:#7b827d}
+ body[data-step="review"] .reviewMenuName{display:block!important;height:auto!important;max-height:none!important;overflow:visible!important;-webkit-line-clamp:unset!important}
+ body[data-step="review"] .reviewMenuName small{display:block!important;width:auto!important;max-width:100%;height:auto!important;max-height:none!important;white-space:normal;overflow:visible!important;overflow-wrap:anywhere}
+ .reviewExtraRow{grid-template-columns:minmax(67px,1fr) 120px minmax(54px,auto);gap:4px}
+ .reviewExtraName{font-size:clamp(9px,2.55vw,12px)}
+ .reviewExtraRow>.reviewQuantityControl{grid-column:auto;grid-row:auto;width:120px;min-width:120px;grid-template-columns:44px 30px 44px}
+ .reviewExtraRow>.reviewQuantityControl output{min-width:30px;padding:0 3px}
+ .reviewExtraRow>strong{font-size:11px}
+ .reviewExtrasTotal{font-size:16px}
+ .reviewExtrasTotal strong{font-size:19px}
  .includedSauceModal,.quantityDialogModal{max-height:calc(100dvh - 20px);padding:18px!important}
+}
+
+/* Volume belongs to the branded card artwork, while the white control panel
+ * contains only minus / quantity and price / plus. */
+.v3DrinkRow{position:relative;overflow:visible!important;grid-template-columns:auto minmax(64px,1fr) auto!important;grid-template-rows:minmax(36px,auto) minmax(15px,auto);align-content:center;column-gap:6px!important;row-gap:0!important}
+.v3DrinkRow>.v3DrinkVolume{position:absolute;right:calc(100% + 10px);top:0;width:clamp(64px,8.4vw,92px);height:100%;padding:0 3px;color:#fff!important;pointer-events:none}
+.v3DrinkRow>.v3DrinkMinus{grid-column:1;grid-row:1/3}
+.v3DrinkRow>.v3DrinkQuantity{grid-column:2;grid-row:1;align-self:end;min-height:36px;margin:0!important;padding:0 4px!important;line-height:1!important}
+.v3DrinkRow>.v3DrinkPlus{grid-column:3;grid-row:1/3}
+.v3DrinkRow>.v3DrinkPrice{grid-column:2;grid-row:2;align-self:start;margin:0;padding:1px 2px 0;color:#111;font-size:clamp(11px,1.55vw,14px);font-weight:1000;line-height:1.15;text-align:center;white-space:nowrap}
+.v3DrinkVolume>strong{color:#fff!important}
+.v3DrinkRow>.v3DrinkVolume>strong{min-height:0!important;font-size:clamp(16px,2.45vw,24px)!important;line-height:1.1!important}
+.v3DrinkRow>.v3DrinkQuantity{display:flex;min-width:0;align-items:center;justify-content:center;flex-direction:row;gap:5px;overflow:visible;white-space:nowrap}
+.v3DrinkRow>.v3DrinkQuantity>span{display:none}
+.v3DrinkRow>.v3DrinkQuantity>strong{display:flex;height:36px!important;min-height:36px!important;padding:0!important;align-items:center;justify-content:center;color:#111!important;font-size:clamp(18px,2.35vw,23px)!important;line-height:1!important}
+
+/* Phone glyphs need a real line box; keep the type size and centered label. */
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{line-height:24px!important}
+}
+/* Keep the name/volume edge and both 72px touch controls. Reclaim the
+ * right inset and column gaps rather than covering the product name. */
+@media (max-width:389px){
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkControls{width:calc(59% + 12px);right:0}
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkRow{column-gap:0!important}
+}
+
+/* Reserve a real status row inside the unchanged phone summary height.
+ * The badge occupies this row, not the selection action above the footer. */
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="drink"] .cartbar{padding-top:6px!important;padding-bottom:calc(26px + var(--safe-bottom))!important}
+ html[data-layout="phone"] body[data-step="drink"] .networkStatus{position:fixed!important;top:auto!important;left:8px!important;right:8px!important;bottom:calc(2px + var(--safe-bottom))!important;width:auto;max-width:none;box-sizing:border-box;min-height:20px;padding:1px 6px;border:0;font-size:12px;line-height:18px;white-space:nowrap;text-align:center;box-shadow:none}
+ /* A flow CTA follows the last card. Replace its fixed-position spacer
+  * with the unchanged footer height plus a 10px bottom safety gap. */
+ html[data-layout="phone"] body[data-step="drink"] .selectionFooter{position:static!important;transform:none!important;width:100%;padding:0;margin:0}
+ html[data-layout="phone"] body[data-step="drink"] .selectionFooterSpacer{display:none}
+ html[data-layout="phone"] body[data-step="drink"] .stage{padding-bottom:calc(var(--order-summary-height) + var(--safe-bottom) + 10px)!important}
+}
+
+@media (min-width:701px) and (max-width:900px) and (orientation:portrait){
+ /* Windows 500mL: 74.94px text + 6px padding + at least 4px font safety.
+  * Grow left into the artwork, without taking width from the controls. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume{min-width:85px}
+ /* 810px Windows glyphs need 24px vertically. Keep four pixels of safety
+  * without changing font size, card geometry or the quantity/button tracks. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{line-height:1.4!important;min-block-size:28px!important}
+ /* Use the existing second row instead of increasing its intrinsic minimum,
+  * which would redistribute the auto tracks and move the quantity upward. */
+ html[data-layout="tablet"] body[data-step="drink"] .v3DrinkRow>.v3DrinkPrice{align-self:stretch;display:flex;align-items:center;justify-content:center}
+}
+
+@media (min-width:701px) and (orientation:landscape){
+ body[data-step="drink"] .v3DrinkControls{left:34%!important;width:64%!important}
+ /* Match the landscape tracks and controls; device.css fixes both at 84px with !important. */
+ html[data-layout] body[data-step="drink"] .v3DrinkRow{grid-template-columns:48px minmax(64px,1fr) 48px!important}
+ html[data-layout] body[data-step="drink"] .v3DrinkRow>button{width:48px!important;min-width:48px!important}
+ body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume{right:calc(100% + 6px);width:72px}
+ /* Windows volume text reports 22px scrollHeight. Reserve four extra pixels
+  * inside the centered artwork label without changing the control grid. */
+ body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{font-size:18px!important;line-height:26px!important}
+}
+
+@media(max-width:850px){
+ body[data-step="review"] .reviewOrderFooter{gap:6px}
+ body[data-step="review"] .reviewOrderTotal{align-items:flex-end;flex-direction:column;gap:2px;line-height:1.1}
+}
+
+/* Preserve the font and wrapping while giving Windows glyphs a complete line
+ * box. Spend existing heading whitespace, not card or footer space. */
+html[data-layout] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{
+ line-height:1.4!important;
+ min-block-size:1.4em;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+@media (min-width:701px){
+ html[data-layout] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{margin-top:.39em}
+}
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage>.darkBenefitTitle{margin-bottom:0!important}
+ html[data-layout="phone"] body[data-step="promo"] .darkBenefitPage>.darkBenefitSub{margin-bottom:0!important}
 }
 
 /* Compact customer footer for tablet-class touch layouts. The stage ends at
@@ -265,6 +368,16 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
  }
 }
 
+/* Narrow portrait tablets already center this fixed footer with left/right:0.
+ * Clear the desktop half-width translation; the 10px inner inset plus 2px
+ * clearance keeps the unchanged action card 12px above the customer footer. */
+@media (min-width:701px) and (max-width:819px) and (orientation:portrait) {
+ html[data-layout="tablet"] body[data-step="drink"] .selectionFooter{
+  transform:none!important;
+  bottom:calc(82px + var(--safe-bottom))!important;
+ }
+}
+
 /* The four-person set composition must fit the iPad Air portrait viewport at
  * scrollTop 0. Keep all crust copy and make each compact column the hit area. */
 @media (min-width:701px) and (max-width:900px) and (orientation:portrait) {
@@ -368,6 +481,119 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
   min-height:164px!important;
  }
  html[data-layout="tablet"] body[data-step="home"] .heroChoiceGrid{gap:8px!important}
+}
+
+/* Order-type cards no longer render the duplicate eyebrow label. Keep the
+ * approved card geometry while centering the remaining title and description. */
+body[data-step="home"] .heroChoice{
+ justify-content:center!important;
+ gap:10px!important;
+}
+body[data-step="home"] .heroChoice h2,
+body[data-step="home"] .heroChoiceDescription{margin-block:0!important}
+
+/* Full-height portrait tablets show the maximum five-benefit takeout list in
+ * the available stage without changing its established horizontal geometry. */
+@media (min-width:768px) and (max-width:900px) and (orientation:portrait) and (min-height:1001px) {
+ html[data-layout="tablet"] body[data-step="promo"] .stage{
+  padding-top:12px!important;
+  padding-bottom:12px!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitPage{
+  display:flex!important;
+  min-height:100%!important;
+  padding:0 36px!important;
+  flex-direction:column!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitTitle{
+  margin:0!important;
+  font-size:36px!important;
+  line-height:1.1!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitSub{
+  /* The 36px heading gains 10.8px of line box; keep the card grid in place. */
+  margin:0 0 1.2px!important;
+  font-size:18px!important;
+  line-height:1.25!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitGrid{
+  gap:8px!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitCard{
+  min-height:112px!important;
+  height:112px!important;
+  padding:9px 18px!important;
+  grid-template-columns:50px minmax(0,1fr) minmax(142px,200px)!important;
+  column-gap:12px!important;
+  row-gap:2px!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitIcon{
+  width:50px!important;
+  height:50px!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitCard h2{
+  font-size:25px!important;
+  line-height:1.12!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitCard p{
+  font-size:15px!important;
+  line-height:1.2!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitPill{
+  padding:8px 11px!important;
+  font-size:17px!important;
+  line-height:1.15!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitCard small{
+  font-size:13px!important;
+  line-height:1.15!important;
+ }
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitNote{
+  min-height:0!important;
+  margin-top:8px!important;
+  padding:7px 12px!important;
+  font-size:15px!important;
+  line-height:1.2!important;
+ }
+}
+
+@media (min-width:768px) and (max-width:900px) and (orientation:portrait) and (min-height:1080px) {
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitGrid{gap:10px!important}
+ html[data-layout="tablet"] body[data-step="promo"] .darkBenefitCard{
+  min-height:128px!important;
+  height:128px!important;
+ }
+}
+
+/* Phone home and benefit screens reserve the fixed footer exactly once. */
+@media(max-width:560px){
+ html[data-layout="phone"] body[data-step="home"] .app{padding-bottom:0!important}
+ html[data-layout="phone"] body[data-step="promo"]{height:100dvh;overflow:hidden!important}
+ html[data-layout="phone"] body[data-step="promo"] .app{
+  display:flex!important;
+  height:100dvh!important;
+  min-height:0!important;
+  padding-bottom:0!important;
+  flex-direction:column;
+  overflow:hidden!important;
+ }
+ html[data-layout="phone"] body[data-step="promo"] .app>:is(.head,.progress){flex:0 0 auto}
+ html[data-layout="phone"] body[data-step="promo"] .stage{
+  min-height:0!important;
+  margin-bottom:88px!important;
+  padding-bottom:12px!important;
+  flex:1 1 auto!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  -webkit-overflow-scrolling:touch;
+ }
+ html[data-layout="phone"] body[data-step="promo"] .normalOrderGuide{
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+ }
 }
 
 /* Reduced-height portrait tablets keep enough real card area to make the
