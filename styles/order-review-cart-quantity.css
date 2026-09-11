@@ -166,6 +166,29 @@ html[data-layout="kiosk21"] body[data-step="review"] .stage{margin-top:0!importa
 .v3DrinkRow>.v3DrinkQuantity>span{display:none}
 .v3DrinkRow>.v3DrinkQuantity>strong{display:flex;height:36px!important;min-height:36px!important;padding:0!important;align-items:center;justify-content:center;color:#111!important;font-size:clamp(18px,2.35vw,23px)!important;line-height:1!important}
 
+/* Phone glyphs need a real line box; keep the type size and centered label. */
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkRow>.v3DrinkVolume>strong{line-height:24px!important}
+}
+/* Keep the name/volume edge and both 72px touch controls. Reclaim the
+ * right inset and column gaps rather than covering the product name. */
+@media (max-width:389px){
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkControls{width:calc(59% + 12px);right:0}
+ html[data-layout="phone"] body[data-step="drink"] .v3DrinkRow{column-gap:0!important}
+}
+
+/* Reserve a real status row inside the unchanged phone summary height.
+ * The badge occupies this row, not the selection action above the footer. */
+@media (max-width:700px){
+ html[data-layout="phone"] body[data-step="drink"] .cartbar{padding-top:6px!important;padding-bottom:calc(26px + var(--safe-bottom))!important}
+ html[data-layout="phone"] body[data-step="drink"] .networkStatus{position:fixed!important;top:auto!important;left:8px!important;right:8px!important;bottom:calc(2px + var(--safe-bottom))!important;width:auto;max-width:none;box-sizing:border-box;min-height:20px;padding:1px 6px;border:0;font-size:12px;line-height:18px;white-space:nowrap;text-align:center;box-shadow:none}
+ /* A flow CTA follows the last card. Replace its fixed-position spacer
+  * with the unchanged footer height plus a 10px bottom safety gap. */
+ html[data-layout="phone"] body[data-step="drink"] .selectionFooter{position:static!important;transform:none!important;width:100%;padding:0;margin:0}
+ html[data-layout="phone"] body[data-step="drink"] .selectionFooterSpacer{display:none}
+ html[data-layout="phone"] body[data-step="drink"] .stage{padding-bottom:calc(var(--order-summary-height) + var(--safe-bottom) + 10px)!important}
+}
+
 @media (min-width:701px) and (max-width:900px) and (orientation:portrait){
  /* Windows 500mL: 74.94px text + 6px padding + at least 4px font safety.
   * Grow left into the artwork, without taking width from the controls. */
