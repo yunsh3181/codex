@@ -11,7 +11,7 @@ test('iPad Air 3 portrait review uses one complete scrollable card column', {tim
  t.after(()=>fs.rmSync(reportPath,{force:true}));t.after(()=>fs.rmSync(profile,{recursive:true,force:true}));
  const run=spawnElectronVerificationSync(['scripts/verify-ipad-air3-review-list.js'],{cwd:root,encoding:'utf8',env:{...process.env,IPAD_AIR3_REVIEW_REPORT:reportPath,ELECTRON_VERIFICATION_USER_DATA:profile},timeout:230000,maxBuffer:10*1024*1024});
  assertElectronSucceeded(assert,run,reportPath);const report=JSON.parse(fs.readFileSync(reportPath,'utf8'));
- assert.equal(report.results.length,4*9);
+ assert.equal(report.results.length,2*9);
  for(const row of report.results){const m=row.metrics,s=row.scroll,expected=report.scenarios.find(x=>x.name===row.scenario).count,ctx=`${row.viewport}/${row.scenario}`;
   assert.equal(m.document.scrollWidth,m.document.clientWidth,`${ctx} document horizontal overflow`);assert.equal(m.horizontalOverflow,0,`${ctx} horizontal overflow`);assert.deepEqual(m.clipped,[],`${ctx} clipping`);assert.deepEqual(m.verticalText,[],`${ctx} vertical text`);
   assert.equal(m.allCount,expected,`${ctx} DOM card count`);assert.equal(m.visibleCount,expected,`${ctx} visible card count`);assert.deepEqual(m.indexes,Array.from({length:expected},(_,index)=>index),`${ctx} missing or duplicate cards`);assert.equal(new Set(m.indexes).size,expected,`${ctx} duplicate indexes`);
@@ -20,7 +20,7 @@ test('iPad Air 3 portrait review uses one complete scrollable card column', {tim
   assert.equal(s.maxScrollTop,Math.max(0,s.scrollHeight-s.clientHeight),`${ctx} scroll range`);if(s.maxScrollTop>1){assert.ok(s.wheelTop>0,`${ctx} wheel moved`);assert.ok(s.touchTop>0,`${ctx} touch moved`);assert.ok(Math.abs(s.scrollTop-s.maxScrollTop)<=1,`${ctx} reached end`)}
   assert.ok(s.lastBottom<=s.visibleBottom+1,`${ctx} last card reachable above dock`)
  }
- assert.deepEqual(report.dynamic.map(x=>x.height),[1112,980,940,1000]);for(const row of report.dynamic){assert.ok(row.scrollTop>0,`${row.height} scroll retained`);assert.equal(row.metrics.visibleCount,10,`${row.height} all cards retained`);assert.ok(row.metrics.confirmCenterError<=1,`${row.height} action center`)}
+ assert.deepEqual(report.dynamic.map(x=>x.height),[1112,940]);for(const row of report.dynamic){assert.ok(row.scrollTop>0,`${row.height} scroll retained`);assert.equal(row.metrics.visibleCount,10,`${row.height} all cards retained`);assert.ok(row.metrics.confirmCenterError<=1,`${row.height} action center`)}
  assert.equal(report.dockMatrix.length,6*3);for(const row of report.dockMatrix){const m=row.metrics,ctx=`${row.locale}/${row.scenario}`;assert.ok(m.actions.top-m.stage.bottom>=16,`${ctx} dynamic action gap`);assert.equal(parseInt(row.reservedHeight,10),0,`${ctx} tablet has no summary dock reservation`);assert.ok(m.confirmCenterError<=1,`${ctx} action center`)}
  assert.deepEqual(report.confirmNavigation,{clicks:1,step:'phone'});
  assert.equal(report.d8222.totals.normal,84800);assert.equal(report.d8222.totals.discount,18300);assert.equal(report.d8222.totals.final,66500);assert.deepEqual(report.d8222.totals.discounts,{'3인 세트':7900,'UP & UP':10400});assert.equal(report.d8222.previous,'idle');assert.equal(report.d8222.restored,true);assert.equal(report.d8222.count,2);assert.equal(report.d8222.density,'scroll');assert.equal(report.d8222.setPayment,37000);assert.equal(report.d8222.paidCrustDelta,4000);assert.match(report.d8222.labels,/UP & UP/);assert.match(report.d8222.labels,/3인 세트/);

@@ -46,6 +46,8 @@ jobs:
       - name: Run test suite
         id: tests
         continue-on-error: true
+        env:
+          CUSTOMER_GEOMETRY_DIAGNOSTICS_DIR: ${{ github.workspace }}/artifacts/windows-layout/customer-geometry
         run: npm test -- --test-concurrency=1
 
       - name: Capture Windows layout diagnostics
@@ -64,7 +66,7 @@ jobs:
           & node_modules/.bin/electron.cmd scripts/verify-order-review-layout.js --screenshots
 
       - name: Upload Windows layout diagnostics
-        if: steps.tests.outcome == 'failure'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: windows-layout-diagnostics

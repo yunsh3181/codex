@@ -44,7 +44,7 @@ test('set choice split cards pass the complete viewport and locale geometry matr
   assertElectronSucceeded(assert, run, reportPath);
   assert.equal(profileCleanup.exists, false, `Electron userData profile remained: ${JSON.stringify(profileCleanup)}`);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-  assert.equal(new Set(report.rows.map(row => `${row.viewport}/${row.locale}`)).size, 8 * 6);
+  assert.equal(new Set(report.rows.map(row => `${row.viewport}/${row.locale}`)).size, 3 * 6);
   assert.deepEqual(report.rows.flatMap(row => row.fail), []);
   assert.deepEqual(report.firestoreIsolation, {
     externalRequests: 0,

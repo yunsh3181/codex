@@ -12,13 +12,10 @@ Portable builds intentionally do not enable automatic updates.
 1. Increment the unique `package.json` version and merge the release commit to `main`.
 2. Create and push the matching tag, such as `v1.1.0`.
 3. The `Windows release` workflow verifies that the tag equals `v${package.version}`.
-4. GitHub Actions builds ia32 and x64 separately and uploads:
+4. GitHub Actions builds the Windows 10 32-bit ia32 target and uploads exactly:
    - `PapaJohns-Kiosk-Setup-<version>-ia32.exe`
    - `PapaJohns-Kiosk-Setup-<version>-ia32.exe.blockmap`
    - `latest-ia32.yml`
-   - `PapaJohns-Kiosk-Setup-<version>-x64.exe`
-   - `PapaJohns-Kiosk-Setup-<version>-x64.exe.blockmap`
-   - `latest-x64.yml`
 
 Do not republish an existing version. The repository is public, so the installed
 application does not contain a GitHub token.
@@ -26,14 +23,26 @@ application does not contain a GitHub token.
 ## Operational behavior
 
 - The installed NSIS application checks after 15 seconds and every 6 hours.
-- Downloads run in the background and failures do not block ordering.
+- Checks and downloads run in the background without a clock or schedule gate;
+  failures leave the current version available for ordering.
 - Press `Ctrl+Alt+Shift+U` to open the administrator-only update panel.
-- The administrator may update while the store is open. Restart installation is
-  blocked only while an order, payment, Firestore save, or printer task is active.
-- The application selects `latest-ia32.yml` or `latest-x64.yml` from its runtime
-  architecture. It never falls back to the other architecture.
-- Closing the panel defers the downloaded update. On a later launch it remains
-  subject to the same administrator approval and operational safety checks.
+- Restart installation is deferred while the customer is outside the home/idle
+  screen or an order, payment, Firestore save, order-number transaction, seat hold,
+  printer task, or unrecovered order error is active.
+- A verified download installs and restarts automatically when the renderer reports
+  a safe home/idle state. A normal application quit also applies the verified update.
+- The application accepts only the ia32 runtime and `latest-ia32.yml` channel.
+
+## Differential download
+
+- `electron-updater` keeps `disableDifferentialDownload=false`, and NSIS builds set
+  `differentialPackage=true`.
+- The Setup EXE, its blockmap, and `latest-ia32.yml` are generated and verified as one
+  immutable release set. SHA-512 validation is performed before installation.
+- The administrator panel reports the differential plan and transferred bytes.
+- If the previous blockmap is unavailable or range download fails,
+  `electron-updater` falls back to the complete Setup installer. A corrupt download
+  is rejected and the running version remains available.
 
 ## End-to-end validation
 
@@ -43,9 +52,10 @@ After two updater-capable releases exist:
 2. Keep its settings and kiosk data, then publish the higher version.
 3. Confirm background download from `latest-ia32.yml`.
 4. Confirm that restart remains blocked during every operational busy state.
-5. With the store open and no busy state, approve restart and verify the
-   displayed application version increased while settings and data remain.
-6. Repeat on x64 using `latest-x64.yml`.
+5. Return to the home/idle screen with no busy state and verify automatic restart,
+   the displayed version increase, and preserved settings and data.
+6. Confirm the differential log reports fewer transferred bytes than the complete
+   Setup EXE, then repeat with the old blockmap removed to verify full fallback.
 
 The current project has no printer adapter or print queue. Its reported printer
 busy state is therefore `false`; add the real queue signal before introducing a
@@ -53,6 +63,9 @@ printer adapter.
 
 ## Signing
 
-No Windows code-signing certificate is configured. The generated installers are
-unsigned and may trigger Microsoft SmartScreen reputation warnings. Configure a
-trusted certificate in GitHub Actions before production rollout.
+Windows Authenticode signature verification could not be tested because the current
+deployment configuration contains neither a code-signing certificate nor
+`publisherName`. SHA-512 integrity verification and rejection of corrupt downloads
+are tested separately. Code signing must be introduced as a separate security task.
+The generated installers remain unsigned and may trigger Microsoft SmartScreen
+reputation warnings; do not describe them as signed before that work is complete.

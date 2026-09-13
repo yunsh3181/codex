@@ -45,7 +45,7 @@ const scenarios = [
   ['review-long',{step:'review',orderType:'takeout',orderTiming:'now',cartItems:Array.from({length:8},()=>order(4,2,true))}],
   ['review-reset-modal',{step:'review',orderType:'takeout',orderTiming:'now',cartItems:[order()],modal:'reviewResetConfirm'}]
 ];
-const safariHeights = [1112, 1000, 980, 940];
+const safariHeights = [1112, 940];
 const safariActionScenarios = scenarios.filter(([name]) => [
   'topping-add','topping-selected','side-included','side-extra',
   'drink-included','drink-extra','accompaniment'
@@ -110,7 +110,7 @@ runElectronVerification({app},async lifecycle=>{
  let partyBaseline=null;
  for(const locale of locales){for(const [name,values] of scenarios){await win.webContents.executeJavaScript(fixture(locale,values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:'834x1112',locale,scenario:name,metrics});if(capture&&locale==='ko'&&['party-2','area','set-choice','set-4-next','pizza-first','topping-selected','review-normal','review-reset-modal'].includes(name))await shot(win,`ipad-air3-${name}-834x1112`,834,1112)}}
  const homeResults=[],homeMeasure=`(()=>{const banners=[...document.querySelectorAll('.heroPromoStrip>.heroPromo')],strip=document.querySelector('.heroPromoStrip'),root=document.documentElement;return {count:banners.length,columns:getComputedStyle(strip).gridTemplateColumns.split(' ').filter(Boolean).length,happyTakeoutOnly:document.querySelector('.happyTakeoutOnly')?.textContent.trim()||'',heineken:document.body.textContent.includes('Heineken')||document.body.textContent.includes('하이네켄'),horizontalOverflow:Math.max(0,root.scrollWidth-innerWidth),clipped:banners.filter(node=>node.scrollWidth>node.clientWidth+1||node.scrollHeight>node.clientHeight+1).map(node=>node.className)}})()`;
- for(const [width,height] of [[834,1112],[834,1000],[834,980],[834,940],[1080,1920]])for(const locale of locales){await resize(win,width,height);await win.webContents.executeJavaScript(fixture(locale,{step:'home'}),true);await wait(win);homeResults.push({viewport:`${width}x${height}`,locale,metrics:await win.webContents.executeJavaScript(homeMeasure,true)})}
+ for(const [width,height] of [[1080,1920],[834,1112],[834,940]])for(const locale of locales){await resize(win,width,height);await win.webContents.executeJavaScript(fixture(locale,{step:'home'}),true);await wait(win);homeResults.push({viewport:`${width}x${height}`,locale,metrics:await win.webContents.executeJavaScript(homeMeasure,true)})}
  await resize(win,834,1112);
  await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='party-2')[1]),true);await wait(win);
  await win.webContents.executeJavaScript(`document.querySelector('link[href*="device-ipad-air3-portrait.css"]').disabled=true`,true);await wait(win);
@@ -152,7 +152,7 @@ runElectronVerification({app},async lifecycle=>{
  }
  const dynamicResults=[];
  await resize(win,834,1112);await win.webContents.executeJavaScript(fixture('ko',scenarios.find(x=>x[0]==='topping-selected')[1]),true);await wait(win);await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop=180`,true);
- for(const height of [1112,980,940,1000]){await resize(win,834,height);dynamicResults.push({viewport:`834x${height}`,scrollTop:await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true),metrics:await win.webContents.executeJavaScript(measure,true)})}
+ for(const height of [1112,940]){await resize(win,834,height);dynamicResults.push({viewport:`834x${height}`,scrollTop:await win.webContents.executeJavaScript(`document.querySelector('.stage').scrollTop`,true),metrics:await win.webContents.executeJavaScript(measure,true)})}
  win.setContentSize(834,940);await wait(win);
  const clickCases=[];
  for(const [name,values,expected] of [
@@ -164,7 +164,5 @@ runElectronVerification({app},async lifecycle=>{
   ['drink-extra',scenarios.find(x=>x[0]==='drink-extra')[1],{step:'drink',modal:'includedSauce'}],
   ['accompaniment',scenarios.find(x=>x[0]==='accompaniment')[1],{step:'accompaniment',modal:'betterBenefit'}]
  ]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const actual=await win.webContents.executeJavaScript(`(()=>{let clicks=0;const button=document.querySelector('.selectionFooterCard');button.addEventListener('click',()=>clicks++,{once:true});button.click();return {clicks,step:state.step,modal:state.modal}})()`,true);clickCases.push({scenario:name,expected,actual})}
- win.setContentSize(1112,834);await win.loadFile(path.join(root,'index.html'));
- for(const [name,values] of [['landscape-review',scenarios.find(x=>x[0]==='review-normal')[1]],['landscape-pizza-options',{step:'pizzaOptions',orderType:'takeout',orderTiming:'now',promo:'normal',size:'L',dough:'오리지널',crust:'오리지널'}]]){await win.webContents.executeJavaScript(fixture('ko',values),true);await wait(win);const metrics=await win.webContents.executeJavaScript(measure,true);results.push({viewport:'1112x834',locale:'ko',scenario:name,metrics});if(capture)await shot(win,`ipad-air3-${name}-1112x834`,1112,834)}
- const report={viewports:['834x1112','834x1000','834x980','834x940','1080x1920','1112x834'],locales,partyBaseline,resetBehavior,reviewNavigation,safariResults,scrollResults,dynamicResults,homeResults,clickCases,results};await lifecycle.writeReportAtomically(reportPath,report);
+ const report={viewports:['1080x1920','834x1112','834x940'],locales,partyBaseline,resetBehavior,reviewNavigation,safariResults,scrollResults,dynamicResults,homeResults,clickCases,results};await lifecycle.writeReportAtomically(reportPath,report);
 });

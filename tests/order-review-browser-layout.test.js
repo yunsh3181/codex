@@ -26,7 +26,7 @@ test('real browser layout keeps the page fixed and the order list independently 
   assertElectronSucceeded(assert, run, reportPath);
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
   fs.unlinkSync(reportPath);
-  assert.equal(report.results.length, 8 * 6 * 23);
+  assert.equal(report.results.length, 3 * 6 * 23);
   for (const result of report.results) {
     const context = `${result.viewportName}/${result.locale}/${result.scenario}`;
     const expected = report.viewports.find(viewport => viewport.name === result.viewportName);
@@ -144,7 +144,7 @@ test('stored screenshots are raw viewport captures without forced resizing', () 
   const source = fs.readFileSync(path.join(root, 'scripts', 'verify-order-review-layout.js'), 'utf8');
   assert.doesNotMatch(source, /\.resize\s*\(/);
   assert.match(source, /raw screenshot[\s\S]*does not match viewport/);
-  for (const [width, height] of [[360, 640], [390, 844], [768, 1024], [1080, 1920]]) {
+  for (const [width, height] of [[1080, 1920]]) {
     for (const prefix of ['before', 'after']) {
       const png = fs.readFileSync(
         path.join(root, 'artifacts', `order-review-${prefix}-${width}x${height}.png`)

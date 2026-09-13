@@ -7,6 +7,13 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const phone=fs.readFileSync(path.join(root,'styles/device-phone.css'),'utf8');
 
+test('home order cards keep titles and descriptions without duplicate eyebrow labels',()=>{
+  const home=html.match(/if\(state\.step==='home'\)return `([\s\S]*?)`;\n if\(state\.step==='type'\)/)?.[1]||'';
+  assert.doesNotMatch(home,/class="eyebrow"/);
+  for(const key of ['home.dineInTitle','home.takeoutTitle','home.dineInFeatureMeal','home.takeoutFeatureFast'])assert.ok(home.includes(key),key);
+  assert.equal((home.match(/class="heroChoice /g)||[]).length,2);
+});
+
 test('home promotion banners share the orange phone banner component',()=>{
   for(const name of ['happyPromo clickable','takeoutPromo clickable'])assert.ok(html.includes(name));
   assert.doesNotMatch(html,/class="heroPromo beerAd"|home\.beerHeineken/);

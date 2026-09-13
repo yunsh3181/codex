@@ -64,6 +64,7 @@
     },
     "nsis": {
       "artifactName": "PapaJohns-Kiosk-Setup-${version}-${arch}.${ext}",
+      "differentialPackage": true,
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "runAfterFinish": false

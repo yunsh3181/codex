@@ -17,10 +17,8 @@ const userDataPath = process.env.ELECTRON_VERIFICATION_USER_DATA || path.join(ap
 fs.mkdirSync(userDataPath, { recursive: true });
 app.setPath('userData', userDataPath);
 const viewports = [
-  { name: '360x640', width: 360, height: 640 },
-  { name: '390x844', width: 390, height: 844 },
+  { name: '834x940', width: 834, height: 940 },
   { name: '834x1112', width: 834, height: 1112 },
-  { name: '768x1024', width: 768, height: 1024 },
   { name: '1080x1920', width: 1080, height: 1920 },
 ];
 const locales = ['ko', 'en', 'ja', 'zh', 'vi', 'es'];

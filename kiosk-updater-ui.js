@@ -12,7 +12,8 @@
     architecture: 32,
     channel: 80,
     blocker: 200,
-    error: 500
+    error: 500,
+    downloadMode: 32
   });
   const MAX_BLOCKERS = 20;
   const STATUS_LABELS = Object.freeze({
@@ -20,11 +21,11 @@
     idle: '업데이트 확인 대기 중',
     checking: '최신 버전을 확인하는 중',
     'up-to-date': '최신 버전을 사용 중입니다.',
-    downloading: '새 버전을 다운로드하는 중',
+    downloading: '차등 업데이트를 다운로드하는 중',
     downloaded: '새 버전이 준비되었습니다.',
-    blocked: '지금은 재시작할 수 없습니다.',
-    installing: '업데이트를 적용하고 재시작합니다.',
-    error: '업데이트 확인 또는 다운로드에 실패했습니다.'
+    deferred: '주문 완료 후 설치할 예정입니다.',
+    installing: '업데이트 설치 및 재실행 중입니다.',
+    error: '업데이트 실패 — 현재 버전을 계속 사용합니다.'
   });
 
   function limitedString(value, maxLength, fallback = '') {
@@ -47,6 +48,11 @@
       architecture: limitedString(source.architecture, TEXT_LIMITS.architecture),
       channel: limitedString(source.channel, TEXT_LIMITS.channel),
       progress: normalizeProgress(source.progress),
+      transferredBytes: Math.max(0, Number(source.transferredBytes) || 0),
+      downloadTotalBytes: Math.max(0, Number(source.downloadTotalBytes) || 0),
+      fullSizeBytes: Math.max(0, Number(source.fullSizeBytes) || 0),
+      plannedDownloadBytes: Math.max(0, Number(source.plannedDownloadBytes) || 0),
+      downloadMode: limitedString(source.downloadMode, TEXT_LIMITS.downloadMode, 'unknown'),
       downloaded: source.downloaded === true,
       installing: source.installing === true,
       blockers: Array.isArray(source.blockers)
@@ -61,6 +67,19 @@
 
   function statusLabel(status) {
     return STATUS_LABELS[status] || '-';
+  }
+
+  function formatBytes(value) {
+    const bytes = Math.max(0, Number(value) || 0);
+    if (!bytes) return '-';
+    if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+
+  function downloadModeLabel(value) {
+    if (value === 'differential') return '차등 다운로드';
+    if (value === 'full-fallback') return '전체 다운로드로 안전 전환';
+    return '자동 판별 중';
   }
 
   function appendTextElement(document, parent, tagName, text, attributes = {}) {
@@ -105,7 +124,9 @@
       ['현재 버전', value.currentVersion || '-'],
       ['최신 버전', value.latestVersion || '확인 전'],
       ['아키텍처', `${value.architecture || '-'} · ${value.channel || '-'}`],
-      ['상태', statusLabel(value.status)]
+      ['상태', statusLabel(value.status)],
+      ['다운로드 방식', downloadModeLabel(value.downloadMode)],
+      ['전송량', `${formatBytes(value.transferredBytes || value.plannedDownloadBytes)} / ${formatBytes(value.fullSizeBytes || value.downloadTotalBytes)}`]
     ];
     for (const [term, description] of rows) {
       const row = document.createElement('div');
@@ -147,7 +168,7 @@
     });
     check.dataset.updaterAction = 'check';
     check.disabled = value.status === 'checking' || value.status === 'downloading';
-    const install = appendTextElement(document, actions, 'button', '재시작 후 설치', {
+    const install = appendTextElement(document, actions, 'button', '지금 업데이트', {
       type: 'button',
       'data-updater-action': 'install'
     });
@@ -155,7 +176,7 @@
     install.dataset.updaterAction = 'install';
     install.disabled = !value.downloaded || value.installing;
     panel.appendChild(actions);
-    const guide = appendTextElement(document, panel, 'p', '영업 중에도 업데이트할 수 있습니다. 진행 중인 주문·결제·저장·프린터 작업이 없을 때 재시작 후 설치됩니다.');
+    const guide = appendTextElement(document, panel, 'p', '다운로드는 백그라운드에서 진행됩니다. 주문·결제·저장·좌석 작업 중에는 설치를 보류하고, 안전한 홈 화면에서 자동 재실행합니다. 창을 닫으면 검증된 파일은 다음 정상 종료 시 적용됩니다.');
     guide.className = 'kioskUpdaterGuide';
 
     backdrop.appendChild(panel);
@@ -177,12 +198,14 @@
         'accompaniment', 'cartReview', 'review', 'phone', 'payment'
       ]);
       return {
-        businessOpen: businessHoursStatus === 'open',
+        safeScreen: ['idle', 'home'].includes(state.step),
         orderInProgress: orderingSteps.has(state.step) || state.cartItems.length > 0 || state.selectedTables.length > 0,
         paymentInProgress: state.step === 'payment' || mobileOrderSubmitting,
         firestoreSaving: mobileOrderSubmitting,
+        orderTransactionInProgress: seatOrderCommitStarted,
+        seatHoldInProgress: state.selectedTables.length > 0 || seatOrderCommitStarted,
         printerBusy: false,
-        testModeEnabled: isTestModeEnabled()
+        unrecoveredError: Boolean(document.getElementById('submitError')?.textContent?.trim())
       };
     }
 
@@ -240,6 +263,8 @@
     normalizeUpdaterState,
     renderPanelContent,
     statusLabel,
+    formatBytes,
+    downloadModeLabel,
     initialize
   };
 });
