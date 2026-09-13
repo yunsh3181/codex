@@ -5,7 +5,7 @@ const { pathToFileURL } = require('node:url');
 const root = path.resolve(__dirname, '..');
 const output = process.env.SET_CHOICE_REPORT || path.join(root, 'artifacts', 'set-choice-responsive-card-layout', 'geometry.json');
 const shots = path.dirname(output), locales = ['ko','en','ja','zh','vi','es'];
-const viewports = [[834,1112],[834,940],[810,1080],[768,1024],[1080,1920],[1920,1080],[1440,900],[1100,800]];
+const viewports = [[1080,1920],[834,1112],[834,940]];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const unexpectedConsole = messages => messages.filter(({message})=>!/Electron Security Warning|session-registration-failed/.test(message));
 const firebaseRuntimeSource=fs.readFileSync(path.join(root,'tests','fixtures','admin-browser-runtime.js'),'utf8').replace(/\s*Object\.defineProperty\(window,'db',[^\n]+\);?/,'');

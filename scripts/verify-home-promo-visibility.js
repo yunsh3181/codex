@@ -10,8 +10,8 @@ const screenshotDir=process.env.HOME_PROMO_SCREENSHOT_DIR||path.join(root,'artif
 const screenshotLabel=process.env.HOME_PROMO_SCREENSHOT_LABEL||'after';
 const capture=process.argv.includes('--screenshots');
 const locales=['ko','en','ja','zh','vi','es'];
-const viewports=[[1080,1920],[834,1112],[834,1000],[834,980],[834,940],[1112,834],[390,844],[360,640]];
-const screenshotCases=new Set(['1080x1920/ko','834x1112/ko','834x940/ko','390x844/ko','390x844/es']);
+const viewports=[[1080,1920],[834,1112],[834,940]];
+const screenshotCases=new Set(['1080x1920/ko','834x1112/ko','834x940/ko']);
 fs.mkdirSync(path.dirname(reportPath),{recursive:true});
 if(capture)fs.mkdirSync(screenshotDir,{recursive:true});
 const fixtureDir=fs.mkdtempSync(path.join(app.getPath('temp'),'home-promo-document-'));

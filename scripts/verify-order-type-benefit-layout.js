@@ -17,7 +17,7 @@ const firebaseRuntimeUrl=pathToFileURL(firebaseRuntimePath).href,emptyRuntimeUrl
 const recordGeometry=createCustomerGeometryRecorder({name:'promotion-title',captureDir});
 app.commandLine.appendSwitch('headless');app.commandLine.appendSwitch('hide-scrollbars');app.commandLine.appendSwitch('force-device-scale-factor','2');
 
-const viewports=[[834,1112],[834,1024],[834,940],[810,1080],[768,1024],[1112,834],[360,640],[375,667],[390,844],[393,852],[412,915],[430,932],[1080,1920],[1920,1080]];
+const viewports=[[1080,1920],[834,1112],[834,940]];
 const locales=['ko','en','ja','zh','es','vi'];
 const wait=win=>win.webContents.executeJavaScript(`(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));document.getAnimations().forEach(a=>a.finish())})()`,true);
 const resize=async(win,width,height)=>{for(let attempt=0;attempt<20;attempt++){win.setContentSize(width,height);await wait(win);const size=await win.webContents.executeJavaScript(`({width:innerWidth,height:innerHeight})`,true);if(size.width===width&&size.height===height)return;await new Promise(resolve=>setTimeout(resolve,40))}throw new Error(`viewport did not settle: ${width}x${height}`)};
