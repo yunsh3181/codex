@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#005b2b" />
   <title>판교2테크노밸리점 주문 관리자 v48.0.0</title>
-  <link rel="stylesheet" href="../admin.css?v=49.0.2" />
+  <link rel="stylesheet" href="../admin.css?v=49.0.3" />
   <link rel="stylesheet" href="../admin-mobile.css?v=44.0.0" />
   <style>.central-status-action.takeout-complete{background:#08703c;color:#fff}.central-status-action.takeout-pickup{background:#1976d2;color:#fff}.takeout-complete-modal-card{max-width:520px}.takeout-complete-modal-card p{font-size:18px;line-height:1.6}</style>
 </head>
@@ -30,6 +30,7 @@
       <button id="testModeButton" class="test-mode-button" type="button" hidden>테스트 모드 꺼짐</button>
       <span id="testModeConnection" class="test-mode-connection" hidden>키오스크 연결 대기</span>
       <button id="retryTestMode" class="test-mode-retry" type="button" hidden>다시 시도</button>
+      <button id="inquiryNotificationButton" class="inquiry-notification-button" type="button" aria-label="파파보틀 문의 알림">🔔<span id="inquiryNotificationBadge" class="inquiry-notification-badge" hidden>0</span></button>
       <button id="soundSettingsButton" class="sound-button">⚙️ 알림 설정</button><button id="soundButton" class="sound-button">🔔 알림음 켜기</button>
       <span id="connectionBadge" class="connection">연결 중</span>
     </div>
@@ -114,6 +115,7 @@
         <label class="setting-row toggle-row"><span>음성 안내</span><input id="voiceEnabled" type="checkbox" checked></label>
         <label class="setting-row voice-setting"><span>안내 음성</span><select id="adminVoiceSelect" aria-describedby="adminVoiceStatus"></select><small id="adminVoiceStatus">한국어 음성을 불러오는 중입니다…</small><small>현재 음성: <b id="adminVoiceCurrent">브라우저 기본 음성</b></small></label>
         <button id="adminVoicePreview" class="secondary-button voice-preview-button" type="button">▶ 안내 음성 미리 듣기</button>
+        <button id="enableBrowserNotifications" class="secondary-button" type="button">파파보틀 브라우저 알림 허용</button>
         <label class="setting-row"><span>사용자 MP3</span><input id="customSoundFile" type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg"><small id="customSoundName">선택된 파일 없음</small></label>
         <div class="settings-actions"><button id="previewSound" class="secondary-button">▶ 미리 듣기</button><button id="saveSoundSettings" class="primary-button">설정 저장</button></div>
         <p class="settings-note">브라우저 보안상 관리자 화면을 연 뒤 한 번은 ‘알림음 켜기’를 눌러야 소리가 재생됩니다.</p>
@@ -169,6 +171,23 @@
     <span id="toastText"></span>
   </div>
 
+  <div id="inquiryNotificationModal" class="inquiry-notification-modal" hidden>
+    <section class="inquiry-notification-panel" role="dialog" aria-modal="true" aria-labelledby="inquiryNotificationTitle">
+      <header>
+        <div><strong id="inquiryNotificationTitle">PAPA BOTTLE 문의</strong><span>읽기·확인 전용</span></div>
+        <button id="closeInquiryNotifications" type="button" aria-label="문의 알림 닫기">✕</button>
+      </header>
+      <p id="inquiryNotificationStatus" class="inquiry-notification-status" role="status" hidden></p>
+      <div id="inquiryNotificationList" class="inquiry-notification-list"></div>
+    </section>
+  </div>
+
+  <div id="inquiryToast" class="inquiry-toast" hidden>
+    <strong>PAPA BOTTLE 신규 문의</strong>
+    <span id="inquiryToastText"></span>
+    <button id="openInquiryNotificationsFromToast" type="button">확인하기</button>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -181,6 +200,7 @@
   <script src="../test-mode-remote-channel.js?v=1"></script>
   <script src="../admin-operations.js?v=49.1.0"></script>
 <script src="../admin.js?v=49.1.3"></script>
+  <script src="../admin-inquiries.js?v=1.2.0"></script>
   <script src="../admin-dashboard.js?v=44.0.0"></script>
 </body>
 </html>
