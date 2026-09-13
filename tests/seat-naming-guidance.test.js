@@ -67,6 +67,6 @@ test('changed browser assets use fresh cache keys and unrelated admin assets rem
  assert.equal((admin.match(/order-catalog\.js\?v=44\.0\.1/g)||[]).length,1);
  assert.equal((admin.match(/admin\.js\?v=49\.1\.3/g)||[]).length,1);
  assert.equal((admin.match(/admin-operations\.js\?v=49\.1\.0/g)||[]).length,1);
- assert.equal((admin.match(/admin\.css\?v=49\.0\.2/g)||[]).length,1);
+ assert.equal((admin.match(/admin\.css\?v=49\.0\.3/g)||[]).length,1);
  assert.equal((seat.match(/seats\.js\?v=48\.0\.2/g)||[]).length,1)
 });
